@@ -1,0 +1,87 @@
+//
+$fontSize: 16px;
+//
+$headerHeight: 25px;
+$footerHeight: 30px;
+$headerPad: 0px;
+$footerPad: 7.5px;
+//
+$navWidth: 128px;
+$navFoldWidth: $fontSize*2.5;
+//
+$narrowWidth: 1440px; //这个是针对文件列表这种特大号的列表重排版的
+$tabletWidth: 1024px;
+$mobileWidth: 600px;
+//
+$indexFrame: 10;
+$indexContent: 100;
+$indexModal: 1000;
+//
+
+$layoutIndex: 500;
+$alphaIndex: 1000;
+$hinterIndex: 250;
+
+
+@function mkColor($color, $level) {
+      @return lighten($color, $level*5%);
+}
+
+@mixin fontSizeWithLineHeight($fontSize: $fontSize, $rate: 1) {
+      font-size: $fontSize;
+      line-height: $fontSize;
+}
+
+$colors: (
+      // --------- basic --------- ---------
+      bk:rgba(30, 30, 30, 1),
+      bk_active:rgba(60, 60, 60, 1),
+      selection:rgba(50, 50, 50, 1),
+      selection_bk:rgba(200, 200, 200, 1),
+      //bk:rgba(200, 200, 200, 1),
+      font:rgba(200, 200, 200, 1),
+      font_active:rgba(220, 220, 220, 1),
+      font_sub:rgba(150, 150, 150, 1),
+      font_sub_active:rgba(230, 230, 230, 1),
+      //
+      input_font:rgba(200, 200, 200, 1),
+      input_bk:rgba(30, 30, 30, 1),
+      input_font_active:rgba(200, 200, 200, 1),
+      input_bk_active:rgba(80, 80, 80, 1),
+      //
+      input_button_font:rgba(200, 200, 200, 1),
+      input_button_bk:rgba(20, 20, 20, 1),
+      input_button_font_active:rgba(200, 200, 200, 1),
+      input_button_bk_active:rgb(100, 100, 100),
+      //
+      positive:hsla(200, 100%, 20%, 90%),
+      //half_negative:hsla(100, 90, 20, 90%),
+      negative:hsla(0, 85%, 20%, 90%),
+      checkbox_alpha:rgba(0, 0, 0, 20%),
+      checkbox_alpha_active:rgba(255, 255, 255, 20%),
+);
+
+/*
+ *  @see https://www.cnblogs.com/amylis_chen/p/11995324.html
+ *  @see https://www.cnblogs.com/ertingbo/p/7151566.html
+ */
+@mixin smallScroll {
+      &::-webkit-scrollbar-track {
+            background-color: rgba(0, 0, 0, 0.5);
+      }
+
+      &::-webkit-scrollbar {
+            width: $fontSize*0.25;
+            height: $fontSize*0.25;
+            background-color: rgba(0, 0, 0, 0);
+      }
+
+      &::-webkit-scrollbar-thumb {
+            background-color: rgba(127, 127, 127, 0.5);
+            border-radius: $fontSize*0.25;
+      }
+
+      &::-webkit-scrollbar-corner {
+            background-color: rgba(0, 0, 0, 0.0);
+      }
+}

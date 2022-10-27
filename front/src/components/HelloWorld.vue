@@ -1,7 +1,11 @@
 <script setup lang="ts">
+import { onMounted } from "vue";
 defineProps<{
-  msg: string
-}>()
+  msg: string;
+}>();
+onMounted(() => {
+  console.info();
+});
 </script>
 
 <template>

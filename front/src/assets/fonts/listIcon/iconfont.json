@@ -1,0 +1,135 @@
+{
+  "id": "1893485",
+  "name": "ListIcon",
+  "font_family": "listIcon",
+  "css_prefix_text": "listIcon_",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "28449214",
+      "name": "文件夹",
+      "font_class": "file_directory",
+      "unicode": "e6dd",
+      "unicode_decimal": 59101
+    },
+    {
+      "icon_id": "15640128",
+      "name": "文件",
+      "font_class": "file_text",
+      "unicode": "e6dc",
+      "unicode_decimal": 59100
+    },
+    {
+      "icon_id": "9976090",
+      "name": "数据文件",
+      "font_class": "file_binary",
+      "unicode": "e691",
+      "unicode_decimal": 59025
+    },
+    {
+      "icon_id": "9976091",
+      "name": "音频文件",
+      "font_class": "file_audio",
+      "unicode": "e692",
+      "unicode_decimal": 59026
+    },
+    {
+      "icon_id": "9976092",
+      "name": "视频文件",
+      "font_class": "file_video",
+      "unicode": "e693",
+      "unicode_decimal": 59027
+    },
+    {
+      "icon_id": "9976582",
+      "name": "压缩类文件",
+      "font_class": "file_archive",
+      "unicode": "e694",
+      "unicode_decimal": 59028
+    },
+    {
+      "icon_id": "9976585",
+      "name": "图片文件",
+      "font_class": "file_image",
+      "unicode": "e695",
+      "unicode_decimal": 59029
+    },
+    {
+      "icon_id": "9976590",
+      "name": "pdf文件",
+      "font_class": "file_pdf",
+      "unicode": "e696",
+      "unicode_decimal": 59030
+    },
+    {
+      "icon_id": "9976591",
+      "name": "ppt文件",
+      "font_class": "ppt",
+      "unicode": "e697",
+      "unicode_decimal": 59031
+    },
+    {
+      "icon_id": "9976592",
+      "name": "excel文件",
+      "font_class": "21excel",
+      "unicode": "e698",
+      "unicode_decimal": 59032
+    },
+    {
+      "icon_id": "9976593",
+      "name": "word文件",
+      "font_class": "21word",
+      "unicode": "e699",
+      "unicode_decimal": 59033
+    },
+    {
+      "icon_id": "9976600",
+      "name": "文件配置",
+      "font_class": "21setting",
+      "unicode": "e69b",
+      "unicode_decimal": 59035
+    },
+    {
+      "icon_id": "9976618",
+      "name": "文件删除",
+      "font_class": "21delete",
+      "unicode": "e6a1",
+      "unicode_decimal": 59041
+    },
+    {
+      "icon_id": "9976620",
+      "name": "文件编辑",
+      "font_class": "21edit",
+      "unicode": "e6a2",
+      "unicode_decimal": 59042
+    },
+    {
+      "icon_id": "9976622",
+      "name": "文件新增",
+      "font_class": "21new",
+      "unicode": "e6a3",
+      "unicode_decimal": 59043
+    },
+    {
+      "icon_id": "9976625",
+      "name": "文件夹",
+      "font_class": "file_folder",
+      "unicode": "e6a4",
+      "unicode_decimal": 59044
+    },
+    {
+      "icon_id": "9976628",
+      "name": "文件组",
+      "font_class": "21mutil",
+      "unicode": "e6a5",
+      "unicode_decimal": 59045
+    },
+    {
+      "icon_id": "28530657",
+      "name": "文件",
+      "font_class": "file_subtitle",
+      "unicode": "e6de",
+      "unicode_decimal": 59102
+    }
+  ]
+}

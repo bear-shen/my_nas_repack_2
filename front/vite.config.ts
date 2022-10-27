@@ -19,12 +19,11 @@ export default defineConfig({
         default:'/index.html'
       },
     },
-    assetsDir:'./'
   },
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: '@import "@/assets/variables.scss";'
+        additionalData: '@import "@/assets/basic.scss";'
       }
     }
   },

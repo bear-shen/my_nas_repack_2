@@ -1,0 +1,87 @@
+@font-face {
+  font-family: "listIcon"; /* Project id 1893485 */
+  src: url('iconfont.woff2?t=1651564756141') format('woff2'),
+       url('iconfont.woff?t=1651564756141') format('woff'),
+       url('iconfont.ttf?t=1651564756141') format('truetype');
+}
+
+.listIcon {
+  font-family: "listIcon" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.listIcon_file_directory:before {
+  content: "\e6dd";
+}
+
+.listIcon_file_text:before {
+  content: "\e6dc";
+}
+
+.listIcon_file_binary:before {
+  content: "\e691";
+}
+
+.listIcon_file_audio:before {
+  content: "\e692";
+}
+
+.listIcon_file_video:before {
+  content: "\e693";
+}
+
+.listIcon_file_archive:before {
+  content: "\e694";
+}
+
+.listIcon_file_image:before {
+  content: "\e695";
+}
+
+.listIcon_file_pdf:before {
+  content: "\e696";
+}
+
+.listIcon_ppt:before {
+  content: "\e697";
+}
+
+.listIcon_21excel:before {
+  content: "\e698";
+}
+
+.listIcon_21word:before {
+  content: "\e699";
+}
+
+.listIcon_21setting:before {
+  content: "\e69b";
+}
+
+.listIcon_21delete:before {
+  content: "\e6a1";
+}
+
+.listIcon_21edit:before {
+  content: "\e6a2";
+}
+
+.listIcon_21new:before {
+  content: "\e6a3";
+}
+
+.listIcon_file_folder:before {
+  content: "\e6a4";
+}
+
+.listIcon_21mutil:before {
+  content: "\e6a5";
+}
+
+.listIcon_file_subtitle:before {
+  content: "\e6de";
+}
+
