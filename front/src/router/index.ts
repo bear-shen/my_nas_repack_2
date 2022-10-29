@@ -7,7 +7,7 @@ const routes = [
     name: 'Directory',
     component: HomeView,
     meta: { icon: 'sysIcon_folderopen', },
-    children: [
+    /* children: [
       {
         path: '/favourite',
         name: 'Favourite',
@@ -20,13 +20,19 @@ const routes = [
         component: HomeView,
         meta: { icon: 'sysIcon_delete', },
       },
-    ],
+    ], */
   },
   {
-    path: '/media',
-    name: 'Media',
+    path: '/favourite',
+    name: 'Favourite',
     component: HomeView,
     meta: { icon: 'sysIcon_star-o', },
+  },
+  {
+    path: '/recycle',
+    name: 'Recycle',
+    component: HomeView,
+    meta: { icon: 'sysIcon_delete', },
   },
   {
     path: '/tag',
