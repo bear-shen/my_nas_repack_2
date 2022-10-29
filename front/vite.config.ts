@@ -6,24 +6,24 @@ import { relative } from 'node:path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base:'',
+  base: '',
   plugins: [vue()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
-  build:{
-    rollupOptions:{
-      input:{
-        default:'/index.html'
+  build: {
+    rollupOptions: {
+      input: {
+        default: '/index.html'
       },
     },
   },
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: '@import "@/assets/basic.scss";'
+        additionalData: '@import "@/assets/variables.scss";'
       }
     }
   },

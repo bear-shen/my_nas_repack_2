@@ -4,25 +4,60 @@ import HomeView from '../views/HomeView.vue'
 const routes = [
   {
     path: '/',
-    name: 'home',
+    name: 'Directory',
     component: HomeView,
-    meta: {
-      data: 1,
-    },
+    meta: { icon: 'sysIcon_folderopen', },
+    children: [
+      {
+        path: '/favourite',
+        name: 'Favourite',
+        component: HomeView,
+        meta: { icon: 'sysIcon_star-o', },
+      },
+      {
+        path: '/recycle',
+        name: 'Recycle',
+        component: HomeView,
+        meta: { icon: 'sysIcon_delete', },
+      },
+    ],
   },
   {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (About.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import('../views/AboutView.vue')
-  }
+    path: '/media',
+    name: 'Media',
+    component: HomeView,
+    meta: { icon: 'sysIcon_star-o', },
+  },
+  {
+    path: '/tag',
+    name: 'Tag',
+    component: HomeView,
+    meta: { icon: 'sysIcon_tagso', },
+  },
+  {
+    path: '/group',
+    name: 'User',
+    component: HomeView,
+    meta: { icon: 'sysIcon_team', },
+  },
+  {
+    path: '/local',
+    name: 'Local',
+    component: HomeView,
+    meta: { icon: 'sysIcon_yingpan1', },
+  },
+  {
+    path: '/setting',
+    name: 'Setting',
+    component: HomeView,
+    meta: { icon: 'sysIcon_setting', },
+  },
 ];
+//
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: routes,
 })
 
-export default router
+export { router, routes };

@@ -6,6 +6,34 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "7461696",
+      "name": "硬盘",
+      "font_class": "yingpan",
+      "unicode": "e63b",
+      "unicode_decimal": 58939
+    },
+    {
+      "icon_id": "15659132",
+      "name": "硬盘",
+      "font_class": "yingpan1",
+      "unicode": "e6b3",
+      "unicode_decimal": 59059
+    },
+    {
+      "icon_id": "20009193",
+      "name": "harddrive硬盘",
+      "font_class": "harddriveyingpan",
+      "unicode": "e6db",
+      "unicode_decimal": 59099
+    },
+    {
+      "icon_id": "21489520",
+      "name": "line-hard drive（硬盘驱动器）-01",
+      "font_class": "line-harddriveyingpanqudongqi-01",
+      "unicode": "e71c",
+      "unicode_decimal": 59164
+    },
+    {
       "icon_id": "18963837",
       "name": "顺序播放",
       "font_class": "player_queue",

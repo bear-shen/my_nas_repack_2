@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from "vue-router";
 import HelloWorld from "./components/HelloWorld.vue";
-import FrHeader from "./components/Header.vue";
-import FrFooter from "./components/Footer.vue";
+import FrHeader from "./framework/Header.vue";
+import FrFooter from "./framework/Footer.vue";
+import FrNavi from "./framework/Navi.vue";
 import dev from "../../share/dev";
 dev();
 </script>
@@ -10,7 +11,7 @@ dev();
 <template>
   <FrHeader class="fr_header"></FrHeader>
   <div class="fr_body">
-    <div class="fr_navi"></div>
+    <FrNavi class="fr_navi"></FrNavi>
     <div class="fr_content"></div>
   </div>
   <FrFooter class="fr_footer"></FrFooter>
@@ -37,17 +38,18 @@ dev();
 }
 .fr_header,
 .fr_footer {
-  background-color: mkColor(map-get($colors, bk), 1);
+  background-color: mkColor(map-get($colors, bk), 0);
 }
 .fr_header {
   padding: 0 $fontSize;
   width: calc(100vw - $fontSize * 2);
+  //width: 100vw;
   height: $headerHeight;
 }
 .fr_body {
   height: calc(100vh - $headerHeight - $footerHeight);
   display: flex;
-  background-color: mkColor(map-get($colors, bk), 2);
+  background-color: mkColor(map-get($colors, bk), 1);
 }
 .fr_navi {
   height: 100%;
@@ -56,7 +58,7 @@ dev();
 .fr_content {
   padding: $headerPad 0 $footerPad;
   height: calc(100% - $headerPad - $footerPad);
-  background-color: mkColor(map-get($colors, bk), 3);
+  background-color: mkColor(map-get($colors, bk), 2);
   width: calc(100vw - $navWidth);
   @include smallScroll();
   overflow: auto;

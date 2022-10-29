@@ -15,7 +15,6 @@ const user = {
     is_admin: 0,
   },
 };
-
 </script>
 
 <template>

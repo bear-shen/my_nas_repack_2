@@ -6,7 +6,7 @@ $footerHeight: 30px;
 $headerPad: 0px;
 $footerPad: 7.5px;
 //
-$navWidth: 128px;
+$navWidth: $fontSize*2.5;
 $navFoldWidth: $fontSize*2.5;
 //
 $narrowWidth: 1440px; //这个是针对文件列表这种特大号的列表重排版的
