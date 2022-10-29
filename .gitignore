@@ -36,3 +36,5 @@ deploy.*
 dev.*
 dev_*
 /dev
+
+dst
