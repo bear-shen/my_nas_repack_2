@@ -15,17 +15,6 @@ class NodeModel extends BaseModel<NodeCol> {
         return input.join(',');
     }
 
-    _col_get_index_file_id(input: string): { [key: string]: any } {
-        if (!input) return {};
-        const res = JSON.parse(input);
-        return res ? res : null;
-    }
-
-    _col_set_index_file_id(input: number[]): string {
-        if (!input) return '{}';
-        return JSON.stringify(input);
-    }
-
     _col_get_list_tag_id(input: string): number[] {
         if (!input) return [];
         const res = input.split(',').map(value => parseInt(value));
@@ -35,6 +24,17 @@ class NodeModel extends BaseModel<NodeCol> {
     _col_set_list_tag_id(input: number[]): string {
         if (!input) return '';
         return input.join(',');
+    }
+
+    _col_get_index_file_id(input: string): { [key: string]: any } {
+        if (!input) return {};
+        const res = JSON.parse(input);
+        return res ? res : null;
+    }
+
+    _col_set_index_file_id(input: number[]): string {
+        if (!input) return '{}';
+        return JSON.stringify(input);
     }
 
     _col_get_index_node(input: string): { [key: string]: any } {

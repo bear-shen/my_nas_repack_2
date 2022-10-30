@@ -1,7 +1,6 @@
 import BaseModel from "./BaseModel";
 import { QueueCol } from "../../share/database";
 
-
 class QueueModel extends BaseModel<QueueCol> {
     table = 'queue';
 
