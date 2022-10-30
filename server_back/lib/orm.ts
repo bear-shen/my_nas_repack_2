@@ -48,7 +48,7 @@
  *     SELECT ...
  *     [ON DUPLICATE KEY UPDATE assignment_list]
  * */
-import { conn } from "./SQL";
+import { conn } from "./sql";
 import { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class queryDefinition {
@@ -75,7 +75,13 @@ class ORM {
         limit: 0,
         offset: 0,
         ignore: false,
-        binds: [] as Array<any>,
+        binds: {
+            full: [],
+            where: [],
+            limit: [],
+            insert: [],
+            update: [],
+        } as { [key: string]: Array<any> },
         group: [] as Array<string>,
         // @todo
         join: [] as Array<string>,
@@ -175,7 +181,7 @@ class ORM {
                     type: 'expression',
                     data: [arg[0], '=', '?',],
                 });
-                this._dataset.binds.push(arg[1]);
+                this._dataset.binds.where.push(arg[1]);
                 break;
             case 3:
                 switch (arg[1]) {
@@ -184,14 +190,14 @@ class ORM {
                             type: 'expression',
                             data: [arg[0], arg[1], '?',],
                         });
-                        this._dataset.binds.push(arg[2]);
+                        this._dataset.binds.where.push(arg[2]);
                         break;
                     case 'raw':
                         this._dataset.queryPos.push({
                             type: 'raw',
                             data: [arg[0],],
                         });
-                        this._dataset.binds.push(...arg[2]);
+                        this._dataset.binds.where.push(...arg[2]);
                         break;
                     // case 'like':
                     case 'is':
@@ -358,51 +364,22 @@ ${sqlPart.where}
 ${sqlPart.group}
 ${sqlPart.sort}
 ${sqlPart.limit}`.trim();
+        this._dataset.binds.full = [];
+        this._dataset.binds.full.push(...this._dataset.binds.where);
+        this._dataset.binds.full.push(...this._dataset.binds.group);
+        this._dataset.binds.full.push(...this._dataset.binds.sort);
+        this._dataset.binds.full.push(...this._dataset.binds.limit);
         // console.info(this._dataset);
         // console.info(sql, this._dataset.binds);
-        const [rows, fields] = await conn().execute(sql, this._dataset.binds);
+        const [rows, fields] = await conn().execute(sql, this._dataset.binds.full);
         // console.info(rows, fields);
         return rows;
     }
 
     async count(column?: string): Promise<any> {
         if (!column || !column.length) column = '*';
-        const sqlPart = {
-            column: column,
-            table: this.table,
-            where: this._makeWhere(),
-            group: this._dataset.group.join(','),
-            sort: '',
-            limit: '',
-        }
-        //
-        const sortArr = [];
-        for (let i = 0; i < this._dataset.sort.length; i++) {
-            const cur = this._dataset.sort[i];
-            sortArr.push(`${cur[0]} ${cur[1]}`);
-        }
-        sqlPart.sort = sortArr.join(' , ');
-        //
-        if (this._dataset.offset || this._dataset.limit) {
-            //这玩意分页会导致第二页开始取不到数据。。。
-            // sqlPart.limit = `${this._dataset.limit} offset ${this._dataset.offset}`;
-        }
-        //
-        sqlPart.table = sqlPart.table.length ? `from ${sqlPart.table}` : '';
-        sqlPart.where = sqlPart.where.length ? `where ${sqlPart.where}` : '';
-        sqlPart.group = sqlPart.group.length ? `group by ${sqlPart.group}` : '';
-        sqlPart.sort = sqlPart.sort.length ? `order by ${sqlPart.sort}` : '';
-        sqlPart.limit = sqlPart.limit.length ? `limit ${sqlPart.limit}` : '';
-        let sql = `select count(${sqlPart.column}) as cc
-${sqlPart.table}
-${sqlPart.where}
-${sqlPart.group}
-${sqlPart.sort}
-${sqlPart.limit}`.trim();
-        // console.info(this._dataset);
-        // console.info(sql, this._dataset.binds);
-        const [rows, fields] = await conn().execute(sql, this._dataset.binds);
-        if ((rows as RowDataPacket[]).length) return (rows as RowDataPacket[])[0].cc;
+        const result = await this.first([`count(${column}) as cc`]);
+        if (result) return result.cc;
         return 0;
     }
 
@@ -428,8 +405,9 @@ ${sqlPart.limit}`.trim();
             assignBinds.push(kv[key]);
         }
         sqlPart.assignment = assignArr.join(' , ');
-        //注意顺序
-        this._dataset.binds.unshift(...assignBinds);
+        this._dataset.binds.full = [];
+        //
+        this._dataset.binds.full.push(...assignBinds);
         //
         const sortArr = [];
         for (let i = 0; i < this._dataset.sort.length; i++) {
@@ -452,7 +430,10 @@ ${sqlPart.where}
 ${sqlPart.sort}
 ${sqlPart.limit}`.trim();
         // console.info(sql, this._dataset.binds);
-        const [rows, fields] = await conn().execute(sql, this._dataset.binds);
+        this._dataset.binds.full.push(...this._dataset.binds.where);
+        this._dataset.binds.full.push(...this._dataset.binds.sort);
+        this._dataset.binds.full.push(...this._dataset.binds.limit);
+        const [rows, fields] = await conn().execute(sql, this._dataset.binds.full);
         return rows;
     }
 
@@ -467,11 +448,13 @@ ${sqlPart.limit}`.trim();
             key: [] as string[],
             value: [] as string[],
         };
+        this._dataset.binds.full = [];
+        //
         for (const key in kv) {
             if (!Object.prototype.hasOwnProperty.call(kv, key)) continue;
             assigns.key.push(key);
             assigns.value.push('?');
-            this._dataset.binds.push(kv[key]);
+            this._dataset.binds.full.push(kv[key]);
         }
         //
         sqlPart.key = assigns.key.join(' , ');
@@ -480,7 +463,7 @@ ${sqlPart.limit}`.trim();
         let sql = `insert ${sqlPart.ignore} into ${sqlPart.table} (${sqlPart.key})
 value (${sqlPart.value})`.trim();
         // console.info(sql, this._dataset.binds);
-        const [rows, fields] = await conn().execute(sql, this._dataset.binds);
+        const [rows, fields] = await conn().execute(sql, this._dataset.binds.full);
         return rows as ResultSetHeader;
     }
 
@@ -495,6 +478,7 @@ value (${sqlPart.value})`.trim();
             key: [] as string[],
             value: [] as string[],
         };
+        this._dataset.binds.full = [];
         for (let i = 0; i < kvs.length; i++) {
             const kv = kvs[i];
             let v = [];
@@ -502,7 +486,7 @@ value (${sqlPart.value})`.trim();
                 if (!Object.prototype.hasOwnProperty.call(kv, key)) continue;
                 if (i === 0) assigns.key.push(key);
                 v.push('?');
-                this._dataset.binds.push(kv[key]);
+                this._dataset.binds.full.push(kv[key]);
             }
             assigns.value.push(`( ${v.join(' , ')} )`);
         }
@@ -513,7 +497,7 @@ value (${sqlPart.value})`.trim();
         let sql = `insert ${sqlPart.ignore} into ${sqlPart.table} (${sqlPart.key})
 values ${sqlPart.value}`.trim();
         // console.info(sql, this._dataset.binds);
-        const [rows, fields] = await conn().execute(sql, this._dataset.binds);
+        const [rows, fields] = await conn().execute(sql, this._dataset.binds.full);
         return rows as ResultSetHeader;
     }
 
@@ -538,6 +522,7 @@ values ${sqlPart.value}`.trim();
             sortArr.push(`${cur[0]} ${cur[1]}`);
         }
         sqlPart.sort = sortArr.join(' , ');
+        this._dataset.binds.full = [];
         //
         if (this._dataset.offset || this._dataset.limit) {
             sqlPart.limit = `${this._dataset.limit} offset ${this._dataset.offset}`;
@@ -551,7 +536,10 @@ ${sqlPart.where}
 ${sqlPart.sort}
 ${sqlPart.limit}`.trim();
         // console.info(sql, this._dataset.binds);
-        const [rows, fields] = await conn().execute(sql, this._dataset.binds);
+        this._dataset.binds.full.push(...this._dataset.binds.where);
+        this._dataset.binds.full.push(...this._dataset.binds.sort);
+        this._dataset.binds.full.push(...this._dataset.binds.limit);
+        const [rows, fields] = await conn().execute(sql, this._dataset.binds.full);
         return rows;
     }
 }

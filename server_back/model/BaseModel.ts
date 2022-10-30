@@ -1,5 +1,5 @@
-import ORM from "../lib/ORM";
-import {ResultSetHeader} from "mysql2";
+import ORM from "../lib/orm";
+import { ResultSetHeader } from "mysql2";
 
 interface field {
     [key: string]: any;

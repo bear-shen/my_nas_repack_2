@@ -1,8 +1,8 @@
-import {IncomingMessage, ServerResponse} from "http";
-import {Fields, PersistentFile} from "formidable";
-import ORM from "./lib/ORM";
-import {conn} from "./lib/SQL";
-import {RowDataPacket} from "mysql2";
+import { IncomingMessage, ServerResponse } from "http";
+import { Fields, PersistentFile } from "formidable";
+import ORM from "./lib/orm";
+import { conn } from "./lib/sql";
+import { RowDataPacket } from "mysql2";
 import UserController from "./controller/UserController";
 import DevController from "./controller/DevController";
 import FileController from "./controller/FileController";

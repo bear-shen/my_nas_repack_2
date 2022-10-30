@@ -1,6 +1,6 @@
-import Config from "./../Config";
-import {Connection, ConnectionOptions, Pool, PoolOptions} from "mysql2";
-import {Pool as PromisePool} from "mysql2/promise";
+import Config from "../config";
+import { Connection, ConnectionOptions, Pool, PoolOptions } from "mysql2";
+import { Pool as PromisePool } from "mysql2/promise";
 
 const mysql = require('mysql2');
 let pool: Pool;

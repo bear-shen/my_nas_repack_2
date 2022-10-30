@@ -1,4 +1,4 @@
-import Config from "../Config";
+import Config from "../config";
 import * as fs from "fs/promises";
 
 const util = require('util');
@@ -11,7 +11,7 @@ async function loadMeta(path: string) {
     try {
         // await fs.stat(path);
         const vidProbe = `ffprobe -v quiet -hide_banner -print_format json -show_format -show_streams -i '${path}'`;// > '${root}/dev/${path}.json'
-        const {stdout, stderr} = await exec(vidProbe);
+        const { stdout, stderr } = await exec(vidProbe);
         // console.info(stdout, stderr);
         meta = JSON.parse(stdout);
     } catch (e: any) {
@@ -63,7 +63,7 @@ async function videoStr(meta: any)
         const aStr = (tranA || tranR)
             ? `-c:a ${convertConfig.a_normal.codec_lib} -q:a ${convertConfig.a_normal.quality}`
             : '-c:a copy'
-        ;
+            ;
         let tranSize = '';
         let maxLen = 0;
         let isSmall = false;
@@ -93,35 +93,23 @@ async function videoStr(meta: any)
                     break;
                 case 'h264_nvenc':
                     rate = isSmall ? vConf.h264_nvenc.target_rate_small : vConf.h264_nvenc.target_rate;
-                    vStr = `-c:v ${
-                        vConf.h264_nvenc.codec_lib
-                    } -preset ${vConf.h264_nvenc.preset} -pix_fmt ${vConf.h264_nvenc.pixFmt} -b:v ${
-                        rate
-                    }k -maxrate:v ${
-                        rate * 4
-                    }k -minrate:v ${
-                        Math.round(rate / 4)
-                    }k -bufsize:v ${
-                        rate * 5
-                    }k -rc-lookahead ${vConf.h264_nvenc.lookahead} ${tranSize}`;
+                    vStr = `-c:v ${vConf.h264_nvenc.codec_lib
+                        } -preset ${vConf.h264_nvenc.preset} -pix_fmt ${vConf.h264_nvenc.pixFmt} -b:v ${rate
+                        }k -maxrate:v ${rate * 4
+                        }k -minrate:v ${Math.round(rate / 4)
+                        }k -bufsize:v ${rate * 5
+                        }k -rc-lookahead ${vConf.h264_nvenc.lookahead} ${tranSize}`;
                     break;
                 case 'hevc_nvenc':
                     rate = isSmall ? vConf.hevc_nvenc.target_rate_small : vConf.hevc_nvenc.target_rate;
-                    vStr = `-c:v ${
-                        vConf.hevc_nvenc.codec_lib
-                    } -preset ${vConf.hevc_nvenc.preset} -pix_fmt ${vConf.hevc_nvenc.pixFmt} -b:v ${
-                        rate
-                    }k -maxrate:v ${
-                        rate * 8
-                    }k -minrate:v ${
-                        Math.round(rate / 4)
-                    }k -bufsize:v ${
-                        rate * 10
-                    }k -rc-lookahead ${
-                        vConf.hevc_nvenc.lookahead
-                    } -bf ${
-                        vConf.hevc_nvenc.bf
-                    } ${tranSize}`;
+                    vStr = `-c:v ${vConf.hevc_nvenc.codec_lib
+                        } -preset ${vConf.hevc_nvenc.preset} -pix_fmt ${vConf.hevc_nvenc.pixFmt} -b:v ${rate
+                        }k -maxrate:v ${rate * 8
+                        }k -minrate:v ${Math.round(rate / 4)
+                        }k -bufsize:v ${rate * 10
+                        }k -rc-lookahead ${vConf.hevc_nvenc.lookahead
+                        } -bf ${vConf.hevc_nvenc.bf
+                        } ${tranSize}`;
                     break;
             }
 
@@ -166,7 +154,7 @@ async function audioStr(meta: any)
         const aStr = (tranA || tranR)
             ? `-c:a ${convertConfig.a_normal.codec_lib} -q:a ${convertConfig.a_normal.quality}`
             : '-c:a copy'
-        ;
+            ;
         procStr = `ffmpeg -hide_banner -hwaccel auto -y -i '{resource}' ${aStr} '{target}'`;
     }
     // console.info(procStr);
