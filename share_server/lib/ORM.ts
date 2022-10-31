@@ -48,7 +48,7 @@
  *     SELECT ...
  *     [ON DUPLICATE KEY UPDATE assignment_list]
  * */
-import { conn } from "./sql";
+import { conn } from "./SQL";
 import { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class queryDefinition {

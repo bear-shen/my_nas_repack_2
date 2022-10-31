@@ -1,6 +1,6 @@
 import { IncomingHttpHeaders, IncomingMessage } from "http";
 import { PersistentFile } from "formidable";
-import Config from "../config";
+import Config from "../ServerConfig";
 import AuthModel from "../model/AuthModel";
 
 //return uid|false|-1 on no auth

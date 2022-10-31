@@ -1,0 +1,30 @@
+{
+  "name": "nas_be",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "tsc && node ./dst/server_back/index.js --max_old_space_size=16384 --max-new-space-size=16384",
+    "webdav": "../tsc && node ../dst/webdav/index.js --max_old_space_size=16384 --max-new-space-size=16384",
+    "serve2_dev": "../tsc && node ../dst/index_http2.js --max_old_space_size=16384 --max-new-space-size=16384",
+    "ffmpeg_dev": "../tsc && node ../dst/dev.ffmpeg.js",
+    "import_dev": "../tsc && node ../dst/dev.importFiles.js",
+    "orphan_dev": "../tsc && node ../dst/dev.checkOrphanFiles.js"
+  },
+  "dependencies": {
+    "@types/node": "^17.0.21",
+    "@types/Promise": "npm:@types/promise@^7.1.30",
+    "base64-js": "^1.5.1",
+    "formidable": "^2.0.1",
+    "http": "^0.0.1-security",
+    "install": "^0.13.0",
+    "md5": "^2.3.0",
+    "mysql2": "^2.3.3",
+    "npm": "^8.5.2",
+    "Promise": "npm:promise@^8.1.0",
+    "xml": "^1.0.1",
+    "xml-js": "^1.6.11"
+  },
+  "devDependencies": {
+    "@types/formidable": "^2.0.4"
+  }
+}

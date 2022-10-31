@@ -1,5 +1,5 @@
 import BaseModel from "./BaseModel";
-import { SettingCol } from "../../share/database";
+import { SettingCol } from "../../share_server/Database";
 
 class SettingModel extends BaseModel<SettingCol> {
     public table = 'settings';

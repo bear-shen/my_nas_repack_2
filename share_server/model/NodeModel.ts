@@ -1,5 +1,5 @@
 import BaseModel from "./BaseModel";
-import { NodeCol } from "../../share/database";
+import { NodeCol } from "../../share_server/Database";
 
 class NodeModel extends BaseModel<NodeCol> {
     public table = 'node';

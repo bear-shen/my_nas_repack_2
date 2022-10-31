@@ -1,27 +1,26 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { Fields, PersistentFile } from "formidable";
-import ORM from "./lib/orm";
-import { conn } from "./lib/sql";
+// import ORM from "./lib/ORM";
+// import { conn } from "./lib/SQL";
 import { RowDataPacket } from "mysql2";
-import UserController from "./controller/UserController";
-import DevController from "./controller/DevController";
-import FileController from "./controller/FileController";
-import TagController from "./controller/TagController";
-import TagGroupController from "./controller/TagGroupController";
-import UserGroupController from "./controller/UserGroupController";
-import LocalController from "./controller/LocalController";
-import ConfigController from "./controller/ConfigController";
+// import UserController from "./controller/UserController";
+// import DevController from "./controller/DevController";
+// import FileController from "./controller/FileController";
+// import TagController from "./controller/TagController";
+// import TagGroupController from "./controller/TagGroupController";
+// import UserGroupController from "./controller/UserGroupController";
+// import LocalController from "./controller/LocalController";
+// import ConfigController from "./controller/ConfigController";
 
 const controllers = {
-    file: FileController,
-    user: UserController,
-    tag: TagController,
-    tag_group: TagGroupController,
-    user_group: UserGroupController,
-    local: LocalController,
-    config: ConfigController,
-    //
-    dev: DevController,
+    file: 0,
+    user: 0,
+    tag: 0,
+    tag_group: 0,
+    user_group: 0,
+    local: 0,
+    config: 0,
+    dev: 0,
 }
 
 export default async function (
