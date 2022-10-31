@@ -7,13 +7,6 @@
     "sourceMap": true,
     "outDir": "dst/"
   },
-  "include": [
-    "*",
-    "**/*",
-    "../share/*",
-    "../share/**/*",
-    "../share_server/*",
-    "../share_server/**/*"
-  ],
+  "include": ["*", "**/*", "../share/*", "../share/**/*"],
   "exclude": ["node_modules", "**/*.spec.ts", "zzz"]
 }

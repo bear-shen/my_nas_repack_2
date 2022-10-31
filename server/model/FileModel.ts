@@ -1,6 +1,6 @@
 import BaseModel from "./BaseModel";
 import NodeModel from "./NodeModel";
-import { FileCol } from "../Database";
+import { FileCol } from "../../share/Database";
 
 class FileModel extends BaseModel<FileCol> {
     public table = 'file';
