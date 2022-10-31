@@ -1,5 +1,5 @@
 import BaseModel from "./BaseModel";
-import { AuthCol } from "../../share_server/Database";
+import { AuthCol } from "../Database";
 
 
 class AuthModel extends BaseModel<AuthCol> {

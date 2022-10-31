@@ -11,7 +11,7 @@
     "orphan_dev": "../tsc && node ../dst/dev.checkOrphanFiles.js"
   },
   "dependencies": {
-    "@types/node": "^17.0.21",
+    "@types/node": "^18.11.8",
     "@types/Promise": "npm:@types/promise@^7.1.30",
     "base64-js": "^1.5.1",
     "formidable": "^2.0.1",

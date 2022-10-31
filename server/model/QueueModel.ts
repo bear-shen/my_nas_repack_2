@@ -1,5 +1,5 @@
 import BaseModel from "./BaseModel";
-import { QueueCol } from "../../share_server/Database";
+import { QueueCol } from "../Database";
 
 class QueueModel extends BaseModel<QueueCol> {
     table = 'queue';

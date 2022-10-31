@@ -1,5 +1,5 @@
 import BaseModel from "./BaseModel";
-import { UserGroupCol } from "../../share_server/Database";
+import { UserGroupCol } from "../Database";
 
 class UserGroupModel extends BaseModel<UserGroupCol> {
     public table = 'user_group';

@@ -1,6 +1,6 @@
 import BaseModel from "./BaseModel";
 import NodeModel from "./NodeModel";
-import { TagCol } from "../../share_server/Database";
+import { TagCol } from "../Database";
 
 class TagModel extends BaseModel<TagCol> {
     public table = 'tag';

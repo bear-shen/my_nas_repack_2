@@ -1,4 +1,4 @@
-import ORM from "../../share_server/lib/ORM";
+import ORM from "../lib/ORM";
 import { ResultSetHeader } from "mysql2";
 
 interface field {
