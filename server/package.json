@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "tsc && node ./dst/server/api/index.js --max_old_space_size=16384 --max-new-space-size=16384"
+    "serve": "tsc && node ./dst/server/api/index.js --max_old_space_size=16384 --max-new-space-size=16384",
+    "webdav": "tsc && node ./dst/server/webdav/index.js --max_old_space_size=16384 --max-new-space-size=16384"
   },
   "dependencies": {
     "@types/node": "^18.11.8",

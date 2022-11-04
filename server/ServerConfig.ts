@@ -1,12 +1,18 @@
+import os from 'os';
+
 export default {
     // pathPrefix: '/api',
-    port: 8090,
-    webdav_port: 8095,
+    port: {
+        api: 8090,
+        webdav: 8095,
+    },
     auth: {
-        '^/api/[^/]+?/[^/]+?$': [1],
-        '^/api/user/login$': [0],
-        '^/api/dev/[^/]+?$': [0],
-    } as { [key: string]: Array<any> },
+        api: {
+            '^/api/[^/]+?/[^/]+?$': [1],
+            '^/api/user/login$': [0],
+            '^/api/dev/[^/]+?$': [0],
+        } as { [key: string]: Array<any> },
+    },
     db: {
         host: '127.0.0.1',
         port: 3306,
@@ -14,7 +20,7 @@ export default {
         account: 'root',
         password: 'root',
     },
-    suffixRef: {
+    suffix: {
         video: ['mp4', 'avi', 'mkv', 'm4a', '3gp',],
         audio: ['wav', 'flac', 'mp3', 'aac',],
         image: ['jpg', 'png', 'jpeg', 'tif', 'tiff', 'bmp', 'gif', 'webp',],
@@ -22,12 +28,15 @@ export default {
         subtitle: ['vtt', 'ass', 'ssa', 'sub', 'srt', 'pjs',],
         pdf: ['pdf',],
     } as { [key: string]: Array<any> },
-    fileRoot: process.cwd() + '/../file/',
-    webFileRoot: '/file/',
-    webDavRoot: '/webdav/',
-    hashFunction: process.cwd() + '/binary/b3sum_linux_x64_bin --no-names {fileName}',
-    // webFileRoot: 'http://sample.org/file/',
-    fileParseConfig: {
+    //
+    path: {
+        temp: `${os.tmpdir()}/tosho_tmp_${process.pid}/`,
+        local: process.cwd() + '/../../file/',
+        api: '/file/',
+        webdav: '/webdav/',
+    },
+    //hashFunction: process.cwd() + '/binary/b3sum_linux_x64_bin --no-names {fileName}',
+    parser: {
         //@see https://slhck.info/video/2017/02/24/vbr-settings.html
         i_cover: {
             length: 640,
