@@ -2,7 +2,7 @@ import { IncomingMessage, ServerResponse } from "http";
 import fs from "fs";
 import ServerConfig from "../ServerConfig";
 import http from "http";
-import Authorize from "./Authorize";
+import Authorize from "./Authorize_local";
 import Method from "./Method";
 import ErrorCode from "../lib/ErrorCode";
 
@@ -48,7 +48,7 @@ fs.mkdirSync(
  * */
 const server = http.createServer(async function (req: IncomingMessage, res: ServerResponse) {
     // const tmpBodyPath = await getRequestBody(req, res);
-    console.info(req.method, req.headers,);
+    // console.info(req.method, req.headers,);
     const authorized = await Authorize.check(req);
     if (!authorized) {
         res.setHeader('WWW-Authenticate', 'Basic realm="WebDAV Server"');

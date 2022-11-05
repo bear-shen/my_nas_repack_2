@@ -4,7 +4,7 @@ import { Buffer } from "buffer";
 import Lib from "../Lib";
 import { ReadStream } from "fs";
 
-export default async function (req: IncomingMessage, bodyPath: string, res: ServerResponse) {
+export default async function (req: IncomingMessage, res: ServerResponse) {
     res.setHeader(
         'Allow',
         [

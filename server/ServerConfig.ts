@@ -12,6 +12,10 @@ export default {
             '^/api/user/login$': [0],
             '^/api/dev/[^/]+?$': [0],
         } as { [key: string]: Array<any> },
+        local: {
+            name: 'root',
+            password: 'root',
+        },
     },
     db: {
         host: '127.0.0.1',
@@ -30,10 +34,10 @@ export default {
     } as { [key: string]: Array<any> },
     //
     path: {
-        temp: `${os.tmpdir()}/tosho_tmp_${process.pid}/`,
-        local: process.cwd() + '/../../file/',
-        api: '/file/',
-        webdav: '/webdav/',
+        temp: `${os.tmpdir()}/tosho_tmp_${process.pid}`,
+        local: process.cwd() + '/../../file',
+        api: '/file',
+        webdav: '/webdav',
     },
     //hashFunction: process.cwd() + '/binary/b3sum_linux_x64_bin --no-names {fileName}',
     parser: {

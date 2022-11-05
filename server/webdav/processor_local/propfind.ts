@@ -17,7 +17,7 @@ import { NodeCol, FileCol } from "../../columns";
 
 import { Buffer } from "buffer";
 
-export default async function (req: IncomingMessage, bodyPath: string, res: ServerResponse) {
+export default async function (req: IncomingMessage, res: ServerResponse) {
     // console.info('proc here, req:', body);
     const url = new URL(req.url, `http://${req.headers.host}`);
     let output = '';

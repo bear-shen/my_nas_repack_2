@@ -7,7 +7,7 @@ import NodeModel from "../../model/NodeModel";
 import QueueModel from "../../model/QueueModel";
 import { ReadStream } from "fs";
 
-export default async function (req: IncomingMessage, bodyPath: string, res: ServerResponse) {
+export default async function (req: IncomingMessage, res: ServerResponse) {
     const url = new URL(req.url, `http://${req.headers.host}`);
     //
     const rootPos = url.pathname.indexOf(config.webDavRoot);

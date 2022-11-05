@@ -13,6 +13,7 @@ import unlock from "./processor_local/unlock";
 import put from "./processor_local/put";
 import mkcol from "./processor_local/mkcol";
 // import copy from "./processor/copy";
+import { IncomingMessage, ServerResponse } from 'http';
 
 const ref = {
     'GET': get,
@@ -30,6 +31,6 @@ const ref = {
     'PROPPATCH': proppatch,
     'TRACE': trace,
     'UNLOCK': unlock,
-};
+} as { [key: string]: (req: IncomingMessage, res: ServerResponse) => any };
 
 export default ref;

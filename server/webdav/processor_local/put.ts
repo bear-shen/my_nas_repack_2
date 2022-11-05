@@ -12,7 +12,7 @@ import { Buffer } from "buffer";
 import { ReadStream } from "fs";
 import { NodeCol, FileCol } from "../../columns";
 
-export default async function (req: IncomingMessage, bodyPath: string, res: ServerResponse) {
+export default async function (req: IncomingMessage, res: ServerResponse) {
     const dirOffset = req.url.replace(/\/$/ig, '').lastIndexOf('/');
     const dirPath = req.url.substring(0, dirOffset);
     const fileName = decodeURIComponent(req.url.substring(dirOffset + 1));

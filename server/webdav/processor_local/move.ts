@@ -9,7 +9,7 @@ import FileLib from "../../lib/File";
 import { ReadStream } from "fs";
 import { NodeCol, FileCol } from "../../columns";
 
-export default async function (req: IncomingMessage, bodyPath: string, res: ServerResponse) {
+export default async function (req: IncomingMessage, res: ServerResponse) {
     const url = new URL(req.url, `http://${req.headers.host}`);
     const targetUrl = new URL(req.headers['destination'] as string);
     //
