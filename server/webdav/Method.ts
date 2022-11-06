@@ -16,21 +16,21 @@ import mkcol from "./processor_local/mkcol";
 import { IncomingMessage, ServerResponse } from 'http';
 
 const ref = {
-    'GET': get,
-    'MOVE': move,
-    'OPTIONS': options,
-    'PROPFIND': propfind,
-    'PUT': put,
-    'MKCOL': mkcol,
-    'DELETE': deleteFunc,
-    'COPY': copy,
+    'GET': get,//@todo
+    'MOVE': move,//@todo
+    'OPTIONS': options,//@todo
+    'PROPFIND': propfind,//@todo
+    'PUT': put,//@todo
+    'MKCOL': mkcol,//@todo
+    'DELETE': deleteFunc,//@todo
+    'COPY': copy,//@todo
     //
     'HEAD': head,
-    'LOCK': lock,
-    'POST': post,
-    'PROPPATCH': proppatch,
-    'TRACE': trace,
-    'UNLOCK': unlock,
+    'LOCK': lock,//@todo
+    'POST': post,//@todo
+    'PROPPATCH': proppatch,//@todo
+    'TRACE': trace,//@todo
+    'UNLOCK': unlock,//@todo
 } as { [key: string]: (req: IncomingMessage, res: ServerResponse) => any };
 
 export default ref;

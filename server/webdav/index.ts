@@ -68,45 +68,7 @@ const server = http.createServer(async function (req: IncomingMessage, res: Serv
 });
 server.listen(ServerConfig.port.webdav);
 
-//@see https://github.com/OpenMarshal/npm-WebDAV-Server/blob/master/src/server/v2/webDAVServer/StartStop.ts#L30
-// function getRequestBody(req: IncomingMessage, res: ServerResponse): Promise<ReadStream> {
-/* function getRequestBody(req: IncomingMessage, res: ServerResponse): Promise<string> {
-    return new Promise(async (resolve: any) => {
-        // console.info(req.headers['content-type']);
-        const length = req.headers["content-length"] ? Number.parseInt(req.headers["content-length"]) : 0;
-        let wrote = 0;
-        // const bodyBuffer = Buffer.alloc(length);
-        let reqTmpFilePath: string, ws: WriteStream;
-        if (length) {
-            reqTmpFilePath = `${tmpPath}/${(new Date()).valueOf()}`;
-            ws = fs.createWriteStream(reqTmpFilePath, { encoding: "binary", highWaterMark: 32 * 1024 * 1024, });
-        }
-        req.on('data', async chunk => {
-            if (chunk.constructor === String)
-                chunk = Buffer.from(chunk);
-            await ws.write(chunk);
-            wrote += chunk.length;
-        });
-        req.on('end', async () => {
-            if (ws) ws.destroy();
-            if (!length) return resolve(null);
-            // console.info(reqTmpFilePath, rs, wrote);
-            console.info(reqTmpFilePath);
-            resolve(reqTmpFilePath);
-            // resolve(fs.createReadStream(reqTmpFilePath));
-        });
-        res.on('close', async () => {
-            // console.info('req evt close');
-            if (reqTmpFilePath) {
-                try {
-                    await fs.stat(reqTmpFilePath);
-                    await fs.rm(reqTmpFilePath);
-                } catch (e) {
-                }
-            }
-        })
-    });
-} */
+
 
 function sendErr(code: keyof typeof ErrorCode, res: ServerResponse) {
     let msg = 'unknown error';

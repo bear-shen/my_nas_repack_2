@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<multistatus xmlns:D="DAV:" xmlns:ns1="SAR:" xmlns:ns0="DAV:">
+	<response xmlns:lp1="DAV:" xmlns:lp2="http://apache.org/dav/props/" xmlns:g0="DAV:" xmlns:g1="SAR:">
+		<href>
+			/apache_webdav/
+		</href>
+		<propstat>
+			<prop>
+				<creationdate>
+					2022-11-05T17:27:42Z
+				</creationdate>
+				<getcontenttype>
+					httpd/unix-directory
+				</getcontenttype>
+				<getetag>
+					"1000-5ecbc820219f4"
+				</getetag>
+				<getlastmodified>
+					Sat, 05 Nov 2022 17:27:42 GMT
+				</getlastmodified>
+				<lockdiscovery />
+				<resourcetype>
+					<collection />
+				</resourcetype>
+			</prop>
+			<status>
+				HTTP/1.1 200 OK
+			</status>
+		</propstat>
+		<propstat>
+			<prop>
+				<displayname />
+				<getcontentlength />
+				<lastmodified_server />
+				<lastmodified />
+			</prop>
+			<status>
+				HTTP/1.1 404 Not Found
+			</status>
+		</propstat>
+	</response>
+	<response xmlns:lp1="DAV:" xmlns:lp2="http://apache.org/dav/props/" xmlns:g0="DAV:" xmlns:g1="SAR:">
+		<href>
+			/apache_webdav/youdaonote-pull-master.zip
+		</href>
+		<propstat>
+			<prop>
+				<creationdate>
+					2022-11-05T17:27:42Z
+				</creationdate>
+				<getcontentlength>
+					19861
+				</getcontentlength>
+				<getcontenttype>
+					application/zip
+				</getcontenttype>
+				<getetag>
+					"4d95-5ecbc820219f4"
+				</getetag>
+				<getlastmodified>
+					Sat, 05 Nov 2022 17:27:42 GMT
+				</getlastmodified>
+				<lockdiscovery />
+				<resourcetype />
+			</prop>
+			<status>
+				HTTP/1.1 200 OK
+			</status>
+		</propstat>
+		<propstat>
+			<prop>
+				<displayname />
+				<lastmodified_server />
+				<lastmodified />
+			</prop>
+			<status>
+				HTTP/1.1 404 Not Found
+			</status>
+		</propstat>
+	</response>
+</multistatus>

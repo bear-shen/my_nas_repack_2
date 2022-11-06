@@ -7,7 +7,6 @@ import Lib from "../Lib";
 
 const convert = require('xml-js');
 import { ReadStream } from "fs";
-import { NodeCol, FileCol } from "../../columns";
 
 /**
  * header
@@ -130,6 +129,7 @@ function respErr(path: string, msg: string): ElementCompact {
         },
     } as ElementCompact;
 }
+
 
 function buildRespNode(url: URL, node: NodeCol, withPathName: boolean = true, file?: FileCol) {
     let mime = '';
