@@ -4,7 +4,7 @@ import * as fs from "fs/promises";
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
-const convertConfig = Config.fileParseConfig;
+const convertConfig = Config.parser;
 
 async function loadMeta(path: string) {
     let meta;

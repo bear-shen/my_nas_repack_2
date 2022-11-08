@@ -1,11 +1,8 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { Element, ElementCompact } from "xml-js";
-import NodeModel from "../../model/NodeModel";
-import FileModel from "../../model/FileModel";
-import config from "../../Config";
-import Lib from "../Lib";
+import * as fp from "../../lib/LocalFileProcessor";
 
-const convert = require('xml-js');
+import * as convert from 'xml-js';
 import { ReadStream } from "fs";
 
 /**
@@ -15,67 +12,44 @@ import { ReadStream } from "fs";
  * */
 
 import { Buffer } from "buffer";
+import ServerConfig from "../../ServerConfig";
+import { getRequestBuffer, sendErr } from "../Lib";
 
 export default async function (req: IncomingMessage, res: ServerResponse) {
     // console.info('proc here, req:', body);
-    const url = new URL(req.url, `http://${req.headers.host}`);
-    let output = '';
+    const url = new URL(req.url, 'http://' + req.headers.host);
+    const reqPath = url.pathname;
     const outputData = getBase();
-    /*if (body) {
-     const content = convert.xml2js(body, {compact: true});
-     console.info(content);
-     outputData['D:multistatus']['D:response'].push(respErr(url.pathname, '404 Not Found'));
-     //body不知道怎么处理
-     return resp(res, outputData);
-     }*/
-    const rootPos = url.pathname.indexOf(config.webDavRoot);
-    console.info(url.pathname, config.webDavRoot, rootPos);
-    if (rootPos === -1) {
-        outputData['D:multistatus']['D:response'].push(respErr(url.pathname, '404 Not Found'));
-        //找不到根目录
-        return resp(res, outputData);
-    }
-    const dirNode = await Lib.getCurNode(url) as NodeCol;
-    if (!dirNode) {
-        outputData['D:multistatus']['D:response'].push(respErr(url.pathname, '404 Not Found'));
-        //找不到节点
-        return resp(res, outputData);
-    }
-    // const dirId = dirIdArr[dirIdArr.length - 1];
-    // if (dirNode.id === 0)
+    const davRootPos = reqPath.indexOf(ServerConfig.path.webdav);
+    //
+    if (davRootPos === -1) return sendErr(404, res);
+    if (davRootPos !== 0) return sendErr(403, res);
+    //
+    const relPath = reqPath.slice(ServerConfig.path.webdav.length);
+    // console.info(relPath);
+    const xmlBuffer = await (await getRequestBuffer(req, res)).toString();
+    const xmlData = convert.xml2js(xmlBuffer, { compact: true });
+    const xmlLs = getXmlAttr(xmlData);
+    // console.info(JSON.stringify(xmlData));
+    console.info(xmlLs);
+    //
+    let depth = Number.parseInt(req.headers.depth ? req.headers.depth as string : '0');
 
-    if (dirNode.type !== 'directory') {
-        const curFile = await (new FileModel).where('id', dirNode.id).first();
-        outputData['D:multistatus']['D:response'].push(buildRespNode(url, dirNode, false, curFile));
-        //文件信息
-        return resp(res, outputData);
-    }
-    outputData['D:multistatus']['D:response'].push(buildRespNode(url, dirNode, false));
-    const depth = Number.parseInt(req.headers.depth ? req.headers.depth as string : '0');
-    if (!depth || dirNode.type !== 'directory') {
-        //depth=0 或者是个文件的话，只返回当前节点
-        return resp(res, outputData);
-    }
-    const nodeList = await (new NodeModel).where('id_parent', dirNode.id).where('status', 1).select();
-    const rawFileSet = new Set<number>();
-    nodeList.forEach(node => {
-        if (node.index_file_id && node.index_file_id.raw)
-            rawFileSet.add(node.index_file_id.raw)
-    });
-    const fileMap = new Map<number, FileCol>();
-    if (rawFileSet.size) {
-        const fileList = await (new FileModel).whereIn('id', Array.from(rawFileSet)).select();
-        fileList.forEach(file => fileMap.set(file.id, file));
-    }
-    nodeList.forEach(
-        node => {
-            let file: FileCol;
-            if (node.type !== 'directory')
-                file = fileMap.get(node.index_file_id.raw);
-            outputData['D:multistatus']['D:response'].push(buildRespNode(url, node, true, file));
+    let fileLs = [];
+    for (let i1 = 0; i1 <= depth; i1++) {
+        if (i1 === 0) {
+            const fi = await fp.stat(relPath);
+            fileLs.push(fi);
+        } else {
+            const fl = await fp.ls(relPath);
+            fl.forEach(f => fileLs.push(f));
         }
-    );
-    //返回当前节点和当前目录下的节点
+    }
+    // console.info(fileLs);
+    fileLs.forEach(f => {
+        outputData.multistatus.response.push(buildRespNode(xmlLs, f))
+    });
+    //
     return resp(res, outputData);
 }
 
@@ -85,17 +59,32 @@ function resp(res: ServerResponse, outputData: ElementCompact) {
     const output = convert.js2xml(outputData, { compact: true, });
     if (output) res.setHeader('Content-Type', 'text/xml; charset="utf-8"');
     res.statusCode = 207;
-    // console.info(output);
+    console.info(output);
     res.write(output);
     res.end();
+}
+
+function getXmlAttr(xml: any): string[] {
+    if (!xml.propfind) return [];
+    if (!xml.propfind.prop) return [];
+    const res = [];
+    for (const key in xml.propfind.prop) {
+        if (!Object.prototype.hasOwnProperty.call(xml.propfind.prop, key)) continue;
+        res.push(key);
+    }
+    return res;
 }
 
 function getBase(): ElementCompact {
     return {
         _declaration: { _attributes: { version: "1.0", encoding: "utf-8" } },
-        'D:multistatus': {
-            _attributes: { 'xmlns:D': 'DAV:', },
-            'D:response': [
+        'multistatus': {
+            _attributes: {
+                'xmlns:D': 'DAV:',
+                'xmlns:ns1': "SAR:",
+                'xmlns:ns0': "DAV:",
+            },
+            'response': [
                 // {
                 //     _attributes: {'xmlns:lp1': 'DAV:', 'xmlns:lp2': 'http://apache.org/dav/props/',},
                 //     'D:href': {_text: '/dav/',},
@@ -131,7 +120,7 @@ function respErr(path: string, msg: string): ElementCompact {
 }
 
 
-function buildRespNode(url: URL, node: NodeCol, withPathName: boolean = true, file?: FileCol) {
+function buildRespNode(xmlLs: string[], node: fp.fileStatement) {
     let mime = '';
     let resourceType = {};
     switch (node.type) {
@@ -146,45 +135,36 @@ function buildRespNode(url: URL, node: NodeCol, withPathName: boolean = true, fi
             break;
         case "directory":
             mime = 'httpd/unix-directory';
-            resourceType = { 'D:collection': {} };
+            resourceType = { 'collection': {} };
             break;
     }
+    const availProp = {
+        'creationdate': { _text: node.timeCreated },
+        'getlastmodified': { _text: node.timeModified },
+        'executable': { _text: 'F' },
+        'resourcetype': resourceType,
+        'getcontenttype': { _text: mime },
+        'getcontentlength': { _text: node.size },
+    };
     const target = {
-        _attributes: { 'xmlns:lp1': 'DAV:', 'xmlns:lp2': 'http://apache.org/dav/props/', },
-        'D:href': { _text: `${url.pathname}${withPathName ? encodeURIComponent(node.title) : ''}`, },
-        'D:propstat': {
-            'D:prop': {
-                'lp1:creationdate': { _text: node.time_create },
-                'lp1:getlastmodified': { _text: node.time_update },
-                'lp1:getetag': { _text: `"1000-${node.id}${(new Date()).valueOf()}"` },
-                // 'D:supportedlock': {
-                //     'D:lockentry': [{
-                //         'D:lockscope': {
-                //             'D:exclusive': {},
-                //         },
-                //         'D:locktype': {
-                //             'D:write': {},
-                //         },
-                //     }, {
-                //         'D:lockscope': {
-                //             'D:shared': {},
-                //         },
-                //         'D:locktype': {
-                //             'D:write': {},
-                //         },
-                //     },]
-                // },
-                // 'D:lockdiscovery': {},
-                // 'D:getcontenttype': {_text: 'httpd/unix-directory'},
-                // 'lp1:resourcetype': {'D:collection': {}},
-                'lp2:executable': { _text: 'F' },
-                'lp1:resourcetype': resourceType,
-                'D:getcontenttype': { _text: mime },
-                'lp1:getcontentlength': { _text: file ? file.size : 0 },
-            },
+        _attributes: {
+            'xmlns:lp1': 'DAV:',
+            'xmlns:lp2': 'http://apache.org/dav/props/',
+            'xmlns:g0': 'DAV:',
+            'xmlns:g1': 'SAR:',
+        },
+        'href': { _text: ServerConfig.path.webdav + node.path, },
+        'propstat': {
+            'prop': {},
             'D:status': { _text: 'HTTP/1.1 200 OK', },
         },
     } as ElementCompact;
+    for (let i1 = 0; i1 < xmlLs.length; i1++) {
+        const propKey = xmlLs[i1] as keyof typeof availProp;
+        if (availProp[propKey]) {
+            target.propstat.prop[propKey] = availProp[propKey];
+        }
+    }
     return target;
 }
 

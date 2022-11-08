@@ -35,7 +35,7 @@ export default {
     //
     path: {
         temp: `${os.tmpdir()}/tosho_tmp_${process.pid}`,
-        local: process.cwd() + '/../../file',
+        local: process.cwd() + '/../file',
         api: '/file',
         webdav: '/webdav',
     },

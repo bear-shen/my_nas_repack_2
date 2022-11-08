@@ -4,7 +4,7 @@ import ServerConfig from "../ServerConfig";
 import http from "http";
 import Authorize from "./Authorize_local";
 import Method from "./Method";
-import ErrorCode from "../lib/ErrorCode";
+import { sendErr } from "./Lib";
 
 fs.mkdirSync(
     ServerConfig.path.temp,
@@ -56,6 +56,7 @@ const server = http.createServer(async function (req: IncomingMessage, res: Serv
     }
     // console.info('func:', Method[req.method as keyof typeof method]);
     const methodName = req.method as keyof typeof Method;
+    console.info(methodName, req.url);
     if (!Method[methodName]) return sendErr(501, res);
     try {
         await Method[methodName](req, res);
@@ -67,18 +68,8 @@ const server = http.createServer(async function (req: IncomingMessage, res: Serv
     if (!res.writableEnded) res.end();
 });
 server.listen(ServerConfig.port.webdav);
+console.info('server now listen on:', ServerConfig.port.webdav);
 
-
-
-function sendErr(code: keyof typeof ErrorCode, res: ServerResponse) {
-    let msg = 'unknown error';
-    if (ErrorCode[code]) {
-        msg = ErrorCode[code];
-    }
-    res.statusCode = code;
-    res.write(`${code} : ${msg}`);
-    res.end();
-}
 
 
 

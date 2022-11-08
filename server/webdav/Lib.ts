@@ -3,6 +3,7 @@ import { IncomingMessage, ServerResponse } from "http";
 import Util from "../lib/Util";
 import ServerConfig from "../ServerConfig";
 import * as fs from 'fs/promises';
+import ErrorCode from "../lib/ErrorCode";
 
 //@see https://github.com/OpenMarshal/npm-WebDAV-Server/blob/master/src/server/v2/webDAVServer/StartStop.ts#L30
 export function getRequestBuffer(req: IncomingMessage, res: ServerResponse): Promise<Buffer> {
@@ -14,9 +15,10 @@ export function getRequestBuffer(req: IncomingMessage, res: ServerResponse): Pro
         let wrote = 0;
         const bodyBuffer = Buffer.alloc(length);
         req.on('data', async chunk => {
+            // console.info(chunk);
             // if (chunk.constructor === String)
             // chunk = Buffer.from(chunk);
-            await bodyBuffer.write(chunk, wrote);
+            await bodyBuffer.fill(chunk, wrote, chunk.length);
             wrote += chunk.length;
         });
         req.on('end', async () => resolve(bodyBuffer));
@@ -39,6 +41,7 @@ export function getRequestFile(req: IncomingMessage, res: ServerResponse): Promi
             // if (chunk.constructor === String)
             // chunk = Buffer.from(chunk);
             await ws.write(chunk, wrote);
+            // await bodyBuffer.fill(chunk, wrote, chunk.length);
             wrote += chunk.length;
         });
         req.on('end', async () => {
@@ -54,6 +57,13 @@ export function getRequestFile(req: IncomingMessage, res: ServerResponse): Promi
     });
 }
 
-async function asyncWriteStream() {
 
+export function sendErr(code: keyof typeof ErrorCode, res: ServerResponse) {
+    let msg = 'unknown error';
+    if (ErrorCode[code]) {
+        msg = ErrorCode[code];
+    }
+    res.statusCode = code;
+    res.write(`${code} : ${msg}`);
+    res.end();
 }

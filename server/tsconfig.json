@@ -9,5 +9,5 @@
     "outDir": "dst/"
   },
   "include": ["*", "**/*", "../share/*", "../share/**/*"],
-  "exclude": ["node_modules", "**/*.spec.ts", "zzz"]
+  "exclude": ["node_modules", "**/*.spec.ts", "zzz", "zzz/*", "**/zzz/*"]
 }

@@ -2,11 +2,17 @@ import { Stream } from "stream";
 import crypto from 'node:crypto';
 import Config from "../ServerConfig";
 import * as fs from 'fs/promises';
-import { ReadStream } from 'fs';
+import { ReadStream, Stats } from 'fs';
+import * as fsNP from 'fs';
 
 //util
 function getUUID(): string {
     return crypto.randomBytes(24).toString("base64url");
+}
+function getFileName(filePath: string): string {
+    filePath = filePath.replace(/\/$/, '');
+    const lastSlash = filePath.lastIndexOf('/');
+    return filePath.substring(lastSlash + 1);
 }
 function getSuffix(fileName: string): string {
     const ifSlash = fileName.lastIndexOf('/');
@@ -28,17 +34,38 @@ function getType(suffix: string): string {
         if (ifHit === -1) continue;
         return key;
     }
-    return '';
+    return 'binary';
+}
+async function statFromStat(relPath: string): Promise<fileStatement> {
+    const localPath = Config.path.local + relPath;
+    console.info(localPath);
+    const stat = await fs.stat(localPath);
+    const result = {
+        name: getFileName(relPath),
+        path: relPath,
+        timeModified: stat.mtime.toISOString(),
+        timeCreated: stat.ctime.toISOString(),
+        isFile: stat.isFile(),
+        isDir: stat.isDirectory(),
+        type: stat.isFile() ? getType(relPath) : 'directory',
+        size: stat.size,
+    };
+    return result;
 }
 //dir
-async function ls(path: string): Promise<string[]> {
-    const fullPath = Config.path.local + path;
+async function ls(path: string): Promise<fileStatement[]> {
     const nPath = path.replace(/\/$/, '');
-    const fList = await fs.readdir(fullPath);
-    const target = [] as string[];
+    const fList = await fs.readdir(Config.path.local + path);
+    console.info(fList);
+    const targetF = [] as string[];
     fList.forEach(i => {
-        target.push(nPath + '/' + i);
+        targetF.push(nPath + '/' + i);
     });
+    console.info(targetF);
+    const target: fileStatement[] = [];
+    for (let i1 = 0; i1 < targetF.length; i1++) {
+        target.push(await stat(targetF[i1]));
+    }
     return target;
 }
 
@@ -84,6 +111,13 @@ async function cp(fromPath: string, toPath: string): Promise<boolean> {
     return;
 }
 
+async function stat(path: string): Promise<fileStatement> {
+    // console.info(Config.path.local + path);
+    // console.info(fs.stat(Config.path.local + path));
+    // console.info(await fs.stat(Config.path.local + path));
+    return await statFromStat(path);
+}
+
 export {
     getUUID,
     getSuffix,
@@ -97,7 +131,17 @@ export {
     mv,
     rm,
     cp,
+    stat,
+    fileStatement,
 };
 
-
-
+type fileStatement = {
+    name: string,
+    path: string,
+    timeModified: string,
+    timeCreated: string,
+    isFile: boolean,
+    isDir: boolean,
+    type: string,
+    size: number,
+}
