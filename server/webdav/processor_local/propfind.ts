@@ -13,25 +13,18 @@ import { ReadStream } from "fs";
 
 import { Buffer } from "buffer";
 import ServerConfig from "../../ServerConfig";
-import { getRequestBuffer, sendErr } from "../Lib";
+import { getRelPath, getRequestBuffer, respCode } from "../Lib";
 
 export default async function (req: IncomingMessage, res: ServerResponse) {
-    // console.info('proc here, req:', body);
-    const url = new URL(req.url, 'http://' + req.headers.host);
-    const reqPath = url.pathname;
+    const relPath = getRelPath(req, res);
+    if (!relPath) return;
     const outputData = getBase();
-    const davRootPos = reqPath.indexOf(ServerConfig.path.webdav);
-    //
-    if (davRootPos === -1) return sendErr(404, res);
-    if (davRootPos !== 0) return sendErr(403, res);
-    //
-    const relPath = reqPath.slice(ServerConfig.path.webdav.length);
     // console.info(relPath);
     const xmlBuffer = await (await getRequestBuffer(req, res)).toString();
     const xmlData = convert.xml2js(xmlBuffer, { compact: true });
     const xmlLs = getXmlAttr(xmlData);
     // console.info(JSON.stringify(xmlData));
-    console.info(xmlLs);
+    //console.info(xmlLs);
     //
     let depth = Number.parseInt(req.headers.depth ? req.headers.depth as string : '0');
 
@@ -39,9 +32,11 @@ export default async function (req: IncomingMessage, res: ServerResponse) {
     for (let i1 = 0; i1 <= depth; i1++) {
         if (i1 === 0) {
             const fi = await fp.stat(relPath);
+            if (!fi) return respCode(404, res);
             fileLs.push(fi);
         } else {
             const fl = await fp.ls(relPath);
+            //if (fl) continue;
             fl.forEach(f => fileLs.push(f));
         }
     }
@@ -101,21 +96,6 @@ function getBase(): ElementCompact {
                 // },
             ]
         }
-    } as ElementCompact;
-}
-
-
-function respErr(path: string, msg: string): ElementCompact {
-    return {
-        _attributes: { 'xmlns:g0': 'DAV:', },
-        'D:href': { _text: path, },
-        'D:propstat': {
-            // 'D:prop': {
-            //     'g0:quota-available-bytes': {},
-            //     'g0:quota-used-bytes': {},
-            // },
-            'D:status': { _text: `HTTP/1.1 ${msg}`, },
-        },
     } as ElementCompact;
 }
 

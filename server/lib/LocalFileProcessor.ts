@@ -9,6 +9,11 @@ import * as fsNP from 'fs';
 function getUUID(): string {
     return crypto.randomBytes(24).toString("base64url");
 }
+function getDir(filePath: string): string {
+    filePath = filePath.replace(/\/$/, '');
+    const lastSlash = filePath.lastIndexOf('/');
+    return filePath.substring(0, lastSlash);
+}
 function getFileName(filePath: string): string {
     filePath = filePath.replace(/\/$/, '');
     const lastSlash = filePath.lastIndexOf('/');
@@ -36,44 +41,59 @@ function getType(suffix: string): string {
     }
     return 'binary';
 }
-async function statFromStat(relPath: string): Promise<fileStatement> {
-    const localPath = Config.path.local + relPath;
-    console.info(localPath);
-    const stat = await fs.stat(localPath);
-    const result = {
-        name: getFileName(relPath),
-        path: relPath,
-        timeModified: stat.mtime.toISOString(),
-        timeCreated: stat.ctime.toISOString(),
-        isFile: stat.isFile(),
-        isDir: stat.isDirectory(),
-        type: stat.isFile() ? getType(relPath) : 'directory',
-        size: stat.size,
-    };
-    return result;
+async function statFromStat(relPath: string, isFullPath?: boolean): Promise<fileStatement> {
+    const localPath = isFullPath ? relPath : Config.path.local + relPath;
+    // console.info(localPath);
+    try {
+        const stat = await fs.stat(localPath);
+        const result = {
+            name: getFileName(relPath),
+            path: relPath,
+            timeModified: stat.mtime.toISOString(),
+            timeCreated: stat.ctime.toISOString(),
+            isFile: stat.isFile(),
+            isDir: stat.isDirectory(),
+            type: stat.isFile() ? getType(relPath) : 'directory',
+            size: stat.size,
+        };
+        return result;
+    } catch (e: any) {
+        console.info(
+            'statFromStat:',
+            (e as Error).message,
+            (e as Error).name,
+        )
+    }
+    return;
 }
 //dir
 async function ls(path: string): Promise<fileStatement[]> {
     const nPath = path.replace(/\/$/, '');
     const fList = await fs.readdir(Config.path.local + path);
-    console.info(fList);
+    // console.info(fList);
     const targetF = [] as string[];
     fList.forEach(i => {
         targetF.push(nPath + '/' + i);
     });
-    console.info(targetF);
+    // console.info(targetF);
     const target: fileStatement[] = [];
     for (let i1 = 0; i1 < targetF.length; i1++) {
-        target.push(await stat(targetF[i1]));
+        const fStat = await stat(targetF[i1]);
+        if (!fStat) continue;
+        target.push(fStat);
     }
     return target;
 }
 
-async function mkdir(dirPath: string, name: string): Promise<boolean> {
-    const fullPath = Config.path.local + dirPath;
-    const nPath = dirPath.replace(/\/$/, '');
-    await fs.mkdir(fullPath + '/' + name, {
-        mode: 0o777,
+async function mkdir(relPath: string): Promise<boolean> {
+    const fullPath = Config.path.local + relPath;
+    const nPath = fullPath.replace(/\/$/, '');
+    const ifExs = await stat(nPath);
+    // console.info(ifExs);
+    if (ifExs) return;
+    console.info(nPath);
+    await fs.mkdir(nPath, {
+        mode: 0o666,
         recursive: true,
     });
     return;
@@ -92,7 +112,13 @@ async function touch(path: string): Promise<boolean> {
     return;
 }
 
-async function put(path: string, stream: Stream): Promise<boolean> {
+async function put(fromTmpPath: string, toPath: string): Promise<boolean> {
+    const targetPath = Config.path.local + toPath;
+    const targetDir = getDir(targetPath);
+    if (!statFromStat(targetDir, true)) {
+        await fs.mkdir(targetDir, { mode: 0o777, recursive: true })
+    }
+    await fs.rename(fromTmpPath, targetPath);
     return;
 }
 

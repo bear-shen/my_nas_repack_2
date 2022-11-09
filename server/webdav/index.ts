@@ -4,7 +4,7 @@ import ServerConfig from "../ServerConfig";
 import http from "http";
 import Authorize from "./Authorize_local";
 import Method from "./Method";
-import { sendErr } from "./Lib";
+import { respCode } from "./Lib";
 
 fs.mkdirSync(
     ServerConfig.path.temp,
@@ -52,18 +52,18 @@ const server = http.createServer(async function (req: IncomingMessage, res: Serv
     const authorized = await Authorize.check(req);
     if (!authorized) {
         res.setHeader('WWW-Authenticate', 'Basic realm="WebDAV Server"');
-        return sendErr(401, res);
+        return respCode(401, res);
     }
     // console.info('func:', Method[req.method as keyof typeof method]);
     const methodName = req.method as keyof typeof Method;
     console.info(methodName, req.url);
-    if (!Method[methodName]) return sendErr(501, res);
+    if (!Method[methodName]) return respCode(501, res);
     try {
         await Method[methodName](req, res);
     } catch (e: any) {
         const err = e as Error;
         console.error(err.name, err.message, err.stack,)
-        return sendErr(500, res);
+        return respCode(500, res);
     }
     if (!res.writableEnded) res.end();
 });

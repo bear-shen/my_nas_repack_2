@@ -4,6 +4,7 @@ import Util from "../lib/Util";
 import ServerConfig from "../ServerConfig";
 import * as fs from 'fs/promises';
 import ErrorCode from "../lib/ErrorCode";
+import * as fsNP from 'fs';
 
 //@see https://github.com/OpenMarshal/npm-WebDAV-Server/blob/master/src/server/v2/webDAVServer/StartStop.ts#L30
 export function getRequestBuffer(req: IncomingMessage, res: ServerResponse): Promise<Buffer> {
@@ -35,12 +36,16 @@ export function getRequestFile(req: IncomingMessage, res: ServerResponse): Promi
         let wrote = 0;
         const reqTmpFilePath = `${ServerConfig.path.temp}/${(new Date()).valueOf()}`;
         // const ws = fs.createWriteStream(reqTmpFilePath, { encoding: "binary", highWaterMark: 32 * 1024 * 1024, });
-        const ws = await fs.open(reqTmpFilePath, 'a+', 0o666);
+        const ws = fsNP.createWriteStream(reqTmpFilePath, {
+            encoding: "binary",
+            flags: 'w+',
+            mode: 0o666,
+        });
         //
         req.on('data', async chunk => {
             // if (chunk.constructor === String)
             // chunk = Buffer.from(chunk);
-            await ws.write(chunk, wrote);
+            await ws.write(chunk);
             // await bodyBuffer.fill(chunk, wrote, chunk.length);
             wrote += chunk.length;
         });
@@ -58,12 +63,24 @@ export function getRequestFile(req: IncomingMessage, res: ServerResponse): Promi
 }
 
 
-export function sendErr(code: keyof typeof ErrorCode, res: ServerResponse) {
-    let msg = 'unknown error';
+export function respCode(code: keyof typeof ErrorCode, res: ServerResponse) {
+    let msg = 'unknown status';
     if (ErrorCode[code]) {
         msg = ErrorCode[code];
     }
     res.statusCode = code;
     res.write(`${code} : ${msg}`);
     res.end();
+}
+
+export function getRelPath(req: IncomingMessage, res: ServerResponse): string | void {
+    const url = new URL(req.url, 'http://' + req.headers.host);
+    const reqPath = decodeURIComponent(url.pathname);
+    const davRootPos = reqPath.indexOf(ServerConfig.path.webdav);
+    //
+    if (davRootPos === -1) return respCode(404, res);
+    if (davRootPos !== 0) return respCode(403, res);
+    //
+    const relPath = reqPath.slice(ServerConfig.path.webdav.length);
+    return relPath;
 }
