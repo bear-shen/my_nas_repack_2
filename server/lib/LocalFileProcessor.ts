@@ -127,8 +127,8 @@ async function mv(fromPath: string, toPath: string): Promise<boolean> {
     return;
 }
 
-async function rm(path: string): Promise<boolean> {
-    await fs.rm(Config.path.local + path, { recursive: true });
+async function rm(relPath: string): Promise<boolean> {
+    await fs.rm(Config.path.local + relPath, { recursive: true });
     return;
 }
 
@@ -137,11 +137,11 @@ async function cp(fromPath: string, toPath: string): Promise<boolean> {
     return;
 }
 
-async function stat(path: string): Promise<fileStatement> {
+async function stat(relPath: string): Promise<fileStatement> {
     // console.info(Config.path.local + path);
     // console.info(fs.stat(Config.path.local + path));
     // console.info(await fs.stat(Config.path.local + path));
-    return await statFromStat(path);
+    return await statFromStat(relPath);
 }
 
 export {

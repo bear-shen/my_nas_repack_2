@@ -16,7 +16,7 @@ import ServerConfig from "../../ServerConfig";
 import { getRelPath, getRequestBuffer, respCode } from "../Lib";
 
 export default async function (req: IncomingMessage, res: ServerResponse) {
-    const relPath = getRelPath(req, res);
+    const relPath = getRelPath(req.url, req.headers.host, res);
     if (!relPath) return;
     const outputData = getBase();
     // console.info(relPath);
@@ -40,7 +40,7 @@ export default async function (req: IncomingMessage, res: ServerResponse) {
             fl.forEach(f => fileLs.push(f));
         }
     }
-    // console.info(fileLs);
+    console.info(fileLs);
     fileLs.forEach(f => {
         outputData.multistatus.response.push(buildRespNode(xmlLs, f))
     });
@@ -54,7 +54,7 @@ function resp(res: ServerResponse, outputData: ElementCompact) {
     const output = convert.js2xml(outputData, { compact: true, });
     if (output) res.setHeader('Content-Type', 'text/xml; charset="utf-8"');
     res.statusCode = 207;
-    console.info(output);
+    // console.info(output);
     res.write(output);
     res.end();
 }
@@ -133,7 +133,7 @@ function buildRespNode(xmlLs: string[], node: fp.fileStatement) {
             'xmlns:g0': 'DAV:',
             'xmlns:g1': 'SAR:',
         },
-        'href': { _text: ServerConfig.path.webdav + node.path, },
+        'href': { _text: ServerConfig.path.webdav + encodeURI(node.path), },
         'propstat': {
             'prop': {},
             'D:status': { _text: 'HTTP/1.1 200 OK', },
