@@ -62,6 +62,18 @@ export function getRequestFile(req: IncomingMessage, res: ServerResponse): Promi
     });
 }
 
+export function setResponseFile(rs: ReadStream, res: ServerResponse): Promise<null> {
+    return new Promise(resolve => {
+        rs.on('data', (chunk) => {
+            console.info(chunk.length);
+            res.write(chunk);
+        })
+        rs.on('end', () => {
+            resolve(null);
+        });
+    });
+}
+
 
 export function respCode(code: keyof typeof ErrorCode, res: ServerResponse) {
     let msg = 'unknown status';

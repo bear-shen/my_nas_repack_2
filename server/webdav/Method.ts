@@ -1,6 +1,6 @@
 import copy from "./processor_local/copy";
 import deleteFunc from "./processor_local/delete";
-// import get from "./processor_local/get";
+import get from "./processor_local/get";
 import head from "./processor_local/head";
 // import lock from "./processor_local/lock";
 import move from "./processor_local/move";
@@ -16,7 +16,7 @@ import mkcol from "./processor_local/mkcol";
 import { IncomingMessage, ServerResponse } from 'http';
 
 const ref = {
-    // 'GET': get,//@todo
+    'GET': get,//@todo
     'MOVE': move,//@todo
     // 'OPTIONS': options,//@todo
     'PROPFIND': propfind,

@@ -99,10 +99,13 @@ async function mkdir(relPath: string): Promise<boolean> {
     return;
 }
 //file
-async function get(path: string): Promise<ReadStream> {
+function get(path: string, from: number, to: number): ReadStream {
     const fullPath = Config.path.local + path;
-    return (await fs.open(fullPath)).createReadStream({
+    console.info(fullPath, from, to);
+    return fsNP.createReadStream(fullPath, {
         autoClose: true,
+        // encoding: 'binary',
+        start: from, end: to
     });
 }
 

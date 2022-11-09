@@ -40,7 +40,7 @@ export default async function (req: IncomingMessage, res: ServerResponse) {
             fl.forEach(f => fileLs.push(f));
         }
     }
-    console.info(fileLs);
+    // console.info(fileLs);
     fileLs.forEach(f => {
         outputData.multistatus.response.push(buildRespNode(xmlLs, f))
     });
