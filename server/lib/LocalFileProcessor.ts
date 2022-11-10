@@ -34,6 +34,7 @@ function getSuffix(fileName: string): string {
 }
 function getType(suffix: string): string {
     let ifHit = -1;
+    console.info(suffix);
     for (const key in Config.suffix) {
         ifHit = Config.suffix[key].indexOf(suffix);
         if (ifHit === -1) continue;
@@ -53,7 +54,7 @@ async function statFromStat(relPath: string, isFullPath?: boolean): Promise<file
             timeCreated: stat.ctime.toISOString(),
             isFile: stat.isFile(),
             isDir: stat.isDirectory(),
-            type: stat.isFile() ? getType(relPath) : 'directory',
+            type: stat.isFile() ? getType(getSuffix(relPath)) : 'directory',
             size: stat.size,
         };
         return result;
