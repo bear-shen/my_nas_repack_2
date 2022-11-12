@@ -1,7 +1,7 @@
 import { IncomingMessage } from "http";
 import { fromByteArray, toByteArray } from "base64-js";
-import UserModel from "../model/UserModel";
 import { makePass } from '../lib/Auth';
+import ServerConfig from "../ServerConfig";
 
 async function check(req: IncomingMessage): Promise<boolean> {
     if (!req.headers.authorization) return false;
@@ -40,10 +40,10 @@ async function check(req: IncomingMessage): Promise<boolean> {
             //
             const name = pwArr.shift();
             const password = pwArr.join(':');
-            const user = await (new UserModel()).where('name', name).first();
-            if (makePass(password) !== user.password) return false;
-            // console.info('login success:', name, password);
-            //
+            if (name === ServerConfig.auth.local.name)
+                if (password === ServerConfig.auth.local.password)
+                    return true;
+            return false;
             break;
     }
     //
