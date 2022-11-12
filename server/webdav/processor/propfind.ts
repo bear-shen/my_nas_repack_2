@@ -1,6 +1,6 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { Element, ElementCompact } from "xml-js";
-import * as fp from "../../lib/LocalFileProcessor";
+import * as fp from "../../lib/FileProcessor";
 
 import * as convert from 'xml-js';
 import { ReadStream } from "fs";

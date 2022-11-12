@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse } from "http";
-import * as fp from "../../lib/LocalFileProcessor";
+import * as fp from "../../lib/FileProcessor";
 import ServerConfig from "../../ServerConfig";
 import { getRelPath, getRequestFile, respCode, setResponseFile } from '../Lib';
 
