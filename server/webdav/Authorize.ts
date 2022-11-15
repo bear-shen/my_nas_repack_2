@@ -2,6 +2,9 @@ import { IncomingMessage } from "http";
 import { fromByteArray, toByteArray } from "base64-js";
 import { makePass } from '../lib/Auth';
 import ServerConfig from "../ServerConfig";
+import UserModel from '../model/UserModel';
+
+const md5 = require('md5');
 
 async function check(req: IncomingMessage): Promise<boolean> {
     if (!req.headers.authorization) return false;
@@ -40,10 +43,9 @@ async function check(req: IncomingMessage): Promise<boolean> {
             //
             const name = pwArr.shift();
             const password = pwArr.join(':');
-            if (name === ServerConfig.auth.local.name)
-                if (password === ServerConfig.auth.local.password)
-                    return true;
-            return false;
+            const ifExs = await (new UserModel).where('name', name).or().where('mail', name).first();
+            if (!ifExs) return false;
+            if (ifExs.password !== md5(md5(password))) return false;
             break;
     }
     //

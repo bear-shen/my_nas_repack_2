@@ -1,5 +1,5 @@
 import devRun from '../../share/dev';
-import { getSuffix, getType, getUUID, parsePath } from '../lib/FileProcessor';
+import { getSuffix, getType, getUUID } from '../lib/FileProcessor';
 console.info('here is /back/index.ts');
 devRun();
 console.info(getUUID());
@@ -8,4 +8,4 @@ console.info(getSuffix('/root/home/wwwno.de/a.doc'));
 console.info(getSuffix('/root/home/wwwno.de/c'));
 console.info(getSuffix('/root/home/wwwno.de/adoc.aaaaaa'));
 console.info(getType('pdf'));
-console.info(parsePath('/root/home/wwwno.de/adoc.aaaaaa'));
+// console.info(parsePath('/root/home/wwwno.de/adoc.aaaaaa'));

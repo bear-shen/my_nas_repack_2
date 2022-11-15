@@ -20,7 +20,7 @@ export interface NodeCol {
         preview?: number,
         normal?: number,
         cover?: number,
-        raw: number,
+        raw?: number,
         [key: string]: number | undefined,
     },
     //节点索引
@@ -35,7 +35,7 @@ export interface NodeCol {
 
 export interface FileCol {
     id?: number,
-    hash?: string,
+    uuid?: string,
     suffix?: string,
     size?: number,
     meta?: { [key: string]: any },
