@@ -18,6 +18,10 @@ import { getRelPath, getRequestBuffer, respCode } from "../Lib";
 export default async function (req: IncomingMessage, res: ServerResponse) {
     const relPath = getRelPath(req.url, req.headers.host, res);
     if (!relPath) return;
+    const nodeLs = await fp.relPath2node(relPath);
+    if (!nodeLs) return respCode(404, res);
+    const curNode = nodeLs[nodeLs.length - 1];
+    //
     const outputData = getBase();
     // console.info(relPath);
     const xmlBuffer = await (await getRequestBuffer(req, res)).toString();
@@ -27,17 +31,19 @@ export default async function (req: IncomingMessage, res: ServerResponse) {
     //console.info(xmlLs);
     //
     let depth = Number.parseInt(req.headers.depth ? req.headers.depth as string : '0');
-
-    let fileLs = [];
+    let fileLs = [] as (fp.FileStat & { relPath: string })[];
+    let dirPath = fp.getDir(relPath);
     for (let i1 = 0; i1 <= depth; i1++) {
         if (i1 === 0) {
-            const fi = await fp.stat(relPath);
+            const fi = await fp.stat(curNode);
             if (!fi) return respCode(404, res);
-            fileLs.push(fi);
-        } else {
-            const fl = await fp.ls(relPath);
+            fileLs.push(Object.assign(fi, { relPath: `${dirPath}${fi.title === 'root' ? '' : '/' + fi.title}` }));
+        } else if (i1 === 1) {
+            const fl = await fp.ls(curNode.id);
             //if (fl) continue;
-            fl.forEach(f => fileLs.push(f));
+            fl.forEach(f => fileLs.push(Object.assign(f, {
+                relPath: `${dirPath}/${f.title}`
+            })));
         }
     }
     // console.info(fileLs);
@@ -100,7 +106,7 @@ function getBase(): ElementCompact {
 }
 
 
-function buildRespNode(xmlLs: string[], node: fp.fileStatement) {
+function buildRespNode(xmlLs: string[], node: (fp.FileStat & { relPath: string })) {
     let mime = '';
     let resourceType = {};
     switch (node.type) {
@@ -119,12 +125,12 @@ function buildRespNode(xmlLs: string[], node: fp.fileStatement) {
             break;
     }
     const availProp = {
-        'creationdate': { _text: node.timeCreated },
-        'getlastmodified': { _text: node.timeModified },
+        'creationdate': { _text: node.time_create },
+        'getlastmodified': { _text: node.time_update },
         'executable': { _text: 'F' },
         'resourcetype': resourceType,
         'getcontenttype': { _text: mime },
-        'getcontentlength': { _text: node.size },
+        'getcontentlength': { _text: node.file?.raw?.size },
     };
     const target = {
         _attributes: {
@@ -133,7 +139,7 @@ function buildRespNode(xmlLs: string[], node: fp.fileStatement) {
             'xmlns:g0': 'DAV:',
             'xmlns:g1': 'SAR:',
         },
-        'href': { _text: ServerConfig.path.webdav + encodeURI(node.path), },
+        'href': { _text: ServerConfig.path.webdav + encodeURI(node.relPath), },
         'propstat': {
             'prop': {},
             'D:status': { _text: 'HTTP/1.1 200 OK', },

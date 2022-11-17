@@ -78,6 +78,7 @@ class ORM {
         binds: {
             full: [],
             where: [],
+            // group: [],
             limit: [],
             insert: [],
             update: [],
@@ -366,11 +367,11 @@ ${sqlPart.sort}
 ${sqlPart.limit}`.trim();
         this._dataset.binds.full = [];
         this._dataset.binds.full.push(...this._dataset.binds.where);
-        this._dataset.binds.full.push(...this._dataset.binds.group);
-        this._dataset.binds.full.push(...this._dataset.binds.sort);
+        // this._dataset.binds.full.push(...this._dataset.binds.group);
+        // this._dataset.binds.full.push(...this._dataset.binds.sort);
         this._dataset.binds.full.push(...this._dataset.binds.limit);
         // console.info(this._dataset);
-        // console.info(sql, this._dataset.binds);
+        console.info(sql, this._dataset.binds.full);
         const [rows, fields] = await conn().execute(sql, this._dataset.binds.full);
         // console.info(rows, fields);
         return rows;
@@ -431,7 +432,7 @@ ${sqlPart.sort}
 ${sqlPart.limit}`.trim();
         // console.info(sql, this._dataset.binds);
         this._dataset.binds.full.push(...this._dataset.binds.where);
-        this._dataset.binds.full.push(...this._dataset.binds.sort);
+        // this._dataset.binds.full.push(...this._dataset.binds.sort);
         this._dataset.binds.full.push(...this._dataset.binds.limit);
         const [rows, fields] = await conn().execute(sql, this._dataset.binds.full);
         return rows;
@@ -537,7 +538,7 @@ ${sqlPart.sort}
 ${sqlPart.limit}`.trim();
         // console.info(sql, this._dataset.binds);
         this._dataset.binds.full.push(...this._dataset.binds.where);
-        this._dataset.binds.full.push(...this._dataset.binds.sort);
+        // this._dataset.binds.full.push(...this._dataset.binds.sort);
         this._dataset.binds.full.push(...this._dataset.binds.limit);
         const [rows, fields] = await conn().execute(sql, this._dataset.binds.full);
         return rows;

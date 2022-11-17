@@ -10,15 +10,33 @@ import NodeModel from "../model/NodeModel";
 import FileModel from '../model/FileModel';
 import { dir } from "console";
 
+function isId(inVal: NodeCol | number | bigint): boolean {
+    switch (typeof inVal) {
+        case 'bigint':
+        case 'number':
+        case 'string':
+            return true;
+            break;
+        case 'object':
+        default:
+            return false;
+            break;
+    }
+}
+async function getNodeByIdOrNode(inVal: NodeCol | number | bigint): Promise<NodeCol> {
+    if (!isId(inVal)) return inVal as NodeCol;
+    if (inVal === 0) return rootNode;
+    return await (new NodeModel).where('id', inVal).first();
+}
 //util
-async function path2node(relPath: string): Promise<NodeCol[]> {
+async function relPath2node(relPath: string): Promise<NodeCol[] | false> {
     const nPathArr = relPath.replace(/\/$/, '').split(/\//);
     const nodeList = [rootNode];
     if (nPathArr.length > 0)
         for (let i1 = 0; i1 < nPathArr.length; i1++) {
             if (!nPathArr[i1].length) continue;
             const curNode = await (new NodeModel).where('id_parent', nodeList[i1].id).where('title', nPathArr[i1]).first();
-            if (!curNode) throw new Error('node not found');
+            if (!curNode) return false;
             nodeList.push(curNode);
         }
     return nodeList;
@@ -26,7 +44,7 @@ async function path2node(relPath: string): Promise<NodeCol[]> {
 function getUUID(): string {
     return crypto.randomBytes(12).toString("base64url").toLowerCase();
 }
-function getRelPath(file: FileCol) {
+function getRelPathByFile(file: FileCol) {
     const path = `${file.uuid.substring(0, 1)}/${file.uuid.substring(1, 3)}/${file.uuid.substring(3)}.${file.suffix}`;
     return path;
 }
@@ -100,11 +118,11 @@ async function ls(dirId: number): Promise<FileStat[]> {
     return nodeLs;
 }
 
-async function mkdir(dirId: number, name: string): Promise<NodeCol> {
+async function mkdir(dirId: number, name: string): Promise<NodeCol | false> {
     let parentInfo = rootNode;
     if (dirId) {
         parentInfo = await (new NodeModel).where('id', dirId).first();
-        if (!parentInfo) throw new Error('parent not found');
+        if (!parentInfo) return false;
     }
     //
     const nodeInfo = {
@@ -127,7 +145,7 @@ async function mkdir(dirId: number, name: string): Promise<NodeCol> {
 async function get(nodeId: string, from: number, to: number): Promise<ReadStream> {
     const node = await (new NodeModel).where('id', nodeId).first();
     const file = await (new FileModel).where('id', node.index_file_id.raw).first();
-    const relPath = getRelPath(file);
+    const relPath = getRelPathByFile(file);
     const fullPath = Config.path.local + relPath;
     //
     console.info(fullPath, from, to);
@@ -138,7 +156,7 @@ async function get(nodeId: string, from: number, to: number): Promise<ReadStream
     });
 }
 
-async function touch(path: string): Promise<boolean> {
+async function touch(path: string): Promise<false> {
     return false;
 }
 
@@ -146,11 +164,11 @@ async function put(fromTmpPath: string, toDirId: number, name: string): Promise<
     let parentInfo = rootNode;
     if (toDirId) {
         parentInfo = await (new NodeModel).where('id', toDirId).first();
-        if (!parentInfo) throw new Error('parent not found');
+        if (!parentInfo) return false;
     }
     //
     const ifDup = await (new NodeModel).where('id_parent', toDirId).where('title', name).first();
-    if (ifDup) throw new Error('file conflict');
+    if (ifDup) return false;
     //
     const suffix = getSuffix(name);
     const stat = await fs.stat(fromTmpPath);
@@ -177,7 +195,7 @@ async function put(fromTmpPath: string, toDirId: number, name: string): Promise<
         index_node: {},
     } as NodeCol;
     await (new NodeModel).insert(nodeInfo);
-    const targetPath = Config.path.local + getRelPath(fileInfo);
+    const targetPath = Config.path.local + getRelPathByFile(fileInfo);
     await fs.rename(fromTmpPath, targetPath);
     return true;
 }
@@ -189,7 +207,7 @@ async function mv(nodeId: number, toDirId: number, name: string): Promise<boolea
     const sameDir = node.id_parent === toDir.id;
     //
     const ifDup = await checkName(toDirId, name);
-    if (ifDup && ifDup.id !== nodeId) throw new Error('file conflict');
+    if (ifDup && ifDup.id !== nodeId) return false;
     //如果是不同的目标文件夹的话,需要更改对应的文件索引
     if (!sameDir && node.type === 'directory') {
         const newNodeList = [...toDir.list_node, toDir.id];
@@ -216,12 +234,13 @@ async function rm(nodeId: number): Promise<boolean> {
     return false;
 }
 
-async function cp(nodeId: number, toDirId: number, name: string): Promise<boolean> {
-    const node = await (new NodeModel).where('id', nodeId).first();
-    const toDir = await (new NodeModel).where('id', toDirId).first();
+async function cp(nodeId: number | NodeCol, toDirId: number | NodeCol, name: string): Promise<boolean> {
+
+    const node = await getNodeByIdOrNode(nodeId);
+    const toDir = await getNodeByIdOrNode(toDirId);
     //
-    const ifDup = await checkName(toDirId, name);
-    if (ifDup && ifDup.id !== nodeId) throw new Error('file conflict');
+    const ifDup = await checkName(toDir.id, name);
+    if (ifDup && ifDup.id !== nodeId) return false;
     const newNodeList = [...toDir.list_node, toDir.id];
     const newNodeInfo = {
         id_parent: toDirId,
@@ -246,11 +265,11 @@ async function cp(nodeId: number, toDirId: number, name: string): Promise<boolea
             })
         });
     }
-    return false;
+    return true;
 }
 
-async function stat(nodeId: number): Promise<FileStat> {
-    const node = await (new NodeModel).where('id', nodeId).first() as FileStat;
+async function stat(nodeId: number | NodeCol): Promise<FileStat> {
+    const node = await getNodeByIdOrNode(nodeId) as FileStat;
     //
     const fileIdSet = new Set<number>();
     const fileMap = new Map<number, FileCol>();
@@ -277,7 +296,11 @@ async function stat(nodeId: number): Promise<FileStat> {
 }
 
 export {
+    relPath2node,
+    getRelPathByFile,
     getUUID,
+    getDir,
+    getName,
     getSuffix,
     getType,
     //
@@ -290,6 +313,8 @@ export {
     rm,
     cp,
     stat,
+    //
+    FileStat,
 };
 
 type FileStat = NodeCol & {
@@ -299,7 +324,9 @@ type FileStat = NodeCol & {
         cover?: FileCol,
         raw?: FileCol,
         [key: string]: FileCol | undefined,
-    }
+    },
+    relPath: string,
+    path: string,
 };
 
 const rootNode = {
