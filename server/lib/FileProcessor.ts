@@ -160,14 +160,10 @@ async function touch(path: string): Promise<false> {
     return false;
 }
 
-async function put(fromTmpPath: string, toDirId: number, name: string): Promise<boolean> {
-    let parentInfo = rootNode;
-    if (toDirId) {
-        parentInfo = await (new NodeModel).where('id', toDirId).first();
-        if (!parentInfo) return false;
-    }
+async function put(fromTmpPath: string, toDir: number | NodeCol, name: string): Promise<boolean> {
+    const parentNode = await getNodeByIdOrNode(toDir);
     //
-    const ifDup = await (new NodeModel).where('id_parent', toDirId).where('title', name).first();
+    const ifDup = await (new NodeModel).where('id_parent', parentNode.id).where('title', name).first();
     if (ifDup) return false;
     //
     const suffix = getSuffix(name);
@@ -183,13 +179,13 @@ async function put(fromTmpPath: string, toDirId: number, name: string): Promise<
     fileInfo.id = await (new FileModel).lastInsertId();
     //
     const nodeInfo = {
-        id_parent: toDirId,
+        id_parent: parentNode.id,
         type: getType(suffix),
         title: name,
         // description: description,
         status: 1,
         building: 1,
-        list_node: [...parentInfo.list_node, parentInfo.id],
+        list_node: [...parentNode.list_node, parentNode.id],
         list_tag_id: [],
         index_file_id: { raw: fileInfo.id, },
         index_node: {},
