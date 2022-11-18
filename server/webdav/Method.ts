@@ -1,6 +1,6 @@
 // import copy from "./processor/copy";
 // import deleteFunc from "./processor/delete";
-// import get from "./processor/get";
+import get from "./processor/get";
 import head from "./processor/head";
 // import lock from "./processor/lock";
 // import move from "./processor/move";
@@ -11,17 +11,17 @@ import propfind from "./processor/propfind";
 // import trace from "./processor/trace";
 // import unlock from "./processor/unlock";
 import put from "./processor/put";
-// import mkcol from "./processor/mkcol";
+import mkcol from "./processor/mkcol";
 // import copy from "./processor/copy";
 import { IncomingMessage, ServerResponse } from 'http';
 
 const ref = {
-    // 'GET': get,//@todo
+    'GET': get,//@todo
     // 'MOVE': move,//@todo
     // 'OPTIONS': options,//@todo
     'PROPFIND': propfind,
     'PUT': put,//@todo
-    // 'MKCOL': mkcol,//@todo
+    'MKCOL': mkcol,//@todo
     // 'DELETE': deleteFunc,//@todo
     // 'COPY': copy,//@todo
     //

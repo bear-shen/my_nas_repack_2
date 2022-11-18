@@ -28,7 +28,8 @@ export function getRequestBuffer(req: IncomingMessage, res: ServerResponse): Pro
 }
 //@see https://github.com/OpenMarshal/npm-WebDAV-Server/blob/master/src/server/v2/webDAVServer/StartStop.ts#L30
 export function getRequestFile(req: IncomingMessage, res: ServerResponse): Promise<string> {
-    return new Promise(async (resolve: any) => {
+    return new Promise((resolve: any) => {
+        // console.info('getRequestFile:init');
         // console.info(req.headers['content-type']);
         const length = req.headers["content-length"] ? Number.parseInt(req.headers["content-length"]) : 0;
         if (!length) resolve(null);
@@ -50,14 +51,11 @@ export function getRequestFile(req: IncomingMessage, res: ServerResponse): Promi
             wrote += chunk.length;
         });
         req.on('end', async () => {
+            // console.info('getRequestFile:end');
             resolve(reqTmpFilePath);
         });
         res.on('close', async () => {
-            try {
-                await fs.stat(reqTmpFilePath);
-                await fs.rm(reqTmpFilePath);
-            } catch (e) {
-            }
+            // console.info('getRequestFile close');
         })
     });
 }

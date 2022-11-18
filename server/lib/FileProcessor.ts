@@ -144,8 +144,8 @@ async function mkdir(dirId: number, name: string): Promise<NodeCol | false> {
     return nodeInfo;
 }
 //file
-async function get(nodeId: string, from: number, to: number): Promise<ReadStream> {
-    const node = await (new NodeModel).where('id', nodeId).first();
+async function get(nodeId: number | NodeCol, from: number, to: number): Promise<ReadStream> {
+    const node = await getNodeByIdOrNode(nodeId);
     const file = await (new FileModel).where('id', node.index_file_id.raw).first();
     const relPath = getRelPathByFile(file);
     const fullPath = Config.path.local + relPath;
@@ -163,6 +163,7 @@ async function touch(path: string): Promise<false> {
 }
 
 async function put(fromTmpPath: string, toDir: number | NodeCol, name: string): Promise<boolean> {
+    console.info('FileProcessor put: init');
     const parentNode = await getNodeByIdOrNode(toDir);
     //
     const ifDup = await (new NodeModel).where('id_parent', parentNode.id).where('title', name).first();
@@ -193,9 +194,20 @@ async function put(fromTmpPath: string, toDir: number | NodeCol, name: string): 
         index_node: {},
     } as NodeCol;
     await (new NodeModel).insert(nodeInfo);
+    // console.info('FileProcessor put: node cmp');
     const targetPath = Config.path.local + getRelPathByFile(fileInfo);
-    await fs.mkdir(getDir(targetPath), { recursive: true, mode: 0o777 });
+    try {
+        await fs.stat(getDir(targetPath));
+    } catch (e) {
+        await fs.mkdir(getDir(targetPath), { recursive: true, mode: 0o777 });
+    }
+    // console.info('FileProcessor put: mkdir');
     await fs.rename(fromTmpPath, targetPath);
+    // try {
+    // await fs.stat(fromTmpPath);
+    // await fs.rm(fromTmpPath);
+    // } catch (e) {
+    // }
     return true;
 }
 

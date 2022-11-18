@@ -49,6 +49,7 @@ fs.mkdirSync(
 const server = http.createServer(async function (req: IncomingMessage, res: ServerResponse) {
     // const tmpBodyPath = await getRequestBody(req, res);
     // console.info(req.method, req.headers,);
+    // console.info('createServer');
     const authorized = await Authorize.check(req);
     if (!authorized) {
         res.setHeader('WWW-Authenticate', 'Basic realm="WebDAV Server"');
