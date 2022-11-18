@@ -47,11 +47,11 @@ async function printDir(relPath: NodeCol, nodeLs: NodeCol[], res: ServerResponse
     const fLs = await fp.ls(relPath.id);
     const tbLs = [] as string[];
     const pathArr = [] as string[];
-    nodeLs.forEach(node => node.id ? pathArr.push(node.title) : null)
+    nodeLs.forEach(node => node.id ? pathArr.push('/' + node.title) : null)
     fLs.forEach(f => {
         //        <td><a href="${ServerConfig.path.webdav + encodeURI(f.path)}">${f.name}</a></td>
         tbLs.push(`<tr>
-        <td><a href="${ServerConfig.path.webdav}${pathArr.length ? '/' : ''}${encodeURI(pathArr.join('/'))}/${encodeURI(f.title)}">${f.title}</a></td>
+        <td><a href="${ServerConfig.path.webdav}${encodeURI(pathArr.join('/'))}/${encodeURI(f.title)}">${f.title}</a></td>
         <td>${f?.file?.raw?.size ?? 0}</td><td>${f.type}</td><td>${f.time_create}</td><td>${f.time_update}</td>
         </tr>`);
     })
