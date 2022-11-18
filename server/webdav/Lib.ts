@@ -35,7 +35,7 @@ export function getRequestFile(req: IncomingMessage, res: ServerResponse): Promi
         if (!length) resolve(null);
         //
         let wrote = 0;
-        const reqTmpFilePath = `${ServerConfig.path.temp}/${(new Date()).valueOf()}`;
+        const reqTmpFilePath = `${ServerConfig.path.temp}/${(new Date()).valueOf()}_${Math.random()}`;
         // const ws = fs.createWriteStream(reqTmpFilePath, { encoding: "binary", highWaterMark: 32 * 1024 * 1024, });
         const ws = fsNP.createWriteStream(reqTmpFilePath, {
             encoding: "binary",

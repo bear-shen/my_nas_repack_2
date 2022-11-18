@@ -14,7 +14,8 @@ export default async function (req: IncomingMessage, res: ServerResponse) {
 
     //res.statusCode = 206;
     const nodeStat = await fp.stat(node);
-    const file = nodeStat.file.raw;
+    const file = nodeStat.file?.raw;
+    if (!file) return respCode(404, res);
 
     let bufFrom = 0;
     let bufTo = file.size;

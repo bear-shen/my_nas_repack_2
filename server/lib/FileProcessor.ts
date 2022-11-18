@@ -120,7 +120,7 @@ async function ls(dirId: number): Promise<FileStat[]> {
     return nodeLs;
 }
 
-async function mkdir(dirId: number, name: string): Promise<NodeCol | false> {
+async function mkdir(dirId: number, name: string): Promise<boolean> {
     let parentInfo = rootNode;
     if (dirId) {
         parentInfo = await (new NodeModel).where('id', dirId).first();
@@ -141,7 +141,7 @@ async function mkdir(dirId: number, name: string): Promise<NodeCol | false> {
     } as NodeCol;
     await (new NodeModel).insert(nodeInfo);
     nodeInfo.id = await (new NodeModel).lastInsertId();
-    return nodeInfo;
+    return true;
 }
 //file
 async function get(nodeId: number | NodeCol, from: number, to: number): Promise<ReadStream> {
@@ -179,7 +179,9 @@ async function put(fromTmpPath: string, toDir: number | NodeCol, name: string): 
         status: 1,
     } as FileCol;
     await (new FileModel).insert(fileInfo);
-    fileInfo.id = await (new FileModel).lastInsertId();
+    const curFileInfo = await (new FileModel).where('uuid', fileInfo.uuid).first();
+    fileInfo.id = curFileInfo.id;
+    console.info(fileInfo.id, 'ref to', name);
     //
     const nodeInfo = {
         id_parent: parentNode.id,
