@@ -16,7 +16,7 @@ export default async function (req: IncomingMessage, res: ServerResponse) {
     const tmpFilePath = await getRequestFile(req, res);
     // console.info('put:5');
     await fp.put(tmpFilePath, targetNodeLs[targetNodeLs.length - 1], targetFileName);
-    console.info('put:6 ', targetFileName);
+    // console.info('put:6 ', targetFileName);
     return respCode(201, res);
 }
 

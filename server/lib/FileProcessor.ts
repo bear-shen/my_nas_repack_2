@@ -43,8 +43,12 @@ async function relPath2node(relPath: string): Promise<NodeCol[] | false> {
         }
     return nodeList;
 }
-function getUUID(): string {
-    return crypto.randomBytes(12).toString("base64url").toLowerCase();
+async function getUUID(): Promise<string> {
+    let uuid = '';
+    do {
+        uuid = crypto.randomBytes(12).toString("base64url").toLowerCase()
+    } while (await (new FileModel).where('uuid', uuid).first(['id']))
+    return uuid;
 }
 function getRelPathByFile(file: FileCol) {
     const path = `/${file.uuid.substring(0, 1)}/${file.uuid.substring(1, 3)}/${file.uuid.substring(3)}.${file.suffix}`;
@@ -163,7 +167,7 @@ async function touch(path: string): Promise<false> {
 }
 
 async function put(fromTmpPath: string, toDir: number | NodeCol, name: string): Promise<boolean> {
-    console.info('FileProcessor put: init');
+    // console.info('FileProcessor put: init');
     const parentNode = await getNodeByIdOrNode(toDir);
     //
     const ifDup = await (new NodeModel).where('id_parent', parentNode.id).where('title', name).first();
@@ -172,16 +176,17 @@ async function put(fromTmpPath: string, toDir: number | NodeCol, name: string): 
     const suffix = getSuffix(name);
     const stat = await fs.stat(fromTmpPath);
     const fileInfo = {
-        uuid: getUUID(),
+        uuid: await getUUID(),
         suffix: suffix,
         size: stat.size,
         meta: {},
         status: 1,
     } as FileCol;
     await (new FileModel).insert(fileInfo);
-    const curFileInfo = await (new FileModel).where('uuid', fileInfo.uuid).first();
+    //last insert id 不靠谱的，用uuid回传
+    const curFileInfo = await (new FileModel).where('uuid', fileInfo.uuid).first(['id']);
     fileInfo.id = curFileInfo.id;
-    console.info(fileInfo.id, 'ref to', name);
+    // console.info(fileInfo.id, 'ref to', name);
     //
     const nodeInfo = {
         id_parent: parentNode.id,
