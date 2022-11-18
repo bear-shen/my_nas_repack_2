@@ -10,7 +10,7 @@ import propfind from "./processor/propfind";
 // import proppatch from "./processor/proppatch";
 // import trace from "./processor/trace";
 // import unlock from "./processor/unlock";
-// import put from "./processor/put";
+import put from "./processor/put";
 // import mkcol from "./processor/mkcol";
 // import copy from "./processor/copy";
 import { IncomingMessage, ServerResponse } from 'http';
@@ -20,7 +20,7 @@ const ref = {
     // 'MOVE': move,//@todo
     // 'OPTIONS': options,//@todo
     'PROPFIND': propfind,
-    // 'PUT': put,//@todo
+    'PUT': put,//@todo
     // 'MKCOL': mkcol,//@todo
     // 'DELETE': deleteFunc,//@todo
     // 'COPY': copy,//@todo

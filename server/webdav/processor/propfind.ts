@@ -130,7 +130,7 @@ function buildRespNode(xmlLs: string[], node: (fp.FileStat & { relPath: string }
         'executable': { _text: 'F' },
         'resourcetype': resourceType,
         'getcontenttype': { _text: mime },
-        'getcontentlength': { _text: node.file?.raw?.size },
+        'getcontentlength': { _text: node.file?.raw?.size ?? 0 },
     };
     const target = {
         _attributes: {

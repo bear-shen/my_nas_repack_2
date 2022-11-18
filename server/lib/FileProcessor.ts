@@ -30,7 +30,9 @@ async function getNodeByIdOrNode(inVal: NodeCol | number | bigint): Promise<Node
 }
 //util
 async function relPath2node(relPath: string): Promise<NodeCol[] | false> {
-    const nPathArr = relPath.replace(/\/$/, '').split(/\//);
+    let nPathArr = relPath.replace(/\/$/, '').split(/\//);
+    nPathArr = nPathArr.filter(n => !!n.length);
+    // console.info(relPath, nPathArr);
     const nodeList = [rootNode];
     if (nPathArr.length > 0)
         for (let i1 = 0; i1 < nPathArr.length; i1++) {
@@ -45,7 +47,7 @@ function getUUID(): string {
     return crypto.randomBytes(12).toString("base64url").toLowerCase();
 }
 function getRelPathByFile(file: FileCol) {
-    const path = `${file.uuid.substring(0, 1)}/${file.uuid.substring(1, 3)}/${file.uuid.substring(3)}.${file.suffix}`;
+    const path = `/${file.uuid.substring(0, 1)}/${file.uuid.substring(1, 3)}/${file.uuid.substring(3)}.${file.suffix}`;
     return path;
 }
 function getDir(filePath: string): string {
@@ -192,6 +194,7 @@ async function put(fromTmpPath: string, toDir: number | NodeCol, name: string): 
     } as NodeCol;
     await (new NodeModel).insert(nodeInfo);
     const targetPath = Config.path.local + getRelPathByFile(fileInfo);
+    await fs.mkdir(getDir(targetPath), { recursive: true, mode: 0o777 });
     await fs.rename(fromTmpPath, targetPath);
     return true;
 }
