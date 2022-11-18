@@ -90,7 +90,7 @@ async function checkName(dirId: number, name: string) {
 }
 //dir
 async function ls(dirId: number): Promise<FileStat[]> {
-    const nodeLs = await (new NodeModel).where('id_parent', dirId).select() as FileStat[];
+    const nodeLs = await (new NodeModel).where('id_parent', dirId).where('status', 1).select() as FileStat[];
     //
     const fileIdSet = new Set<number>();
     const fileMap = new Map<number, FileCol>();
@@ -211,22 +211,25 @@ async function put(fromTmpPath: string, toDir: number | NodeCol, name: string): 
     return true;
 }
 
-async function mv(nodeId: number, toDirId: number, name: string): Promise<boolean> {
-    const toDir = await (new NodeModel).where('id', toDirId).first();
-    const node = await (new NodeModel).where('id', nodeId).first();
+async function mv(nodeId: number | NodeCol, toDirId: number | NodeCol, name: string): Promise<boolean> {
+    const node = await getNodeByIdOrNode(nodeId);
+    const toDir = await getNodeByIdOrNode(toDirId);
     //
     const sameDir = node.id_parent === toDir.id;
     //
-    const ifDup = await checkName(toDirId, name);
-    if (ifDup && ifDup.id !== nodeId) return false;
+    console.info(toDir.title, name);
+    const ifDup = await checkName(toDir.id, name);
+    if (ifDup && ifDup.id !== node.id) return false;
+    //
+    const newNodeList = [...toDir.list_node, toDir.id];
+    console.info('newNodeList:', newNodeList);
+    await (new NodeModel).where('id', node.id).update({
+        id_parent: toDir.id,
+        list_node: newNodeList,
+    });
     //如果是不同的目标文件夹的话,需要更改对应的文件索引
     if (!sameDir && node.type === 'directory') {
-        const newNodeList = [...toDir.list_node, toDir.id];
-        await (new NodeModel).where('id', node.id).update({
-            list_node: newNodeList
-        })
-        //
-        const cascadeNode = await (new NodeModel).whereRaw('find_in_set( ? ,list_node)', nodeId).select(["id", "list_node"]);
+        const cascadeNode = await (new NodeModel).whereRaw('find_in_set( ? ,list_node)', node.id).select(["id", "list_node"]);
         cascadeNode.forEach(async child => {
             const childIndex = child.list_node.indexOf(node.id);
             await (new NodeModel).where('id', node.id).update({
@@ -246,7 +249,6 @@ async function rm(nodeId: number): Promise<boolean> {
 }
 
 async function cp(nodeId: number | NodeCol, toDirId: number | NodeCol, name: string): Promise<boolean> {
-
     const node = await getNodeByIdOrNode(nodeId);
     const toDir = await getNodeByIdOrNode(toDirId);
     //
@@ -254,7 +256,7 @@ async function cp(nodeId: number | NodeCol, toDirId: number | NodeCol, name: str
     if (ifDup && ifDup.id !== nodeId) return false;
     const newNodeList = [...toDir.list_node, toDir.id];
     const newNodeInfo = {
-        id_parent: toDirId,
+        id_parent: toDir.id,
         type: node.type,
         title: name,
         description: node.description,
@@ -268,7 +270,7 @@ async function cp(nodeId: number | NodeCol, toDirId: number | NodeCol, name: str
     await (new NodeModel).insert(newNodeInfo);
     //
     if (newNodeInfo.type === 'directory') {
-        const cascadeNode = await (new NodeModel).whereRaw('find_in_set( ? ,list_node)', nodeId).select(["id", "list_node"]);
+        const cascadeNode = await (new NodeModel).whereRaw('find_in_set( ? ,list_node)', node.id).select(["id", "list_node"]);
         cascadeNode.forEach(async child => {
             const childIndex = child.list_node.indexOf(node.id);
             await (new NodeModel).where('id', node.id).update({
