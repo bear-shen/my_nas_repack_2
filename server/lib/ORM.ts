@@ -371,7 +371,7 @@ ${sqlPart.limit}`.trim();
         // this._dataset.binds.full.push(...this._dataset.binds.sort);
         this._dataset.binds.full.push(...this._dataset.binds.limit);
         // console.info(this._dataset);
-        console.info(sql, this._dataset.binds.full);
+        // console.info(sql, this._dataset.binds.full);
         const [rows, fields] = await conn().execute(sql, this._dataset.binds.full);
         // console.info(rows, fields);
         return rows;
