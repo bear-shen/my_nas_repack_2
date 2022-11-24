@@ -84,6 +84,7 @@ export function respCode(code: keyof typeof ErrorCode, res: ServerResponse) {
 }
 
 export function getRelPath(url: string, host: string, res: ServerResponse): string | void {
+    console.info(url);
     const urlInfo = new URL(url, 'http://' + host);
     const reqPath = decodeURI(urlInfo.pathname);
     const davRootPos = reqPath.indexOf(ServerConfig.path.webdav);
@@ -91,6 +92,10 @@ export function getRelPath(url: string, host: string, res: ServerResponse): stri
     if (davRootPos === -1) return respCode(404, res);
     if (davRootPos !== 0) return respCode(403, res);
     //
-    const relPath = reqPath.slice(ServerConfig.path.webdav.length);
+    let relPath = reqPath.slice(ServerConfig.path.webdav.length);
+    if (!relPath.length) relPath = '/';
+    if (relPath.indexOf('/') !== 0) {
+        return respCode(403, res);
+    }
     return relPath;
 }

@@ -6,6 +6,7 @@ import { NodeCol } from '../../../share/Database';
 
 export default async function (req: IncomingMessage, res: ServerResponse) {
     const relPath = getRelPath(req.url, req.headers.host, res);
+    console.info(relPath);
     if (!relPath) return;
     const nodeLs = await fp.relPath2node(relPath);
     if (!nodeLs) return respCode(404, res);
@@ -44,15 +45,23 @@ export default async function (req: IncomingMessage, res: ServerResponse) {
     return;
 }
 
-async function printDir(relPath: NodeCol, nodeLs: NodeCol[], res: ServerResponse) {
+async function printDir(relPath: NodeCol, nodePathLs: NodeCol[], res: ServerResponse) {
     const fLs = await fp.ls(relPath.id);
     const tbLs = [] as string[];
     const pathArr = [] as string[];
-    nodeLs.forEach(node => node.id ? pathArr.push('/' + node.title) : null)
+    //
+    nodePathLs.forEach(node => node.id ? pathArr.push('/' + node.title) : null)
+    //
+    const parPathArr = pathArr.slice(0, pathArr.length - 1);
+    tbLs.push(`<tr>
+        <td><a href="${ServerConfig.path.webdav}${encodeURI(parPathArr.join(''))}">../</a></td>
+        <td>0</td><td>directory</td><td>${relPath.time_create}</td><td>${relPath.time_update}</td>
+        </tr>`);
+    //
     fLs.forEach(f => {
         //        <td><a href="${ServerConfig.path.webdav + encodeURI(f.path)}">${f.name}</a></td>
         tbLs.push(`<tr>
-        <td><a href="${ServerConfig.path.webdav}${encodeURI(pathArr.join('/'))}/${encodeURI(f.title)}">${f.title}</a></td>
+        <td><a href="${ServerConfig.path.webdav}${encodeURI(pathArr.join(''))}/${encodeURI(f.title)}">${f.title}</a></td>
         <td>${f?.file?.raw?.size ?? 0}</td><td>${f.type}</td><td>${f.time_create}</td><td>${f.time_update}</td>
         </tr>`);
     })
