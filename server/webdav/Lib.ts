@@ -95,7 +95,7 @@ export function getRelPath(url: string, host: string, res: ServerResponse): stri
     let relPath = reqPath.slice(ServerConfig.path.webdav.length);
     if (!relPath.length) relPath = '/';
     if (relPath.indexOf('/') !== 0) {
-        return respCode(403, res);
+        return respCode(404, res);
     }
     return relPath;
 }
