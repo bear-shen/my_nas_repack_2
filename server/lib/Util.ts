@@ -107,7 +107,7 @@ const Util = {
                     if (headerEqual === -1) continue;
                     newData[
                         input.header[i1].slice(0, headerEqual).trim()
-                        ] = input.header[i1].slice(headerEqual + 1).trim();
+                    ] = input.header[i1].slice(headerEqual + 1).trim();
                 }
                 input.header = newData;
             }
@@ -320,7 +320,7 @@ const Util = {
     encodeGBKurl: function (s: string): string | null {
         const img = document.createElement('img');
 
-// escapeDBC 对多字节字符编码的函数
+        // escapeDBC 对多字节字符编码的函数
         function escapeDBC(s: string) {
             if (!s) return '';
             /*if (window.ActiveXObject) {
@@ -335,12 +335,12 @@ const Util = {
                 }
               );
             }*/
-// 其它浏览器利用浏览器对请求地址自动编码的特性
+            // 其它浏览器利用浏览器对请求地址自动编码的特性
             img.src = 'nothing.action?separator=' + s;
             return img.src.split('?separator=').pop();
         }
 
-// 把 多字节字符 与 单字节字符 分开，分别使用 escapeDBC 和 encodeURIComponent 进行编码
+        // 把 多字节字符 与 单字节字符 分开，分别使用 escapeDBC 和 encodeURIComponent 进行编码
         return s.replace(
             /([^\x00-\xff]+)|([\x00-\xff]+)/g, function ($0, $1, $2) {
                 return escapeDBC($1) + encodeURIComponent($2 || '');

@@ -6,7 +6,7 @@ import { NodeCol } from '../../../share/Database';
 
 export default async function (req: IncomingMessage, res: ServerResponse) {
     const relPath = getRelPath(req.url, req.headers.host, res);
-    console.info(relPath);
+    // console.info(relPath);
     if (!relPath) return;
     const nodeLs = await fp.relPath2node(relPath);
     if (!nodeLs) return respCode(404, res);
@@ -52,11 +52,13 @@ async function printDir(relPath: NodeCol, nodePathLs: NodeCol[], res: ServerResp
     //
     nodePathLs.forEach(node => node.id ? pathArr.push('/' + node.title) : null)
     //
-    const parPathArr = pathArr.slice(0, pathArr.length - 1);
-    tbLs.push(`<tr>
+    if (pathArr.length) {
+        const parPathArr = pathArr.slice(0, pathArr.length - 1);
+        tbLs.push(`<tr>
         <td><a href="${ServerConfig.path.webdav}${encodeURI(parPathArr.join(''))}">../</a></td>
         <td>0</td><td>directory</td><td>${relPath.time_create}</td><td>${relPath.time_update}</td>
         </tr>`);
+    }
     //
     fLs.forEach(f => {
         //        <td><a href="${ServerConfig.path.webdav + encodeURI(f.path)}">${f.name}</a></td>
@@ -67,7 +69,9 @@ async function printDir(relPath: NodeCol, nodePathLs: NodeCol[], res: ServerResp
     })
     res.statusCode = 200;
     res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-    res.write('<html><body><table style="width:100%;">');
+    res.write('<html><body>')
+    res.write(updDOM)
+    res.write('<table style="width:100%;">');
     res.write(`<tr>
         <td>title</td>
         <td>size</td><td>type</td><td>created</td><td>modified</td>
@@ -76,4 +80,23 @@ async function printDir(relPath: NodeCol, nodePathLs: NodeCol[], res: ServerResp
     res.write('</table></body></html>');
 }
 
+const updDOM = `<script>
+      function put() {
+        console.info("PUT");
+        const fileDOM = document.getElementById("file");
+        if (!fileDOM.files || !fileDOM.files.length) return;
+        const file = fileDOM.files[0];
+        console.info(file);
+        const xmlHttp = new XMLHttpRequest();
+        xmlHttp.onreadystatechange = function () {
+            if (xmlHttp.readyState !== 4) return;
+            location.reload();
+        };
+        xmlHttp.open("PUT", location.pathname.replace(/\\\/$/,'') +'/'+ encodeURI(file.name), true);
+        xmlHttp.send(file);
+      }
+    </script><form>
+      <input type="file" id="file" />
+      <button type="button" onclick="put()">submit</button>
+    </form>`;
 
