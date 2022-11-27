@@ -13,26 +13,7 @@ const containerDef = {};
   <div class="fr_body">
     <FrNavi class="fr_navi"></FrNavi>
     <router-view></router-view>
-    <!--     <template v-if="curContainer">
-      <component :is="curContainer?.component?.__name" class="fr_content"></component>
-    </template> -->
   </div>
-  <!-- footer想了一下可能没有用，因为分页不打算做了。。。 -->
-  <!-- <FrFooter class="fr_footer"></FrFooter> -->
-  <!-- <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
-
-  <RouterView /> -->
 </template>
 
 <style lang="scss">
