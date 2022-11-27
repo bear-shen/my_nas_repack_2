@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // import { defineProps } from "vue";
-import { useRouter, type RouteRecordRaw } from "vue-router";
+import { useRouter, useRoute, type RouteRecordRaw } from "vue-router";
 import { type routes } from "../router";
 // const props = defineProps(["depth", "records"]);
 const props = defineProps({
@@ -10,6 +10,8 @@ const props = defineProps({
 const depth = props.depth ? props.depth : 1;
 const records = props.records as RouteRecordRaw[];
 const router = useRouter();
+const route = useRoute();
+
 function go(route: RouteRecordRaw): void {
   router.push(route.path);
 }
@@ -20,7 +22,7 @@ function go(route: RouteRecordRaw): void {
     <template v-if="!record.meta?.hide">
       <p
         @click="go(record)"
-        :class="{ title: true, active: record.path === $route.path }"
+        :class="{ title: true, active: record.path === route.path }"
       >
         <span :class="['icon', 'sysIcon', record.meta?.icon]"></span>
         <!-- <span v-if="!frameworkStore.$state.fold">{{ record.name }}</span> -->
