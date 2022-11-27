@@ -1,4 +1,4 @@
-import FileContainer from '@/container/FileContainer.vue';
+import FileView from '@/views/FileView.vue';
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 
@@ -6,7 +6,7 @@ const routes = [
   {
     path: '/',
     name: 'Directory',
-    component: FileContainer,
+    component: FileView,
     meta: { icon: 'sysIcon_folderopen', },
     /* children: [
       {
@@ -26,13 +26,13 @@ const routes = [
   {
     path: '/favourite',
     name: 'Favourite',
-    component: HomeView,
+    component: FileView,
     meta: { icon: 'sysIcon_star-o', },
   },
   {
     path: '/recycle',
     name: 'Recycle',
-    component: HomeView,
+    component: FileView,
     meta: { icon: 'sysIcon_delete', },
   },
   {

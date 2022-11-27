@@ -35,7 +35,7 @@ const containerDef = {};
   // height: calc(100vh - $headerHeight - $footerHeight);
   height: calc(100vh - $headerHeight);
   display: flex;
-  background-color: mkColor(map-get($colors, bk), 1);
+  background-color: mkColor(map-get($colors, bk), 4);
 }
 .fr_navi {
   height: 100%;
@@ -44,7 +44,7 @@ const containerDef = {};
 .fr_content {
   padding: $headerPad 0 $footerPad;
   height: calc(100% - $headerPad - $footerPad);
-  background-color: mkColor(map-get($colors, bk), 2);
+  background-color: mkColor(map-get($colors, bk), 6);
   width: calc(100vw - $navWidth);
   @include smallScroll();
   overflow: auto;

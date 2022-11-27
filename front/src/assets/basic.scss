@@ -33,7 +33,9 @@ table {
 input,
 button,
 select,
-textarea {}
+textarea {
+  cursor: pointer;
+}
 
 button,
 select {

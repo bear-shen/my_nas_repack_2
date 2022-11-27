@@ -79,7 +79,7 @@ const user = {
 .active,
 .user li:hover,
 .navi div:hover {
-  background-color: mkColor(map-get($colors, bk_active), 1);
-  color: mkColor(map-get($colors, font_active), 1);
+  background-color: mkColor(map-get($colors, bk), 3);
+  color: mkColor(map-get($colors, font), 3);
 }
 </style>
