@@ -26,8 +26,8 @@ const active = true;
   justify-content: space-between;
   line-height: $footerHeight;
 }
-.timer {
-}
+//.timer {
+//}
 .paginator {
   ul {
     display: inline-block;

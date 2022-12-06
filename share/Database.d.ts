@@ -33,6 +33,10 @@ export interface NodeCol {
     time_update?: string,
 }
 
+export interface NodeColWithFile {
+    a: NodeCol,
+}
+
 export interface FileCol {
     id?: number,
     uuid?: string,

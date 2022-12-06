@@ -8,6 +8,9 @@ import {
 } from "vue-router";
 import { routes } from "../router/index";
 import { onMounted } from "vue";
+import { useLocalConfigureStore } from "../stores/localConfigure";
+import type { API_FILE_LIST_RESP } from "../../../share/Api";
+import type { NodeCol, FileCol } from "../../../share/Database";
 const router = useRouter();
 const route = useRoute();
 const def = {
@@ -38,7 +41,16 @@ const query = {
   sort: "",
   type: "",
   keyword: "",
+  pid: false,
 };
+const localConfigure = useLocalConfigureStore();
+//
+let mode = localConfigure.get("file_view_mode") ?? "detail";
+localConfigure.watch("file_view_mode", (v) => (mode = v));
+function setMode(mode: string) {
+  localConfigure.set("file_view_mode", "mode");
+}
+//
 // defineProps<{
 // msg: string;
 // }>();
@@ -55,36 +67,68 @@ watch(route, async (to: RouteLocationNormalizedLoaded) => {
   });
 }); */
 function getCurRoute() {}
-function setMode(mode: string) {}
-function search() {}
 function addFolder() {}
 function addFile() {}
-let mode = "";
-let cur_dir: any = {};
-let crumbList = [];
-function go(type: string, data: any) {}
+let crumbList: NodeCol[] = [];
+let nodeList: NodeCol & {
+  file?: {
+    preview?: FileCol;
+    normal?: FileCol;
+    cover?: FileCol;
+    raw?: FileCol;
+    [key: string]: FileCol | undefined;
+  };
+} = [];
+//
+function go() {
+  const tQuery = {} as { [key: string]: any };
+  for (const key in query) {
+    if (!Object.prototype.hasOwnProperty.call(query, key)) continue;
+    const val = query[key as keyof typeof query];
+    if (!val) continue;
+    tQuery[key] = val;
+  }
+  router.push({
+    path: route.path,
+    query: JSON.parse(JSON.stringify(tQuery)),
+  });
+}
+//
+function search() {
+  const tQuery = {} as { [key: string]: any };
+  for (const key in query) {
+    if (!Object.prototype.hasOwnProperty.call(query, key)) continue;
+    const val = query[key as keyof typeof query];
+    if (!val) continue;
+    tQuery[key] = val;
+  }
+  console.info(tQuery);
+  router.push({
+    path: route.path,
+    query: JSON.parse(JSON.stringify(tQuery)),
+  });
+}
 </script>
 
 <template>
   <div class="fr_content">
     <div class="content_meta">
-      <div class="crumb" v-if="cur_dir && cur_dir.tree">
+      <div class="crumb" v-if="crumbList.length">
         <a
           class="item"
-          v-for="(tree_title, tree_index) in cur_dir.tree.title"
+          v-for="(tree_title, tree_index) in crumbList"
           :key="tree_index"
-          @click="go('node', { id: cur_dir.tree.id[tree_index] })"
-          >{{ tree_title }}</a
-        >
-        <a class="item">{{ cur_dir.title }}</a>
+          @click="go()"
+          >{{ tree_title }}
+        </a>
       </div>
       <div class="search">
         <label>
           <span>Title : </span><input type="text" v-model="query.keyword" />
         </label>
         <label>
-          <span>Type : </span
-          ><select v-model="query.type">
+          <span>Type : </span>
+          <select v-model="query.type">
             <option v-for="type in def.fileType">{{ type }}</option>
           </select>
         </label>
@@ -95,6 +139,11 @@ function go(type: string, data: any) {}
               {{ sort }}
             </option>
           </select>
+        </label>
+        <label v-if="crumbList.length">
+          <span>InDir : </span>
+          <input type="checkbox" v-model="query.pid" id="FV_S_CB" />
+          <label for="FV_S_CB"></label>
         </label>
         <!--      <label>
               <input
@@ -140,6 +189,9 @@ function go(type: string, data: any) {}
     padding: 0 $fontSize * 0.5;
     height: $fontSize * 1.5;
     line-height: $fontSize * 1.5;
+    label {
+      margin-right: $fontSize;
+    }
     input,
     button,
     select {

@@ -99,12 +99,20 @@ input[type='radio'] {
     line-height: $fontSize;
     //border-radius: 0.5*$fontSize;
     vertical-align: baseline;
+
+    &::after {
+      content: 'X';
+    }
   }
 
   &:checked {
     +label {
       //background-image: linear-gradient(0deg, rgba(100, 100, 100, 1) 0%, rgba(150, 150, 150, 1) 100%);
       background-color: map_get($colors, positive);
+
+      &::after {
+        content: '✓';
+      }
     }
   }
 }
