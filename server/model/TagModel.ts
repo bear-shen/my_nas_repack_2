@@ -1,8 +1,8 @@
 import BaseModel from "./BaseModel";
 import NodeModel from "./NodeModel";
-import { TagCol } from "../../share/Database";
+import { col_tag } from "../../share/Database";
 
-class TagModel extends BaseModel<TagCol> {
+class TagModel extends BaseModel<col_tag> {
     public table = 'tag';
 
     _col_get_alt(input: string): string[] {

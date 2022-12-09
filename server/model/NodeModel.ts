@@ -1,7 +1,7 @@
 import BaseModel from "./BaseModel";
-import { NodeCol } from "../../share/Database";
+import { col_node } from "../../share/Database";
 
-class NodeModel extends BaseModel<NodeCol> {
+class NodeModel extends BaseModel<col_node> {
     public table = 'node';
 
     _col_get_list_node(input: string): number[] {

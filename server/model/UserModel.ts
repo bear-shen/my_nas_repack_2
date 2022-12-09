@@ -1,7 +1,7 @@
 import BaseModel from "./BaseModel";
-import { UserCol } from "../../share/Database";
+import { col_user } from "../../share/Database";
 
-class UserModel extends BaseModel<UserCol> {
+class UserModel extends BaseModel<col_user> {
     public table = 'user';
 }
 

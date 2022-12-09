@@ -4,13 +4,13 @@ import Config from "../ServerConfig";
 import * as fs from 'fs/promises';
 import { ReadStream, Stats } from 'fs';
 import * as fsNP from 'fs';
-import { FileType, NodeCol, FileCol } from '../../share/Database';
+import { type_file, col_node, col_file } from '../../share/Database';
 import ORM from './ORM';
 import NodeModel from "../model/NodeModel";
 import FileModel from '../model/FileModel';
 import { dir } from "console";
 
-function isId(inVal: NodeCol | number | bigint): boolean {
+function isId(inVal: col_node | number | bigint): boolean {
     switch (typeof inVal) {
         case 'bigint':
         case 'number':
@@ -23,13 +23,13 @@ function isId(inVal: NodeCol | number | bigint): boolean {
             break;
     }
 }
-async function getNodeByIdOrNode(inVal: NodeCol | number | bigint): Promise<NodeCol> {
-    if (!isId(inVal)) return inVal as NodeCol;
+async function getNodeByIdOrNode(inVal: col_node | number | bigint): Promise<col_node> {
+    if (!isId(inVal)) return inVal as col_node;
     if (inVal === 0) return rootNode;
     return await (new NodeModel).where('id', inVal).first();
 }
 //util
-async function relPath2node(relPath: string): Promise<NodeCol[] | false> {
+async function relPath2node(relPath: string): Promise<col_node[] | false> {
     let nPathArr = relPath.replace(/\/$/, '').split(/\//);
     nPathArr = nPathArr.filter(n => !!n.length);
     // console.info(relPath, nPathArr);
@@ -50,7 +50,7 @@ async function getUUID(): Promise<string> {
     } while (await (new FileModel).where('uuid', uuid).first(['id']))
     return uuid;
 }
-function getRelPathByFile(file: FileCol) {
+function getRelPathByFile(file: col_file) {
     const path = `/${file.uuid.substring(0, 1)}/${file.uuid.substring(1, 3)}/${file.uuid.substring(3)}.${file.suffix}`;
     return path;
 }
@@ -77,13 +77,13 @@ function getSuffix(fileName: string): string {
     }
     return suffix;
 }
-function getType(suffix: string): FileType {
+function getType(suffix: string): type_file {
     let ifHit = -1;
     // console.info(suffix);
     for (const key in Config.suffix) {
         ifHit = Config.suffix[key].indexOf(suffix);
         if (ifHit === -1) continue;
-        return key as FileType;
+        return key as type_file;
     }
     return 'binary';
 }
@@ -97,7 +97,7 @@ async function ls(dirId: number): Promise<FileStat[]> {
     const nodeLs = await (new NodeModel).where('id_parent', dirId).where('status', 1).select() as FileStat[];
     //
     const fileIdSet = new Set<number>();
-    const fileMap = new Map<number, FileCol>();
+    const fileMap = new Map<number, col_file>();
     //
     nodeLs.forEach(node => {
         for (const key in node.index_file_id) {
@@ -142,13 +142,13 @@ async function mkdir(dirId: number, name: string): Promise<boolean> {
         list_tag_id: [],
         index_file_id: {},
         index_node: {},
-    } as NodeCol;
+    } as col_node;
     await (new NodeModel).insert(nodeInfo);
     nodeInfo.id = await (new NodeModel).lastInsertId();
     return true;
 }
 //file
-async function get(nodeId: number | NodeCol, from: number, to: number): Promise<ReadStream> {
+async function get(nodeId: number | col_node, from: number, to: number): Promise<ReadStream> {
     const node = await getNodeByIdOrNode(nodeId);
     const file = await (new FileModel).where('id', node.index_file_id.raw).first();
     const relPath = getRelPathByFile(file);
@@ -166,7 +166,7 @@ async function touch(path: string): Promise<false> {
     return false;
 }
 
-async function put(fromTmpPath: string, toDir: number | NodeCol, name: string): Promise<boolean> {
+async function put(fromTmpPath: string, toDir: number | col_node, name: string): Promise<boolean> {
     // console.info('FileProcessor put: init');
     const parentNode = await getNodeByIdOrNode(toDir);
     //
@@ -181,7 +181,7 @@ async function put(fromTmpPath: string, toDir: number | NodeCol, name: string): 
         size: stat.size,
         meta: {},
         status: 1,
-    } as FileCol;
+    } as col_file;
     await (new FileModel).insert(fileInfo);
     //last insert id 不靠谱的，用uuid回传
     const curFileInfo = await (new FileModel).where('uuid', fileInfo.uuid).first(['id']);
@@ -199,7 +199,7 @@ async function put(fromTmpPath: string, toDir: number | NodeCol, name: string): 
         list_tag_id: [],
         index_file_id: { raw: fileInfo.id, },
         index_node: {},
-    } as NodeCol;
+    } as col_node;
     await (new NodeModel).insert(nodeInfo);
     // console.info('FileProcessor put: node cmp');
     const targetPath = Config.path.local + getRelPathByFile(fileInfo);
@@ -218,7 +218,7 @@ async function put(fromTmpPath: string, toDir: number | NodeCol, name: string): 
     return true;
 }
 
-async function mv(nodeId: number | NodeCol, toDirId: number | NodeCol, name: string): Promise<boolean> {
+async function mv(nodeId: number | col_node, toDirId: number | col_node, name: string): Promise<boolean> {
     const node = await getNodeByIdOrNode(nodeId);
     const toDir = await getNodeByIdOrNode(toDirId);
     //
@@ -255,7 +255,7 @@ async function rm(nodeId: number): Promise<boolean> {
     return false;
 }
 
-async function cp(nodeId: number | NodeCol, toDirId: number | NodeCol, name: string): Promise<boolean> {
+async function cp(nodeId: number | col_node, toDirId: number | col_node, name: string): Promise<boolean> {
     const node = await getNodeByIdOrNode(nodeId);
     const toDir = await getNodeByIdOrNode(toDirId);
     //
@@ -273,7 +273,7 @@ async function cp(nodeId: number | NodeCol, toDirId: number | NodeCol, name: str
         list_tag_id: node.list_tag_id,
         index_file_id: node.index_file_id,
         index_node: node.index_node,
-    } as NodeCol;
+    } as col_node;
     await (new NodeModel).insert(newNodeInfo);
     //
     if (newNodeInfo.type === 'directory') {
@@ -288,11 +288,11 @@ async function cp(nodeId: number | NodeCol, toDirId: number | NodeCol, name: str
     return true;
 }
 
-async function stat(nodeId: number | NodeCol): Promise<FileStat> {
+async function stat(nodeId: number | col_node): Promise<FileStat> {
     const node = await getNodeByIdOrNode(nodeId) as FileStat;
     //
     const fileIdSet = new Set<number>();
-    const fileMap = new Map<number, FileCol>();
+    const fileMap = new Map<number, col_file>();
     //
     for (const key in node.index_file_id) {
         if (!Object.prototype.hasOwnProperty.call(node.index_file_id, key)) continue;
@@ -337,13 +337,13 @@ export {
     FileStat,
 };
 
-type FileStat = NodeCol & {
+type FileStat = col_node & {
     file?: {
-        preview?: FileCol,
-        normal?: FileCol,
-        cover?: FileCol,
-        raw?: FileCol,
-        [key: string]: FileCol | undefined,
+        preview?: col_file,
+        normal?: col_file,
+        cover?: col_file,
+        raw?: col_file,
+        [key: string]: col_file | undefined,
     },
     relPath: string,
     path: string,
@@ -363,4 +363,4 @@ const rootNode = {
     index_node: {},
     time_create: '1919-08-10 11:45:14',
     time_update: '1919-08-10 11:45:14',
-} as NodeCol;
+} as col_node;

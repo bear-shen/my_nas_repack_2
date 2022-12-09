@@ -1,12 +1,12 @@
-export type FileType = 'audio' | 'video' |
+export type type_file = 'audio' | 'video' |
     'image' | 'binary' |
     'text' | 'subtitle' |
     'pdf' | 'directory';
 
-export interface NodeCol {
+export type col_node = {
     id?: number,
     id_parent?: number,
-    type?: FileType,
+    type?: type_file,
     title?: string,
     description?: string,
     status?: 0 | 1 | -1,
@@ -33,11 +33,11 @@ export interface NodeCol {
     time_update?: string,
 }
 
-export interface NodeColWithFile {
-    a: NodeCol,
+export type col_nodeWithFile = {
+    a: col_node,
 }
 
-export interface FileCol {
+export type col_file = {
     id?: number,
     uuid?: string,
     suffix?: string,
@@ -48,7 +48,7 @@ export interface FileCol {
     time_update?: string,
 }
 
-export interface UserGroupCol {
+export type col_user_group = {
     id?: number,
     title?: string,
     description?: string,
@@ -63,7 +63,7 @@ export interface UserGroupCol {
     time_update?: string,
 }
 
-export interface UserCol {
+export type col_user = {
     id?: number,
     id_group?: number,
     name?: string,
@@ -74,7 +74,7 @@ export interface UserCol {
     time_update?: string,
 }
 
-export interface TagGroupCol {
+export type col_tag_group = {
     id?: number,
     id_dir?: number,
     title?: string,
@@ -85,7 +85,7 @@ export interface TagGroupCol {
     time_update?: string,
 }
 
-export interface TagCol {
+export type col_tag = {
     id?: number,
     id_group?: number,
     title?: string,
@@ -97,7 +97,7 @@ export interface TagCol {
     time_update?: string,
 }
 
-export interface AuthCol {
+export type col_auth = {
     id?: number,
     uid?: number,
     token?: string,
@@ -105,7 +105,7 @@ export interface AuthCol {
     time_update?: string,
 }
 
-export interface QueueCol {
+export type col_queue = {
     id?: number,
     type?: string,
     payload?: { [key: string]: any },
@@ -114,7 +114,7 @@ export interface QueueCol {
     time_update?: string,
 }
 
-export interface SettingCol {
+export type col_setting = {
     id?: number,
     name?: string,
     value?: { [key: string]: any },

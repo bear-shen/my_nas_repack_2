@@ -1,7 +1,7 @@
 import BaseModel from "./BaseModel";
-import { QueueCol } from "../../share/Database";
+import { col_queue } from "../../share/Database";
 
-class QueueModel extends BaseModel<QueueCol> {
+class QueueModel extends BaseModel<col_queue> {
     table = 'queue';
 
     _col_get_payload(input: string): { [key: string]: any } {

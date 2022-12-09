@@ -1,7 +1,7 @@
 import BaseModel from "./BaseModel";
-import { UserGroupCol } from "../../share/Database";
+import { col_user_group } from "../../share/Database";
 
-class UserGroupModel extends BaseModel<UserGroupCol> {
+class UserGroupModel extends BaseModel<col_user_group> {
     public table = 'user_group';
 
     _col_get_auth(input: string): { [key: string]: any } {

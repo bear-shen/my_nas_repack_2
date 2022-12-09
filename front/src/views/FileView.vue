@@ -9,12 +9,18 @@ import {
 import { routes } from "../router/index";
 import { onMounted } from "vue";
 import { useLocalConfigureStore } from "../stores/localConfigure";
-import type { API_FILE_LIST_RESP } from "../../../share/Api";
-import type { NodeCol, FileCol } from "../../../share/Database";
+import type {
+  col_node,
+  col_file,
+  col_tag_group,
+  col_tag,
+} from "../../../share/Database";
+import { queryDemo } from "../Helper";
+import type { api_file_list_resp, api_file_list_req } from "../../../share/Api";
 const router = useRouter();
 const route = useRoute();
 const def = {
-  fileType: [
+  type_file: [
     "any",
     "directory",
     "file",
@@ -41,15 +47,9 @@ const query = {
   sort: "",
   type: "",
   keyword: "",
-  pid: false,
+  pid: "",
+  usePid: false,
 };
-const localConfigure = useLocalConfigureStore();
-//
-let mode = localConfigure.get("file_view_mode") ?? "detail";
-localConfigure.watch("file_view_mode", (v) => (mode = v));
-function setMode(mode: string) {
-  localConfigure.set("file_view_mode", "mode");
-}
 //
 // defineProps<{
 // msg: string;
@@ -69,16 +69,27 @@ watch(route, async (to: RouteLocationNormalizedLoaded) => {
 function getCurRoute() {}
 function addFolder() {}
 function addFile() {}
-let crumbList: NodeCol[] = [];
-let nodeList: NodeCol & {
+let crumbList: col_node[] = [];
+let nodeList: (col_node & {
   file?: {
-    preview?: FileCol;
-    normal?: FileCol;
-    cover?: FileCol;
-    raw?: FileCol;
-    [key: string]: FileCol | undefined;
+    preview?: col_file;
+    normal?: col_file;
+    cover?: col_file;
+    raw?: col_file;
+    [key: string]: col_file | undefined;
   };
-} = [];
+  tag: (col_tag_group & {
+    tag: col_tag[];
+  })[];
+})[] = [];
+
+queryDemo("file/get", query as api_file_list_req, {}).then(
+  (data: api_file_list_resp) => {
+    console.info(data);
+    crumbList = data.path;
+    nodeList = data.list;
+  }
+);
 //
 function go() {
   const tQuery = {} as { [key: string]: any };
@@ -108,6 +119,13 @@ function search() {
     query: JSON.parse(JSON.stringify(tQuery)),
   });
 }
+//
+const localConfigure = useLocalConfigureStore();
+let mode = localConfigure.get("file_view_mode") ?? "detail";
+localConfigure.watch("file_view_mode", (v) => (mode = v));
+function setMode(mode: string) {
+  localConfigure.set("file_view_mode", "mode");
+}
 </script>
 
 <template>
@@ -129,7 +147,7 @@ function search() {
         <label>
           <span>Type : </span>
           <select v-model="query.type">
-            <option v-for="type in def.fileType">{{ type }}</option>
+            <option v-for="type in def.type_file">{{ type }}</option>
           </select>
         </label>
         <label>
@@ -142,7 +160,7 @@ function search() {
         </label>
         <label v-if="crumbList.length">
           <span>InDir : </span>
-          <input type="checkbox" v-model="query.pid" id="FV_S_CB" />
+          <input type="checkbox" v-model="query.usePid" id="FV_S_CB" />
           <label for="FV_S_CB"></label>
         </label>
         <!--      <label>

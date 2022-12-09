@@ -2,7 +2,7 @@ import { IncomingMessage, ServerResponse } from "http";
 import * as fp from "../../lib/FileProcessor";
 import ServerConfig from "../../ServerConfig";
 import { getRelPath, getRequestFile, respCode, setResponseFile } from '../Lib';
-import { NodeCol } from '../../../share/Database';
+import { col_node } from '../../../share/Database';
 
 export default async function (req: IncomingMessage, res: ServerResponse) {
     const relPath = getRelPath(req.url, req.headers.host, res);
@@ -45,7 +45,7 @@ export default async function (req: IncomingMessage, res: ServerResponse) {
     return;
 }
 
-async function printDir(relPath: NodeCol, nodePathLs: NodeCol[], res: ServerResponse) {
+async function printDir(relPath: col_node, nodePathLs: col_node[], res: ServerResponse) {
     const fLs = await fp.ls(relPath.id);
     const tbLs = [] as string[];
     const pathArr = [] as string[];

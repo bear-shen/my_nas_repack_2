@@ -1,7 +1,7 @@
 import BaseModel from "./BaseModel";
-import { SettingCol } from "../../share/Database";
+import { col_setting } from "../../share/Database";
 
-class SettingModel extends BaseModel<SettingCol> {
+class SettingModel extends BaseModel<col_setting> {
     public table = 'settings';
 
     _col_get_value(input: string): { [key: string]: any } {

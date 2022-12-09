@@ -1,5 +1,5 @@
 import os from 'os';
-import { FileType } from '../share/Database';
+import { type_file } from '../share/Database';
 
 export default {
     // pathPrefix: '/api',
@@ -32,7 +32,7 @@ export default {
         text: ['txt', 'html', 'json',],
         subtitle: ['vtt', 'ass', 'ssa', 'sub', 'srt', 'pjs',],
         pdf: ['pdf',],
-    } as { [key: FileType | string]: Array<any> },
+    } as { [key: type_file | string]: Array<any> },
     //
     path: {
         temp: `${os.tmpdir()}/tosho_tmp_${process.pid}`,

@@ -1,8 +1,8 @@
 import BaseModel from "./BaseModel";
-import { AuthCol } from "../../share/Database";
+import { col_auth } from "../../share/Database";
 
 
-class AuthModel extends BaseModel<AuthCol> {
+class AuthModel extends BaseModel<col_auth> {
     table = 'auth';
 }
 

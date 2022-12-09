@@ -1,8 +1,8 @@
 import BaseModel from "./BaseModel";
 import NodeModel from "./NodeModel";
-import { FileCol } from "../../share/Database";
+import { col_file } from "../../share/Database";
 
-class FileModel extends BaseModel<FileCol> {
+class FileModel extends BaseModel<col_file> {
     public table = 'file';
 
     _col_get_meta(input: string): { [key: string]: any } {
