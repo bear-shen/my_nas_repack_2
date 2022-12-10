@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { watch } from "vue";
+import { watch, ref } from "vue";
+import type { Ref } from "vue";
 import {
   useRouter,
   useRoute,
   type RouteRecordRaw,
   type RouteLocationNormalizedLoaded,
+  onBeforeRouteUpdate,
 } from "vue-router";
 import { routes } from "../router/index";
 import { onMounted } from "vue";
@@ -16,11 +18,19 @@ import type {
   col_tag,
 } from "../../../share/Database";
 import { queryDemo } from "../Helper";
-import type { api_file_list_resp, api_file_list_req } from "../../../share/Api";
+import smp_file_list_resp from "../../../share/sampleApi/smp_file_list_resp";
+import GenFunc from "../../../share/GenFunc";
+import FileItem from "@/components/FileItem.vue";
+import type {
+  api_file_list_resp,
+  api_file_list_req,
+  api_node_col,
+} from "../../../share/Api";
+//
 const router = useRouter();
 const route = useRoute();
 const def = {
-  type_file: [
+  fileType: [
     "any",
     "directory",
     "file",
@@ -48,8 +58,8 @@ const query = {
   type: "",
   keyword: "",
   pid: "",
-  usePid: false,
-};
+} as api_file_list_req;
+let usePid = true;
 //
 // defineProps<{
 // msg: string;
@@ -69,55 +79,23 @@ watch(route, async (to: RouteLocationNormalizedLoaded) => {
 function getCurRoute() {}
 function addFolder() {}
 function addFile() {}
-let crumbList: col_node[] = [];
-let nodeList: (col_node & {
-  file?: {
-    preview?: col_file;
-    normal?: col_file;
-    cover?: col_file;
-    raw?: col_file;
-    [key: string]: col_file | undefined;
-  };
-  tag: (col_tag_group & {
-    tag: col_tag[];
-  })[];
-})[] = [];
-
-queryDemo("file/get", query as api_file_list_req, {}).then(
-  (data: api_file_list_resp) => {
-    console.info(data);
-    crumbList = data.path;
-    nodeList = data.list;
-  }
-);
 //
-function go() {
-  const tQuery = {} as { [key: string]: any };
-  for (const key in query) {
-    if (!Object.prototype.hasOwnProperty.call(query, key)) continue;
-    const val = query[key as keyof typeof query];
-    if (!val) continue;
-    tQuery[key] = val;
-  }
-  router.push({
-    path: route.path,
-    query: JSON.parse(JSON.stringify(tQuery)),
-  });
-}
-//
-function search() {
-  const tQuery = {} as { [key: string]: any };
-  for (const key in query) {
-    if (!Object.prototype.hasOwnProperty.call(query, key)) continue;
-    const val = query[key as keyof typeof query];
-    if (!val) continue;
-    tQuery[key] = val;
-  }
-  console.info(tQuery);
-  router.push({
-    path: route.path,
-    query: JSON.parse(JSON.stringify(tQuery)),
-  });
+let crumbList: Ref<api_node_col[]> = ref([]);
+let nodeList: Ref<api_node_col[]> = ref([]);
+// onMounted(async () => {
+// getList();
+// });
+getList();
+async function getList() {
+  const res: api_file_list_resp = await queryDemo(
+    "file/get",
+    query,
+    smp_file_list_resp
+  );
+  // console.info(res);
+  crumbList.value = res.path;
+  nodeList.value = res.list;
+  // console.info(crumbList);
 }
 //
 const localConfigure = useLocalConfigureStore();
@@ -126,6 +104,31 @@ localConfigure.watch("file_view_mode", (v) => (mode = v));
 function setMode(mode: string) {
   localConfigure.set("file_view_mode", "mode");
 }
+//
+function go(ext: api_file_list_req) {
+  const tQuery = Object.assign(GenFunc.copyObject(query), ext);
+  router.push({
+    path: route.path,
+    query: tQuery,
+  });
+}
+//
+function search() {
+  const tQuery = GenFunc.copyObject(query);
+  if (usePid && crumbList.value.length) {
+    tQuery.pid =
+      crumbList.value[crumbList.value.length - 1].id?.toString() ?? "";
+  }
+  console.info(tQuery);
+  router.push({
+    path: route.path,
+    query: tQuery,
+  });
+}
+onBeforeRouteUpdate(async (to) => {
+  console.info(to);
+  await getList();
+});
 </script>
 
 <template>
@@ -134,10 +137,10 @@ function setMode(mode: string) {
       <div class="crumb" v-if="crumbList.length">
         <a
           class="item"
-          v-for="(tree_title, tree_index) in crumbList"
-          :key="tree_index"
-          @click="go()"
-          >{{ tree_title }}
+          v-for="(node, nodeIndex) in crumbList"
+          :key="nodeIndex"
+          @click="go({ pid: `${node?.id}` })"
+          >{{ node.title }}
         </a>
       </div>
       <div class="search">
@@ -147,7 +150,7 @@ function setMode(mode: string) {
         <label>
           <span>Type : </span>
           <select v-model="query.type">
-            <option v-for="type in def.type_file">{{ type }}</option>
+            <option v-for="type in def.fileType">{{ type }}</option>
           </select>
         </label>
         <label>
@@ -160,7 +163,7 @@ function setMode(mode: string) {
         </label>
         <label v-if="crumbList.length">
           <span>InDir : </span>
-          <input type="checkbox" v-model="query.usePid" id="FV_S_CB" />
+          <input type="checkbox" v-model="usePid" id="FV_S_CB" />
           <label for="FV_S_CB"></label>
         </label>
         <!--      <label>
@@ -192,6 +195,13 @@ function setMode(mode: string) {
         ></a>
       </div>
     </div>
+    <div class="content_detail">
+      <FileItem
+        v-for="(node, nodeIndex) in nodeList"
+        :key="nodeIndex"
+        :nodeData="node"
+      ></FileItem>
+    </div>
     <!-- <directory-layout></directory-layout> -->
   </div>
 </template>
@@ -207,6 +217,12 @@ function setMode(mode: string) {
     padding: 0 $fontSize * 0.5;
     height: $fontSize * 1.5;
     line-height: $fontSize * 1.5;
+    * {
+      height: $fontSize * 1.5;
+      line-height: $fontSize * 1.5;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
     label {
       margin-right: $fontSize;
     }
@@ -221,7 +237,25 @@ function setMode(mode: string) {
       font-size: $fontSize;
       //line-height: 1.5em;
       padding: 0 0.125em;
+      display: inline-block;
     }
+    .crumb {
+      .item {
+        padding-left: $fontSize * 0.25;
+      }
+      .item:hover {
+        background-color: mkColor(map-get($colors, bk), 6);
+      }
+      .item::after {
+        content: "/";
+        font-size: $fontSize;
+        padding-left: $fontSize * 0.25;
+        padding-right: $fontSize * 0.25;
+      }
+    }
+  }
+  .content_detail {
+    columns: 3;
   }
 }
 </style>

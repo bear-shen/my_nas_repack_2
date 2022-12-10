@@ -33,10 +33,6 @@ export type col_node = {
     time_update?: string,
 }
 
-export type col_nodeWithFile = {
-    a: col_node,
-}
-
 export type col_file = {
     id?: number,
     uuid?: string,
@@ -47,6 +43,10 @@ export type col_file = {
     time_create?: string,
     time_update?: string,
 }
+
+export type col_file_with_path = {
+    path?: string,
+} & col_file
 
 export type col_user_group = {
     id?: number,
