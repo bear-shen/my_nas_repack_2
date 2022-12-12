@@ -199,7 +199,7 @@ onBeforeRouteUpdate(async (to) => {
       <FileItem
         v-for="(node, nodeIndex) in nodeList"
         :key="nodeIndex"
-        :nodeData="node"
+        :node="node"
       ></FileItem>
     </div>
     <!-- <directory-layout></directory-layout> -->
@@ -255,7 +255,7 @@ onBeforeRouteUpdate(async (to) => {
     }
   }
   .content_detail {
-    columns: 3;
+    columns: 6;
   }
 }
 </style>
