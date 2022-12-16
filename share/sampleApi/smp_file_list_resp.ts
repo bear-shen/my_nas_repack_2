@@ -1,4 +1,4 @@
-import { api_file_list_resp } from '../Api';
+import type { api_file_list_resp } from '../Api';
 
 export default {
   path: [
@@ -221,7 +221,7 @@ export default {
       time_create: '1919-08-10 11:45:14',
       time_update: '1919-08-10 11:45:14',
       file: {
-        cover: { path: '', },
+        cover: { path: '/smp/960X720.jpg', },
         normal: { path: '/smp/katyusha.mp3', },
         raw: { path: '/smp/katyusha.mp3', },
       },
@@ -271,8 +271,8 @@ export default {
       time_create: '1919-08-10 11:45:14',
       time_update: '1919-08-10 11:45:14',
       file: {
+        // cover: { path: '/smp/madoka.jpg', },
         cover: { path: '/smp/madoka.jpg', },
-        // cover:{path: '/smp/madoka.jpg',},
         path_subtitle: '/smp/madoka.vtt',
         normal: { path: '/smp/madoka.mp4', },
         raw: { path: '/smp/madoka.mp4', },
@@ -307,8 +307,8 @@ export default {
       time_create: '1919-08-10 11:45:14',
       time_update: '1919-08-10 11:45:14',
       file: {
-        cover: { path: '', },
-        // cover:{path: '/smp/shinobu.jpg',},
+        // cover: { path: '', },
+        cover: { path: '/smp/shinobu.jpg', },
         // path_subtitle: '/smp/shinobu.vtt',
         normal: { path: '/smp/shinobu.mp4', },
         raw: { path: '/smp/shinobu.mp4', },
@@ -359,7 +359,7 @@ export default {
       time_create: '1919-08-10 11:45:14',
       time_update: '1919-08-10 11:45:14',
       file: {
-        cover: { path: '', },
+        // cover: { path: '', },
         normal: { path: '', },
         raw: { path: '', },
       },
@@ -375,7 +375,7 @@ export default {
       time_create: '1919-08-10 11:45:14',
       time_update: '1919-08-10 11:45:14',
       file: {
-        cover: { path: '', },
+        // cover: { path: '', },
         normal: { path: '', },
         raw: { path: '', },
       },
@@ -391,7 +391,7 @@ export default {
       time_create: '1919-08-10 11:45:14',
       time_update: '1919-08-10 11:45:14',
       file: {
-        cover: { path: '', },
+        // cover: { path: '', },
         normal: { path: '', },
         raw: { path: '', },
       },
@@ -408,7 +408,7 @@ export default {
       time_create: '1919-08-10 11:45:14',
       time_update: '1919-08-10 11:45:14',
       file: {
-        cover: { path: '', },
+        // cover: { path: '', },
         normal: { path: '', },
         raw: { path: '', },
       },
@@ -424,7 +424,7 @@ export default {
       time_create: '1919-08-10 11:45:14',
       time_update: '1919-08-10 11:45:14',
       file: {
-        cover: { path: '', },
+        // cover: { path: '', },
         normal: { path: '', },
         raw: { path: '', },
       },
@@ -440,7 +440,7 @@ export default {
       time_create: '1919-08-10 11:45:14',
       time_update: '1919-08-10 11:45:14',
       file: {
-        cover: { path: '', },
+        // cover: { path: '', },
         normal: { path: '', },
         raw: { path: '', },
       },
@@ -457,7 +457,7 @@ export default {
       time_create: '1919-08-10 11:45:14',
       time_update: '1919-08-10 11:45:14',
       file: {
-        cover: { path: '', },
+        // cover: { path: '', },
         normal: { path: '', },
         raw: { path: '', },
       },
@@ -473,7 +473,7 @@ export default {
       time_create: '1919-08-10 11:45:14',
       time_update: '1919-08-10 11:45:14',
       file: {
-        cover: { path: '', },
+        // cover: { path: '', },
         normal: { path: '', },
         raw: { path: '', },
       },
@@ -489,7 +489,7 @@ export default {
       time_create: '1919-08-10 11:45:14',
       time_update: '1919-08-10 11:45:14',
       file: {
-        cover: { path: '', },
+        // cover: { path: '', },
         normal: { path: '', },
         raw: { path: '', },
       },

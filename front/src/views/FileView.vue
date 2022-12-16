@@ -99,10 +99,10 @@ async function getList() {
 }
 //
 const localConfigure = useLocalConfigureStore();
-let mode = localConfigure.get("file_view_mode") ?? "detail";
-localConfigure.watch("file_view_mode", (v) => (mode = v));
+let mode: Ref<string> = ref(localConfigure.get("file_view_mode") ?? "detail");
+localConfigure.watch("file_view_mode", (v) => (mode.value = v));
 function setMode(mode: string) {
-  localConfigure.set("file_view_mode", "mode");
+  localConfigure.set("file_view_mode", mode);
 }
 //
 function go(ext: api_file_list_req) {
@@ -195,7 +195,7 @@ onBeforeRouteUpdate(async (to) => {
         ></a>
       </div>
     </div>
-    <div class="content_detail">
+    <div :class="['content_detail', `mode_${mode}`]">
       <FileItem
         v-for="(node, nodeIndex) in nodeList"
         :key="nodeIndex"
@@ -217,6 +217,7 @@ onBeforeRouteUpdate(async (to) => {
     padding: 0 $fontSize * 0.5;
     height: $fontSize * 1.5;
     line-height: $fontSize * 1.5;
+    margin-bottom: $fontSize;
     * {
       height: $fontSize * 1.5;
       line-height: $fontSize * 1.5;
@@ -254,8 +255,16 @@ onBeforeRouteUpdate(async (to) => {
       }
     }
   }
-  .content_detail {
-    columns: 6;
+  .content_detail.mode_detail {
+    columns: $fontSize * 20 6;
+    column-gap: 0;
+  }
+  .content_detail.mode_img {
+    columns: $fontSize * 10 12;
+  }
+  .content_detail.mode_text {
+    display: table;
+    width: 100%;
   }
 }
 </style>

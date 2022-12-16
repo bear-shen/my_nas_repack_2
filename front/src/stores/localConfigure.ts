@@ -5,7 +5,7 @@ export const useLocalConfigureStore = defineStore('localConfigure', () => {
   let data: { [key: string]: any } = ref({});
   const listener: { [key: string]: ((to: any) => any)[] } = {};
   function get(key: string) {
-    console.info(data);
+    // console.info(data);
     key = configurePrefix + key;
     if (data[key]) return data[key];
     const ifStore = localStorage.getItem(key);
@@ -19,6 +19,7 @@ export const useLocalConfigureStore = defineStore('localConfigure', () => {
     listener[key].push(on);
   }
   function set(key: string, val: any) {
+    // console.info('set', key, val);
     key = configurePrefix + key;
     data[key] = val;
     if (listener[key]) listener[key].forEach(f => f(val));

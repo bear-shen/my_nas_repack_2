@@ -1,5 +1,3 @@
-import { json } from "stream/consumers";
-
 class CurlData {
     public path: string;
     public get?: string | FormData | Array<string> | any;
