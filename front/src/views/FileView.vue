@@ -27,6 +27,8 @@ import type {
   api_node_col,
 } from "../../../share/Api";
 //
+const z = { a: FileItem };
+console.info(z);
 const router = useRouter();
 const route = useRoute();
 const def = {

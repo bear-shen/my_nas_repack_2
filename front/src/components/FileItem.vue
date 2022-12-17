@@ -330,7 +330,7 @@ function op_delete() {}
   }
   p {
     margin-top: $fontSize * 0.25;
-    font-size: $fontSize;
+    font-size: $fontSize * 0.8;
     color: map-get($colors, "font_sub");
     //word-break: break-all;
     white-space: nowrap;
@@ -338,12 +338,12 @@ function op_delete() {}
     text-overflow: ellipsis;
   }
   .title {
-    font-size: $fontSize * 1.2;
+    font-size: $fontSize;
   }
   &:hover .title {
     color: map-get($colors, "font");
   }
-  margin: $fontSize * 0.5 0;
+  margin: 0 0 $fontSize * 0.5 0;
   -webkit-column-break-inside: avoid;
 }
 </style>
