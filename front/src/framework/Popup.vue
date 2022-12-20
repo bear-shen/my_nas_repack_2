@@ -19,18 +19,18 @@ function buildModal(modal: ModalConstruct): ModalConstruct {
   console.info(diffStamp);
   modal.nid = diffStamp;
   //
-  const layout = modal?.layout ?? {};
-  layout.w = layout?.w ?? 400;
-  layout.h = layout?.h ?? 160;
-  layout.x = layout?.x ?? (iw - layout.w) / 2;
-  layout.y = layout?.y ?? (ih - layout.h) / 2;
-  layout.minW = layout?.minW ?? 400;
-  layout.minH = layout?.minH ?? 160;
-  layout.resizable = layout?.resizable ?? true;
-  layout.movable = layout?.movable ?? true;
-  layout.active = layout?.active ?? true;
-  layout.index = layout?.index ?? diffStamp;
-  layout.fullscreen = layout?.fullscreen ?? false;
+  const layout = modal.layout ?? {};
+  layout.w = layout.w ?? 400;
+  layout.h = layout.h ?? 160;
+  layout.x = layout.x ?? (iw - layout.w) / 2;
+  layout.y = layout.y ?? (ih - layout.h) / 2;
+  layout.minW = layout.minW ?? 400;
+  layout.minH = layout.minH ?? 160;
+  layout.resizable = layout.resizable ?? true;
+  layout.movable = layout.movable ?? true;
+  layout.active = layout.active ?? true;
+  layout.index = layout.index ?? diffStamp;
+  layout.fullscreen = layout.fullscreen ?? false;
   // console.info(modal, modal.layout, layout);
   //
   return modal;
@@ -76,7 +76,7 @@ modalStore.set({
   },
   callback: {},
   closed: false,
-});
+} as any as ModalConstruct);
 function fullscreen(nid?: number) {}
 function resetWindow(nid?: number) {}
 function close(nid?: number) {}
@@ -84,6 +84,10 @@ let resizing = {
   x: 0,
   y: 0,
   d: "",
+  modalX: 0,
+  modalY: 0,
+  modalW: 0,
+  modalH: 0,
   modal: null as ModalConstruct | null,
 };
 function onResizeStart(modalNid: number, e: MouseEvent) {
@@ -97,6 +101,11 @@ function onResizeStart(modalNid: number, e: MouseEvent) {
     if (modal.nid !== modalNid) return;
     resizing.modal = modal;
   });
+  if (!resizing.modal) return;
+  resizing.modalX = resizing.modal.layout.x;
+  resizing.modalY = resizing.modal.layout.y;
+  resizing.modalW = resizing.modal.layout.w;
+  resizing.modalH = resizing.modal.layout.h;
   document.addEventListener("mouseup", onResizeEnd);
   document.addEventListener("mousemove", onResizing);
   // document.addEventListener("mouseenter", onResizeEnd);
@@ -107,30 +116,79 @@ function onResizeStart(modalNid: number, e: MouseEvent) {
 function onResizing(e: MouseEvent) {
   e.preventDefault();
   e.stopPropagation();
+  if (!resizing.modal) return;
   console.info(e.type);
   const d = { x: e.clientX - resizing.x, y: e.clientY - resizing.y };
+  const t = {
+    x: resizing.modal.layout.x,
+    y: resizing.modal.layout.y,
+    w: resizing.modal.layout.w,
+    h: resizing.modal.layout.h,
+  };
   switch (resizing.d) {
     case "c_l":
+      // if (d.x < 0) {
+      t.x = resizing.modalX + d.x;
+      t.w = resizing.modalW - d.x;
+      // }
       break;
     case "c_r":
+      t.x = resizing.modalX;
+      t.w = resizing.modalW + d.x;
       break;
     case "c_t":
+      t.y = resizing.modalY + d.y;
+      t.h = resizing.modalH - d.y;
       break;
     case "c_b":
+      t.y = resizing.modalY;
+      t.h = resizing.modalH + d.y;
       break;
     case "c_lt":
+      t.x = resizing.modalX + d.x;
+      t.w = resizing.modalW - d.x;
+      t.y = resizing.modalY + d.y;
+      t.h = resizing.modalH - d.y;
       break;
     case "c_lb":
+      t.x = resizing.modalX + d.x;
+      t.w = resizing.modalW - d.x;
+      t.y = resizing.modalY;
+      t.h = resizing.modalH + d.y;
       break;
     case "c_rt":
+      t.x = resizing.modalX;
+      t.w = resizing.modalW + d.x;
+      t.y = resizing.modalY + d.y;
+      t.h = resizing.modalH - d.y;
       break;
     case "c_rb":
+      t.x = resizing.modalX;
+      t.w = resizing.modalW + d.x;
+      t.y = resizing.modalY;
+      t.h = resizing.modalH + d.y;
       break;
     case "modal_header":
-      resizing.modal?.layout?.x += d.x;
-      resizing.modal?.layout?.y += d.y;
+      t.x = resizing.modalX + d.x;
+      t.y = resizing.modalY + d.y;
       break;
   }
+  const b = {
+    l: 0,
+    r: window.innerWidth,
+    t: 0,
+    b: window.innerHeight,
+  };
+  // if (t.x < 0) t.x = 0;
+  // if (t.y < 0) t.y = 0;
+  if (t.w < 100) t.w = 100;
+  if (t.h < 80) t.h = 80;
+  //
+  if (t.y < 0) t.y = 0;
+  if (t.y > b.b - t.h / 2) t.y = b.b - t.h / 2;
+  if (t.x < 0 - t.w / 2) t.x = 0 - t.w / 2;
+  if (t.x > b.r - t.w / 2) t.x = b.r - t.w / 2;
+  Object.assign(resizing.modal.layout, t);
 }
 function onResizeEnd(e: MouseEvent) {
   e.preventDefault();
@@ -147,10 +205,10 @@ function onResizeEnd(e: MouseEvent) {
       v-for="modal in modalList"
       class="modal_dom"
       :style="{
-        width: modal?.layout?.w + 'px',
-        height: modal?.layout?.h + 'px',
-        left: modal?.layout?.x + 'px',
-        top: modal?.layout?.y + 'px',
+        width: modal.layout.w + 'px',
+        height: modal.layout.h + 'px',
+        left: modal.layout.x + 'px',
+        top: modal.layout.y + 'px',
       }"
     >
       <div
@@ -158,10 +216,10 @@ function onResizeEnd(e: MouseEvent) {
         @mousedown="onResizeStart(modal.nid ?? 0, $event)"
       >
         <div class="modal_title">
-          {{ modal.base?.title }}
+          {{ modal.base.title }}
         </div>
         <div class="modal_menu">
-          <template v-if="modal?.layout?.resizable">
+          <template v-if="modal.layout.resizable">
             <span
               class="sysIcon sysIcon_maximize"
               v-if="!modal.layout.fullscreen"
