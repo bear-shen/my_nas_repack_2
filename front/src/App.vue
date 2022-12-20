@@ -3,6 +3,7 @@ import HelloWorld from "./components/HelloWorld.vue";
 import FrHeader from "./framework/Header.vue";
 import FrFooter from "./framework/Footer.vue";
 import FrNavi from "./framework/Navi.vue";
+import Popup from "./framework/Popup.vue";
 import dev from "../../share/dev";
 dev();
 const containerDef = {};
@@ -10,6 +11,7 @@ const containerDef = {};
 
 <template>
   <FrHeader class="fr_header"></FrHeader>
+  <Popup></Popup>
   <div class="fr_body">
     <FrNavi class="fr_navi"></FrNavi>
     <router-view></router-view>
