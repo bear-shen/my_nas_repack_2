@@ -12,6 +12,7 @@ import type {
   ModalStruct,
 } from "../modal";
 import HelloWorld from "@/components/HelloWorld.vue";
+import { isArray } from "@vue/shared";
 //
 const initTimestamp = new Date().valueOf();
 const modalList = ref([] as ModalStruct[]);
@@ -70,19 +71,28 @@ function buildModal(modal: ModalConstruct): ModalStruct {
   }
   if (modal.form) {
     if (Array.isArray(modal.form)) {
-      target.content.form = modal.form;
+      target.content.form.push(...modal.form);
     } else {
-      target.content.form = [modal.form];
+      target.content.form.push(modal.form);
     }
     target.content.form.forEach((form) => {
       // form.type = form.type;
       // form.label = form.label;
       // form.key = form.key;
-      // form.value = form.value;
-      // form.options = form.options;
-      // form.default = form.default;
+      form.value = form.value ?? null;
+      form.options = form.options ?? null;
+      form.default = form.default ?? null;
       form.multiple = !!form.multiple;
       form.disabled = !!form.disabled;
+      if (form.options) {
+        if (Array.isArray(form.options)) {
+          let options = {} as { [key: string]: any };
+          form.options.forEach((option: string) => {
+            options[option] = option;
+          });
+          form.options = options;
+        }
+      }
     });
   }
   if (modal.component) {
@@ -198,10 +208,11 @@ function buildModal(modal: ModalConstruct): ModalStruct {
     });
   }
   //
+  console.warn(target);
   return target;
 }
 window.addEventListener("resize", (e) => {
-  // console.info(e);
+  console.info(e.type);
 });
 const modalStore = useModalStore();
 modalStore.handleEvent("set", (modal: ModalConstruct) => {
@@ -354,33 +365,43 @@ modalStore.set({
     },
     {
       type: "textarea",
-      label: "a",
-      value: "123",
+      label: "b",
+      value: "1919-08-10 11:45:14",
     },
     {
       type: "date",
-      label: "a",
-      value: "123",
+      label: "c",
+      value: "1919-08-10",
     },
     {
       type: "datetime",
-      label: "a",
-      value: "123",
+      label: "d",
+      value: "1919-08-10T11:45:14",
     },
     {
       type: "checkbox",
-      label: "a",
-      value: "123",
+      label: "e",
+      value: false,
     },
     {
       type: "radio",
-      label: "a",
+      label: "f",
       value: "123",
+      options: {
+        a: "a",
+        b: "b",
+        c: "c",
+      },
     },
     {
       type: "select",
-      label: "a",
+      label: "g",
       value: "123",
+      options: {
+        a: "a",
+        b: "b",
+        c: "c",
+      },
     },
   ],
   component: [
@@ -399,7 +420,8 @@ modalStore.set({
 <template>
   <div class="fr_popup">
     <div
-      v-for="modal in modalList"
+      v-for="(modal, modalIndex) in modalList"
+      :key="`_modal_${modalIndex}`"
       class="modal_dom"
       :style="{
         zIndex: modal.layout.index,
@@ -435,7 +457,63 @@ modalStore.set({
       <div class="modal_content">
         <p class="modal_content_text">{{ modal.content.text }}</p>
         <div class="modal_content_form">
-          <label v-for="form in modal.content.form"></label>
+          <label
+            v-for="(form, formIndex) in modal.content.form"
+            :key="`_modal_${modalIndex}_form_${formIndex}`"
+          >
+            <span v-if="form.label">
+              {{ form.label }}
+            </span>
+            <template v-if="form.type === 'text'">
+              <input type="text" v-model="form.value" />
+            </template>
+            <template v-if="form.type === 'textarea'">
+              <textarea v-model="form.value"></textarea>
+            </template>
+            <template v-if="form.type === 'date'">
+              <input type="date" v-model="form.value" />
+            </template>
+            <template v-if="form.type === 'datetime'">
+              <input type="datetime-local" v-model="form.value" />
+            </template>
+            <template v-if="form.type === 'checkbox'">
+              <input
+                type="checkbox"
+                v-model="form.value"
+                :id="`P_${modalIndex}_C_${formIndex}_CB`"
+              />
+              <label :for="`P_${modalIndex}_C_${formIndex}_CB`"></label>
+            </template>
+            <template v-if="form.type === 'radio'">
+              <template
+                v-for="(option, optionKey) in form.options"
+                :key="`P_${modalIndex}_C_${formIndex}_RD`"
+              >
+                <input
+                  :id="`P_${modalIndex}_C_${formIndex}_RD_${optionKey}`"
+                  :name="`P_${modalIndex}_C_${formIndex}_RD`"
+                  :value="optionKey"
+                  type="radio"
+                  v-model="form.value"
+                />
+                <label
+                  :for="`P_${modalIndex}_C_${formIndex}_RD_${optionKey}`"
+                  >{{ option }}</label
+                >
+              </template>
+            </template>
+            <template v-if="form.type === 'select'">
+              <select v-model="form.value">
+                <option
+                  v-for="(option, optionKey) in form.options"
+                  :key="`P_${modalIndex}_C_${formIndex}_SL`"
+                  :value="optionKey"
+                >
+                  {{ option }}
+                </option>
+              </select>
+            </template>
+          </label>
         </div>
         <div class="modal_content_component"></div>
       </div>
