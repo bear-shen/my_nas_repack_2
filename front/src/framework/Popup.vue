@@ -381,12 +381,7 @@ modalStore.set({
     {
       type: "checkbox",
       label: "e",
-      value: false,
-    },
-    {
-      type: "radio",
-      label: "f",
-      value: "123",
+      value: [],
       options: {
         a: "a",
         b: "b",
@@ -394,9 +389,16 @@ modalStore.set({
       },
     },
     {
+      type: "radio",
+      label: "f",
+      value: "123",
+      options: ["a", "b", "c"],
+    },
+    {
       type: "select",
       label: "g",
       value: "123",
+      multiple: true,
       options: {
         a: "a",
         b: "b",
@@ -464,55 +466,67 @@ modalStore.set({
             <span v-if="form.label">
               {{ form.label }}
             </span>
-            <template v-if="form.type === 'text'">
-              <input type="text" v-model="form.value" />
-            </template>
-            <template v-if="form.type === 'textarea'">
-              <textarea v-model="form.value"></textarea>
-            </template>
-            <template v-if="form.type === 'date'">
-              <input type="date" v-model="form.value" />
-            </template>
-            <template v-if="form.type === 'datetime'">
-              <input type="datetime-local" v-model="form.value" />
-            </template>
-            <template v-if="form.type === 'checkbox'">
-              <input
-                type="checkbox"
-                v-model="form.value"
-                :id="`P_${modalIndex}_C_${formIndex}_CB`"
-              />
-              <label :for="`P_${modalIndex}_C_${formIndex}_CB`"></label>
-            </template>
-            <template v-if="form.type === 'radio'">
-              <template
-                v-for="(option, optionKey) in form.options"
-                :key="`P_${modalIndex}_C_${formIndex}_RD`"
-              >
-                <input
-                  :id="`P_${modalIndex}_C_${formIndex}_RD_${optionKey}`"
-                  :name="`P_${modalIndex}_C_${formIndex}_RD`"
-                  :value="optionKey"
-                  type="radio"
-                  v-model="form.value"
-                />
-                <label
-                  :for="`P_${modalIndex}_C_${formIndex}_RD_${optionKey}`"
-                  >{{ option }}</label
-                >
+            <span>
+              <template v-if="form.type === 'text'">
+                <input type="text" v-model="form.value" />
               </template>
-            </template>
-            <template v-if="form.type === 'select'">
-              <select v-model="form.value">
-                <option
+              <template v-if="form.type === 'textarea'">
+                <textarea v-model="form.value"></textarea>
+              </template>
+              <template v-if="form.type === 'date'">
+                <input type="date" v-model="form.value" />
+              </template>
+              <template v-if="form.type === 'datetime'">
+                <input type="datetime-local" v-model="form.value" />
+              </template>
+              <template v-if="form.type === 'checkbox'">
+                <template
                   v-for="(option, optionKey) in form.options"
-                  :key="`P_${modalIndex}_C_${formIndex}_SL`"
-                  :value="optionKey"
+                  :key="`P_${modalIndex}_C_${formIndex}_CB`"
                 >
-                  {{ option }}
-                </option>
-              </select>
-            </template>
+                  <input
+                    :id="`P_${modalIndex}_C_${formIndex}_CB_${optionKey}`"
+                    :name="`P_${modalIndex}_C_${formIndex}_CB`"
+                    :value="optionKey"
+                    type="checkbox"
+                    v-model="form.value"
+                  />
+                  <label
+                    :for="`P_${modalIndex}_C_${formIndex}_CB_${optionKey}`"
+                    >{{ option }}</label
+                  >
+                </template>
+              </template>
+              <template v-if="form.type === 'radio'">
+                <template
+                  v-for="(option, optionKey) in form.options"
+                  :key="`P_${modalIndex}_C_${formIndex}_RD`"
+                >
+                  <input
+                    :id="`P_${modalIndex}_C_${formIndex}_RD_${optionKey}`"
+                    :name="`P_${modalIndex}_C_${formIndex}_RD`"
+                    :value="optionKey"
+                    type="radio"
+                    v-model="form.value"
+                  />
+                  <label
+                    :for="`P_${modalIndex}_C_${formIndex}_RD_${optionKey}`"
+                    >{{ option }}</label
+                  >
+                </template>
+              </template>
+              <template v-if="form.type === 'select'">
+                <select v-model="form.value" :multiple="form.multiple">
+                  <option
+                    v-for="(option, optionKey) in form.options"
+                    :key="`P_${modalIndex}_C_${formIndex}_SL`"
+                    :value="optionKey"
+                  >
+                    {{ option }}
+                  </option>
+                </select>
+              </template>
+            </span>
           </label>
         </div>
         <div class="modal_content_component"></div>
@@ -548,8 +562,18 @@ modalStore.set({
   pointer-events: all;
   $controllerWidth: $fontSize * 0.5;
   font-size: $fontSize;
-  background-color: aqua;
+  background-color: fade-out(mkColor(map-get($colors, bk), 0), 0.25);
   position: absolute;
+  &:before {
+    z-index: -1;
+    filter: blur($fontSize * 0.05);
+    backdrop-filter: blur($fontSize * 0.05);
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+  }
   .modal_header {
     height: $fontSize;
     line-height: $fontSize;
@@ -639,5 +663,49 @@ modalStore.set({
       height: $controllerWidth;
     }
   }
+  .modal_content {
+    @include smallScroll();
+    overflow: auto;
+    height: calc(100% - $fontSize);
+    padding: $fontSize * 0.25;
+  }
+  .modal_content_text {
+    display: block;
+  }
+  .modal_content_form {
+    display: table;
+    width: 100%;
+    > label {
+      display: table-row;
+      > span {
+        display: table-cell;
+      }
+      > span:first-child {
+        text-align: right;
+        padding-right: $fontSize * 0.25;
+        &::after {
+          content: ":";
+        }
+      }
+      > span:last-child {
+        input,
+        textarea {
+          border-bottom: 1px solid mkColor(map-get($colors, bk), 4);
+        }
+      }
+      input,
+      select,
+      textarea {
+        width: 100%;
+      }
+      input[type="checkbox"],
+      input[type="radio"] {
+        + label::after {
+          padding-left: $fontSize * 0.25;
+        }
+      }
+    }
+  }
+  //  .modal_content_content{}
 }
 </style>

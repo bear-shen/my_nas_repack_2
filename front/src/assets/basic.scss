@@ -45,10 +45,13 @@ select {
 
   &:hover,
   &.active,
-  &.disabled {
+  &.disabled,
+  option:checked {
     background-color: map_get($colors, input_button_bk_active);
     color: map_get($colors, input_button_font_active);
   }
+
+  @include smallScroll();
 }
 
 input {
@@ -101,7 +104,9 @@ input[type='radio'] {
     vertical-align: baseline;
 
     &::after {
-      content: 'X';
+      font-family: "sysIcon" !important;
+      font-size: 0.75em;
+      content: '\e600';
     }
   }
 
@@ -111,7 +116,7 @@ input[type='radio'] {
       background-color: map_get($colors, positive);
 
       &::after {
-        content: '✓';
+        content: '\e62c';
       }
     }
   }
