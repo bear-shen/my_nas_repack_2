@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { useModalStore } from "../stores/modalStore";
-import { ref } from "vue";
+import {
+  defineAsyncComponent,
+  defineComponent,
+  ref,
+  shallowRef,
+  createApp,
+} from "vue";
 import type {
   ModalFormConstruct,
   ModalCallbackConstruct,
@@ -11,8 +17,15 @@ import type {
   ModalConstruct,
   ModalStruct,
 } from "../modal";
-import HelloWorld from "@/components/HelloWorld.vue";
 import { isArray } from "@vue/shared";
+import App from "@/App.vue";
+import HelloWorldVue from "@/components/HelloWorld.vue";
+import Browser from "@/popupComponents/browser.vue";
+
+const componentDefs = {
+  helloWorld: HelloWorldVue,
+  fileBrowser: Browser,
+} as { [key: string]: any };
 //
 const initTimestamp = new Date().valueOf();
 const modalList = ref([] as ModalStruct[]);
@@ -357,7 +370,7 @@ modalStore.set({
   movable: false,
   fullscreen: false,
   text: "this is text",
-  form: [
+  /* form: [
     {
       type: "text",
       label: "a",
@@ -405,10 +418,10 @@ modalStore.set({
         c: "c",
       },
     },
-  ],
+  ], */
   component: [
     {
-      componentName: "HelloWorld",
+      componentName: "fileBrowser",
     },
   ],
   callback: {
@@ -457,8 +470,16 @@ modalStore.set({
         </div>
       </div>
       <div class="modal_content">
-        <p class="modal_content_text">{{ modal.content.text }}</p>
-        <div class="modal_content_form">
+        <p
+          class="modal_content_text"
+          v-if="modal.content.text && modal.content.text.length"
+        >
+          {{ modal.content.text }}
+        </p>
+        <div
+          class="modal_content_form"
+          v-if="modal.content.form && modal.content.form.length"
+        >
           <label
             v-for="(form, formIndex) in modal.content.form"
             :key="`_modal_${modalIndex}_form_${formIndex}`"
@@ -529,7 +550,19 @@ modalStore.set({
             </span>
           </label>
         </div>
-        <div class="modal_content_component"></div>
+        <div
+          class="modal_content_component"
+          v-if="modal.content.component && modal.content.component.length"
+        >
+          <template v-for="component in modal.content.component">
+            <component
+              :is="componentDefs[component.componentName]"
+              :data="component.data"
+              :modalData="modal"
+            ></component>
+          </template>
+          <!-- <HelloWorld msg="123" /> -->
+        </div>
       </div>
       <div
         class="modal_border"
@@ -667,14 +700,21 @@ modalStore.set({
     @include smallScroll();
     overflow: auto;
     height: calc(100% - $fontSize);
-    padding: $fontSize * 0.25;
+    .modal_content_text,
+    .modal_content_form {
+      padding: $fontSize * 0.25;
+    }
+    > div,
+    > p {
+      margin-bottom: $fontSize * 0.25;
+    }
   }
   .modal_content_text {
     display: block;
   }
   .modal_content_form {
     display: table;
-    width: 100%;
+    //width: 100%;
     > label {
       display: table-row;
       > span {
