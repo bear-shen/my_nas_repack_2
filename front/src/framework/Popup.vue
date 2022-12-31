@@ -365,11 +365,12 @@ modalStore.set({
   key: "",
   single: false,
   w: 400,
-  h: 160,
+  h: 400,
+  // h: 160,
   resizable: false,
   movable: false,
   fullscreen: false,
-  text: "this is text",
+  // text: "this is text",
   /* form: [
     {
       type: "text",
@@ -550,19 +551,19 @@ modalStore.set({
             </span>
           </label>
         </div>
-        <div
+        <!-- <div
           class="modal_content_component"
           v-if="modal.content.component && modal.content.component.length"
-        >
-          <template v-for="component in modal.content.component">
-            <component
-              :is="componentDefs[component.componentName]"
-              :data="component.data"
-              :modalData="modal"
-            ></component>
-          </template>
-          <!-- <HelloWorld msg="123" /> -->
-        </div>
+        > -->
+        <template v-for="component in modal.content.component">
+          <component
+            :is="componentDefs[component.componentName]"
+            :data="component.data"
+            :modalData="modal"
+          ></component>
+        </template>
+        <!-- <HelloWorld msg="123" /> -->
+        <!-- </div> -->
       </div>
       <div
         class="modal_border"
@@ -597,6 +598,7 @@ modalStore.set({
   font-size: $fontSize;
   background-color: fade-out(mkColor(map-get($colors, bk), 0), 0.25);
   position: absolute;
+  padding: $fontSize * 0.25;
   &:before {
     z-index: -1;
     filter: blur($fontSize * 0.05);
@@ -612,7 +614,7 @@ modalStore.set({
     line-height: $fontSize;
     font-size: $fontSize;
     white-space: nowrap;
-    background-color: green;
+    background-color: mkColor(map-get($colors, bk), 2);
     width: 100%;
     display: flex;
     justify-content: space-between;
@@ -627,7 +629,7 @@ modalStore.set({
     top: 0;
     > div {
       pointer-events: all;
-      background-color: red;
+      //background-color: red;
       position: absolute;
     }
     .c_l,
@@ -704,8 +706,8 @@ modalStore.set({
     .modal_content_form {
       padding: $fontSize * 0.25;
     }
-    > div,
-    > p {
+    .modal_content_text,
+    .modal_content_text {
       margin-bottom: $fontSize * 0.25;
     }
   }
