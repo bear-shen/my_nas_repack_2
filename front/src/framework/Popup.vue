@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useModalStore } from "../stores/modalStore";
+import { useEventStore } from "../stores/event";
 import {
   defineAsyncComponent,
   defineComponent,
@@ -240,6 +241,7 @@ modalStore.handleEvent("close", (id: number) => {
 function fullscreen(nid?: number) {}
 function resetWindow(nid?: number) {}
 function close(nid?: number) {}
+const eventStore = useEventStore();
 let resizing = {
   x: 0,
   y: 0,
@@ -348,6 +350,10 @@ function onResizing(e: MouseEvent) {
   if (t.x > b.r - t.w / 2) t.x = b.r - t.w / 2;
   //
   Object.assign(resizing.modal.layout, t);
+  eventStore.triger(
+    `modal_resizing_${resizing.modal?.nid}`,
+    resizing.modal.layout
+  );
 }
 function onResizeEnd(e: MouseEvent) {
   e.preventDefault();

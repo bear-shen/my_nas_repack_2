@@ -7,21 +7,49 @@ import type { api_node_col, api_file_list_resp } from "../../../share/Api";
 import smp_file_list_resp from "../../../share/sampleApi/smp_file_list_resp";
 import GenFunc from "../../../share/GenFunc";
 import browserBaseVue from "./browserBase.vue";
+import browserImageVue from "./browserImage.vue";
+import { useLocalConfigureStore } from "@/stores/localConfigure";
+//------------------
 const props = defineProps<{
   data: { [key: string]: any };
   modalData: ModalStruct;
 }>();
-
 const regComponentLs = {
+  image: browserImageVue,
   base: browserBaseVue,
 } as { [key: string]: any };
 
-onMounted(() => {
+//------------------
+const localConfigure = useLocalConfigureStore();
+//------------------
+const playModes = ["queue", "loop", "single", "shuffle"];
+let playMode: Ref<string> = ref(
+  localConfigure.get("browser_play_mode") ?? "loop"
+);
+// localConfigure.watch("browser_play_mode", (v) => (playMode.value = v));
+function togglePlayMode() {
+  let curModeIndex = playModes.indexOf(playMode.value);
+  curModeIndex += 1;
+  if (curModeIndex > playModes.length - 1) curModeIndex = 0;
+  playMode.value = playModes[curModeIndex];
+  localConfigure.set("browser_play_mode", playMode.value);
+  checkNext();
+}
+//------------------
+let showDetail: Ref<boolean> = ref(
+  localConfigure.get("browser_show_detail") ?? false
+);
+function toggleDetail() {
+  showDetail.value = !showDetail.value;
+  localConfigure.set("browser_show_detail", showDetail.value);
+}
+//------------------
+/* onMounted(() => {
   console.info("mounted");
 });
 setTimeout(() => {
   props.modalData.base.title = "dev browser";
-}, 1000);
+}, 1000); */
 
 let crumbList: Ref<api_node_col[]> = ref([]);
 let nodeList: Ref<api_node_col[]> = ref([]);
@@ -43,27 +71,66 @@ async function getList() {
   curIndex.value = 3;
   curNode.value = res.list[3];
   // console.info(crumbList);
+  checkNext();
 }
 
-const modes = ["queue", "loop", "single", "shuffle"];
-let playMode = "loop";
-let showDetail = true;
-function togglePlayMode() {}
-function toggleDetail() {}
-function goDownload() {}
+//------------------
+let hasNext = ref(true);
+let hasPrev = ref(true);
+function checkNext() {
+  let isEnd = false;
+  let isStart = false;
+  let listLen = nodeList.value.length;
+  if (listLen < 1) {
+    hasNext.value = false;
+    hasPrev.value = false;
+    return;
+  }
+  if (curIndex.value === 0) isStart = true;
+  if (curIndex.value === listLen - 1) isEnd = true;
+  switch (playMode.value) {
+    case "queue":
+      if (isEnd) hasNext.value = false;
+      if (isStart) hasPrev.value = false;
+      return;
+      break;
+    case "loop":
+    case "single":
+    case "shuffle":
+      hasNext.value = true;
+      hasPrev.value = true;
+      break;
+  }
+}
 //
 function goNext() {
-  curIndex.value += 1;
+  let listLen = nodeList.value.length;
+  if (playMode.value === "shuffle") {
+    curIndex.value += Math.round(Math.random() * listLen);
+  } else {
+    curIndex.value += 1;
+  }
   goNav();
 }
 function goPrev() {
-  curIndex.value -= 1;
+  let listLen = nodeList.value.length;
+  if (playMode.value === "shuffle") {
+    curIndex.value += Math.round(Math.random() * listLen);
+  } else {
+    curIndex.value -= 1;
+  }
   goNav();
 }
 function goNav() {
+  let listLen = nodeList.value.length;
   if (curIndex.value < 0) curIndex.value = nodeList.value.length - 1;
+  while (curIndex.value > listLen - 1) curIndex.value -= listLen;
   curNode.value = nodeList.value[curIndex.value];
+  checkNext();
 }
+//------------------
+
+function goDownload() {}
 </script>
 
 <template>
@@ -102,6 +169,7 @@ function goNav() {
         ></button>
         <!--          <button :class="['sysIcon','sysIcon_link',]" @click="browserMeta.act.share"></button>-->
         <button
+          v-if="curNode.file?.raw?.path"
           :class="['sysIcon', 'sysIcon_download']"
           @click="goDownload"
         ></button>
@@ -109,10 +177,10 @@ function goNav() {
     </template>
     <template v-slot:navigator>
       <div class="pagination">
-        <div class="left" @click="goPrev">
+        <div v-if="hasPrev" class="left" @click="goPrev">
           <span class="sysIcon sysIcon_arrowleft"></span>
         </div>
-        <div class="right" @click="goNext">
+        <div v-if="hasNext" class="right" @click="goNext">
           <span class="sysIcon sysIcon_arrowright"></span>
         </div>
       </div>
@@ -128,6 +196,10 @@ function goNav() {
   //background-color: aqua;
   > div {
     position: absolute;
+  }
+  .info {
+    padding-left: $fontSize * 0.25;
+    text-shadow: 1px 1px 1px black;
   }
   .pagination {
     z-index: 1;
@@ -166,6 +238,8 @@ function goNav() {
     height: 100%;
     top: 0;
     left: 0;
+    overflow: hidden;
+    position: relative;
   }
   .base {
     z-index: 5;
@@ -174,6 +248,15 @@ function goNav() {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
+    .l,
+    .r {
+      > *:last-child {
+        margin-top: $fontSize * 0.5;
+      }
+    }
+    .r {
+      text-align: right;
+    }
   }
 }
 </style>

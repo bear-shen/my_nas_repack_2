@@ -10,7 +10,11 @@ export const useLocalConfigureStore = defineStore('localConfigure', () => {
     if (data[key]) return data[key];
     const ifStore = localStorage.getItem(key);
     if (!ifStore) return null;
-    data[key] = JSON.parse(ifStore);
+    try {
+      data[key] = JSON.parse(ifStore);
+    } catch (error) {
+      data[key] = null;
+    }
     return data[key];
   }
   function watch(key: string, on: (to: any) => any) {
