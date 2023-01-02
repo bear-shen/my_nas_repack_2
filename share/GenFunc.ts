@@ -286,6 +286,11 @@ const GenFunc = {
         }
         return theRequest;
     },
+    /**
+     * @deprecated
+     * use
+     * (new URLSearchParams(location.search)).toString():string
+     */
     mergeRequests: function (object: { [key: string]: string }): string {
         const result: Array<string> = [];
         for (const k in object) {
@@ -347,9 +352,15 @@ const GenFunc = {
             }
         );
     },
+    /**
+     * @deprecated
+     * use
+     * (new URLSearchParams(location.search)).get(key):string
+     * (new URLSearchParams(location.search)).getAll(key):string[]
+     */
     getUrlParam: function (name: string): string | null {
         const reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)'); // 构造一个含有目标参数的正则表达式对象
-        const r = window.location.search.substr(1).match(reg); // 匹配目标参数
+        const r = window.location.search.substring(1).match(reg); // 匹配目标参数
         if (r != null) return unescape(r[2]);
         return null; // 返回参数值
     },
@@ -366,6 +377,15 @@ const GenFunc = {
             pwd += chars.charAt(Math.floor(Math.random() * maxPos));
         }
         return pwd;
+    },
+    randInt: function (from: number, to: number): number {
+        const seed = Math.random();
+        const t = from;
+        if (from > to) {
+            from = to;
+            to = t;
+        }
+        return Math.floor(from + seed * (to - from));
     },
     kmgt: function (num: number | string, decimal?: number): string {
         if (typeof num !== 'number') num = parseFloat(num);
@@ -386,6 +406,23 @@ const GenFunc = {
             refNum = (num / (1000 * 1000 * 1000)).toFixed(decimal) + ' G';
         }
         return (minus ? '-' : '') + refNum;
+    },
+    // dom////////////////////////////////////////////////////////////////////////////////////////
+    nodeOffsetX: function (ele: HTMLElement): number {
+        // console.debug(ele, ele.offsetLeft);
+        let t = ele.offsetLeft ? ele.offsetLeft : 0;
+        if (ele.offsetParent) {
+            t += this.nodeOffsetX(ele.offsetParent as HTMLElement);
+        }
+        return t;
+    },
+    nodeOffsetY: function (ele: HTMLElement): number {
+        // console.info(ele, ele.offsetTop, ele.scrollTop, ele.clientTop);
+        let t = ele.offsetTop ? ele.offsetTop : 0;
+        if (ele.offsetParent) {
+            t += this.nodeOffsetY(ele.offsetParent as HTMLElement);
+        }
+        return t;
     },
     // other////////////////////////////////////////////////////////////////////////////////////////
     isEmpty: function (object: { [key: string]: any }): boolean {
@@ -421,6 +458,14 @@ const GenFunc = {
         }
         if (!exist) classArr.push(className);
         element.className = Array.prototype.join.call(classArr, ' ');  // 把数组转成字符串并赋值
+    },
+    template: function (template: string, data: { [key: string]: any }): string {
+        let target = template;
+        for (const dataKey in data) {
+            if (!Object.prototype.hasOwnProperty.call(data, dataKey)) continue;
+            target.replace('{' + dataKey + '}', data[dataKey]);
+        }
+        return target;
     },
 };
 export default GenFunc;

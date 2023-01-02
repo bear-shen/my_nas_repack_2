@@ -7,10 +7,10 @@ const evtLs = {
 };
 
 export const useEventStore = defineStore('event', () => {
-  return { triger, listen, release };
+  return { trigger, listen, release };
 })
 
-function triger(name: string, data: any) {
+function trigger(name: string, data: any) {
   if (!evtLs[name]) return;
   console.info(evtLs[name]);
   evtLs[name].forEach(f => f(data));

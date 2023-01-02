@@ -9,6 +9,7 @@ import GenFunc from "../../../share/GenFunc";
 import browserBaseVue from "./browserBase.vue";
 import browserImageVue from "./browserImage.vue";
 import { useLocalConfigureStore } from "@/stores/localConfigure";
+import { useEventStore } from "@/stores/event";
 //------------------
 const props = defineProps<{
   data: { [key: string]: any };
@@ -103,6 +104,7 @@ function checkNext() {
   }
 }
 //
+const eventStore = useEventStore();
 function goNext() {
   let listLen = nodeList.value.length;
   if (playMode.value === "shuffle") {
@@ -122,10 +124,15 @@ function goPrev() {
   goNav();
 }
 function goNav() {
-  let listLen = nodeList.value.length;
+  const listLen = nodeList.value.length;
   if (curIndex.value < 0) curIndex.value = nodeList.value.length - 1;
   while (curIndex.value > listLen - 1) curIndex.value -= listLen;
+  const changeType = curNode.value.type !== nodeList.value[curIndex.value].type;
   curNode.value = nodeList.value[curIndex.value];
+  console.warn(changeType);
+  //类型相同的时候添加一个事件用于预处理
+  if (!changeType)
+    eventStore.trigger(`modal_browser_change_${props.modalData.nid}`, null);
   checkNext();
 }
 //------------------

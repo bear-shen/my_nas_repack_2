@@ -350,7 +350,7 @@ function onResizing(e: MouseEvent) {
   if (t.x > b.r - t.w / 2) t.x = b.r - t.w / 2;
   //
   Object.assign(resizing.modal.layout, t);
-  eventStore.triger(
+  eventStore.trigger(
     `modal_resizing_${resizing.modal?.nid}`,
     resizing.modal.layout
   );
