@@ -143,28 +143,34 @@ document.addEventListener("mousemove", function (e: MouseEvent) {
 document.addEventListener("mouseup", function () {
   dragData.active = false;
 });
-document.addEventListener("wheel", function (e: WheelEvent) {
-  const layout = imgLayout.value;
-  const domLayout = contentDOM.value;
-  const domW = domLayout?.clientWidth ?? 0;
-  const domH = domLayout?.clientHeight ?? 0;
-  const wRatio = domW / layout.orgW;
-  const hRatio = domH / layout.orgH;
+document.addEventListener("wheel", setZoom);
+function setZoom(e?: WheelEvent, dir?: number) {
+  const iLayout = imgLayout.value;
+  const iDOM = imgDOM.value;
+  const cDOM = contentDOM.value;
+  if (!iDOM) return;
+  if (!cDOM) return;
+  const domW = cDOM?.clientWidth ?? 0;
+  const domH = cDOM?.clientHeight ?? 0;
+  const wRatio = domW / iLayout.orgW;
+  const hRatio = domH / iLayout.orgH;
   const orgRatio = Math.min(wRatio, hRatio);
   //
   let zoomLevel = [];
-  const curRatio = imgLayout.value.ratio;
-  zoomLevel.push(...orgZoomLevel, imgLayout.value.ratio, orgRatio);
+  const curRatio = iLayout.ratio;
+  zoomLevel.push(...orgZoomLevel, iLayout.ratio, orgRatio);
   const zoomLevelSet = new Set<number>(zoomLevel);
   zoomLevel = Array.from(zoomLevelSet);
   zoomLevel.sort();
   //
   let curRatioIndex = zoomLevel.indexOf(curRatio);
   // console.info(e);
-  curRatioIndex += e.deltaY < 0 ? 1 : -1;
+  if (e) curRatioIndex += e.deltaY < 0 ? 1 : -1;
+  else curRatioIndex += dir ? 1 : -1;
   if (curRatioIndex < 0) curRatioIndex = 0;
   if (curRatioIndex > zoomLevel.length - 1)
     curRatioIndex = zoomLevel.length - 1;
+  const ratio = zoomLevel[curRatioIndex];
   //
   const target = {
     w: 0,
@@ -174,17 +180,49 @@ document.addEventListener("wheel", function (e: WheelEvent) {
     ratio: 0,
     ratioTxt: "0 %",
   };
-  //
-  const ratio = zoomLevel[curRatioIndex];
-  // console.info(wRatio, hRatio, domLayout, imgLayout.value);
-  target.w = layout.orgW * ratio;
-  target.h = layout.orgH * ratio;
-  // target.x = (domW - target.w) / 2;
-  // target.y = (domH - target.h) / 2;
+  let oX = 0,
+    cdX = 0,
+    oY = 0,
+    cdY = 0;
+  // console.info(e);
+  if (e) {
+    const mX = e.clientX;
+    const mY = e.clientY;
+    //
+    const dX = GenFunc.nodeOffsetX(cDOM);
+    cdX = mX - dX - domW / 2;
+    const iX = GenFunc.nodeOffsetX(iDOM);
+    const ciX = mX - iX - iLayout.w / 2;
+    oX = (ciX * ratio) / iLayout.ratio;
+    //
+    const dY = GenFunc.nodeOffsetY(cDOM);
+    cdY = mY - dY - domH / 2;
+    const iY = GenFunc.nodeOffsetY(iDOM);
+    const ciY = mY - iY - iLayout.h / 2;
+    oY = (ciY * ratio) / iLayout.ratio;
+    //
+    // console.info(wRatio, hRatio, domLayout, layout);
+    target.w = iLayout.orgW * ratio;
+    target.h = iLayout.orgH * ratio;
+    // target.x = 0.5 * (domW - (iLayout.orgW * ratio) / iLayout.ratio) - oX;
+    // target.x = (domW - target.w) / 2;
+    // target.y = (domH - target.h) / 2;
+    target.x = (domW - target.w) / 2 - oX + cdX;
+    target.y = (domH - target.h) / 2 - oY + cdY;
+  } else {
+    const orgX = iLayout.x - domW / 2;
+    cdX = (orgX * ratio) / iLayout.ratio;
+    const orgY = iLayout.y - domH / 2;
+    cdY = (orgY * ratio) / iLayout.ratio;
+    target.w = iLayout.orgW * ratio;
+    target.h = iLayout.orgH * ratio;
+    target.x = domW / 2 + cdX;
+    target.y = domH / 2 + cdY;
+  }
   target.ratio = ratio;
   target.ratioTxt = Math.round(ratio * 1000) / 10 + " %";
   Object.assign(imgLayout.value, target);
-});
+}
 </script>
 
 <template>
@@ -194,12 +232,18 @@ document.addEventListener("wheel", function (e: WheelEvent) {
       <div class="l">
         <slot name="info"></slot>
         <div class="btn">
-          <button :class="['sysIcon', 'sysIcon_zoomout']"></button>
+          <button
+            :class="['sysIcon', 'sysIcon_zoomout']"
+            @click="setZoom(undefined, 0)"
+          ></button>
           <!-- <button :class="['sysIcon', 'sysIcon_fangdajing1']" @click="fitImg"> -->
           <button @click="fitImg">
             {{ imgLayout.ratioTxt }}
           </button>
-          <button :class="['sysIcon', 'sysIcon_zoomin']"></button>
+          <button
+            :class="['sysIcon', 'sysIcon_zoomin']"
+            @click="setZoom(undefined, 1)"
+          ></button>
         </div>
       </div>
       <div class="r">
