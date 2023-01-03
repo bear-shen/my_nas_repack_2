@@ -255,7 +255,7 @@ let resizing = {
 function onResizeStart(modalNid: number, e: MouseEvent) {
   e.preventDefault();
   e.stopPropagation();
-  console.info("onResizeStart", e);
+  // console.info("onResizeStart", e);
   resizing.x = e.clientX;
   resizing.y = e.clientY;
   resizing.d = (e.target as HTMLElement).className;
@@ -279,7 +279,7 @@ function onResizing(e: MouseEvent) {
   e.preventDefault();
   e.stopPropagation();
   if (!resizing.modal) return;
-  console.info(e.type);
+  // console.info(e.type);
   const d = { x: e.clientX - resizing.x, y: e.clientY - resizing.y };
   const t = {
     x: resizing.modal.layout.x,
@@ -358,7 +358,7 @@ function onResizing(e: MouseEvent) {
 function onResizeEnd(e: MouseEvent) {
   e.preventDefault();
   e.stopPropagation();
-  console.info(e.type);
+  // console.info(e.type);
   document.removeEventListener("mouseup", onResizeEnd);
   document.removeEventListener("mousemove", onResizing);
 }

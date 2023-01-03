@@ -12,7 +12,7 @@ export const useEventStore = defineStore('event', () => {
 
 function trigger(name: string, data: any) {
   if (!evtLs[name]) return;
-  console.info(evtLs[name]);
+  // console.info(evtLs[name]);
   evtLs[name].forEach(f => f(data));
 }
 function listen(name: string, callback: (data: any) => any, key?: string): string {
