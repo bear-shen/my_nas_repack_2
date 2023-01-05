@@ -348,6 +348,12 @@ function onResizing(e: MouseEvent) {
   if (t.y > b.b - t.h / 2) t.y = b.b - t.h / 2;
   if (t.x < 0 - t.w / 2) t.x = 0 - t.w / 2;
   if (t.x > b.r - t.w / 2) t.x = b.r - t.w / 2;
+  if (resizing.modal.layout.minW) {
+    if (t.w < resizing.modal.layout.minW) t.w = resizing.modal.layout.minW;
+  }
+  if (resizing.modal.layout.minH) {
+    if (t.h < resizing.modal.layout.minH) t.h = resizing.modal.layout.minH;
+  }
   //
   Object.assign(resizing.modal.layout, t);
   eventStore.trigger(
@@ -372,6 +378,8 @@ modalStore.set({
   single: false,
   w: 400,
   h: 400,
+  minW: 400,
+  minH: 400,
   // h: 160,
   resizable: false,
   movable: false,

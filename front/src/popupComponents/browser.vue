@@ -8,6 +8,7 @@ import smp_file_list_resp from "../../../share/sampleApi/smp_file_list_resp";
 import GenFunc from "../../../share/GenFunc";
 import browserBaseVue from "./browserBase.vue";
 import browserImageVue from "./browserImage.vue";
+import browserAudioVue from "./browserAudio.vue";
 import { useLocalConfigureStore } from "@/stores/localConfigure";
 import { useEventStore } from "@/stores/event";
 //------------------
@@ -16,6 +17,7 @@ const props = defineProps<{
   modalData: ModalStruct;
 }>();
 const regComponentLs = {
+  audio: browserAudioVue,
   image: browserImageVue,
   base: browserBaseVue,
 } as { [key: string]: any };
@@ -27,7 +29,6 @@ const playModes = ["queue", "loop", "single", "shuffle"];
 let playMode: Ref<string> = ref(
   localConfigure.get("browser_play_mode") ?? "loop"
 );
-// localConfigure.watch("browser_play_mode", (v) => (playMode.value = v));
 function togglePlayMode() {
   let curModeIndex = playModes.indexOf(playMode.value);
   curModeIndex += 1;
@@ -69,8 +70,8 @@ async function getList() {
   // console.info(res);
   crumbList.value = res.path;
   nodeList.value = res.list;
-  curIndex.value = 3;
-  curNode.value = res.list[3];
+  curIndex.value = 7;
+  curNode.value = res.list[7];
   // console.info(crumbList);
   checkNext();
 }
@@ -123,6 +124,15 @@ function goPrev() {
   }
   goNav();
 }
+function emitNav(index: number) {
+  let listLen = nodeList.value.length;
+  if (playMode.value === "shuffle") {
+    curIndex.value += Math.round(Math.random() * listLen);
+  } else {
+    curIndex.value = index;
+  }
+  goNav();
+}
 function goNav() {
   const listLen = nodeList.value.length;
   if (curIndex.value < 0) curIndex.value = nodeList.value.length - 1;
@@ -152,6 +162,7 @@ function goDownload() {}
     :nodeList="nodeList"
     :curNode="curNode"
     :curIndex="curIndex"
+    @nav="emitNav"
   >
     <template v-slot:info>
       <div class="info">

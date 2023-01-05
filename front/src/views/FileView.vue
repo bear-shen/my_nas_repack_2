@@ -102,10 +102,16 @@ async function getList() {
 //
 const localConfigure = useLocalConfigureStore();
 let mode: Ref<string> = ref(localConfigure.get("file_view_mode") ?? "detail");
-localConfigure.watch("file_view_mode", (v) => (mode.value = v));
+const modeKey = localConfigure.listen(
+  "file_view_mode",
+  (v) => (mode.value = v)
+);
 function setMode(mode: string) {
   localConfigure.set("file_view_mode", mode);
 }
+onMounted(() => {
+  localConfigure.release("file_view_mode", modeKey);
+});
 //
 function go(ext: api_file_list_req) {
   const tQuery = Object.assign(GenFunc.copyObject(query), ext);

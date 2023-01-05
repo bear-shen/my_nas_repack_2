@@ -8,7 +8,7 @@ defineProps<{
 //
 const localConfigure = useLocalConfigureStore();
 let mode: Ref<string> = ref(localConfigure.get("file_view_mode") ?? "detail");
-localConfigure.watch("file_view_mode", (v) => (mode.value = v));
+localConfigure.listen("file_view_mode", (v) => (mode.value = v));
 function setMode(mode: string) {
   localConfigure.set("file_view_mode", mode);
 }

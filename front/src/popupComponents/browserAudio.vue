@@ -6,54 +6,81 @@ import type { api_node_col, api_file_list_resp } from "../../../share/Api";
 import smp_file_list_resp from "../../../share/sampleApi/smp_file_list_resp";
 import GenFunc from "../../../share/GenFunc";
 import { useEventStore } from "@/stores/event";
+import { useLocalConfigureStore } from "@/stores/localConfigure";
+const localConfigure = useLocalConfigureStore();
 const props = defineProps<{
   data: { [key: string]: any };
   modalData: ModalStruct;
   nodeList: api_node_col;
-  curIndex: api_node_col;
+  curIndex: number;
   curNode: api_node_col;
 }>();
-const orgZoomLevel = [0.1, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 2];
+const emits = defineEmits(["nav"]);
 
 const contentDOM: Ref<HTMLElement | null> = ref(null);
-const imgDOM: Ref<HTMLImageElement | null> = ref(null);
+const timelineDOM: Ref<HTMLElement | null> = ref(null);
+const mediaDOM: Ref<HTMLAudioElement | null> = ref(null);
 
-const imgLayout = ref({
-  loaded: 0,
-  w: 0,
-  h: 0,
-  x: 0,
-  y: 0,
-  ratio: 0,
-  ratioTxt: "0 %",
-  orgW: 0,
-  orgH: 0,
+// const playModes = ["queue", "loop", "single", "shuffle"];
+
+const mediaMeta = ref({
+  ready: false,
+  duration: 0,
+  time: 0,
+  //
+  volume: localConfigure.get("browser_play_volume")
+    ? localConfigure.get("browser_play_volume")
+    : 100,
+  mute: false,
+  //
+  play: false,
+  show: true,
+  loop: localConfigure.get("browser_play_mode") === "single",
 });
-function loadImageRes() {
-  setTimeout(() => {
-    let dom = imgDOM.value;
-    if (!dom) return loadImageRes();
-    if (!dom.complete) return loadImageRes();
-    Object.assign(imgLayout.value, {
-      loaded: props.curNode.id,
-      orgH: dom.naturalHeight,
-      orgW: dom.naturalWidth,
-    });
-    fitImg();
-  }, 50);
+const modeKey = localConfigure.listen("browser_play_mode", (v) =>
+  Object.assign(mediaMeta.value, { loop: v === "single" })
+);
+const volumeKey = localConfigure.listen("browser_play_volume", (v) =>
+  Object.assign(mediaMeta.value, { volume: v })
+);
+
+function onInitMeta() {
+  const dom = mediaDOM.value;
+  if (!dom || dom.readyState !== 4) return setTimeout(onInitMeta, 50);
+  const meta = mediaMeta.value;
+  const target = {
+    duration: dom.duration,
+  };
+  Object.assign(mediaMeta.value, target);
+  if (meta.play) dom.play();
+  dom.volume = meta.mute ? 0 : meta.volume / 100;
+}
+function togglePlay() {
+  const dom = mediaDOM.value;
+  if (!dom) return;
+  const meta = mediaMeta.value;
+  if (meta.play) {
+    dom.pause();
+  } else {
+    dom.play();
+  }
+  Object.assign(mediaMeta.value, { play: !meta.play });
+}
+function onEnd(e: Event) {
+  console.info("onEnd", e);
+  const dom = mediaDOM.value;
+  if (!dom) return;
+  const meta = mediaMeta.value;
+  if (meta.loop) {
+    dom.currentTime = 0;
+    dom.play();
+    return;
+  }
+  emits("nav", props.curIndex + 1);
 }
 onMounted(() => {
-  console.warn("mounted");
-  Object.assign(imgLayout.value, {
-    loaded: false,
-    w: 0,
-    h: 0,
-    x: 0,
-    y: 0,
-    orgW: 0,
-    orgH: 0,
-  });
-  loadImageRes();
+  localConfigure.release("browser_play_mode", modeKey);
+  localConfigure.release("browser_play_volume", volumeKey);
 });
 /* watch(props, async (to) => {
   if (to.curNode.id === imgLayout.value.loaded) return;
@@ -65,182 +92,128 @@ onMounted(() => {
 }); */
 //
 const eventStore = useEventStore();
-let resizingEvtKey = eventStore.listen(
-  `modal_resizing_${props.modalData.nid}`,
-  (data) => fitImg()
-);
 let changeEvtKey = eventStore.listen(
   `modal_browser_change_${props.modalData.nid}`,
-  (data) => loadImageRes()
+  (data) => {
+    Object.assign(mediaMeta.value, { show: false });
+    setTimeout(() => Object.assign(mediaMeta.value, { show: true }), 50);
+  }
 );
 onUnmounted(() => {
-  eventStore.release(`modal_resizing_${props.modalData.nid}`, resizingEvtKey);
   eventStore.release(
     `modal_browser_change_${props.modalData.nid}`,
     changeEvtKey
   );
 });
-async function fitImg() {
-  const domLayout = contentDOM.value;
-  const domW = domLayout?.clientWidth ?? 0;
-  const domH = domLayout?.clientHeight ?? 0;
-  const layout = imgLayout.value;
-  const wRatio = domW / layout.orgW;
-  const hRatio = domH / layout.orgH;
-  //
-  const target = {
-    w: 0,
-    h: 0,
-    x: 0,
-    y: 0,
-    ratio: 0,
-    ratioTxt: "0 %",
-  };
-  //
-  const ratio = Math.min(wRatio, hRatio);
-  // console.info(wRatio, hRatio, domLayout, imgLayout.value);
-  target.w = layout.orgW * ratio;
-  target.h = layout.orgH * ratio;
-  target.x = (domW - target.w) / 2;
-  target.y = (domH - target.h) / 2;
-  target.ratio = ratio;
-  target.ratioTxt = Math.round(ratio * 1000) / 10 + " %";
-  Object.assign(imgLayout.value, target);
-  // console.info(imgLayout.value);
+function onTimeUpdate(e: Event) {
+  const dom = mediaDOM.value;
+  if (!dom) return;
+  Object.assign(mediaMeta.value, {
+    time: dom.currentTime,
+  });
 }
 
 let dragData = {
   active: false,
   x: 0,
-  y: 0,
+  w: 0,
   orgX: 0,
-  orgY: 0,
 };
 function onDragging(e: MouseEvent) {
-  const layout = imgLayout.value;
+  const dom = mediaDOM.value;
+  if (!dom) return;
+  const timeline = timelineDOM.value;
+  if (!timeline) return;
+  // console.info(e);
+  // const layout = imgLayout.value;
   const t = {
     active: true,
     x: e.clientX,
-    y: e.clientY,
-    orgX: layout.x,
-    orgY: layout.y,
+    w: timeline.clientWidth,
+    orgX: GenFunc.nodeOffsetX(timeline),
   };
   Object.assign(dragData, t);
+  const delta = (t.x - t.orgX) / t.w;
+  dom.currentTime = dom.duration * delta;
   // console.info(e);
 }
-document.addEventListener("mousemove", function (e: MouseEvent) {
+document.addEventListener("mousemove", (e: MouseEvent) => {
   e.preventDefault();
   e.stopPropagation();
   if (!dragData.active) return;
-  const layout = imgLayout.value;
+  //
+  const dom = mediaDOM.value;
+  if (!dom) return;
+  Object.assign(dragData, { x: e.clientX });
+  let delta = (dragData.x - dragData.orgX) / dragData.w;
+  if (delta > 1) delta = 1;
+  if (delta < 0) delta = 0;
+  dom.currentTime = dom.duration * delta;
+});
+document.addEventListener("mouseup", () => {
+  Object.assign(dragData, { active: false });
+});
+document.addEventListener("wheel", (e) => {
+  const dom = mediaDOM.value;
+  if (!dom) return;
+  const meta = mediaMeta.value;
+  let volume = meta.volume + (e.deltaY < 0 ? 5 : -5);
+  if (volume < 0) volume = 0;
+  if (volume > 100) volume = 100;
+  dom.volume = volume / 100;
+  Object.assign(mediaMeta.value, { volume: volume });
+});
+function parseTime(t: number) {
   const d = {
-    x: e.clientX - dragData.x + dragData.orgX,
-    y: e.clientY - dragData.y + dragData.orgY,
+    h: "" + Math.floor(t / 3600),
+    m: "" + Math.floor((t / 60) % 60),
+    s: "" + Math.floor(t % 60),
   };
-  // Object.assign(dragData, d);
-  Object.assign(imgLayout.value, d);
-});
-document.addEventListener("mouseup", function () {
-  dragData.active = false;
-});
-document.addEventListener("wheel", setZoom);
-function setZoom(e?: WheelEvent, dir?: number) {
-  const iLayout = imgLayout.value;
-  const iDOM = imgDOM.value;
-  const cDOM = contentDOM.value;
-  if (!iDOM) return;
-  if (!cDOM) return;
-  const domW = cDOM?.clientWidth ?? 0;
-  const domH = cDOM?.clientHeight ?? 0;
-  const wRatio = domW / iLayout.orgW;
-  const hRatio = domH / iLayout.orgH;
-  const orgRatio = Math.min(wRatio, hRatio);
-  //
-  let zoomLevel = [];
-  const curRatio = iLayout.ratio;
-  zoomLevel.push(...orgZoomLevel, iLayout.ratio, orgRatio);
-  const zoomLevelSet = new Set<number>(zoomLevel);
-  zoomLevel = Array.from(zoomLevelSet);
-  zoomLevel.sort();
-  //
-  let curRatioIndex = zoomLevel.indexOf(curRatio);
-  // console.info(e);
-  if (e) curRatioIndex += e.deltaY < 0 ? 1 : -1;
-  else curRatioIndex += dir ? 1 : -1;
-  if (curRatioIndex < 0) curRatioIndex = 0;
-  if (curRatioIndex > zoomLevel.length - 1)
-    curRatioIndex = zoomLevel.length - 1;
-  const ratio = zoomLevel[curRatioIndex];
-  //
-  const target = {
-    w: 0,
-    h: 0,
-    x: 0,
-    y: 0,
-    ratio: 0,
-    ratioTxt: "0 %",
-  };
-  // console.info(e);
-  if (e) {
-    const mX = e.clientX;
-    const mY = e.clientY;
-    //
-    const dX = GenFunc.nodeOffsetX(cDOM);
-    const cdX = mX - dX - domW / 2;
-    const iX = GenFunc.nodeOffsetX(iDOM);
-    const ciX = mX - iX - iLayout.w / 2;
-    const oX = (ciX * ratio) / iLayout.ratio;
-    //
-    const dY = GenFunc.nodeOffsetY(cDOM);
-    const cdY = mY - dY - domH / 2;
-    const iY = GenFunc.nodeOffsetY(iDOM);
-    const ciY = mY - iY - iLayout.h / 2;
-    const oY = (ciY * ratio) / iLayout.ratio;
-    //
-    // console.info(wRatio, hRatio, domLayout, layout);
-    target.w = iLayout.orgW * ratio;
-    target.h = iLayout.orgH * ratio;
-    // target.x = 0.5 * (domW - (iLayout.orgW * ratio) / iLayout.ratio) - oX;
-    // target.x = (domW - target.w) / 2;
-    // target.y = (domH - target.h) / 2;
-    //居中, 鼠标位置的坐标移动到中点, 之后移动到鼠标位置
-    target.x = (domW - target.w) / 2 - oX + cdX;
-    target.y = (domH - target.h) / 2 - oY + cdY;
-  } else {
-    const orgX = iLayout.x - domW / 2;
-    const cdX = (orgX * ratio) / iLayout.ratio;
-    const orgY = iLayout.y - domH / 2;
-    const cdY = (orgY * ratio) / iLayout.ratio;
-    target.w = iLayout.orgW * ratio;
-    target.h = iLayout.orgH * ratio;
-    target.x = domW / 2 + cdX;
-    target.y = domH / 2 + cdY;
-  }
-  target.ratio = ratio;
-  target.ratioTxt = Math.round(ratio * 1000) / 10 + " %";
-  Object.assign(imgLayout.value, target);
+  if (d.m.length < 2) d.m = "0" + d.m;
+  if (d.s.length < 2) d.s = "0" + d.s;
+  let s = "" + d.s;
+  if (d.m || d.h) s = `${d.m}:${s}`;
+  if (d.h) s = `${d.h}:${s}`;
+  // console.info(t, d);
+  return s;
 }
 </script>
 
 <template>
-  <div class="modal_browser base">
+  <div class="modal_browser audio">
     <!-- :style="{ height: props.modalData.layout.h + 'px' }" -->
     <div class="base">
       <div class="l">
         <slot name="info"></slot>
         <div class="btn">
           <button
-            :class="['sysIcon', 'sysIcon_zoomout']"
-            @click="setZoom(undefined, 0)"
-          ></button>
-          <!-- <button :class="['sysIcon', 'sysIcon_fangdajing1']" @click="fitImg"> -->
-          <button @click="fitImg">
-            {{ imgLayout.ratioTxt }}
+            :class="{
+              sysIcon: true,
+              sysIcon_volume: !mediaMeta.mute && mediaMeta.volume,
+              sysIcon_mute: mediaMeta.mute,
+              sysIcon_mutemode: !mediaMeta.mute && !mediaMeta.volume,
+            }"
+          >
+            {{ mediaMeta.volume }}
           </button>
           <button
-            :class="['sysIcon', 'sysIcon_zoomin']"
-            @click="setZoom(undefined, 1)"
-          ></button>
+            :class="{
+              sysIcon: true,
+              sysIcon_caretright: mediaMeta.play,
+              sysIcon_pause: !mediaMeta.play,
+            }"
+          >
+            <!-- {{ parseTime(mediaMeta.duration) }} -->
+            {{ parseTime(mediaMeta.time) }}
+          </button>
+          <div :class="['audio_bar']" @mousedown="onDragging" ref="timelineDOM">
+            <span
+              :style="{
+                left: (100 * mediaMeta.time) / mediaMeta.duration + '%',
+              }"
+              >|</span
+            >
+          </div>
         </div>
       </div>
       <div class="r">
@@ -248,42 +221,83 @@ function setZoom(e?: WheelEvent, dir?: number) {
       </div>
     </div>
     <slot name="navigator"></slot>
-    <div class="content" ref="contentDOM">
+    <div class="content" ref="contentDOM" @click="togglePlay">
       <!-- {{ props.curNode.title }} -->
-      <img
-        :src="props.curNode.file?.normal?.path"
-        @mousedown="onDragging"
-        :style="
-          imgLayout.loaded
-            ? {
-                width: imgLayout.w + 'px',
-                height: imgLayout.h + 'px',
-                left: imgLayout.x + 'px',
-                top: imgLayout.y + 'px',
-              }
-            : {}
-        "
-        ref="imgDOM"
-      />
+      <template v-if="mediaMeta.show">
+        <img
+          v-if="props.curNode.file?.cover"
+          :src="props.curNode.file?.cover?.path"
+        />
+        <span
+          v-else
+          :class="['listIcon', `listIcon_file_${props.curNode.type}`]"
+          :style="{
+            fontSize: props.modalData.layout.h * 0.5 + 'px',
+            lineHeight: props.modalData.layout.h * 0.8 + 'px',
+          }"
+        ></span>
+        <audio
+          ref="mediaDOM"
+          :item_id="props.curNode.id"
+          :poster="props.curNode.file?.cover?.path"
+          @loadedmetadata="onInitMeta()"
+          @ended="onEnd"
+          @timeupdate="onTimeUpdate"
+        >
+          <source :src="props.curNode.file?.normal?.path" />
+        </audio>
+      </template>
     </div>
   </div>
 </template>
 
 <style lang="scss">
-.modal_browser.base {
+.modal_browser.audio {
   .content {
     img {
       position: absolute;
       width: 100%;
+      height: 100%;
+      object-fit: contain;
       left: 0;
       top: 0;
     }
   }
-  .btn {
+  .l .btn {
     button {
       vertical-align: bottom;
       font-size: $fontSize;
       line-height: $fontSize;
+      min-width: $fontSize * 3.5;
+      text-align: left;
+    }
+    button::before {
+      padding-right: $fontSize * 0.25;
+    }
+    div {
+      display: inline-block;
+      background-color: map_get($colors, input_button_bk);
+      color: map_get($colors, input_button_font);
+      width: 150px;
+      //      padding: 0 $fontSize * 0.5;
+      height: $fontSize * 1.5;
+      line-height: $fontSize * 1.5;
+      position: relative;
+      &::before {
+        border-bottom: 1px solid;
+        content: "";
+        height: $fontSize * 0.75;
+        display: block;
+        position: absolute;
+        //        width: calc(100% - $fontSize);
+        //        left: $fontSize * 0.5;
+        width: 100%;
+        left: 0;
+      }
+      span {
+        position: absolute;
+        left: 0;
+      }
     }
   }
   .navigator {

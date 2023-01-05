@@ -30,17 +30,14 @@ const imgLayout = ref({
   orgH: 0,
 });
 function loadImageRes() {
-  setTimeout(() => {
-    let dom = imgDOM.value;
-    if (!dom) return loadImageRes();
-    if (!dom.complete) return loadImageRes();
-    Object.assign(imgLayout.value, {
-      loaded: props.curNode.id,
-      orgH: dom.naturalHeight,
-      orgW: dom.naturalWidth,
-    });
-    fitImg();
-  }, 50);
+  const dom = imgDOM.value;
+  if (!dom || !dom.complete) return setTimeout(loadImageRes, 50);
+  Object.assign(imgLayout.value, {
+    loaded: props.curNode.id,
+    orgH: dom.naturalHeight,
+    orgW: dom.naturalWidth,
+  });
+  fitImg();
 }
 onMounted(() => {
   console.warn("mounted");
@@ -211,6 +208,7 @@ function setZoom(e?: WheelEvent, dir?: number) {
     const cdX = (orgX * ratio) / iLayout.ratio;
     const orgY = iLayout.y - domH / 2;
     const cdY = (orgY * ratio) / iLayout.ratio;
+    //获取之前的以中点为坐标的值, 乘个倍率, 加回去
     target.w = iLayout.orgW * ratio;
     target.h = iLayout.orgH * ratio;
     target.x = domW / 2 + cdX;
