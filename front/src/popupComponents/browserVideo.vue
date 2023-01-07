@@ -19,7 +19,7 @@ const emits = defineEmits(["nav"]);
 
 const contentDOM: Ref<HTMLElement | null> = ref(null);
 const timelineDOM: Ref<HTMLElement | null> = ref(null);
-const mediaDOM: Ref<HTMLAudioElement | null> = ref(null);
+const mediaDOM: Ref<HTMLVideoElement | null> = ref(null);
 
 // const playModes = ["queue", "loop", "single", "shuffle"];
 
@@ -215,7 +215,7 @@ function parseTime(t: number) {
 </script>
 
 <template>
-  <div class="modal_browser audio">
+  <div class="modal_browser video">
     <!-- :style="{ height: props.modalData.layout.h + 'px' }" -->
     <div class="base">
       <div class="l">
@@ -241,7 +241,7 @@ function parseTime(t: number) {
             <!-- {{ parseTime(mediaMeta.duration) }} -->
             {{ parseTime(mediaMeta.time) }}
           </button>
-          <div :class="['audio_bar']" @mousedown="onDragging" ref="timelineDOM">
+          <div :class="['video_bar']" @mousedown="onDragging" ref="timelineDOM">
             <span
               :style="{
                 left: (100 * mediaMeta.time) / mediaMeta.duration + '%',
@@ -259,7 +259,7 @@ function parseTime(t: number) {
     <div class="content" ref="contentDOM" @click="togglePlay">
       <!-- {{ props.curNode.title }} -->
       <template v-if="mediaMeta.show">
-        <img
+        <!-- <img
           v-if="props.curNode.file?.cover"
           :src="props.curNode.file?.cover?.path"
         />
@@ -270,8 +270,8 @@ function parseTime(t: number) {
             fontSize: props.modalData.layout.h * 0.5 + 'px',
             lineHeight: props.modalData.layout.h * 0.8 + 'px',
           }"
-        ></span>
-        <audio
+        ></span> -->
+        <video
           ref="mediaDOM"
           :item_id="props.curNode.id"
           :poster="props.curNode.file?.cover?.path"
@@ -280,16 +280,16 @@ function parseTime(t: number) {
           @timeupdate="onTimeUpdate"
         >
           <source :src="props.curNode.file?.normal?.path" />
-        </audio>
+        </video>
       </template>
     </div>
   </div>
 </template>
 
 <style lang="scss">
-.modal_browser.audio {
+.modal_browser.video {
   .content {
-    img {
+    video {
       position: absolute;
       width: 100%;
       height: 100%;

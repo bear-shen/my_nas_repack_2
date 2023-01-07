@@ -9,8 +9,10 @@ import GenFunc from "../../../share/GenFunc";
 import browserBaseVue from "./browserBase.vue";
 import browserImageVue from "./browserImage.vue";
 import browserAudioVue from "./browserAudio.vue";
+import browserVideoVue from "./browserVideo.vue";
 import { useLocalConfigureStore } from "@/stores/localConfigure";
 import { useEventStore } from "@/stores/event";
+import type { type_file } from "../../../share/Database";
 //------------------
 const props = defineProps<{
   data: { [key: string]: any };
@@ -18,6 +20,7 @@ const props = defineProps<{
 }>();
 const regComponentLs = {
   audio: browserAudioVue,
+  video: browserVideoVue,
   image: browserImageVue,
   base: browserBaseVue,
 } as { [key: string]: any };
@@ -70,8 +73,8 @@ async function getList() {
   // console.info(res);
   crumbList.value = res.path;
   nodeList.value = res.list;
-  curIndex.value = 7;
-  curNode.value = res.list[7];
+  curIndex.value = 9;
+  curNode.value = res.list[9];
   // console.info(crumbList);
   checkNext();
 }
@@ -153,8 +156,8 @@ function goDownload() {}
 <template>
   <component
     :is="
-      regComponentLs[curNode.type ?? '']
-        ? regComponentLs[curNode.type ?? '']
+      curNode.type && regComponentLs[curNode.type]
+        ? regComponentLs[curNode.type]
         : regComponentLs.base
     "
     :data="props.data"
