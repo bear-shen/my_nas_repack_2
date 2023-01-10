@@ -118,6 +118,7 @@ let dragData = {
   orgY: 0,
 };
 function onDragging(e: MouseEvent) {
+  if (!props.modalData.layout.active) return;
   const layout = imgLayout.value;
   const t = {
     active: true,
@@ -146,6 +147,19 @@ document.addEventListener("mouseup", function () {
 });
 document.addEventListener("wheel", setZoom);
 function setZoom(e?: WheelEvent, dir?: number) {
+  // console.info();
+  // if (!props.modalData.layout.active) return;
+  let eDOM = e?.target as HTMLElement;
+  let curNid;
+  do {
+    curNid = eDOM.getAttribute("data-ref-id");
+    if (curNid) break;
+    if (!eDOM.parentNode) break;
+    eDOM = eDOM.parentNode as HTMLElement;
+    if (eDOM.tagName === "BODY") break;
+  } while (true);
+  if (curNid !== props.modalData.nid) return;
+  //
   const iLayout = imgLayout.value;
   const iDOM = imgDOM.value;
   const cDOM = contentDOM.value;

@@ -53,7 +53,7 @@ export type ModalCallbackConstruct = {
     ;
 export type ModalStruct = {
     //nid的作用是映射map
-    nid: number;
+    nid: string;
     base: ModalBase;
     layout: ModalLayout;
     content: ModalContent;

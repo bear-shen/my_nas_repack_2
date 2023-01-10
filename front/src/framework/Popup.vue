@@ -30,14 +30,14 @@ const componentDefs = {
 //
 const initTimestamp = new Date().valueOf();
 //用map方便操作
-const modalList = ref(new Map<number, ModalStruct>());
+const modalList = ref(new Map<string, ModalStruct>());
 function buildModal(modal: ModalConstruct): ModalStruct {
   const diffStamp = Math.floor((new Date().valueOf() - initTimestamp) / 100);
   const iw = window.innerWidth;
   const ih = window.innerHeight;
-  console.info(diffStamp);
+  // console.info(diffStamp);
   const target = {
-    nid: 0,
+    nid: "",
     base: {
       title: modal.title ?? "",
       alpha: modal.alpha ?? false,
@@ -65,7 +65,8 @@ function buildModal(modal: ModalConstruct): ModalStruct {
     callback: [],
     closed: false,
   } as ModalStruct;
-  target.nid = diffStamp;
+  target.nid = (diffStamp + Math.random()).toString(32);
+  console.info(diffStamp, target.nid);
   //layout
   const layout = {} as ModalLayout;
   layout.w = modal.w ?? 400;
@@ -234,15 +235,13 @@ modalStore.handleEvent("set", (modal: ModalConstruct) => {
   const curModal = buildModal(modal);
   modalList.value.set(curModal.nid, curModal);
 });
-modalStore.handleEvent("close", (nid: number) => {
+modalStore.handleEvent("close", (nid: string) => {
   close(nid);
 });
-function toggleActive(nid: number) {
+function toggleActive(nid: string) {
+  const diffStamp = Math.floor((new Date().valueOf() - initTimestamp) / 100);
   modalList.value.forEach((node) => {
     if (node.nid === nid) {
-      const diffStamp = Math.floor(
-        (new Date().valueOf() - initTimestamp) / 100
-      );
       node.layout.index = diffStamp;
       node.layout.active = true;
     } else {
@@ -250,9 +249,9 @@ function toggleActive(nid: number) {
     }
   });
 }
-function fullscreen(nid: number) {}
-function resetWindow(nid: number) {}
-function close(nid: number) {
+function fullscreen(nid: string) {}
+function resetWindow(nid: string) {}
+function close(nid: string) {
   modalList.value.delete(nid);
 }
 const eventStore = useEventStore();
@@ -266,7 +265,7 @@ let resizing = {
   modalH: 0,
   modal: null as ModalStruct | null,
 };
-function onResizeStart(modalNid: number, e: MouseEvent) {
+function onResizeStart(modalNid: string, e: MouseEvent) {
   e.preventDefault();
   e.stopPropagation();
   // console.info("onResizeStart", e);
@@ -371,7 +370,7 @@ function onResizing(e: MouseEvent) {
   //
   Object.assign(resizing.modal.layout, t);
   eventStore.trigger(
-    `modal_resizing_${resizing.modal?.nid}`,
+    `modal_resizing_${resizing.modal.nid}`,
     resizing.modal.layout
   );
 }
@@ -467,6 +466,7 @@ function onResizeEnd(e: MouseEvent) {
       v-for="[modalIndex, modal] in modalList"
       :key="`_modal_${modalIndex}`"
       :class="{ modal_dom: true, active: modal.layout.active }"
+      :data-ref-id="modal.nid"
       :style="{
         zIndex: modal.layout.index,
         width: modal.layout.w + 'px',
@@ -591,10 +591,7 @@ function onResizeEnd(e: MouseEvent) {
         <!-- <HelloWorld msg="123" /> -->
         <!-- </div> -->
       </div>
-      <div
-        class="modal_border"
-        @mousedown="onResizeStart(modal.nid ?? 0, $event)"
-      >
+      <div class="modal_border" @mousedown="onResizeStart(modal.nid, $event)">
         <div class="c_l"></div>
         <div class="c_r"></div>
         <div class="c_t"></div>

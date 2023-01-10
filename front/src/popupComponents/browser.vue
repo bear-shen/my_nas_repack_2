@@ -156,6 +156,7 @@ function goNav() {
   while (curIndex.value > listLen - 1) curIndex.value -= listLen;
   const changeType = curNode.value.type !== nodeList.value[curIndex.value].type;
   curNode.value = nodeList.value[curIndex.value];
+  props.modalData.base.title = curNode.value.title ?? "";
   console.warn(changeType);
   //类型相同的时候添加一个事件用于预处理
   if (!changeType)
