@@ -7,7 +7,11 @@ import smp_file_list_resp from "../../../share/sampleApi/smp_file_list_resp";
 import GenFunc from "../../../share/GenFunc";
 import { useEventStore } from "@/stores/event";
 const props = defineProps<{
-  data: { [key: string]: any };
+  data: {
+    query: { [key: string]: any };
+    curId: number;
+    [key: string]: any;
+  };
   modalData: ModalStruct;
   nodeList: api_node_col;
   curIndex: api_node_col;

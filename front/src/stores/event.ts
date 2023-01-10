@@ -17,7 +17,7 @@ function trigger(name: string, data: any) {
 }
 function listen(name: string, callback: (data: any) => any, key?: string): string {
   if (!evtLs[name]) evtLs[name] = new Map();
-  if (!key) key = new Date().valueOf().toString();
+  if (!key) key = new Date().valueOf().toString(32) + Math.random().toString(32);
   evtLs[name].set(key, callback);
   return key;
 }

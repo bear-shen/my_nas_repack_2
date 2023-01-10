@@ -26,9 +26,11 @@ import type {
   api_file_list_req,
   api_node_col,
 } from "../../../share/Api";
+import { useModalStore } from "@/stores/modalStore";
+const modalStore = useModalStore();
 //
-const z = { a: FileItem };
-console.info(z);
+// const z = { a: FileItem };
+// console.info(z);
 const router = useRouter();
 const route = useRoute();
 const def = {
@@ -55,7 +57,7 @@ const def = {
   },
   listType: ["detail", "text", "img"],
 };
-const query = {
+const queryData = {
   sort: "",
   type: "",
   keyword: "",
@@ -91,7 +93,7 @@ getList();
 async function getList() {
   const res: api_file_list_resp = await queryDemo(
     "file/get",
-    query,
+    queryData,
     smp_file_list_resp
   );
   // console.info(res);
@@ -114,15 +116,69 @@ onMounted(() => {
 });
 //
 function go(ext: api_file_list_req) {
-  const tQuery = Object.assign(GenFunc.copyObject(query), ext);
+  const tQuery = Object.assign(GenFunc.copyObject(queryData), ext);
   router.push({
     path: route.path,
     query: tQuery,
   });
 }
+function emitGo(type: string, code: number) {
+  // console.info("emitGo", type, code);
+  switch (type) {
+    case "tag":
+      break;
+    case "node":
+      let node;
+      for (let i1 = 0; i1 < nodeList.value.length; i1++) {
+        if (nodeList.value[i1].id !== code) continue;
+        node = nodeList.value[i1];
+        break;
+      }
+      if (!node) break;
+      switch (node.type) {
+        case "directory":
+          go({ pid: `${node.id}` });
+          break;
+        default:
+          popupDetail(GenFunc.copyObject(queryData), node.id ?? 0);
+          break;
+      }
+      break;
+  }
+}
+function popupDetail(queryData: { [key: string]: any }, curNodeId: number) {
+  modalStore.set({
+    title: "test",
+    alpha: false,
+    key: "",
+    single: false,
+    w: 400,
+    h: 400,
+    minW: 400,
+    minH: 400,
+    // h: 160,
+    resizable: true,
+    movable: false,
+    fullscreen: false,
+    component: [
+      {
+        componentName: "fileBrowser",
+        data: {
+          query: GenFunc.copyObject(queryData),
+          curId: curNodeId,
+        },
+      },
+    ],
+    callback: {
+      close: function (modal) {
+        console.info(modal);
+      },
+    },
+  });
+}
 //
 function search() {
-  const tQuery = GenFunc.copyObject(query);
+  const tQuery = GenFunc.copyObject(queryData);
   if (usePid && crumbList.value.length) {
     tQuery.pid =
       crumbList.value[crumbList.value.length - 1].id?.toString() ?? "";
@@ -153,17 +209,17 @@ onBeforeRouteUpdate(async (to) => {
       </div>
       <div class="search">
         <label>
-          <span>Title : </span><input type="text" v-model="query.keyword" />
+          <span>Title : </span><input type="text" v-model="queryData.keyword" />
         </label>
         <label>
           <span>Type : </span>
-          <select v-model="query.type">
+          <select v-model="queryData.type">
             <option v-for="type in def.fileType">{{ type }}</option>
           </select>
         </label>
         <label>
           <span>Sort : </span>
-          <select v-model="query.sort">
+          <select v-model="queryData.sort">
             <option v-for="(sort, key) in def.sort" :value="key">
               {{ sort }}
             </option>
@@ -178,7 +234,7 @@ onBeforeRouteUpdate(async (to) => {
               <input
                 type="checkbox"
                 id="content_directory_directory_only_checkbox"
-                v-model="query.is_fav"
+                v-model="queryData.is_fav"
                 :true-value="'1'"
                 :false-value="'0'"
               >
@@ -208,6 +264,8 @@ onBeforeRouteUpdate(async (to) => {
         v-for="(node, nodeIndex) in nodeList"
         :key="nodeIndex"
         :node="node"
+        :index="nodeIndex"
+        @go="emitGo"
       ></FileItem>
     </div>
     <!-- <directory-layout></directory-layout> -->

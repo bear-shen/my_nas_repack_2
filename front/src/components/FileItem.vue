@@ -2,20 +2,33 @@
 import { useLocalConfigureStore } from "@/stores/localConfigure";
 import { onMounted, type Ref, ref } from "vue";
 import type { api_node_col } from "../../../share/Api";
-defineProps<{
+import { useModalStore } from "@/stores/modalStore";
+const modalStore = useModalStore();
+const props = defineProps<{
   node: api_node_col;
+  //想了一下, 感觉没有用
+  index: number;
 }>();
+const emits = defineEmits(["go"]);
 //
 const localConfigure = useLocalConfigureStore();
 let mode: Ref<string> = ref(localConfigure.get("file_view_mode") ?? "detail");
-localConfigure.listen("file_view_mode", (v) => (mode.value = v));
+const modeKey = localConfigure.listen(
+  "file_view_mode",
+  (v) => (mode.value = v)
+);
+// console.info(modeKey);
 function setMode(mode: string) {
   localConfigure.set("file_view_mode", mode);
 }
 //
 let renaming = false;
 let tagging = false;
-function go() {}
+function go(type: string, id?: number) {
+  // console.info("go");
+  if (!id) return;
+  emits("go", type, id);
+}
 function op_download() {}
 function op_rename() {}
 function op_move() {}
@@ -31,15 +44,16 @@ function op_delete() {}
   <div :class="['node_node', `mode_${mode}`]">
     <template v-if="mode == 'detail'">
       <div class="content">
-        <div v-if="node.file?.cover" class="thumb">
+        <div v-if="node.file?.cover" class="thumb" @click="go('node', node.id)">
           <img :src="node.file?.cover.path" />
         </div>
         <div
           v-else
+          @click="go('node', node.id)"
           :class="['thumb', 'listIcon', `listIcon_file_${node.type}`]"
         ></div>
         <div class="meta">
-          <p class="title">{{ node.title }}</p>
+          <p class="title" @click="go('node', node.id)">{{ node.title }}</p>
           <p>{{ node.time_update }}</p>
           <p v-if="node.description">{{ node.description }}</p>
           <p class="bar">
@@ -115,29 +129,32 @@ function op_delete() {}
       <div v-if="node.tag" class="tag_list">
         <dl v-for="group in node.tag">
           <dt>{{ group.title }}</dt>
-          <dd v-for="tag in group.sub" @click="go">{{ tag.title }}</dd>
+          <dd v-for="tag in group.sub" @click="go('tag', tag.id)">
+            {{ tag.title }}
+          </dd>
         </dl>
       </div>
     </template>
     <template v-else-if="mode == 'img'">
-      <div v-if="node.file?.cover" class="thumb">
+      <div v-if="node.file?.cover" class="thumb" @click="go('node', node.id)">
         <img :src="node.file?.cover.path" />
       </div>
       <div
         v-else
         :class="['thumb', 'listIcon', `listIcon_file_${node.type}`]"
+        @click="go('node', node.id)"
       ></div>
-      <p class="title">{{ node.title }}</p>
+      <p class="title" @click="go('node', node.id)">{{ node.title }}</p>
       <p>{{ node.time_update }}</p>
     </template>
     <template v-else-if="mode == 'text'">
-      <p class="type">
+      <p class="type" @click="go('node', node.id)">
         <span
           :class="['thumb', 'listIcon', `listIcon_file_${node.type}`]"
         ></span>
         <span>{{ node.type }}</span>
       </p>
-      <p class="title">{{ node.title }}</p>
+      <p class="title" @click="go('node', node.id)">{{ node.title }}</p>
       <p class="time">{{ node.time_update }}</p>
       <p class="bar">
         <!---->

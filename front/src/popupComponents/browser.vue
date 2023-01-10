@@ -15,7 +15,11 @@ import { useEventStore } from "@/stores/event";
 import type { type_file } from "../../../share/Database";
 //------------------
 const props = defineProps<{
-  data: { [key: string]: any };
+  data: {
+    query: { [key: string]: any };
+    curId: number;
+    [key: string]: any;
+  };
   modalData: ModalStruct;
 }>();
 const regComponentLs = {
@@ -67,14 +71,24 @@ getList();
 async function getList() {
   const res: api_file_list_resp = await queryDemo(
     "file/get",
-    query,
+    props.data.query,
     smp_file_list_resp
   );
+  //
+  let index = 0;
+  let node = null;
+  for (let i1 = 0; i1 < res.list.length; i1++) {
+    if (res.list[i1].id !== props.data.curId) continue;
+    index = i1;
+    node = res.list[i1];
+    break;
+  }
+  if (!node) node = res.list[0];
   // console.info(res);
   crumbList.value = res.path;
   nodeList.value = res.list;
-  curIndex.value = 9;
-  curNode.value = res.list[9];
+  curIndex.value = index;
+  curNode.value = node;
   // console.info(crumbList);
   checkNext();
 }

@@ -29,7 +29,8 @@ const componentDefs = {
 } as { [key: string]: any };
 //
 const initTimestamp = new Date().valueOf();
-const modalList = ref([] as ModalStruct[]);
+//用map方便操作
+const modalList = ref(new Map<number, ModalStruct>());
 function buildModal(modal: ModalConstruct): ModalStruct {
   const diffStamp = Math.floor((new Date().valueOf() - initTimestamp) / 100);
   const iw = window.innerWidth;
@@ -230,17 +231,30 @@ window.addEventListener("resize", (e) => {
 });
 const modalStore = useModalStore();
 modalStore.handleEvent("set", (modal: ModalConstruct) => {
-  modalList.value.push(buildModal(modal));
+  const curModal = buildModal(modal);
+  modalList.value.set(curModal.nid, curModal);
 });
-modalStore.handleEvent("close", (id: number) => {
-  for (let i = 0; i < modalList.value.length; i++) {
-    if (modalList.value[i].nid !== id) continue;
-    modalList.value.splice(i, 1);
-  }
+modalStore.handleEvent("close", (nid: number) => {
+  close(nid);
 });
-function fullscreen(nid?: number) {}
-function resetWindow(nid?: number) {}
-function close(nid?: number) {}
+function toggleActive(nid: number) {
+  modalList.value.forEach((node) => {
+    if (node.nid === nid) {
+      const diffStamp = Math.floor(
+        (new Date().valueOf() - initTimestamp) / 100
+      );
+      node.layout.index = diffStamp;
+      node.layout.active = true;
+    } else {
+      node.layout.active = false;
+    }
+  });
+}
+function fullscreen(nid: number) {}
+function resetWindow(nid: number) {}
+function close(nid: number) {
+  modalList.value.delete(nid);
+}
 const eventStore = useEventStore();
 let resizing = {
   x: 0,
@@ -371,7 +385,7 @@ function onResizeEnd(e: MouseEvent) {
 
 //-----------
 
-modalStore.set({
+/* modalStore.set({
   title: "test",
   alpha: false,
   key: "",
@@ -381,11 +395,11 @@ modalStore.set({
   minW: 400,
   minH: 400,
   // h: 160,
-  resizable: false,
+  resizable: true,
   movable: false,
   fullscreen: false,
   // text: "this is text",
-  /* form: [
+  form: [
     {
       type: "text",
       label: "a",
@@ -433,7 +447,7 @@ modalStore.set({
         c: "c",
       },
     },
-  ], */
+  ],
   component: [
     {
       componentName: "fileBrowser",
@@ -444,15 +458,15 @@ modalStore.set({
       console.info(modal);
     },
   },
-});
+}); */
 </script>
 
 <template>
   <div class="fr_popup">
     <div
-      v-for="(modal, modalIndex) in modalList"
+      v-for="[modalIndex, modal] in modalList"
       :key="`_modal_${modalIndex}`"
-      class="modal_dom"
+      :class="{ modal_dom: true, active: modal.layout.active }"
       :style="{
         zIndex: modal.layout.index,
         width: modal.layout.w + 'px',
@@ -460,11 +474,9 @@ modalStore.set({
         left: modal.layout.x + 'px',
         top: modal.layout.y + 'px',
       }"
+      @click="toggleActive(modal.nid)"
     >
-      <div
-        class="modal_header"
-        @mousedown="onResizeStart(modal.nid ?? 0, $event)"
-      >
+      <div class="modal_header" @mousedown="onResizeStart(modal.nid, $event)">
         <div class="modal_title">
           {{ modal.base.title }}
         </div>
@@ -605,6 +617,8 @@ modalStore.set({
   height: 100vh;
   position: fixed;
   z-index: 100;
+}
+.modal_dom.active {
 }
 .modal_dom {
   pointer-events: all;

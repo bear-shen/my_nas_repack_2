@@ -22,7 +22,7 @@ export const useLocalConfigureStore = defineStore('localConfigure', () => {
   }
   function listen(name: string, on: (to: any) => any, key?: string) {
     name = configurePrefix + name;
-    if (!key) key = new Date().valueOf().toString();
+    if (!key) key = new Date().valueOf().toString(32) + Math.random().toString(32);
     if (!listener[name]) listener[name] = new Map();
     listener[name].set(key, on);
     return key;
