@@ -160,7 +160,10 @@ function goNav() {
   console.warn(changeType);
   //类型相同的时候添加一个事件用于预处理
   if (!changeType)
-    eventStore.trigger(`modal_browser_change_${props.modalData.nid}`, null);
+    eventStore.trigger(
+      `modal_browser_change_${props.modalData.nid}`,
+      curNode.value.id
+    );
   checkNext();
 }
 //------------------

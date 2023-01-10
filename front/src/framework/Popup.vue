@@ -616,12 +616,16 @@ function onResizeEnd(e: MouseEvent) {
   z-index: 100;
 }
 .modal_dom.active {
+  background-color: fade-out(mkColor(map-get($colors, bk), 0), 0.25);
+  .modal_header {
+    background-color: mkColor(map-get($colors, bk), 2);
+  }
 }
 .modal_dom {
   pointer-events: all;
   $controllerWidth: $fontSize * 0.5;
   font-size: $fontSize;
-  background-color: fade-out(mkColor(map-get($colors, bk), 0), 0.25);
+  background-color: fade-out(mkColor(map-get($colors, bk), 4), 0.25);
   position: absolute;
   padding: $fontSize * 0.25;
   &:before {
@@ -639,7 +643,7 @@ function onResizeEnd(e: MouseEvent) {
     line-height: $fontSize;
     font-size: $fontSize;
     white-space: nowrap;
-    background-color: mkColor(map-get($colors, bk), 2);
+    background-color: mkColor(map-get($colors, bk), 4);
     width: 100%;
     display: flex;
     justify-content: space-between;

@@ -33,9 +33,18 @@ const imgLayout = ref({
   orgW: 0,
   orgH: 0,
 });
-function loadImageRes() {
+function onload(e: any) {
+  console.info("onload", e);
+}
+function loadImageRes(): any {
+  // console.info("loadImageRes");
   const dom = imgDOM.value;
-  if (!dom || !dom.complete) return setTimeout(loadImageRes, 50);
+  if (!dom || !dom.complete)
+    // return setTimeout(loadImageRes.bind(null, curNodeId), 50);
+    return setTimeout(loadImageRes, 50);
+  //以dom为基准矫正
+  // if (dom.getAttribute("data-ref-node-id") !== `${curNodeId}`)
+  //   return setTimeout(loadImageRes.bind(null, curNodeId), 50);
   Object.assign(imgLayout.value, {
     loaded: props.curNode.id,
     orgH: dom.naturalHeight,
@@ -54,6 +63,7 @@ onMounted(() => {
     orgW: 0,
     orgH: 0,
   });
+  // loadImageRes(props.curNode.id ?? 0);
   loadImageRes();
 });
 /* watch(props, async (to) => {
@@ -66,22 +76,23 @@ onMounted(() => {
 }); */
 //
 const eventStore = useEventStore();
-let resizingEvtKey = eventStore.listen(
-  `modal_resizing_${props.modalData.nid}`,
-  (data) => fitImg()
-);
+// let resizingEvtKey = eventStore.listen(
+//   `modal_resizing_${props.modalData.nid}`,
+//   (data) => fitImg()
+// );
 let changeEvtKey = eventStore.listen(
   `modal_browser_change_${props.modalData.nid}`,
   (data) => loadImageRes()
 );
 onUnmounted(() => {
-  eventStore.release(`modal_resizing_${props.modalData.nid}`, resizingEvtKey);
+  // eventStore.release(`modal_resizing_${props.modalData.nid}`, resizingEvtKey);
   eventStore.release(
     `modal_browser_change_${props.modalData.nid}`,
     changeEvtKey
   );
 });
 async function fitImg() {
+  // console.info("fitImg");
   const domLayout = contentDOM.value;
   const domW = domLayout?.clientWidth ?? 0;
   const domH = domLayout?.clientHeight ?? 0;
@@ -267,8 +278,10 @@ function setZoom(e?: WheelEvent, dir?: number) {
     <div class="content" ref="contentDOM">
       <!-- {{ props.curNode.title }} -->
       <img
+        :data-ref-node-id="props.curNode.id"
         :src="props.curNode.file?.normal?.path"
         @mousedown="onDragging"
+        @load="loadImageRes"
         :style="
           imgLayout.loaded
             ? {
