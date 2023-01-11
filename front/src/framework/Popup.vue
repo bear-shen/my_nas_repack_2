@@ -31,6 +31,7 @@ const componentDefs = {
 const initTimestamp = new Date().valueOf();
 //用map方便操作
 const modalList = ref(new Map<string, ModalStruct>());
+const gap = 20;
 function buildModal(modal: ModalConstruct): ModalStruct {
   const diffStamp = Math.floor((new Date().valueOf() - initTimestamp) / 100);
   const iw = window.innerWidth;
@@ -228,7 +229,21 @@ function buildModal(modal: ModalConstruct): ModalStruct {
   return target;
 }
 window.addEventListener("resize", (e) => {
-  console.info(e.type);
+  console.info(e);
+  modalList.value.forEach((modal) => {
+    console.info(modal.layout);
+    if (modal.layout.fullscreen) {
+      const t = {
+        x: gap,
+        y: gap,
+        w: window.innerWidth - gap * 2,
+        h: window.innerHeight - gap * 2,
+      };
+      //
+      Object.assign(modal.layout, t);
+      eventStore.trigger(`modal_resizing_${modal.nid}`, modal.layout);
+    }
+  });
 });
 const modalStore = useModalStore();
 modalStore.handleEvent("set", (modal: ModalConstruct) => {
@@ -249,8 +264,36 @@ function toggleActive(nid: string) {
     }
   });
 }
-function fullscreen(nid: string) {}
-function resetWindow(nid: string) {}
+function fullscreen(nid: string) {
+  const modal = modalList.value.get(nid);
+  if (!modal) return;
+  const t = {
+    x: gap,
+    y: gap,
+    w: window.innerWidth - gap * 2,
+    h: window.innerHeight - gap * 2,
+    fullscreen: true,
+  };
+  //
+  Object.assign(modal.layout, t);
+  eventStore.trigger(`modal_resizing_${modal.nid}`, modal.layout);
+}
+function resetWindow(nid: string) {
+  const modal = modalList.value.get(nid);
+  if (!modal) return;
+  const t = {
+    x: 0,
+    y: 0,
+    w: modal.layout.minW,
+    h: modal.layout.minH,
+    fullscreen: false,
+  };
+  t.x = (window.innerWidth - t.w) / 2;
+  t.y = (window.innerHeight - t.h) / 2;
+  //
+  Object.assign(modal.layout, t);
+  eventStore.trigger(`modal_resizing_${modal.nid}`, modal.layout);
+}
 function close(nid: string) {
   modalList.value.delete(nid);
 }
@@ -277,6 +320,7 @@ function onResizeStart(modalNid: string, e: MouseEvent) {
     resizing.modal = modal;
   });
   if (!resizing.modal) return;
+  if (resizing.modal.layout.fullscreen) return;
   resizing.modalX = resizing.modal.layout.x;
   resizing.modalY = resizing.modal.layout.y;
   resizing.modalW = resizing.modal.layout.w;
@@ -648,6 +692,9 @@ function onResizeEnd(e: MouseEvent) {
     display: flex;
     justify-content: space-between;
     cursor: grab;
+    .modal_menu span {
+      cursor: pointer;
+    }
   }
   .modal_border {
     pointer-events: none;

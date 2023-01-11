@@ -66,14 +66,6 @@ onMounted(() => {
   // loadImageRes(props.curNode.id ?? 0);
   loadImageRes();
 });
-/* watch(props, async (to) => {
-  if (to.curNode.id === imgLayout.value.loaded) return;
-  // console.warn(to.curNode.id, fr.curNode.id);
-  Object.assign(imgLayout.value, {
-    loaded: false,
-  });
-  loadImageRes();
-}); */
 //
 const eventStore = useEventStore();
 // let resizingEvtKey = eventStore.listen(
@@ -281,6 +273,7 @@ function setZoom(e?: WheelEvent, dir?: number) {
         :data-ref-node-id="props.curNode.id"
         :src="props.curNode.file?.normal?.path"
         @mousedown="onDragging"
+        @dblclick="fitImg"
         @load="loadImageRes"
         :style="
           imgLayout.loaded

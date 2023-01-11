@@ -183,8 +183,11 @@ function wheelListener(e: WheelEvent) {
 function keymap(e: KeyboardEvent) {
   if ((e.target as HTMLElement).tagName !== "BODY") return;
   if (!props.modalData.layout.active) return;
-  // console.info(e);
+  console.info(e);
   switch (e.key) {
+    case " ":
+      togglePlay();
+      break;
     case "ArrowUp":
       wheelListener({ deltaY: -1 } as WheelEvent);
       break;

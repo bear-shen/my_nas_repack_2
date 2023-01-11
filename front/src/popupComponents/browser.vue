@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch, onUnmounted } from "vue";
 import type { Ref } from "vue";
 import type { ModalConstruct, ModalStruct } from "../modal";
 import { queryDemo, query } from "@/Helper";
@@ -53,12 +53,17 @@ function toggleDetail() {
   localConfigure.set("browser_show_detail", showDetail.value);
 }
 //------------------
-/* onMounted(() => {
+onMounted(() => {
   console.info("mounted");
+  document.addEventListener("keydown", keymap);
 });
-setTimeout(() => {
-  props.modalData.base.title = "dev browser";
-}, 1000); */
+onUnmounted(() => {
+  console.info("unmounted");
+  document.removeEventListener("keydown", keymap);
+});
+// setTimeout(() => {
+// props.modalData.base.title = "dev browser";
+// }, 1000);
 
 let crumbList: Ref<api_node_col[]> = ref([]);
 let nodeList: Ref<api_node_col[]> = ref([]);
@@ -167,6 +172,21 @@ function goNav() {
   checkNext();
 }
 //------------------
+
+function keymap(e: KeyboardEvent) {
+  if ((e.target as HTMLElement).tagName !== "BODY") return;
+  if (!props.modalData.layout.active) return;
+  if (["audio", "video"].indexOf(curNode.value.type ?? "") !== -1) return;
+  // console.info(e);
+  switch (e.key) {
+    case "ArrowLeft":
+      goPrev();
+      break;
+    case "ArrowRight":
+      goNext();
+      break;
+  }
+}
 
 function goDownload() {}
 </script>
