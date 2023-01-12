@@ -258,7 +258,13 @@ function goDownload() {}
   }
   .info {
     padding-left: $fontSize * 0.25;
-    text-shadow: 1px 1px 1px black;
+    $blurSize: $fontSize * 0.25;
+    text-shadow: 0 0 $blurSize black, 0 0 $blurSize black, 0 0 $blurSize black,
+      0 0 $blurSize black;
+    color: map-get($colors, font);
+    p:first-child {
+      color: map-get($colors, font_active);
+    }
   }
   .pagination {
     z-index: 1;
@@ -307,13 +313,19 @@ function goDownload() {}
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
+    position: absolute;
     .l,
     .r {
+      position: absolute;
       > *:last-child {
         margin-top: $fontSize * 0.5;
       }
     }
+    .l {
+      left: 0;
+    }
     .r {
+      right: 0;
       text-align: right;
     }
   }

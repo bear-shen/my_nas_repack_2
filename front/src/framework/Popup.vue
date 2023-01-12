@@ -695,6 +695,12 @@ function onResizeEnd(e: MouseEvent) {
     .modal_menu span {
       cursor: pointer;
     }
+    .modal_title {
+      white-space: nowrap;
+      max-width: 80%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
   .modal_border {
     pointer-events: none;
