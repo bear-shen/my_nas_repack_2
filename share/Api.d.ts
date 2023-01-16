@@ -29,4 +29,5 @@ export type api_file_list_req = {
     type?: string,
     sort?: string,
     pid?: string,
+    tid?: string,
 } & { [key: string]: any }

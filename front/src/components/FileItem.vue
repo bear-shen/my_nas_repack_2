@@ -25,7 +25,7 @@ function setMode(mode: string) {
 let renaming = false;
 let tagging = false;
 function go(type: string, id?: number) {
-  // console.info("go");
+  // console.info("go", type, id);
   if (!id) return;
   emits("go", type, id);
 }

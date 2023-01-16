@@ -62,6 +62,7 @@ const queryData = {
   type: "",
   keyword: "",
   pid: "",
+  tid: "",
 } as api_file_list_req;
 let usePid = true;
 //
@@ -89,7 +90,6 @@ let nodeList: Ref<api_node_col[]> = ref([]);
 // onMounted(async () => {
 // getList();
 // });
-getList();
 async function getList() {
   const res: api_file_list_resp = await queryDemo(
     "file/get",
@@ -111,11 +111,16 @@ const modeKey = localConfigure.listen(
 function setMode(mode: string) {
   localConfigure.set("file_view_mode", mode);
 }
-onMounted(() => {
+onMounted(async () => {
   localConfigure.release("file_view_mode", modeKey);
+  Object.assign(queryData, GenFunc.copyObject(route.query));
+  await getList();
 });
 //
 function go(ext: api_file_list_req) {
+  if (!ext.tid) ext.tid = "";
+  if (!ext.keyword) ext.keyword = "";
+  if (!ext.type) ext.type = "";
   const tQuery = Object.assign(GenFunc.copyObject(queryData), ext);
   router.push({
     path: route.path,
@@ -126,6 +131,7 @@ function emitGo(type: string, code: number) {
   // console.info("emitGo", type, code);
   switch (type) {
     case "tag":
+      go({ tid: `${code}` });
       break;
     case "node":
       let node;

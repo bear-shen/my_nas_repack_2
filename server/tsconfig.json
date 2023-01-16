@@ -15,6 +15,7 @@
     "zzz",
     "zzz/*",
     "**/zzz/*",
+    "../share/archive",
     "archive",
     "archive/*",
     "archive/**/*"
