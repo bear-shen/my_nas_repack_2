@@ -11,9 +11,11 @@ import { type RowDataPacket } from "mysql2";
 // import UserGroupController from "./controller/UserGroupController";
 // import LocalController from "./controller/LocalController";
 // import ConfigController from "./controller/ConfigController";
+import { ParsedForm } from './types';
+import File from "./processor/File";
 type t = RowDataPacket;
 const controllers = {
-    file: 0,
+    file: File,
     user: 0,
     tag: 0,
     tag_group: 0,
@@ -25,7 +27,7 @@ const controllers = {
 
 export default async function (
     url: URL,
-    data: { fields: Fields, files: Array<typeof PersistentFile>, uid: number },
+    data: ParsedForm,
     req: IncomingMessage, res: ServerResponse
 ): Promise<any> {
     console.info(url.pathname,);

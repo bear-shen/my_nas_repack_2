@@ -238,6 +238,14 @@ const GenFunc = {
             }
         );
     },
+    toMap: function <K extends { [key: string]: any }>(input: K[], key: keyof K, caller?: (item: K) => any): Map<string | number, K> {
+        const target = new Map();
+        input.forEach(item => {
+            if (caller) caller(item);
+            target.set(item[key], item);
+        })
+        return target;
+    },
     // cookie////////////////////////////////////////////////////////////////////////////////////////
     /**
      * 设定cookie中的指定值

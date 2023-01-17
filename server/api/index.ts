@@ -5,6 +5,7 @@ import http from "http";
 import Authorize from "./Authorize";
 import formidable, { Fields, Files, PersistentFile } from "formidable";
 import Router from "./Router";
+import { ParsedForm } from "./types";
 
 const server = http.createServer(async function (req: IncomingMessage, res: ServerResponse) {
 
@@ -35,8 +36,8 @@ const server = http.createServer(async function (req: IncomingMessage, res: Serv
     }
     // console.info('authInfo', authResult);
     //
-    const data = await parseForm(req) as { fields: Fields, files: Array<typeof PersistentFile>, uid: number }
-    data.uid = authResult as number;
+    const data = await parseForm(req);
+    data.uid = authResult;
     //
     let result = null;
     try {
@@ -63,7 +64,7 @@ server.listen(ServerConfig.port.api);
 console.info('server now listen on:', ServerConfig.port.api);
 
 
-function parseForm(req: IncomingMessage): Promise<any> {
+function parseForm(req: IncomingMessage): Promise<ParsedForm> {
     return new Promise((resolve: any) => {
         //@see https://nodejs.org/en/knowledge/HTTP/servers/how-to-handle-multipart-form-data/
         //@see https://github.com/node-formidable/formidable/blob/master/src/Formidable.js
@@ -73,7 +74,7 @@ function parseForm(req: IncomingMessage): Promise<any> {
         // const form = new formidable().IncomingForm();
         form.parse(req, function (err: any, fields: Fields, files: Files) {
             // console.info(fields, files);
-            resolve({ fields, files });
+            resolve({ fields, files, uid: false });
         });
     });
 }
