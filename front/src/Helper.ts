@@ -99,6 +99,7 @@ export function throwLogin() {
                 } as api_user_login_req);
                 if (!res) return true;
                 localStorage.setItem("toshokan_auth_token", res.token);
+                location.reload();
             },
         },
     });

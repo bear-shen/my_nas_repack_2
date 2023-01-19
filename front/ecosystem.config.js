@@ -1,7 +1,6 @@
 module.exports = {
-  apps : [{
-  name:'front',
+  apps: [{
+    name: 'front',
     script: 'npm run dev',
-    watch: './'
   }]
 };

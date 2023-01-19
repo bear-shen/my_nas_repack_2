@@ -1,6 +1,6 @@
 module.exports = {
-  apps : [{
-    script: 'npm run serve',
-    watch: './'
+  apps: [{
+    name: 'server',
+    script: 'npm run serve'
   }]
 };
