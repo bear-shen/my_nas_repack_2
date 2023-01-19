@@ -57,7 +57,7 @@ const def = {
   },
   listType: ["detail", "text", "img"],
 };
-const queryData = {
+let queryData = {
   sort: "",
   type: "",
   keyword: "",
@@ -172,11 +172,11 @@ function popupDetail(queryData: { [key: string]: any }, curNodeId: number) {
         },
       },
     ],
-    callback: {
+    /* callback: {
       close: function (modal) {
         console.info(modal);
       },
-    },
+    }, */
   });
 }
 //
@@ -193,7 +193,8 @@ function search() {
   });
 }
 onBeforeRouteUpdate(async (to) => {
-  console.info(to);
+  // console.info(to);
+  Object.assign(queryData, to.query);
   await getList();
 });
 </script>

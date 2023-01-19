@@ -7,6 +7,13 @@ import { relative } from 'node:path'
 // https://vitejs.dev/config/
 export default defineConfig({
   base: '',
+  server: {
+    hmr: {
+      // server: '192.168.112.161:8085',
+      // port: 8085,
+      clientPort: 8085,
+    },
+  },
   plugins: [vue()],
   resolve: {
     alias: {

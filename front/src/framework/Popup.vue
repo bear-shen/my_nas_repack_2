@@ -229,11 +229,13 @@ function buildModal(modal: ModalConstruct): ModalStruct {
       }
     });
   } else {
-    target.callback.push({
-      func: async function (modal) {},
-      key: "close",
-      name: "close",
-    });
+    /* console.info(target.content.text);
+    if (target.content.text)
+      target.callback.push({
+        func: async function (modal) {},
+        key: "close",
+        name: "close",
+      }); */
   }
   //
   console.warn(target);

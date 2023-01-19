@@ -18,7 +18,7 @@ export default class {
             path: [] as col_node[],
             list: [] as api_node_col[],
         };
-        if (request.pid) {
+        if (request.pid && request.pid !== '0') {
             const model = new NodeModel();
             const curNode = await model.where('id', request.pid).first();
             const treeNodeIdLs = curNode.list_node;
@@ -51,6 +51,15 @@ export default class {
         }
         if (request.tid) {
             model.whereRaw('find_in_set(?,list_tag_id)', request.tid);
+        }
+        if (!(
+            request.keyword ||
+            request.type ||
+            request.pid ||
+            request.tid ||
+            false
+        )) {
+            model.where('id_parent', 0);
         }
         if (request.type) {
             model.where('type', request.type);
