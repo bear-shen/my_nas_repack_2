@@ -4,15 +4,24 @@ import { makePass } from '../lib/Auth';
 import ServerConfig from "../ServerConfig";
 import UserModel from '../model/UserModel';
 import { URL } from "url";
+import AuthModel from '../model/AuthModel';
 
 const md5 = require('md5');
 
-async function check(urlInfo: URL, req: IncomingMessage): Promise<number | false> {
-    if (!req.headers.token) return false;
-    // const ifExs = await (new UserModel).where('name', name).or().where('mail', name).first();
-    // if (!ifExs) return false;
+async function check(url: URL, req: IncomingMessage): Promise<number | true | false> {
+    // console.info(url.pathname,);
+    // console.info(url, data,);
+    const [_, prefix, c, a] = url.pathname.split('/');
+    if (c === 'user' && a === 'login') {
+        return true;
+    }
+    // console.info([_, prefix, c, a]);
+    // console.info(req.headers);
+    if (!req.headers['auth-token']) return false;
+    const ifExs = await (new AuthModel).where('token', req.headers['auth-token']).order('id', 'desc').first();
+    if (!ifExs) return false;
     //
-    return 1;
+    return ifExs.uid;
 }
 
 export default {

@@ -13,10 +13,11 @@ import { type RowDataPacket } from "mysql2";
 // import ConfigController from "./controller/ConfigController";
 import { ParsedForm } from './types';
 import File from "./processor/File";
+import User from "./processor/User";
 type t = RowDataPacket;
 const controllers = {
     file: File,
-    user: 0,
+    user: User,
     tag: 0,
     tag_group: 0,
     user_group: 0,
@@ -30,9 +31,10 @@ export default async function (
     data: ParsedForm,
     req: IncomingMessage, res: ServerResponse
 ): Promise<any> {
-    console.info(url.pathname,);
+    // console.info(url.pathname,);
     // console.info(url, data,);
     const [_, prefix, c, a] = url.pathname.split('/');
+    // console.info([_, prefix, c, a]);
     // @ts-ignore
     // console.info(controllers[c], controllers[c] ? controllers[c][a] : null);
     // @ts-ignore

@@ -22,6 +22,11 @@ import { isArray } from "@vue/shared";
 import App from "@/App.vue";
 import HelloWorldVue from "@/components/HelloWorld.vue";
 import Browser from "@/popupComponents/browser.vue";
+import { query } from "@/Helper";
+import type {
+  api_user_login_req,
+  api_user_login_resp,
+} from "../../../share/Api";
 
 const componentDefs = {
   helloWorld: HelloWorldVue,
@@ -223,6 +228,12 @@ function buildModal(modal: ModalConstruct): ModalStruct {
         fn.key = name;
       }
     });
+  } else {
+    target.callback.push({
+      func: async function (modal) {},
+      key: "close",
+      name: "close",
+    });
   }
   //
   console.warn(target);
@@ -249,6 +260,8 @@ const modalStore = useModalStore();
 modalStore.handleEvent("set", (modal: ModalConstruct) => {
   const curModal = buildModal(modal);
   modalList.value.set(curModal.nid, curModal);
+  toggleActive(curModal.nid);
+  checkAlpha();
 });
 modalStore.handleEvent("close", (nid: string) => {
   close(nid);
@@ -296,6 +309,7 @@ function resetWindow(nid: string) {
 }
 function close(nid: string) {
   modalList.value.delete(nid);
+  checkAlpha();
 }
 const eventStore = useEventStore();
 let resizing = {
@@ -426,9 +440,31 @@ function onResizeEnd(e: MouseEvent) {
   document.removeEventListener("mousemove", onResizing);
 }
 
+function onCallback(nid: string, key: string) {
+  const modal = modalList.value.get(nid);
+  if (!modal) return;
+  modal.callback.forEach(async (c) => {
+    if (c.key !== key) return;
+    const ifKeep = await c.func(modal);
+    // console.info(ifKeep);
+    if (ifKeep) return;
+    close(nid);
+  });
+}
+
+const usingAlpha = ref(false);
+function checkAlpha() {
+  let hasAlpha = false;
+  modalList.value.forEach((modal) => {
+    if (modal.base.alpha) {
+      hasAlpha = true;
+    }
+  });
+  usingAlpha.value = hasAlpha;
+}
 //-----------
 
-/* modalStore.set({
+modalStore.set({
   title: "test",
   alpha: false,
   key: "",
@@ -482,7 +518,7 @@ function onResizeEnd(e: MouseEvent) {
     {
       type: "select",
       label: "g",
-      value: "123",
+      value: ["123"],
       multiple: true,
       options: {
         a: "a",
@@ -497,11 +533,11 @@ function onResizeEnd(e: MouseEvent) {
     },
   ],
   callback: {
-    close: function (modal) {
+    close: async function (modal) {
       console.info(modal);
     },
   },
-}); */
+});
 </script>
 
 <template>
@@ -632,6 +668,15 @@ function onResizeEnd(e: MouseEvent) {
             :modalData="modal"
           ></component>
         </template>
+
+        <div v-if="modal.callback" class="modal_content_callback">
+          <button
+            v-for="item in modal.callback"
+            @click="onCallback(modal.nid, item.key)"
+          >
+            {{ item.name }}
+          </button>
+        </div>
         <!-- <HelloWorld msg="123" /> -->
         <!-- </div> -->
       </div>
@@ -647,6 +692,7 @@ function onResizeEnd(e: MouseEvent) {
       </div>
     </div>
   </div>
+  <div class="fr_alpha" v-if="usingAlpha"></div>
 </template>
 
 <style scoped lang="scss">
@@ -798,7 +844,7 @@ function onResizeEnd(e: MouseEvent) {
   }
   .modal_content_form {
     display: table;
-    //width: 100%;
+    width: calc(100% - $fontSize);
     > label {
       display: table-row;
       > span {
@@ -808,7 +854,7 @@ function onResizeEnd(e: MouseEvent) {
         text-align: right;
         padding-right: $fontSize * 0.25;
         &::after {
-          content: ":";
+          content: " :";
         }
       }
       > span:last-child {
@@ -830,6 +876,30 @@ function onResizeEnd(e: MouseEvent) {
       }
     }
   }
+  .modal_content_callback {
+    display: flex;
+    justify-content: space-around;
+  }
   //  .modal_content_content{}
+}
+.fr_alpha {
+  //pointer-events: none;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  z-index: 50;
+  background-image: url("../assets/bg.png");
+  &:before {
+    z-index: -1;
+    filter: blur($fontSize * 0.05);
+    backdrop-filter: blur($fontSize * 0.05);
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+  }
 }
 </style>

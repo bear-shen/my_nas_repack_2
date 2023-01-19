@@ -1,4 +1,4 @@
-import { col_file, col_file_with_path, col_node, col_tag, col_tag_group } from './Database';
+import { col_file, col_file_with_path, col_node, col_tag, col_tag_group, col_user } from './Database';
 
 export type api_node_col = {
     is_file?: number,
@@ -30,4 +30,13 @@ export type api_file_list_req = {
     sort?: string,
     pid?: string,
     tid?: string,
+    deleted?: string,
 } & { [key: string]: any }
+
+export type api_user_login_req = {
+    username: string,
+    password: string,
+}
+export type api_user_login_resp = {
+    token: string,
+} & col_user

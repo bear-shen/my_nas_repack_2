@@ -1,5 +1,7 @@
 import type { DefineComponent } from "vue";
 
+export type ModalCallbackFunc = (modal: ModalStruct) => Promise<true | any> | void;
+
 export type ModalFormConstruct<K> = {
     type: 'text' | 'textarea' | 'date' | 'datetime' | 'checkbox' | 'radio' | 'select';
     label: string;
@@ -48,7 +50,7 @@ export type ModalBase = {
 export type ModalCallbackConstruct = {
     key: string;
     name: string;
-    func: (modal: ModalConstruct) => any;
+    func: ModalCallbackFunc;
 }
     ;
 export type ModalStruct = {
@@ -84,10 +86,10 @@ export type ModalConstruct = {
     | ModalComponentConstruct
     | string;
     // callback
-    callback?: Array<ModalCallbackConstruct | ((modal: ModalConstruct) => any)>
+    callback?: Array<ModalCallbackConstruct | ModalCallbackFunc>
     | ModalCallbackConstruct
-    | ((modal: ModalConstruct) => any)
-    | { [key: string]: ((modal: ModalConstruct) => any) };
+    | ModalCallbackFunc
+    | { [key: string]: ModalCallbackFunc };
 }
 
 // base ?: ModalBase;

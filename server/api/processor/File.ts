@@ -9,8 +9,8 @@ import { col_node, col_tag } from '../../../share/Database';
 import TagModel from '../../model/TagModel';
 import TagGroupModel from '../../model/TagGroupModel';
 import FileModel from '../../model/FileModel';
-export default {
-    ls: async function (data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_list_resp> {
+export default class {
+    async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_list_resp> {
         const request = data.fields as api_file_list_req;
         const treeLs = [];
         const listLs = [];
@@ -54,6 +54,11 @@ export default {
         }
         if (request.type) {
             model.where('type', request.type);
+        }
+        if (request.deleted) {
+            model.where('status', 0);
+        } else {
+            model.where('status', 1);
         }
         if (request.sort) {
             switch (request.sort) {
@@ -123,11 +128,20 @@ export default {
                 }
             });
         }
+        target.list = nodeLs;
         //
         return target;
-    },
-    del: async function (data: ParsedForm, req: IncomingMessage, res: ServerResponse) { },
-    mov: async function (data: ParsedForm, req: IncomingMessage, res: ServerResponse) { },
-    mod: async function (data: ParsedForm, req: IncomingMessage, res: ServerResponse) { },
-    upd: async function (data: ParsedForm, req: IncomingMessage, res: ServerResponse) { },
+    };
+    async del(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<any> {
+        return null;
+    };
+    async mov(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<any> {
+        return null;
+    };
+    async mod(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<any> {
+        return null;
+    };
+    async upd(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<any> {
+        return null;
+    };
 };

@@ -25,6 +25,7 @@ const server = http.createServer(async function (req: IncomingMessage, res: Serv
     //
     const urlInfo = new URL(req.url, `http://${req.headers.host}`);
     const authResult = await Authorize.check(urlInfo, req);
+    console.info(authResult);
     if (!authResult) {
         res.write(JSON.stringify({
             'code': 10,
@@ -37,7 +38,7 @@ const server = http.createServer(async function (req: IncomingMessage, res: Serv
     // console.info('authInfo', authResult);
     //
     const data = await parseForm(req);
-    data.uid = authResult;
+    data.uid = authResult === true ? 0 : authResult;
     //
     let result = null;
     try {

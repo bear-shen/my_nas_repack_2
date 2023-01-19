@@ -17,7 +17,7 @@ import type {
   col_tag_group,
   col_tag,
 } from "../../../share/Database";
-import { queryDemo } from "../Helper";
+import { query, queryDemo } from "../Helper";
 import smp_file_list_resp from "../../../share/sampleApi/smp_file_list_resp";
 import GenFunc from "../../../share/GenFunc";
 import FileItem from "@/components/FileItem.vue";
@@ -91,11 +91,8 @@ let nodeList: Ref<api_node_col[]> = ref([]);
 // getList();
 // });
 async function getList() {
-  const res: api_file_list_resp = await queryDemo(
-    "file/get",
-    queryData,
-    smp_file_list_resp
-  );
+  const res = await query<api_file_list_resp>("file/get", queryData);
+  if (!res) return;
   // console.info(res);
   crumbList.value = res.path;
   nodeList.value = res.list;
@@ -154,7 +151,7 @@ function emitGo(type: string, code: number) {
 }
 function popupDetail(queryData: { [key: string]: any }, curNodeId: number) {
   modalStore.set({
-    title: "test",
+    title: "file browser",
     alpha: false,
     key: "",
     single: false,
