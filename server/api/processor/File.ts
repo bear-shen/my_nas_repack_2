@@ -59,6 +59,7 @@ export default class {
             request.tid ||
             false
         )) {
+            console.info('no querydata, set id_parent=0')
             model.where('id_parent', 0);
         }
         if (request.type) {
@@ -138,6 +139,16 @@ export default class {
             });
         }
         target.list = nodeLs;
+        nodeLs.forEach(item => target.list.push(item));
+        nodeLs.forEach(item => target.list.push(item));
+        nodeLs.forEach(item => target.list.push(item));
+        nodeLs.forEach(item => target.list.push(item));
+        nodeLs.forEach(item => target.list.push(item));
+        nodeLs.forEach(item => target.list.push(item));
+        nodeLs.forEach(item => target.list.push(item));
+        nodeLs.forEach(item => target.list.push(item));
+        nodeLs.forEach(item => target.list.push(item));
+        nodeLs.forEach(item => target.list.push(item));
         //
         return target;
     };

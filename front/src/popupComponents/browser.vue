@@ -74,11 +74,7 @@ let curNode: Ref<api_node_col> = ref({});
 // });
 getList();
 async function getList() {
-  const res = await queryDemo<api_file_list_resp>(
-    "file/get",
-    props.data.query,
-    smp_file_list_resp
-  );
+  const res = await query<api_file_list_resp>("file/get", props.data.query);
   if (!res) return;
   //
   let index = 0;
