@@ -41,7 +41,7 @@ function op_delete() {}
 </script>
 
 <template>
-  <div :class="['node_node', `mode_${mode}`]">
+  <div :class="['node_node', `mode_${mode}`]" :data-index="index">
     <template v-if="mode == 'detail'">
       <div class="content">
         <div v-if="node.file?.cover" class="thumb" @click="go('node', node.id)">

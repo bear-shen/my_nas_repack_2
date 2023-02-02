@@ -27,10 +27,12 @@ import type {
   api_user_login_req,
   api_user_login_resp,
 } from "../../../share/Api";
+import Uploader from "@/popupComponents/uploader.vue";
 
 const componentDefs = {
   helloWorld: HelloWorldVue,
   fileBrowser: Browser,
+  uploader: Uploader,
 } as { [key: string]: any };
 //
 const initTimestamp = new Date().valueOf();
@@ -242,9 +244,9 @@ function buildModal(modal: ModalConstruct): ModalStruct {
   return target;
 }
 window.addEventListener("resize", (e) => {
-  console.info(e);
+  // console.info(e);
   modalList.value.forEach((modal) => {
-    console.info(modal.layout);
+    // console.info(modal.layout);
     if (modal.layout.fullscreen) {
       const t = {
         x: gap,
@@ -466,7 +468,7 @@ function checkAlpha() {
 }
 //-----------
 
-modalStore.set({
+/* modalStore.set({
   title: "test",
   alpha: false,
   key: "",
@@ -539,6 +541,27 @@ modalStore.set({
       console.info(modal);
     },
   },
+}); */
+
+modalStore.set({
+  title: "test",
+  alpha: false,
+  key: "",
+  single: false,
+  w: 400,
+  h: 200,
+  minW: 400,
+  minH: 200,
+  // h: 160,
+  resizable: true,
+  movable: false,
+  fullscreen: false,
+  // text: "this is text",
+  component: [
+    {
+      componentName: "uploader",
+    },
+  ],
 });
 </script>
 

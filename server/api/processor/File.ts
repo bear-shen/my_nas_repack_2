@@ -9,6 +9,7 @@ import { col_node, col_tag } from '../../../share/Database';
 import TagModel from '../../model/TagModel';
 import TagGroupModel from '../../model/TagGroupModel';
 import FileModel from '../../model/FileModel';
+import * as fp from "../../lib/FileProcessor";
 export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_list_resp> {
         const request = data.fields as api_file_list_req;
@@ -139,16 +140,16 @@ export default class {
             });
         }
         target.list = nodeLs;
-        nodeLs.forEach(item => target.list.push(item));
-        nodeLs.forEach(item => target.list.push(item));
-        nodeLs.forEach(item => target.list.push(item));
-        nodeLs.forEach(item => target.list.push(item));
-        nodeLs.forEach(item => target.list.push(item));
-        nodeLs.forEach(item => target.list.push(item));
-        nodeLs.forEach(item => target.list.push(item));
-        nodeLs.forEach(item => target.list.push(item));
-        nodeLs.forEach(item => target.list.push(item));
-        nodeLs.forEach(item => target.list.push(item));
+        // nodeLs.forEach(item => target.list.push(item));
+        // nodeLs.forEach(item => target.list.push(item));
+        // nodeLs.forEach(item => target.list.push(item));
+        // nodeLs.forEach(item => target.list.push(item));
+        // nodeLs.forEach(item => target.list.push(item));
+        // nodeLs.forEach(item => target.list.push(item));
+        // nodeLs.forEach(item => target.list.push(item));
+        // nodeLs.forEach(item => target.list.push(item));
+        // nodeLs.forEach(item => target.list.push(item));
+        // nodeLs.forEach(item => target.list.push(item));
         //
         return target;
     };
@@ -162,6 +163,12 @@ export default class {
         return null;
     };
     async upd(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<any> {
+        const request = data.fields as api_file_list_req;
+        const files = data.files;
+        files.forEach((file) => {
+            console.info((file as any));
+            // fp.put((file as any).path, 0, file.name);
+        });
         return null;
     };
 };

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { watch, ref } from "vue";
+import { watch, ref, onUnmounted } from "vue";
 import type { Ref } from "vue";
 import {
   useRouter,
@@ -28,6 +28,7 @@ import type {
 } from "../../../share/Api";
 import { useModalStore } from "@/stores/modalStore";
 const modalStore = useModalStore();
+const contentDOM: Ref<HTMLElement | null> = ref(null);
 //
 // const z = { a: FileItem };
 // console.info(z);
@@ -112,6 +113,14 @@ onMounted(async () => {
   localConfigure.release("file_view_mode", modeKey);
   Object.assign(queryData, GenFunc.copyObject(route.query));
   await getList();
+  if (contentDOM.value) {
+    contentDOM.value.addEventListener("scroll", lazyLoad);
+  }
+});
+onUnmounted(() => {
+  if (contentDOM.value) {
+    contentDOM.value.removeEventListener("scroll", lazyLoad);
+  }
 });
 //
 function go(ext: api_file_list_req) {
@@ -197,10 +206,24 @@ onBeforeRouteUpdate(async (to) => {
   Object.assign(queryData, to.query);
   await getList();
 });
+//
+let lazyLoadTimer = 0;
+function lazyLoad(e: Event) {
+  clearTimeout(lazyLoadTimer);
+  lazyLoadTimer = setTimeout(triggleLazyLoad, 200);
+}
+function triggleLazyLoad() {
+  // @todo 这边主要传值不好做, 看看到时候效果怎么样再说吧...
+  return;
+  // console.info("triggleLazyLoad");
+  // if (!contentDOM.value) return;
+  // const top = contentDOM.value.scrollTop;
+  // console.info(top);
+}
 </script>
 
 <template>
-  <div class="fr_content">
+  <div class="fr_content" ref="contentDOM">
     <div class="content_meta">
       <div class="crumb" v-if="crumbList.length">
         <a
