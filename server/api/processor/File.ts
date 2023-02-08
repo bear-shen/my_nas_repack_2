@@ -1,15 +1,16 @@
-import { Fields } from 'formidable';
+import {Fields} from 'formidable';
 import PersistentFile from 'formidable';
-import { IncomingMessage, ServerResponse } from 'http';
-import { ParsedForm } from '../types';
-import { api_file_list_resp, api_node_col, api_file_list_req } from '../../../share/Api';
+import {IncomingMessage, ServerResponse} from 'http';
+import {ParsedForm} from '../types';
+import {api_file_list_resp, api_node_col, api_file_list_req, api_file_upload_resp, api_file_upload_req} from '../../../share/Api';
 import NodeModel from '../../model/NodeModel';
 import GenFunc from '../../../share/GenFunc';
-import { col_node, col_tag } from '../../../share/Database';
+import {col_node, col_tag} from '../../../share/Database';
 import TagModel from '../../model/TagModel';
 import TagGroupModel from '../../model/TagGroupModel';
 import FileModel from '../../model/FileModel';
 import * as fp from "../../lib/FileProcessor";
+
 export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_list_resp> {
         const request = data.fields as api_file_list_req;
@@ -73,14 +74,30 @@ export default class {
         }
         if (request.sort) {
             switch (request.sort) {
-                case 'id_asc': model.order('id', 'asc'); break;
-                case 'id_desc': model.order('id', 'desc'); break;
-                case 'name_asc': model.order('title', 'asc'); break;
-                case 'name_desc': model.order('title', 'desc'); break;
-                case 'crt_asc': model.order('time_create', 'asc'); break;
-                case 'crt_desc': model.order('time_create', 'desc'); break;
-                case 'upd_asc': model.order('time_update', 'asc'); break;
-                case 'upd_desc': model.order('time_update', 'desc'); break;
+                case 'id_asc':
+                    model.order('id', 'asc');
+                    break;
+                case 'id_desc':
+                    model.order('id', 'desc');
+                    break;
+                case 'name_asc':
+                    model.order('title', 'asc');
+                    break;
+                case 'name_desc':
+                    model.order('title', 'desc');
+                    break;
+                case 'crt_asc':
+                    model.order('time_create', 'asc');
+                    break;
+                case 'crt_desc':
+                    model.order('time_create', 'desc');
+                    break;
+                case 'upd_asc':
+                    model.order('time_update', 'asc');
+                    break;
+                case 'upd_desc':
+                    model.order('time_update', 'desc');
+                    break;
             }
         }
         const nodeLs: api_node_col[] = await model.select();
@@ -121,7 +138,7 @@ export default class {
                             tagLs.push(tag);
                         }
                     });
-                    node.tag.push(Object.assign(tagGroup, { sub: tagLs }));
+                    node.tag.push(Object.assign(tagGroup, {sub: tagLs}));
                 });
             });
         }
@@ -153,22 +170,35 @@ export default class {
         //
         return target;
     };
+
     async del(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<any> {
         return null;
     };
+
     async mov(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<any> {
         return null;
     };
+
     async mod(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<any> {
         return null;
     };
-    async upd(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<any> {
-        const request = data.fields as api_file_list_req;
+
+    async upd(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_upload_resp> {
+        const request = data.fields as api_file_upload_req;
         const files = data.files;
-        files.forEach((file) => {
-            console.info((file as any));
-            // fp.put((file as any).path, 0, file.name);
-        });
+        // console.info(request);
+        // console.info(files);
+        // return null;
+        for (const filesKey in files) {
+            const file = files[filesKey];
+            fp.put(
+                (file as any).filepath,
+                parseInt(request.pid) ?? 0,
+                (file as any).originalFilename
+            );
+            console.info(filesKey);
+            console.info(file);
+        }
         return null;
     };
 };

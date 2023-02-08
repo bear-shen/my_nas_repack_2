@@ -1,14 +1,14 @@
-import { Stream } from "stream";
+import {Stream} from "stream";
 import crypto from 'node:crypto';
 import Config from "../ServerConfig";
 import * as fs from 'fs/promises';
-import { ReadStream, Stats } from 'fs';
+import {ReadStream, Stats} from 'fs';
 import * as fsNP from 'fs';
-import { type_file, col_node, col_file } from '../../share/Database';
+import {type_file, col_node, col_file} from '../../share/Database';
 import ORM from './ORM';
 import NodeModel from "../model/NodeModel";
 import FileModel from '../model/FileModel';
-import { dir } from "console";
+import {dir} from "console";
 
 function isId(inVal: col_node | number | bigint): boolean {
     switch (typeof inVal) {
@@ -23,11 +23,13 @@ function isId(inVal: col_node | number | bigint): boolean {
             break;
     }
 }
+
 async function getNodeByIdOrNode(inVal: col_node | number | bigint): Promise<col_node> {
     if (!isId(inVal)) return inVal as col_node;
     if (inVal === 0) return rootNode;
     return await (new NodeModel).where('id', inVal).first();
 }
+
 //util
 async function relPath2node(relPath: string): Promise<col_node[] | false> {
     let nPathArr = relPath.replace(/\/$/, '').split(/\//);
@@ -43,6 +45,7 @@ async function relPath2node(relPath: string): Promise<col_node[] | false> {
         }
     return nodeList;
 }
+
 async function getUUID(): Promise<string> {
     let uuid = '';
     do {
@@ -50,20 +53,24 @@ async function getUUID(): Promise<string> {
     } while (await (new FileModel).where('uuid', uuid).first(['id']))
     return uuid;
 }
+
 function getRelPathByFile(file: col_file) {
     const path = `/${file.uuid.substring(0, 1)}/${file.uuid.substring(1, 3)}/${file.uuid.substring(3)}.${file.suffix}`;
     return path;
 }
+
 function getDir(filePath: string): string {
     filePath = filePath.replace(/\/$/, '');
     const lastSlash = filePath.lastIndexOf('/');
     return filePath.substring(0, lastSlash);
 }
+
 function getName(filePath: string): string {
     filePath = filePath.replace(/\/$/, '');
     const lastSlash = filePath.lastIndexOf('/');
     return filePath.substring(lastSlash + 1);
 }
+
 function getSuffix(fileName: string): string {
     const ifSlash = fileName.lastIndexOf('/');
     const suffixOffset = fileName.lastIndexOf('.');
@@ -77,6 +84,7 @@ function getSuffix(fileName: string): string {
     }
     return suffix;
 }
+
 function getType(suffix: string): type_file {
     let ifHit = -1;
     // console.info(suffix);
@@ -87,11 +95,11 @@ function getType(suffix: string): type_file {
     }
     return 'binary';
 }
+
 async function checkName(dirId: number, name: string) {
-    return await (new NodeModel).where('id_parent', dirId).
-        where('title', name).
-        first();
+    return await (new NodeModel).where('id_parent', dirId).where('title', name).first();
 }
+
 //dir
 async function ls(dirId: number): Promise<FileStat[]> {
     const nodeLs = await (new NodeModel).where('id_parent', dirId).where('status', 1).select() as FileStat[];
@@ -147,6 +155,7 @@ async function mkdir(dirId: number, name: string): Promise<boolean> {
     nodeInfo.id = await (new NodeModel).lastInsertId();
     return true;
 }
+
 //file
 async function get(nodeId: number | col_node, from: number, to: number): Promise<ReadStream> {
     const node = await getNodeByIdOrNode(nodeId);
@@ -166,7 +175,7 @@ async function touch(path: string): Promise<false> {
     return false;
 }
 
-async function put(fromTmpPath: string, toDir: number | col_node, name: string): Promise<boolean> {
+async function put(fromTmpPath: string, toDir: number | col_node, name: string): Promise<false | col_node> {
     // console.info('FileProcessor put: init');
     const parentNode = await getNodeByIdOrNode(toDir);
     //
@@ -197,7 +206,7 @@ async function put(fromTmpPath: string, toDir: number | col_node, name: string):
         building: 1,
         list_node: [...parentNode.list_node, parentNode.id],
         list_tag_id: [],
-        index_file_id: { raw: fileInfo.id, },
+        index_file_id: {raw: fileInfo.id,},
         index_node: {},
     } as col_node;
     await (new NodeModel).insert(nodeInfo);
@@ -206,7 +215,7 @@ async function put(fromTmpPath: string, toDir: number | col_node, name: string):
     try {
         await fs.stat(getDir(targetPath));
     } catch (e) {
-        await fs.mkdir(getDir(targetPath), { recursive: true, mode: 0o777 });
+        await fs.mkdir(getDir(targetPath), {recursive: true, mode: 0o777});
     }
     // console.info('FileProcessor put: mkdir');
     await fs.rename(fromTmpPath, targetPath);
@@ -215,7 +224,7 @@ async function put(fromTmpPath: string, toDir: number | col_node, name: string):
     // await fs.rm(fromTmpPath);
     // } catch (e) {
     // }
-    return true;
+    return nodeInfo;
 }
 
 async function mv(nodeId: number | col_node, toDirId: number | col_node, name: string): Promise<boolean> {
@@ -251,7 +260,7 @@ async function mv(nodeId: number | col_node, toDirId: number | col_node, name: s
 }
 
 async function rm(nodeId: number): Promise<boolean> {
-    await (new NodeModel).where('id', nodeId).update({ status: 0 });
+    await (new NodeModel).where('id', nodeId).update({status: 0});
     return false;
 }
 

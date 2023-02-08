@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { onMounted, ref, watch, onUnmounted } from "vue";
-import type { Ref } from "vue";
-import type { ModalConstruct, ModalStruct } from "../modal";
-import { queryDemo, query } from "@/Helper";
-import type { api_node_col, api_file_list_resp } from "../../../share/Api";
+import {onMounted, ref, watch, onUnmounted} from "vue";
+import type {Ref} from "vue";
+import type {ModalConstruct, ModalStruct} from "@/modal";
+import {queryDemo, query} from "@/Helper";
+import type {api_node_col, api_file_list_resp, api_file_upload_resp} from "../../../share/Api";
 import smp_file_list_resp from "../../../share/sampleApi/smp_file_list_resp";
 import GenFunc from "../../../share/GenFunc";
 import browserBaseVue from "./browserBase.vue";
 import browserImageVue from "./browserImage.vue";
 import browserAudioVue from "./browserAudio.vue";
 import browserVideoVue from "./browserVideo.vue";
-import { useLocalConfigureStore } from "@/stores/localConfigure";
-import { useEventStore } from "@/stores/event";
-import type { type_file } from "../../../share/Database";
+import {useLocalConfigureStore} from "@/stores/localConfigure";
+import {useEventStore} from "@/stores/event";
+import type {type_file} from "../../../share/Database";
 //------------------
 const props = defineProps<{
   data: {
@@ -31,8 +31,11 @@ type uploadFile = {
 };
 // const list = ref(new Map() as Map<string, uploadFile>);
 const list = ref([] as uploadFile[]);
-onMounted(() => {});
-onUnmounted(() => {});
+onMounted(() => {
+});
+onUnmounted(() => {
+});
+
 function onDrop(e: DragEvent) {
   console.debug("onDrag", e.type, e.dataTransfer?.files, e);
   e.preventDefault();
@@ -51,10 +54,12 @@ function onDrop(e: DragEvent) {
     });
   }
 }
+
 function onDragover(e: DragEvent) {
   e.stopPropagation();
   e.preventDefault();
 }
+
 async function goUpload() {
   console.info("goUpload");
   for (let i1 = 0; i1 < list.value.length; i1++) {
@@ -62,8 +67,16 @@ async function goUpload() {
     uploadFile(list.value[i1]);
   }
 }
+
 async function uploadFile(file: uploadFile) {
-  // const res = await query<api_file_list_resp>("file/get");
+  const formData = new FormData();
+  formData.set('pid', `${props.data.pid}`);
+  formData.set('file', file.file);
+  const res = await query<api_file_upload_resp>('file/upd', formData, {
+    upload: (e) => {
+      console.info(e);
+    }
+  });
 }
 </script>
 

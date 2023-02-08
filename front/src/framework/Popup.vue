@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useModalStore } from "../stores/modalStore";
-import { useEventStore } from "../stores/event";
+import {useModalStore} from "../stores/modalStore";
+import {useEventStore} from "../stores/event";
 import {
   defineAsyncComponent,
   defineComponent,
@@ -18,11 +18,11 @@ import type {
   ModalConstruct,
   ModalStruct,
 } from "../modal";
-import { isArray } from "@vue/shared";
+import {isArray} from "@vue/shared";
 import App from "@/App.vue";
 import HelloWorldVue from "@/components/HelloWorld.vue";
 import Browser from "@/popupComponents/browser.vue";
-import { query } from "@/Helper";
+import {query} from "@/Helper";
 import type {
   api_user_login_req,
   api_user_login_resp,
@@ -39,6 +39,7 @@ const initTimestamp = new Date().valueOf();
 //用map方便操作
 const modalList = ref(new Map<string, ModalStruct>());
 const gap = 20;
+
 function buildModal(modal: ModalConstruct): ModalStruct {
   const diffStamp = Math.floor((new Date().valueOf() - initTimestamp) / 100);
   const iw = window.innerWidth;
@@ -243,6 +244,7 @@ function buildModal(modal: ModalConstruct): ModalStruct {
   console.warn(target);
   return target;
 }
+
 window.addEventListener("resize", (e) => {
   // console.info(e);
   modalList.value.forEach((modal) => {
@@ -270,6 +272,7 @@ modalStore.handleEvent("set", (modal: ModalConstruct) => {
 modalStore.handleEvent("close", (nid: string) => {
   close(nid);
 });
+
 function toggleActive(nid: string) {
   const diffStamp = Math.floor((new Date().valueOf() - initTimestamp) / 100);
   modalList.value.forEach((node) => {
@@ -281,6 +284,7 @@ function toggleActive(nid: string) {
     }
   });
 }
+
 function fullscreen(nid: string) {
   const modal = modalList.value.get(nid);
   if (!modal) return;
@@ -295,6 +299,7 @@ function fullscreen(nid: string) {
   Object.assign(modal.layout, t);
   eventStore.trigger(`modal_resizing_${modal.nid}`, modal.layout);
 }
+
 function resetWindow(nid: string) {
   const modal = modalList.value.get(nid);
   if (!modal) return;
@@ -311,10 +316,12 @@ function resetWindow(nid: string) {
   Object.assign(modal.layout, t);
   eventStore.trigger(`modal_resizing_${modal.nid}`, modal.layout);
 }
+
 function close(nid: string) {
   modalList.value.delete(nid);
   checkAlpha();
 }
+
 const eventStore = useEventStore();
 let resizing = {
   x: 0,
@@ -326,6 +333,7 @@ let resizing = {
   modalH: 0,
   modal: null as ModalStruct | null,
 };
+
 function onResizeStart(modalNid: string, e: MouseEvent) {
   e.preventDefault();
   e.stopPropagation();
@@ -350,12 +358,13 @@ function onResizeStart(modalNid: string, e: MouseEvent) {
   // document.addEventListener("mouseout", onResizeEnd);
   // document.addEventListener("mouseover", onResizeEnd);
 }
+
 function onResizing(e: MouseEvent) {
   e.preventDefault();
   e.stopPropagation();
   if (!resizing.modal) return;
   // console.info(e.type);
-  const d = { x: e.clientX - resizing.x, y: e.clientY - resizing.y };
+  const d = {x: e.clientX - resizing.x, y: e.clientY - resizing.y};
   const t = {
     x: resizing.modal.layout.x,
     y: resizing.modal.layout.y,
@@ -436,6 +445,7 @@ function onResizing(e: MouseEvent) {
     resizing.modal.layout
   );
 }
+
 function onResizeEnd(e: MouseEvent) {
   e.preventDefault();
   e.stopPropagation();
@@ -457,6 +467,7 @@ function onCallback(nid: string, key: string) {
 }
 
 const usingAlpha = ref(false);
+
 function checkAlpha() {
   let hasAlpha = false;
   modalList.value.forEach((modal) => {
@@ -466,6 +477,7 @@ function checkAlpha() {
   });
   usingAlpha.value = hasAlpha;
 }
+
 //-----------
 
 /* modalStore.set({
@@ -560,6 +572,7 @@ modalStore.set({
   component: [
     {
       componentName: "uploader",
+      data: {pid: 0,},
     },
   ],
 });
@@ -621,16 +634,16 @@ modalStore.set({
             </span>
             <span>
               <template v-if="form.type === 'text'">
-                <input type="text" v-model="form.value" />
+                <input type="text" v-model="form.value"/>
               </template>
               <template v-if="form.type === 'textarea'">
                 <textarea v-model="form.value"></textarea>
               </template>
               <template v-if="form.type === 'date'">
-                <input type="date" v-model="form.value" />
+                <input type="date" v-model="form.value"/>
               </template>
               <template v-if="form.type === 'datetime'">
-                <input type="datetime-local" v-model="form.value" />
+                <input type="datetime-local" v-model="form.value"/>
               </template>
               <template v-if="form.type === 'checkbox'">
                 <template
@@ -646,7 +659,7 @@ modalStore.set({
                   />
                   <label
                     :for="`P_${modalIndex}_C_${formIndex}_CB_${optionKey}`"
-                    >{{ option }}</label
+                  >{{ option }}</label
                   >
                 </template>
               </template>
@@ -664,7 +677,7 @@ modalStore.set({
                   />
                   <label
                     :for="`P_${modalIndex}_C_${formIndex}_RD_${optionKey}`"
-                    >{{ option }}</label
+                  >{{ option }}</label
                   >
                 </template>
               </template>
