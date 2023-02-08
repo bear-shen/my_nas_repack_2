@@ -191,6 +191,20 @@ async function put(fromTmpPath: string, toDir: number | col_node, name: string):
         meta: {},
         status: 1,
     } as col_file;
+    //---------------------------------------
+    //先落地
+    // console.info('FileProcessor put: node cmp');
+    const targetPath = Config.path.local + getRelPathByFile(fileInfo);
+    try {
+        await fs.stat(getDir(targetPath));
+    } catch (e) {
+        await fs.mkdir(getDir(targetPath), {recursive: true, mode: 0o777});
+    }
+    // console.info('FileProcessor put: mkdir');
+    await fs.cp(fromTmpPath, targetPath);
+    await fs.rm(fromTmpPath);
+    //---------------------------------------
+    //再写入
     await (new FileModel).insert(fileInfo);
     //last insert id 不靠谱的，用uuid回传
     const curFileInfo = await (new FileModel).where('uuid', fileInfo.uuid).first(['id']);
@@ -210,15 +224,6 @@ async function put(fromTmpPath: string, toDir: number | col_node, name: string):
         index_node: {},
     } as col_node;
     await (new NodeModel).insert(nodeInfo);
-    // console.info('FileProcessor put: node cmp');
-    const targetPath = Config.path.local + getRelPathByFile(fileInfo);
-    try {
-        await fs.stat(getDir(targetPath));
-    } catch (e) {
-        await fs.mkdir(getDir(targetPath), {recursive: true, mode: 0o777});
-    }
-    // console.info('FileProcessor put: mkdir');
-    await fs.rename(fromTmpPath, targetPath);
     // try {
     // await fs.stat(fromTmpPath);
     // await fs.rm(fromTmpPath);

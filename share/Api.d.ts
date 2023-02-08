@@ -45,6 +45,4 @@ export type api_user_login_resp = {
 export type api_file_upload_req = {
     pid: string,
 }
-export type api_file_upload_resp = {
-    pid: number,
-} & col_node
+export type api_file_upload_resp = col_node[];

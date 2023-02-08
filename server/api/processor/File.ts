@@ -189,16 +189,19 @@ export default class {
         // console.info(request);
         // console.info(files);
         // return null;
+        const resultLs = [] as col_node[];
         for (const filesKey in files) {
             const file = files[filesKey];
-            fp.put(
+            const fileInfo = await fp.put(
                 (file as any).filepath,
                 parseInt(request.pid) ?? 0,
                 (file as any).originalFilename
             );
-            console.info(filesKey);
-            console.info(file);
+            if (!fileInfo) continue;
+            resultLs.push(fileInfo);
+            // console.info(filesKey);
+            // console.info(file);
         }
-        return null;
+        return resultLs;
     };
 };
