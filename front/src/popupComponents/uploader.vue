@@ -60,23 +60,34 @@ function onDragover(e: DragEvent) {
   e.preventDefault();
 }
 
+let uploading = false;
+
 async function goUpload() {
+  uploading = true;
   console.info("goUpload");
   for (let i1 = 0; i1 < list.value.length; i1++) {
     if (list.value[i1].status !== "waiting") continue;
-    uploadFile(list.value[i1]);
+    await uploadFile(list.value[i1]);
   }
+  uploading = false;
 }
 
 async function uploadFile(file: uploadFile) {
   const formData = new FormData();
   formData.set('pid', `${props.data.pid}`);
   formData.set('file', file.file);
+  file.status = 'uploading';
   const res = await query<api_file_upload_resp>('file/upd', formData, {
     upload: (e) => {
-      console.info(e);
+      // console.info(e);
+      file.loaded = e.loaded;
     }
   });
+  file.status = 'complete';
+}
+
+function remove(index: number) {
+  list.value.splice(index, 1);
 }
 </script>
 
@@ -84,17 +95,25 @@ async function uploadFile(file: uploadFile) {
   <div class="modal_uploader" @drop="onDrop" @dragover="onDragover">
     <div class="upload_list">
       <!-- <div v-for="[key, file] in list"> -->
-      <div v-for="file in list">
+      <div v-for="(file,index) in list">
         <div class="title">{{ file.name }}</div>
         <div class="meta">
-          <span>{{ file.status }}</span>
+          <span v-if="file.status==='uploading'">
+            {{ parseInt(100 * file.loaded / file.size) }} %
+          </span>
+          <span v-else>{{ file.status }}</span>
           <span>{{ GenFunc.kmgt(file.size) }}</span>
+          <span v-if="file.status==='waiting'"
+                @click="remove(index)"
+                class="pointer"
+          >X</span>
         </div>
       </div>
       <div>drag / drop files here...</div>
     </div>
     <div class="upload_menu">
-      <button @click="goUpload">upload</button>
+      <button v-if="!uploading" @click="goUpload">upload</button>
+      <button v-else>uploading</button>
     </div>
   </div>
 </template>
@@ -131,8 +150,8 @@ async function uploadFile(file: uploadFile) {
         overflow: hidden;
       }
       .meta {
-        span:last-child {
-          margin-left: $fontSize;
+        span {
+          margin-left: $fontSize*0.5;
         }
       }
     }
