@@ -1,5 +1,6 @@
-import type { DefineComponent } from "vue";
+import type {DefineComponent} from "vue";
 
+//callback use return true to keep;
 export type ModalCallbackFunc = (modal: ModalStruct) => Promise<true | any> | void;
 
 export type ModalFormConstruct<K> = {
@@ -82,14 +83,14 @@ export type ModalConstruct = {
     text?: string;
     form?: Array<ModalFormConstruct> | ModalFormConstruct;
     component?:
-    Array<ModalComponentConstruct | string>
-    | ModalComponentConstruct
-    | string;
+        Array<ModalComponentConstruct | string>
+        | ModalComponentConstruct
+        | string;
     // callback
     callback?: Array<ModalCallbackConstruct | ModalCallbackFunc>
-    | ModalCallbackConstruct
-    | ModalCallbackFunc
-    | { [key: string]: ModalCallbackFunc };
+        | ModalCallbackConstruct
+        | ModalCallbackFunc
+        | { [key: string]: ModalCallbackFunc };
 }
 
 // base ?: ModalBase;

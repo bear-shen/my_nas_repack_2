@@ -555,27 +555,6 @@ function checkAlpha() {
   },
 }); */
 
-modalStore.set({
-  title: "test",
-  alpha: false,
-  key: "",
-  single: false,
-  w: 400,
-  h: 200,
-  minW: 400,
-  minH: 200,
-  // h: 160,
-  resizable: true,
-  movable: false,
-  fullscreen: false,
-  // text: "this is text",
-  component: [
-    {
-      componentName: "uploader",
-      data: {pid: 0,},
-    },
-  ],
-});
 </script>
 
 <template>

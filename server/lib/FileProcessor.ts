@@ -132,8 +132,15 @@ async function ls(dirId: number): Promise<FileStat[]> {
     return nodeLs;
 }
 
-async function mkdir(dirId: number, name: string): Promise<boolean> {
+async function mkdir(dirId: number, name: string): Promise<false | col_node> {
     let parentInfo = rootNode;
+    const ifDup = await (new NodeModel)
+        .where('id_parent', dirId)
+        .where('title', name)
+        .first();
+    if (ifDup) {
+        return false;
+    }
     if (dirId) {
         parentInfo = await (new NodeModel).where('id', dirId).first();
         if (!parentInfo) return false;
@@ -152,8 +159,8 @@ async function mkdir(dirId: number, name: string): Promise<boolean> {
         index_node: {},
     } as col_node;
     await (new NodeModel).insert(nodeInfo);
-    nodeInfo.id = await (new NodeModel).lastInsertId();
-    return true;
+    // nodeInfo.id = await (new NodeModel).lastInsertId();
+    return nodeInfo;
 }
 
 //file

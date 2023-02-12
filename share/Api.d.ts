@@ -46,3 +46,10 @@ export type api_file_upload_req = {
     pid: string,
 }
 export type api_file_upload_resp = col_node[];
+
+
+export type api_file_mkdir_req = {
+    pid: string,
+    title: string,
+}
+export type api_file_mkdir_resp = col_node;

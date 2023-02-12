@@ -63,6 +63,7 @@ function onDragover(e: DragEvent) {
 let uploading = false;
 
 async function goUpload() {
+  if (!list.value.length) return;
   uploading = true;
   console.info("goUpload");
   for (let i1 = 0; i1 < list.value.length; i1++) {

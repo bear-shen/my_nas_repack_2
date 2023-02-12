@@ -2,7 +2,7 @@ import {Fields} from 'formidable';
 import PersistentFile from 'formidable';
 import {IncomingMessage, ServerResponse} from 'http';
 import {ParsedForm} from '../types';
-import {api_file_list_resp, api_node_col, api_file_list_req, api_file_upload_resp, api_file_upload_req} from '../../../share/Api';
+import {api_file_list_resp, api_node_col, api_file_list_req, api_file_upload_resp, api_file_upload_req, api_file_mkdir_resp, api_file_mkdir_req} from '../../../share/Api';
 import NodeModel from '../../model/NodeModel';
 import GenFunc from '../../../share/GenFunc';
 import {col_node, col_tag} from '../../../share/Database';
@@ -61,7 +61,7 @@ export default class {
             request.tid ||
             false
         )) {
-            console.info('no querydata, set id_parent=0')
+            console.info('file/get: no querydata, set id_parent=0')
             model.where('id_parent', 0);
         }
         if (request.type) {
@@ -204,4 +204,10 @@ export default class {
         }
         return resultLs;
     };
+
+    async mkdir(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<false | api_file_mkdir_resp> {
+        const request = data.fields as api_file_mkdir_req;
+        const dir = await fp.mkdir(parseInt(request.pid) ?? 0, request.title);
+        return dir;
+    }
 };

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { watch, ref, onUnmounted } from "vue";
-import type { Ref } from "vue";
+import {watch, ref, onUnmounted} from "vue";
+import type {Ref} from "vue";
 import {
   useRouter,
   useRoute,
@@ -8,25 +8,26 @@ import {
   type RouteLocationNormalizedLoaded,
   onBeforeRouteUpdate,
 } from "vue-router";
-import { routes } from "../router/index";
-import { onMounted } from "vue";
-import { useLocalConfigureStore } from "../stores/localConfigure";
+// import {routes} from "@/router/index";
+import {onMounted} from "vue";
+import {useLocalConfigureStore} from "@/stores/localConfigure";
 import type {
   col_node,
   col_file,
   col_tag_group,
   col_tag,
 } from "../../../share/Database";
-import { query, queryDemo } from "../Helper";
+import {query, queryDemo} from "@/Helper";
 import smp_file_list_resp from "../../../share/sampleApi/smp_file_list_resp";
 import GenFunc from "../../../share/GenFunc";
 import FileItem from "@/components/FileItem.vue";
 import type {
   api_file_list_resp,
   api_file_list_req,
-  api_node_col,
+  api_node_col, api_file_mkdir_req, api_file_mkdir_resp,
 } from "../../../share/Api";
-import { useModalStore } from "@/stores/modalStore";
+import {useModalStore} from "@/stores/modalStore";
+
 const modalStore = useModalStore();
 const contentDOM: Ref<HTMLElement | null> = ref(null);
 //
@@ -82,9 +83,88 @@ watch(route, async (to: RouteLocationNormalizedLoaded) => {
     console.info(curContainer.name);
   });
 }); */
-function getCurRoute() {}
-function addFolder() {}
-function addFile() {}
+function getCurRoute() {
+}
+
+function addFolder() {
+  let pid = 0;
+  let title = 'root';
+  if (crumbList.value.length) {
+    let curNode = crumbList.value[crumbList.value.length - 1];
+    if (curNode) {
+      pid = curNode.id ?? 0;
+      title = curNode.title ?? 'root';
+    }
+  }
+  modalStore.set({
+    title: `mkdir | ${title}`,
+    alpha: false,
+    key: "",
+    single: false,
+    w: 400,
+    h: 100,
+    minW: 400,
+    minH: 100,
+    // h: 160,
+    resizable: true,
+    movable: false,
+    fullscreen: false,
+    form: [
+      {
+        label: 'title',
+        type: 'text',
+      }
+    ],
+    callback: {
+      submit: async (modal) => {
+        console.info(modal);
+        const formData = modal.content.form;
+        const targetTitle = formData[0].value;
+        console.info(targetTitle)
+        if (!targetTitle) return true;
+        const res = await query<api_file_mkdir_resp>("file/mkdir", {
+          title: targetTitle,
+          pid: `${pid}`,
+        } as api_file_mkdir_req);
+        if (!res) return;
+      },
+    },
+  });
+}
+
+function addFile() {
+  let pid = 0;
+  let title = 'root';
+  if (crumbList.value.length) {
+    let curNode = crumbList.value[crumbList.value.length - 1];
+    if (curNode) {
+      pid = curNode.id ?? 0;
+      title = curNode.title ?? 'root';
+    }
+  }
+  modalStore.set({
+    title: `upload | ${title}`,
+    alpha: false,
+    key: "",
+    single: false,
+    w: 400,
+    h: 200,
+    minW: 400,
+    minH: 200,
+    // h: 160,
+    resizable: true,
+    movable: false,
+    fullscreen: false,
+    // text: "this is text",
+    component: [
+      {
+        componentName: "uploader",
+        data: {pid: pid,},
+      },
+    ],
+  });
+}
+
 //
 let crumbList: Ref<api_node_col[]> = ref([]);
 let nodeList: Ref<api_node_col[]> = ref([]);
@@ -99,6 +179,7 @@ async function getList() {
   nodeList.value = res.list;
   // console.info(crumbList);
 }
+
 //
 const localConfigure = useLocalConfigureStore();
 let mode: Ref<string> = ref(localConfigure.get("file_view_mode") ?? "detail");
@@ -106,9 +187,11 @@ const modeKey = localConfigure.listen(
   "file_view_mode",
   (v) => (mode.value = v)
 );
+
 function setMode(mode: string) {
   localConfigure.set("file_view_mode", mode);
 }
+
 onMounted(async () => {
   localConfigure.release("file_view_mode", modeKey);
   Object.assign(queryData, GenFunc.copyObject(route.query));
@@ -122,6 +205,7 @@ onUnmounted(() => {
     contentDOM.value.removeEventListener("scroll", lazyLoad);
   }
 });
+
 //
 function go(ext: api_file_list_req) {
   if (!ext.tid) ext.tid = "";
@@ -133,11 +217,12 @@ function go(ext: api_file_list_req) {
     query: tQuery,
   });
 }
+
 function emitGo(type: string, code: number) {
   // console.info("emitGo", type, code);
   switch (type) {
     case "tag":
-      go({ tid: `${code}` });
+      go({tid: `${code}`});
       break;
     case "node":
       let node;
@@ -149,7 +234,7 @@ function emitGo(type: string, code: number) {
       if (!node) break;
       switch (node.type) {
         case "directory":
-          go({ pid: `${node.id}` });
+          go({pid: `${node.id}`});
           break;
         default:
           popupDetail(GenFunc.copyObject(queryData), node.id ?? 0);
@@ -158,6 +243,7 @@ function emitGo(type: string, code: number) {
       break;
   }
 }
+
 function popupDetail(queryData: { [key: string]: any }, curNodeId: number) {
   modalStore.set({
     title: "file browser",
@@ -188,6 +274,7 @@ function popupDetail(queryData: { [key: string]: any }, curNodeId: number) {
     }, */
   });
 }
+
 //
 function search() {
   const tQuery = GenFunc.copyObject(queryData);
@@ -201,6 +288,7 @@ function search() {
     query: tQuery,
   });
 }
+
 onBeforeRouteUpdate(async (to) => {
   // console.info(to);
   Object.assign(queryData, to.query);
@@ -208,10 +296,12 @@ onBeforeRouteUpdate(async (to) => {
 });
 //
 let lazyLoadTimer = 0;
+
 function lazyLoad(e: Event) {
   clearTimeout(lazyLoadTimer);
   lazyLoadTimer = setTimeout(triggleLazyLoad, 200);
 }
+
 function triggleLazyLoad() {
   // @todo 这边主要传值不好做, 看看到时候效果怎么样再说吧...
   return;
@@ -231,12 +321,12 @@ function triggleLazyLoad() {
           v-for="(node, nodeIndex) in crumbList"
           :key="nodeIndex"
           @click="go({ pid: `${node?.id}` })"
-          >{{ node.title }}
+        >{{ node.title }}
         </a>
       </div>
       <div class="search">
         <label>
-          <span>Title : </span><input type="text" v-model="queryData.keyword" />
+          <span>Title : </span><input type="text" v-model="queryData.keyword"/>
         </label>
         <label>
           <span>Type : </span>
@@ -254,7 +344,7 @@ function triggleLazyLoad() {
         </label>
         <label v-if="crumbList.length">
           <span>InDir : </span>
-          <input type="checkbox" v-model="usePid" id="FV_S_CB" />
+          <input type="checkbox" v-model="usePid" id="FV_S_CB"/>
           <label for="FV_S_CB"></label>
         </label>
         <!--      <label>
@@ -346,6 +436,9 @@ function triggleLazyLoad() {
         padding-left: $fontSize * 0.25;
         padding-right: $fontSize * 0.25;
       }
+    }
+    .display a {
+      cursor: pointer;
     }
   }
   .content_detail.mode_detail {
