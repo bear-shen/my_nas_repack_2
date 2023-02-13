@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import {useModalStore} from "../stores/modalStore";
-import {useEventStore} from "../stores/event";
+import {useModalStore} from "@/stores/modalStore";
+import {useEventStore} from "@/stores/event";
 import {
   defineAsyncComponent,
   defineComponent,
@@ -17,11 +17,12 @@ import type {
   ModalBase,
   ModalConstruct,
   ModalStruct,
-} from "../modal";
+} from "@/modal";
 import {isArray} from "@vue/shared";
 import App from "@/App.vue";
 import HelloWorldVue from "@/components/HelloWorld.vue";
 import Browser from "@/popupComponents/browser.vue";
+import Locator from "@/popupComponents/locator.vue";
 import {query} from "@/Helper";
 import type {
   api_user_login_req,
@@ -33,6 +34,7 @@ const componentDefs = {
   helloWorld: HelloWorldVue,
   fileBrowser: Browser,
   uploader: Uploader,
+  locator: Locator,
 } as { [key: string]: any };
 //
 const initTimestamp = new Date().valueOf();
@@ -480,6 +482,31 @@ function checkAlpha() {
 
 //-----------
 
+modalStore.set({
+  title: `locator | `,
+  alpha: false,
+  key: "",
+  single: false,
+  w: 400,
+  h: 200,
+  minW: 400,
+  minH: 200,
+  // h: 160,
+  resizable: true,
+  movable: false,
+  fullscreen: false,
+  // text: "this is text",
+  component: [
+    {
+      componentName: "locator",
+      data: {
+        query: {},
+        call: '123'
+      },
+    },
+  ],
+});
+
 /* modalStore.set({
   title: "test",
   alpha: false,
@@ -686,7 +713,7 @@ function checkAlpha() {
           ></component>
         </template>
 
-        <div v-if="modal.callback" class="modal_content_callback">
+        <div v-if="modal.callback && modal.callback.length" class="modal_content_callback">
           <button
             v-for="item in modal.callback"
             @click="onCallback(modal.nid, item.key)"
@@ -847,9 +874,13 @@ function checkAlpha() {
     @include smallScroll();
     overflow: auto;
     height: calc(100% - $fontSize);
+    > div {
+      padding-top: $fontSize*0.5;
+    }
     .modal_content_text,
     .modal_content_form {
-      padding: $fontSize * 0.25;
+      padding-left: $fontSize * 0.5;
+      padding-right: $fontSize * 0.5;
     }
     .modal_content_text,
     .modal_content_text {
@@ -883,7 +914,9 @@ function checkAlpha() {
       input,
       select,
       textarea {
-        width: 100%;
+        width: calc(100% - $fontSize * 0.5);
+        //width: fill-available;
+        //width: -webkit-fill-available;
       }
       input[type="checkbox"],
       input[type="radio"] {

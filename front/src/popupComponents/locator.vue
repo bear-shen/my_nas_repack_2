@@ -12,89 +12,56 @@ import browserAudioVue from "./browserAudio.vue";
 import browserVideoVue from "./browserVideo.vue";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {useEventStore} from "@/stores/event";
-import type {type_file} from "../../../share/Database";
+import type {col_node, type_file} from "../../../share/Database";
+import type {api_file_list_req} from "../../../share/Api";
 //------------------
+
+let queryData = {
+  sort: "",
+  type: "",
+  keyword: "",
+  pid: "",
+  tid: "",
+} as api_file_list_req;
+
 const props = defineProps<{
   data: {
-    pid: number;
+    query: api_file_list_req;
+    call: number;
     [key: string]: any;
   };
   modalData: ModalStruct;
 }>();
-type uploadFile = {
-  size: number;
-  name: string;
-  loaded: number;
-  status: "waiting" | "uploading" | "complete" | "error";
-  start: number;
-  file: File;
-};
 // const list = ref(new Map() as Map<string, uploadFile>);
-const list = ref([] as uploadFile[]);
+const list = ref([] as col_node[]);
 onMounted(() => {
 });
 onUnmounted(() => {
 });
 
-function onDrop(e: DragEvent) {
-  console.debug("onDrag", e.type, e.dataTransfer?.files, e);
-  e.preventDefault();
-  e.stopPropagation();
-  if (!e.dataTransfer || !e.dataTransfer.files.length) return;
-  for (let i1 = 0; i1 < e.dataTransfer?.files.length; i1++) {
-    const item = e.dataTransfer?.files[i1] as File;
-    // list.value.set(Math.random().toString(32), {
-    list.value.push({
-      name: item.name,
-      size: item.size,
-      file: item,
-      status: "waiting",
-      loaded: 0,
-      start: 0,
-    });
-  }
+async function getList() {
+  const res = await query<api_file_list_resp>("file/get", queryData);
+  if (!res) return;
+  // console.info(res);
+  // console.info(crumbList);
+}
+async function onChange() {
 }
 
-function onDragover(e: DragEvent) {
-  e.stopPropagation();
-  e.preventDefault();
+async function onConfirm() {
 }
 
-let uploading = false;
-
-async function goUpload() {
-  if (!list.value.length) return;
-  uploading = true;
-  console.info("goUpload");
-  for (let i1 = 0; i1 < list.value.length; i1++) {
-    if (list.value[i1].status !== "waiting") continue;
-    await uploadFile(list.value[i1]);
-  }
-  uploading = false;
-}
-
-async function uploadFile(file: uploadFile) {
-  const formData = new FormData();
-  formData.set('pid', `${props.data.pid}`);
-  formData.set('file', file.file);
-  file.status = 'uploading';
-  const res = await query<api_file_upload_resp>('file/upd', formData, {
-    upload: (e) => {
-      // console.info(e);
-      file.loaded = e.loaded;
-    }
-  });
-  file.status = 'complete';
-}
-
-function remove(index: number) {
-  list.value.splice(index, 1);
+async function onSwitch() {
 }
 </script>
 
 <template>
-  <div class="modal_uploader" @drop="onDrop" @dragover="onDragover">
-    <div class="upload_list">
+  <div class="modal_locator">
+    <input type="text"
+           class="locator_input"
+           placeholder="type title/desc here ..."
+    >
+    <div class="locator_list">
       <!-- <div v-for="[key, file] in list"> -->
       <div v-for="(file,index) in list">
         <div class="title">{{ file.name }}</div>
@@ -110,7 +77,6 @@ function remove(index: number) {
           >X</span>
         </div>
       </div>
-      <div>drag / drop files here...</div>
     </div>
     <div class="upload_menu">
       <button v-if="!uploading" @click="goUpload">upload</button>
@@ -120,18 +86,19 @@ function remove(index: number) {
 </template>
 
 <style lang="scss">
-.modal_uploader {
+.modal_locator {
   width: 100%;
-  //height: calc(100% - $fontSize);
-  @include fillAvailable(height);
+  min-height: 90%;
   position: relative;
+  .locator_input{
+    @include fillAvailable(width);
+  }
   .upload_list {
     height: calc(100% - $fontSize * 2);
     overflow: auto;
     @include smallScroll();
     > div {
       @include fillAvailable(width);
-      //width: calc(100% - $fontSize * 0.5);
       overflow: hidden;
       display: flex;
       flex-wrap: nowrap;

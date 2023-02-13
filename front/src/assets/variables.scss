@@ -22,6 +22,11 @@ $layoutIndex: 500;
 $alphaIndex: 1000;
 $hinterIndex: 250;
 
+@mixin fillAvailable($type){
+      #{$type}:fill-available;
+      #{$type}:-webkit-fill-available;
+      #{$type}:-moz-available;
+}
 
 @function mkColor($color, $level) {
       @return lighten($color, $level*3%);
