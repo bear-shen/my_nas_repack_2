@@ -25,6 +25,7 @@ import Browser from "@/popupComponents/browser.vue";
 import Locator from "@/popupComponents/locator.vue";
 import {query} from "@/Helper";
 import type {
+  api_file_list_req, api_node_col,
   api_user_login_req,
   api_user_login_resp,
 } from "../../../share/Api";
@@ -243,7 +244,7 @@ function buildModal(modal: ModalConstruct): ModalStruct {
       }); */
   }
   //
-  console.warn(target);
+  console.debug(target);
   return target;
 }
 
@@ -488,9 +489,9 @@ modalStore.set({
   key: "",
   single: false,
   w: 400,
-  h: 200,
+  h: 60,
   minW: 400,
-  minH: 200,
+  minH: 60,
   // h: 160,
   resizable: true,
   movable: false,
@@ -500,8 +501,12 @@ modalStore.set({
     {
       componentName: "locator",
       data: {
-        query: {},
-        call: '123'
+        query: {
+          type: 'directory',
+        } as api_file_list_req,
+        call: async (node: api_node_col) => {
+          console.info(node);
+        }
       },
     },
   ],

@@ -14,7 +14,9 @@ import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {useEventStore} from "@/stores/event";
 import type {col_node, type_file} from "../../../share/Database";
 import type {api_file_list_req} from "../../../share/Api";
+import {useModalStore} from "@/stores/modalStore";
 //------------------
+const locatorInput: Ref<HTMLInputElement | null> = ref(null);
 
 let queryData = {
   sort: "",
@@ -22,19 +24,23 @@ let queryData = {
   keyword: "",
   pid: "",
   tid: "",
+  no_tag: "1",
+  no_file: "1",
+  with_crumb: "1",
 } as api_file_list_req;
 
 const props = defineProps<{
   data: {
     query: api_file_list_req;
-    call: number;
+    call: (node: api_node_col) => any;
     [key: string]: any;
   };
   modalData: ModalStruct;
 }>();
 // const list = ref(new Map() as Map<string, uploadFile>);
-const list = ref([] as col_node[]);
+const list = ref([] as api_node_col[]);
 onMounted(() => {
+  locatorInput.value?.focus();
 });
 onUnmounted(() => {
 });
@@ -42,13 +48,35 @@ onUnmounted(() => {
 async function getList() {
   const res = await query<api_file_list_resp>("file/get", queryData);
   if (!res) return;
-  // console.info(res);
-  // console.info(crumbList);
-}
-async function onChange() {
+  list.value = res.list;
+  if (list.value.length) {
+    if (props.modalData.layout.h < 220) {
+      props.modalData.layout.h = 220;
+    }
+  }
 }
 
-async function onConfirm() {
+
+async function onChange(e: KeyboardEvent) {
+  console.info(e);
+  GenFunc.debounce(() => {
+    let val = locatorInput.value?.value;
+    if (!val || !val.length) {
+      list.value = [];
+      return;
+    }
+    console.info(val);
+    console.info(props.modalData);
+    queryData.keyword = val;
+    getList();
+  }, 750, 'locator');
+}
+
+async function onConfirm(node: api_node_col) {
+  console.info(node);
+  const modalStore = useModalStore();
+  await props.data.call(node);
+  modalStore.close(props.modalData.nid);
 }
 
 async function onSwitch() {
@@ -60,27 +88,21 @@ async function onSwitch() {
     <input type="text"
            class="locator_input"
            placeholder="type title/desc here ..."
+           ref="locatorInput"
+           @keydown="onChange"
     >
     <div class="locator_list">
-      <!-- <div v-for="[key, file] in list"> -->
-      <div v-for="(file,index) in list">
-        <div class="title">{{ file.name }}</div>
-        <div class="meta">
-          <span v-if="file.status==='uploading'">
-            {{ parseInt(100 * file.loaded / file.size) }} %
+      <div v-for="node in list" @click="onConfirm(node)">
+        <p class="type">
+          {{ node.type }}
+        </p>
+        <p class="tree">
+          <span class="title">{{ node.title }}</span>
+          <span v-for="dir in node.crumb_node.reverse()">
+            {{ dir.title }}
           </span>
-          <span v-else>{{ file.status }}</span>
-          <span>{{ GenFunc.kmgt(file.size) }}</span>
-          <span v-if="file.status==='waiting'"
-                @click="remove(index)"
-                class="pointer"
-          >X</span>
-        </div>
+        </p>
       </div>
-    </div>
-    <div class="upload_menu">
-      <button v-if="!uploading" @click="goUpload">upload</button>
-      <button v-else>uploading</button>
     </div>
   </div>
 </template>
@@ -88,19 +110,54 @@ async function onSwitch() {
 <style lang="scss">
 .modal_locator {
   width: 100%;
-  min-height: 90%;
+  //min-height: 90%;
   position: relative;
-  .locator_input{
+  .locator_input {
     @include fillAvailable(width);
   }
-  .upload_list {
-    height: calc(100% - $fontSize * 2);
+  .locator_list {
+    //top: 0;
+    //position: absolute;
+    margin-top: $fontSize*0.5;
+    width: 100%;
+    max-height: $fontSize*10;
     overflow: auto;
+    position: relative;
     @include smallScroll();
+    font-size: $fontSize*0.8;
     > div {
       @include fillAvailable(width);
       overflow: hidden;
-      display: flex;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      //display: flex;
+      //justify-content: space-between;
+      .type {
+        width: $fontSize*4;
+        display: inline-block;
+      }
+      .tree {
+        display: inline;
+        > span {
+          &:first-child {
+            color: map-get($colors, font);
+          }
+          color: map-get($colors, font_sub);
+          &::after {
+            content: '/';
+            padding: 0 $fontSize*0.25;
+          }
+        }
+      }
+      &:hover {
+        background-color: mkColor(map-get($colors, bk), 6);
+        cursor: pointer;
+      }
+    }
+    /*> div {
+      @include fillAvailable(width);
+      overflow: hidden;
+      display: table-row;
       flex-wrap: nowrap;
       justify-content: space-between;
       white-space: nowrap;
@@ -108,6 +165,13 @@ async function onSwitch() {
       font-size: $fontSize * 0.8;
       line-height: $fontSize * 1.5;
       padding: 0 $fontSize * 0.25;
+      > div {
+        display: table-cell;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 50%;
+      }
       &:nth-child(2n) {
         background-color: mkColor(map-get($colors, bk), 4);
       }
@@ -115,16 +179,10 @@ async function onSwitch() {
         display: inline-block;
       }
       .title {
-        max-width: 60%;
         text-overflow: ellipsis;
         overflow: hidden;
       }
-      .meta {
-        span {
-          margin-left: $fontSize*0.5;
-        }
-      }
-    }
+    }*/
   }
   .upload_menu {
     text-align: center;

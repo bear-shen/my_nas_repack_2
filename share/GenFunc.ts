@@ -1,42 +1,38 @@
-class CurlData {
-    public path: string;
-    public get?: string | FormData | Array<string> | any;
-    public post?: string | FormData | Array<string> | any;
-    public method?: string;
-    public header?: Array<string> | any;
-    public async?: boolean;
-    public withCredentials?: boolean;
-    public success?: (data: string, code?: number) => any;
-    public error?: (data: string, code?: number) => any;
-    public onUploadProgress?: (e: Event) => any;
-    public onProgress?: (e: Event) => any;
-
-    constructor(input: {
-        path: string,
-        get?: string | FormData | Array<string> | any,
-        post?: string | FormData | Array<string> | any,
-        method?: string,
-        header?: Array<string> | boolean | any,
-        async?: boolean,
-        withCredentials?: boolean,
-        success?: (data: string, code?: number) => any,
-        error?: (data: string, code?: number) => any,
-        onUploadProgress?: (e: Event) => any,
-        onProgress?: (e: Event) => any,
-    }) {
-        this.path = input.path;
-        this.get = input.get ? input.get : false;
-        this.post = input.post ? input.post : false;
-        this.method = input.method ? input.method : 'get';
-        this.header = input.header ? input.header : false;
-        this.async = input.async ? input.async : false;
-        this.withCredentials = input.withCredentials ? input.withCredentials : false;
-        this.success = input.success;
-        this.error = input.error;
-        this.onUploadProgress = input.onUploadProgress;
-        this.onProgress = input.onProgress;
-    }
+type CurlData = {
+    path: string;
+    get?: string | FormData | Array<string> | any;
+    post?: string | FormData | Array<string> | any;
+    method?: string;
+    header?: Array<string> | any;
+    async?: boolean;
+    withCredentials?: boolean;
+    success?: (data: string, code?: number) => any;
+    error?: (data: string, code?: number) => any;
+    onUploadProgress?: (e: Event) => any;
+    onProgress?: (e: Event) => any;
 }
+
+/*class debounceJob {
+    public delay: number;
+    public func: () => any;
+    //
+    public timer: number;
+
+    constructor(func: () => any, delay: number) {
+        this.func = func;
+        this.delay = delay;
+    }
+
+    public run() {
+        this.timer = setTimeout(
+            () => {
+                this.func();
+            }, this.delay
+        ) as unknown as number;
+    }
+}*/
+
+const debounceMap = new Map<string, number>();
 
 const GenFunc = {
     send: function (input: CurlData): XMLHttpRequest | string | boolean {
@@ -107,7 +103,7 @@ const GenFunc = {
                     if (headerEqual === -1) continue;
                     newData[
                         input.header[i1].slice(0, headerEqual).trim()
-                    ] = input.header[i1].slice(headerEqual + 1).trim();
+                        ] = input.header[i1].slice(headerEqual + 1).trim();
                 }
                 input.header = newData;
             }
@@ -474,6 +470,21 @@ const GenFunc = {
             target.replace('{' + dataKey + '}', data[dataKey]);
         }
         return target;
+    },
+    debounce: function (func: () => any, delay: number, key: string) {
+        const ifExs = debounceMap.get(key);
+        if (ifExs) {
+            // console.info('new func');
+            clearTimeout(ifExs);
+            debounceMap.delete(key);
+        }
+        const timer = setTimeout(() => {
+            // console.info('fire');
+            debounceMap.delete(key);
+            func();
+        }, delay) as unknown as number;
+        debounceMap.set(key, timer);
+        // console.info('set debounce');
     },
 };
 export default GenFunc;

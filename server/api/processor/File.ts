@@ -46,7 +46,7 @@ export default class {
         }
         const model = new NodeModel();
         if (request.keyword) {
-            model.where('index_node', 'like', `%${request.keyword}%`);
+            // model.where('index_node', 'like', `%${request.keyword}%`);
         }
         if (request.pid) {
             model.where('id_parent', request.pid);
@@ -104,6 +104,7 @@ export default class {
         //
         const tagIdSet = new Set<number>();
         const fileIdSet = new Set<number>();
+        const parentIdSet = new Set<number>();
         nodeLs.forEach(node => {
             node.list_tag_id.forEach(tagId => {
                 tagIdSet.add(tagId);
@@ -113,9 +114,11 @@ export default class {
                 const fileId = node.index_file_id[type];
                 fileIdSet.add(fileId);
             }
-
+            node.list_node.forEach(nodeId => {
+                if (nodeId) parentIdSet.add(nodeId);
+            });
         });
-        if (tagIdSet.size) {
+        if (!request.no_tag && tagIdSet.size) {
             const tagLs = await (new TagModel).whereIn('id', Array.from(tagIdSet)).select();
             const tagGroupIdSet = new Set<number>();
             const tagMap = GenFunc.toMap(tagLs, 'id', (tag) => {
@@ -142,7 +145,7 @@ export default class {
                 });
             });
         }
-        if (fileIdSet.size) {
+        if (!request.no_file && fileIdSet.size) {
             const fileLs = await (new FileModel).whereIn('id', Array.from(fileIdSet)).select();
             const fileMap = GenFunc.toMap(fileLs, 'id');
             // const tagGroupIdSet = new Set();
@@ -155,6 +158,32 @@ export default class {
                     node.file[key] = file;
                 }
             });
+        }
+        if (request.with_crumb && parentIdSet.size) {
+            const parentLs = await new NodeModel()
+                .whereIn('id', Array.from(parentIdSet))
+                .select([
+                    'id', 'title', 'status', 'type',
+                ]);
+            const parentMap = new Map<number, col_node>();
+            parentLs.forEach(node => {
+                parentMap.set(node.id, node);
+            })
+            nodeLs.forEach(node => {
+                if (!node.crumb_node) node.crumb_node = [];
+                node.list_node.forEach(nodeId => {
+                    if (nodeId) {
+                        const parentNode = parentMap.get(nodeId);
+                        if (parentNode) {
+                            node.crumb_node.push(parentNode);
+                        }
+                    } else {
+                        node.crumb_node.push({
+                            id: 0, title: 'root', status: 1, type: 'directory'
+                        });
+                    }
+                })
+            })
         }
         target.list = nodeLs;
         // nodeLs.forEach(item => target.list.push(item));
