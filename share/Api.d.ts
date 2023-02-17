@@ -58,8 +58,15 @@ export type api_file_mkdir_req = {
 }
 export type api_file_mkdir_resp = col_node;
 
-export type api_file_rename_req = {
+export type api_file_mov_req = {
     node_id: string,
     target_id: string,
 }
-export type api_file_rename_resp = {}
+export type api_file_mov_resp = {}
+
+export type api_file_mod_req = {
+    id: string,
+    title: string,
+    description: string,
+}
+export type api_file_mod_resp = {}

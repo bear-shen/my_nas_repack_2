@@ -2,7 +2,7 @@ import {Fields} from 'formidable';
 import PersistentFile from 'formidable';
 import {IncomingMessage, ServerResponse} from 'http';
 import {ParsedForm} from '../types';
-import {api_file_list_resp, api_node_col, api_file_list_req, api_file_upload_resp, api_file_upload_req, api_file_mkdir_resp, api_file_mkdir_req, api_file_rename_req} from '../../../share/Api';
+import {api_file_list_resp, api_node_col, api_file_list_req, api_file_upload_resp, api_file_upload_req, api_file_mkdir_resp, api_file_mkdir_req, api_file_mov_req, api_file_mod_req} from '../../../share/Api';
 import NodeModel from '../../model/NodeModel';
 import GenFunc from '../../../share/GenFunc';
 import {col_node, col_tag} from '../../../share/Database';
@@ -205,13 +205,16 @@ export default class {
     };
 
     async mov(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<any> {
-        const request = data.fields as api_file_rename_req;
+        const request = data.fields as api_file_mov_req;
         const fromNode = await (new NodeModel()).where('id', request.node_id).first();
-        await fp.mv(parseInt(request.node_id), parseInt(request.target_id), fromNode.title);
+        await fp.mv(parseInt(request.node_id), parseInt(request.target_id));
         return null;
     };
 
     async mod(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<any> {
+        const request = data.fields as api_file_mod_req;
+        const fromNode = await (new NodeModel()).where('id', request.id).first();
+        await fp.mv(fromNode.id, fromNode.id_parent, request.title, request.description);
         return null;
     };
 

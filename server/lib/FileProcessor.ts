@@ -188,7 +188,8 @@ async function put(fromTmpPath: string, toDir: number | col_node, name: string):
     // console.info('FileProcessor put: init');
     const parentNode = await getNodeByIdOrNode(toDir);
     //
-    const ifDup = await (new NodeModel).where('id_parent', parentNode.id).where('title', name).first();
+    const ifDup = await checkName(parentNode.id, name);
+    // const ifDup = await (new NodeModel).where('id_parent', parentNode.id).where('title', name).first();
     if (ifDup) return false;
     //
     const suffix = getSuffix(name);
@@ -241,35 +242,43 @@ async function put(fromTmpPath: string, toDir: number | col_node, name: string):
     return nodeInfo;
 }
 
-async function mv(nodeId: number | col_node, toDirId: number | col_node, name: string): Promise<boolean> {
+async function mv(nodeId: number | col_node, toDirId: number | col_node, name: string | false = false, description: string | false = false): Promise<boolean> {
     const node = await getNodeByIdOrNode(nodeId);
     const toDir = await getNodeByIdOrNode(toDirId);
     //
     const sameDir = node.id_parent === toDir.id;
     //
-    console.info(toDir.title, name);
-    const ifDup = await checkName(toDir.id, name);
+    console.info('mv to', toDir.title, name);
+    const ifDup = await checkName(toDir.id, name === false ? node.title : name);
     if (ifDup && ifDup.id !== node.id) return false;
     //
-    const newNodeList = [...toDir.list_node, toDir.id];
-    console.info('newNodeList:', newNodeList);
-    await (new NodeModel).where('id', node.id).update({
-        id_parent: toDir.id,
-        list_node: newNodeList,
-    });
-    //如果是不同的目标文件夹的话,需要更改对应的文件索引
-    if (!sameDir && node.type === 'directory') {
-        const cascadeNode = await (new NodeModel).whereRaw('find_in_set( ? ,list_node)', node.id).select(["id", "list_node"]);
-        cascadeNode.forEach(async child => {
-            const childIndex = child.list_node.indexOf(node.id);
-            await (new NodeModel).where('id', node.id).update({
-                list_node: [...newNodeList, ...child.list_node.slice(childIndex)]
-            })
+    if (!sameDir) {
+        const newNodeList = [...toDir.list_node, toDir.id];
+        console.info('newNodeList:', newNodeList);
+        await (new NodeModel).where('id', node.id).update({
+            id_parent: toDir.id,
+            list_node: newNodeList,
         });
+        //如果是不同的目标文件夹的话,需要更改对应的文件索引
+        if(node.type === 'directory'){
+            const cascadeNode = await (new NodeModel).whereRaw('find_in_set( ? ,list_node)', node.id).select(["id", "list_node"]);
+            cascadeNode.forEach(async child => {
+                const childIndex = child.list_node.indexOf(node.id);
+                await (new NodeModel).where('id', node.id).update({
+                    list_node: [...newNodeList, ...child.list_node.slice(childIndex)]
+                })
+            });
+        }
     }
-    await (new NodeModel).where('id', node.id).update({
-        title: name,
-    });
+    if (name !== false && description !== false) {
+        const updRes = {
+            title: name,
+            description: description,
+        } as { [key: string]: string | false };
+        if (updRes.title === false) updRes.title = node.title;
+        if (updRes.description === false) updRes.description = node.description;
+        await (new NodeModel).where('id', node.id).update(updRes);
+    }
     return true;
 }
 

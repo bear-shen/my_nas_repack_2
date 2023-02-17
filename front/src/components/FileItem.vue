@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {onMounted, type Ref, ref} from "vue";
-import type {api_node_col, api_file_list_req, api_file_rename_resp, api_file_rename_req} from "../../../share/Api";
+import type {api_node_col, api_file_list_req, api_file_rename_resp, api_file_mov_req} from "../../../share/Api";
 import {useModalStore} from "@/stores/modalStore";
 import {query} from "@/Helper";
 
