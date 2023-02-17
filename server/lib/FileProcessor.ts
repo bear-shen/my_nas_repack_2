@@ -4,11 +4,13 @@ import Config from "../ServerConfig";
 import * as fs from 'fs/promises';
 import {ReadStream, Stats} from 'fs';
 import * as fsNP from 'fs';
-import {type_file, col_node, col_file} from '../../share/Database';
+import {type_file, col_node, col_file, col_tag_group} from '../../share/Database';
 import ORM from './ORM';
 import NodeModel from "../model/NodeModel";
 import FileModel from '../model/FileModel';
 import {dir} from "console";
+import TagModel from "../model/TagModel";
+import TagGroupModel from "../model/TagGroupModel";
 
 function isId(inVal: col_node | number | bigint): boolean {
     switch (typeof inVal) {
@@ -334,6 +336,46 @@ async function stat(nodeId: number | col_node): Promise<FileStat> {
         node.file[key] = file;
     }
     return node;
+}
+
+async function buildIndex(nodeId: number | col_node, cascade: boolean = false) {
+    const node = await getNodeByIdOrNode(nodeId);
+    if (cascade) {
+        const subLs = await (new NodeModel).whereRaw('find_in_set( ? ,list_node)', node.id).select(["id"]);
+        for (let i1 = 0; i1 < subLs.length; i1++) {
+            await buildIndex(subLs[i1]);
+        }
+    }
+    console.info('building:', node.id, ':', node.title);
+    const tagList = await (new TagModel()).whereIn('id', node.list_tag_id).select();
+    const tagGroupIdSet = new Set<number>();
+    tagList.forEach(tag => {
+        tagGroupIdSet.add(tag.id_group);
+    })
+    const tagGroupList = await (new TagGroupModel()).whereIn('id', Array.from(tagGroupIdSet)).select();
+    const tagGroupMap = new Map<number, col_tag_group>();
+    tagGroupList.forEach(tagGroup => {
+        tagGroupMap.set(tagGroup.id, tagGroup);
+    });
+    const nodeTree = await (new NodeModel()).whereIn('id', node.list_node).select();
+    const nodeIndex = {
+        title: node.title,
+        description: node.description,
+        tag: [] as string[],
+    }
+    tagList.forEach(tag => {
+        const group = tagGroupMap.get(tag.id_group);
+        let tagTTs = [tag.title, ...tag.alt];
+        if (group) {
+            for (let i1 = 0; i1 < tagTTs.length; i1++) {
+                tagTTs[i1] = `${group.title}:${tagTTs[i1]}`;
+            }
+        }
+        nodeIndex.tag.push(...tagTTs);
+    });
+    await (new NodeModel()).where('id', node.id).update({
+        index_node: nodeIndex
+    });
 }
 
 export {

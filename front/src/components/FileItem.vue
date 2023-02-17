@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { useLocalConfigureStore } from "@/stores/localConfigure";
-import { onMounted, type Ref, ref } from "vue";
-import type { api_node_col } from "../../../share/Api";
-import { useModalStore } from "@/stores/modalStore";
+import {useLocalConfigureStore} from "@/stores/localConfigure";
+import {onMounted, type Ref, ref} from "vue";
+import type {api_node_col, api_file_list_req, api_file_rename_resp, api_file_rename_req} from "../../../share/Api";
+import {useModalStore} from "@/stores/modalStore";
+import {query} from "@/Helper";
+
 const modalStore = useModalStore();
 const props = defineProps<{
   node: api_node_col;
@@ -17,27 +19,81 @@ const modeKey = localConfigure.listen(
   "file_view_mode",
   (v) => (mode.value = v)
 );
+
 // console.info(modeKey);
 function setMode(mode: string) {
   localConfigure.set("file_view_mode", mode);
 }
+
 //
 let renaming = false;
 let tagging = false;
+
 function go(type: string, id?: number) {
   // console.info("go", type, id);
   if (!id) return;
   emits("go", type, id);
 }
-function op_download() {}
-function op_rename() {}
-function op_move() {}
-function op_tag() {}
-function op_imp_tag_eh() {}
-function op_set_cover() {}
-function op_set_favourite() {}
-function op_delete_forever() {}
-function op_delete() {}
+
+function op_download() {
+}
+
+function op_rename() {
+}
+
+function op_move() {
+  modalStore.set({
+    title: `locator | move ${props.node.title} to:`,
+    alpha: false,
+    key: "",
+    single: false,
+    w: 400,
+    h: 60,
+    minW: 400,
+    minH: 60,
+    // h: 160,
+    resizable: true,
+    movable: false,
+    fullscreen: false,
+    // text: "this is text",
+    component: [
+      {
+        componentName: "locator",
+        data: {
+          query: {
+            type: 'directory',
+          } as api_file_list_req,
+          call: async (node: api_node_col) => {
+            console.info(node);
+            const formData = new FormData();
+            formData.set('node_id', `${props.node.id}`);
+            formData.set('target_id', `${node.id}`);
+            const res = await query<api_file_rename_resp>('file/mov', formData);
+          }
+        },
+      },
+    ],
+  });
+  //
+}
+
+function op_tag() {
+}
+
+function op_imp_tag_eh() {
+}
+
+function op_set_cover() {
+}
+
+function op_set_favourite() {
+}
+
+function op_delete_forever() {
+}
+
+function op_delete() {
+}
 </script>
 
 <template>
@@ -45,7 +101,7 @@ function op_delete() {}
     <template v-if="mode == 'detail'">
       <div class="content">
         <div v-if="node.file?.cover" class="thumb" @click="go('node', node.id)">
-          <img :src="node.file?.cover.path" />
+          <img :src="node.file?.cover.path"/>
         </div>
         <div
           v-else
@@ -137,7 +193,7 @@ function op_delete() {}
     </template>
     <template v-else-if="mode == 'img'">
       <div v-if="node.file?.cover" class="thumb" @click="go('node', node.id)">
-        <img :src="node.file?.cover.path" />
+        <img :src="node.file?.cover.path"/>
       </div>
       <div
         v-else
@@ -304,7 +360,6 @@ function op_delete() {}
       content: " :";
     }
   }
-
   p {
     font-size: $fontSize;
   }

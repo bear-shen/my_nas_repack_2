@@ -15,7 +15,8 @@ export type api_node_col = {
         col_tag_group & {
         sub: col_tag[]
     }
-        )[]
+        )[],
+    crumb_node?: col_node[],
 } & col_node
 
 export type api_file_list_resp = {
@@ -56,3 +57,9 @@ export type api_file_mkdir_req = {
     title: string,
 }
 export type api_file_mkdir_resp = col_node;
+
+export type api_file_rename_req = {
+    node_id: string,
+    target_id: string,
+}
+export type api_file_rename_resp = {}

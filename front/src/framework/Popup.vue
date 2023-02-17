@@ -483,34 +483,7 @@ function checkAlpha() {
 
 //-----------
 
-modalStore.set({
-  title: `locator | `,
-  alpha: false,
-  key: "",
-  single: false,
-  w: 400,
-  h: 60,
-  minW: 400,
-  minH: 60,
-  // h: 160,
-  resizable: true,
-  movable: false,
-  fullscreen: false,
-  // text: "this is text",
-  component: [
-    {
-      componentName: "locator",
-      data: {
-        query: {
-          type: 'directory',
-        } as api_file_list_req,
-        call: async (node: api_node_col) => {
-          console.info(node);
-        }
-      },
-    },
-  ],
-});
+
 
 /* modalStore.set({
   title: "test",

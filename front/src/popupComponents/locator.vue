@@ -79,8 +79,8 @@ async function onConfirm(node: api_node_col) {
   modalStore.close(props.modalData.nid);
 }
 
-async function onSwitch() {
-}
+// async function onSwitch() {
+// }
 </script>
 
 <template>

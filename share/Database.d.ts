@@ -13,7 +13,6 @@ export type col_node = {
     building?: 0 | 1,
     //节点树
     list_node?: number[],
-    crumb_node?: col_node[],
     //标签
     list_tag_id?: number[],
     //文件
