@@ -79,7 +79,7 @@ async function onChange(e: KeyboardEvent) {
     console.info(props.modalData);
     queryData.keyword = val;
     getList();
-  }, 750, 'locator');
+  }, 200, 'locator');
 }
 
 async function onConfirm(node: api_node_col) {

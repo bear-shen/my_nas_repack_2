@@ -221,6 +221,9 @@ function go(ext: api_file_list_req) {
 function emitGo(type: string, code: number) {
   // console.info("emitGo", type, code);
   switch (type) {
+    case "reload":
+      getList();
+      break;
     case "tag":
       go({tid: `${code}`});
       break;

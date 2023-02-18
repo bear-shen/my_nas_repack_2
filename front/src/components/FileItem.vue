@@ -67,6 +67,7 @@ function op_move() {
             formData.set('node_id', `${props.node.id}`);
             formData.set('target_id', `${node.id}`);
             const res = await query<api_file_mov_req>('file/mov', formData);
+            emits("go", 'reload');
           }
         },
       },
@@ -75,9 +76,16 @@ function op_move() {
   //
 }
 
-function op_rename() {
+async function op_rename() {
   if (renaming) {
     console.info(props.node.title, props.node.description, props.node);
+    // console.info(props.node);
+    const formData = new FormData();
+    formData.set('id', `${props.node.id}`);
+    formData.set('title', props.node.title ?? '');
+    formData.set('description', props.node.description ?? '');
+    const res = await query<api_file_mov_req>('file/mod', formData);
+    emits("go", 'reload');
   }
   renaming.value = !renaming.value;
 }
