@@ -1,16 +1,17 @@
-import { IncomingMessage, ServerResponse } from "http";
+import {IncomingMessage, ServerResponse} from "http";
 import fs from "fs";
 import ServerConfig from "../ServerConfig";
 import http from "http";
 import Authorize from "./Authorize";
-import formidable, { Fields, Files, PersistentFile } from "formidable";
+import formidable, {Fields, Files, PersistentFile} from "formidable";
 import Router from "./Router";
-import { ParsedForm } from "./types";
+import {ParsedForm} from "./types";
 
 const server = http.createServer(async function (req: IncomingMessage, res: ServerResponse) {
 
     // console.info(new URL('http://www.baidu.com/aaa'));
     // console.info(req.method, req.headers);
+    console.info(req.url);
     //
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     if (req.headers.origin)
@@ -25,7 +26,7 @@ const server = http.createServer(async function (req: IncomingMessage, res: Serv
     //
     const urlInfo = new URL(req.url, `http://${req.headers.host}`);
     const authResult = await Authorize.check(urlInfo, req);
-    console.info(authResult);
+    // console.info(authResult);
     if (!authResult) {
         res.write(JSON.stringify({
             'code': 10,
@@ -75,7 +76,7 @@ function parseForm(req: IncomingMessage): Promise<ParsedForm> {
         // const form = new formidable().IncomingForm();
         form.parse(req, function (err: any, fields: Fields, files: Files) {
             // console.info(fields, files);
-            resolve({ fields, files, uid: false });
+            resolve({fields, files, uid: false});
         });
     });
 }

@@ -43,10 +43,16 @@ export default class {
                     }
                 }
             });
+            target.path.push(curNode);
         }
         const model = new NodeModel();
         if (request.keyword) {
-            // model.where('index_node', 'like', `%${request.keyword}%`);
+            model.where(
+                // 'index_node',
+                'title',
+                'like',
+                `%${request.keyword}%`
+            );
         }
         if (request.pid) {
             model.where('id_parent', request.pid);
@@ -170,7 +176,7 @@ export default class {
                 parentMap.set(node.id, node);
             })
             nodeLs.forEach(node => {
-                if (!node.crumb_node) node.crumb_node = [];
+                node.crumb_node = [];
                 node.list_node.forEach(nodeId => {
                     if (nodeId) {
                         const parentNode = parentMap.get(nodeId);

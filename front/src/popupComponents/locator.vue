@@ -40,6 +40,7 @@ const props = defineProps<{
 // const list = ref(new Map() as Map<string, uploadFile>);
 const list = ref([] as api_node_col[]);
 onMounted(() => {
+  Object.assign(queryData, JSON.parse(JSON.stringify(props.data.query)));
   locatorInput.value?.focus();
 });
 onUnmounted(() => {
@@ -47,7 +48,16 @@ onUnmounted(() => {
 
 async function getList() {
   const res = await query<api_file_list_resp>("file/get", queryData);
-  if (!res) return;
+  if (!res || !res.list) return;
+  if (queryData.keyword === 'root') {
+    res.list.unshift({
+      id: 0,
+      title: 'root',
+      description: '',
+      type: 'directory',
+      crumb_node: [],
+    })
+  }
   list.value = res.list;
   if (list.value.length) {
     if (props.modalData.layout.h < 220) {
@@ -98,7 +108,7 @@ async function onConfirm(node: api_node_col) {
         </p>
         <p class="tree">
           <span class="title">{{ node.title }}</span>
-          <span v-for="dir in node.crumb_node.reverse()">
+          <span v-if="node.crumb_node" v-for="dir in node.crumb_node.reverse()">
             {{ dir.title }}
           </span>
         </p>

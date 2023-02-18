@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {onMounted, type Ref, ref} from "vue";
-import type {api_node_col, api_file_list_req, api_file_rename_resp, api_file_mov_req} from "../../../share/Api";
+import type {api_node_col, api_file_list_req, api_file_mov_req} from "../../../share/Api";
 import {useModalStore} from "@/stores/modalStore";
 import {query} from "@/Helper";
+import ContentEditable from "@/components/ContentEditable.vue";
 
 const modalStore = useModalStore();
 const props = defineProps<{
@@ -26,8 +27,8 @@ function setMode(mode: string) {
 }
 
 //
-let renaming = false;
-let tagging = false;
+let renaming = ref(false);
+let tagging = ref(false);
 
 function go(type: string, id?: number) {
   // console.info("go", type, id);
@@ -36,9 +37,6 @@ function go(type: string, id?: number) {
 }
 
 function op_download() {
-}
-
-function op_rename() {
 }
 
 function op_move() {
@@ -68,7 +66,7 @@ function op_move() {
             const formData = new FormData();
             formData.set('node_id', `${props.node.id}`);
             formData.set('target_id', `${node.id}`);
-            const res = await query<api_file_rename_resp>('file/mov', formData);
+            const res = await query<api_file_mov_req>('file/mov', formData);
           }
         },
       },
@@ -77,7 +75,15 @@ function op_move() {
   //
 }
 
+function op_rename() {
+  if (renaming) {
+    console.info(props.node.title, props.node.description, props.node);
+  }
+  renaming.value = !renaming.value;
+}
+
 function op_tag() {
+  tagging.value = !tagging.value;
 }
 
 function op_imp_tag_eh() {
@@ -98,7 +104,7 @@ function op_delete() {
 
 <template>
   <div :class="['node_node', `mode_${mode}`]" :data-index="index">
-    <template v-if="mode == 'detail'">
+    <template v-if="mode === 'detail'">
       <div class="content">
         <div v-if="node.file?.cover" class="thumb" @click="go('node', node.id)">
           <img :src="node.file?.cover.path"/>
@@ -109,9 +115,17 @@ function op_delete() {
           :class="['thumb', 'listIcon', `listIcon_file_${node.type}`]"
         ></div>
         <div class="meta">
-          <p class="title" @click="go('node', node.id)">{{ node.title }}</p>
+          <content-editable
+            v-if="renaming" v-model="node.title"
+            class="title editing"
+          ></content-editable>
+          <p v-else class="title" @click="go('node', node.id)">{{ node.title }}</p>
           <p>{{ node.time_update }}</p>
-          <p v-if="node.description">{{ node.description }}</p>
+          <p v-if="!renaming && node.description">{{ node.description }}</p>
+          <content-editable
+            v-if="renaming" v-model="node.description"
+            class="editing"
+          ></content-editable>
           <p class="bar">
             <!---->
             <button
@@ -191,7 +205,7 @@ function op_delete() {
         </dl>
       </div>
     </template>
-    <template v-else-if="mode == 'img'">
+    <template v-else-if="mode === 'img'">
       <div v-if="node.file?.cover" class="thumb" @click="go('node', node.id)">
         <img :src="node.file?.cover.path"/>
       </div>
@@ -203,7 +217,7 @@ function op_delete() {
       <p class="title" @click="go('node', node.id)">{{ node.title }}</p>
       <p>{{ node.time_update }}</p>
     </template>
-    <template v-else-if="mode == 'text'">
+    <template v-else-if="mode === 'text'">
       <p class="type" @click="go('node', node.id)">
         <span
           :class="['thumb', 'listIcon', `listIcon_file_${node.type}`]"
@@ -310,6 +324,11 @@ function op_delete() {
     }
     .meta {
       width: 75%;
+      p, div {
+        word-break: break-all;
+        white-space: pre-wrap;
+        line-height: $fontSize*1.25;
+      }
       .title {
         font-size: $fontSize;
         line-height: $fontSize;
@@ -317,9 +336,10 @@ function op_delete() {
         overflow: hidden;
         text-overflow: ellipsis;
         color: map-get($colors, "font");
-      }
-      .title {
         margin: 0 0 $fontSize * 0.5 0;
+      }
+      .editing {
+        font-size: $fontSize;
       }
       .bar {
         margin: $fontSize * 0.5 0 0 0;
@@ -332,6 +352,7 @@ function op_delete() {
       button {
         padding: $fontSize * 0.2;
         font-size: $fontSize * 0.8;
+        line-height: $fontSize * 0.8;
         //        margin: 0 $fontSize * 0.1 0;
       }
     }
