@@ -852,21 +852,20 @@ function checkAlpha() {
     @include smallScroll();
     overflow: auto;
     height: calc(100% - $fontSize);
-    > div {
-      padding-top: $fontSize*0.5;
-    }
-    .modal_content_text,
-    .modal_content_form {
-      padding-left: $fontSize * 0.5;
-      padding-right: $fontSize * 0.5;
-    }
-    .modal_content_text,
-    .modal_content_text {
-      margin-bottom: $fontSize * 0.25;
-    }
+  }
+  .modal_content_text,
+  .modal_content_form,
+  .modal_content_callback {
+    padding-top: $fontSize*0.5;
+  }
+  .modal_content_text,
+  .modal_content_form {
+    padding-left: $fontSize * 0.5;
+    padding-right: $fontSize * 0.5;
   }
   .modal_content_text {
     display: block;
+    margin-bottom: $fontSize * 0.25;
   }
   .modal_content_form {
     display: table;
