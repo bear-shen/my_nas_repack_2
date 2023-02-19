@@ -5,6 +5,7 @@ import type {api_node_col, api_file_list_req, api_file_mov_req} from "../../../s
 import {useModalStore} from "@/stores/modalStore";
 import {query} from "@/Helper";
 import ContentEditable from "@/components/ContentEditable.vue";
+import Hinter from "@/components/Hinter.vue";
 
 const modalStore = useModalStore();
 const props = defineProps<{
@@ -91,7 +92,19 @@ async function op_rename() {
 }
 
 function op_tag() {
+  if (tagging) {
+
+  }
   tagging.value = !tagging.value;
+}
+
+function tag_del(tagId:number) {
+}
+
+function tag_hint() {
+}
+
+function tag_add() {
 }
 
 function op_imp_tag_eh() {
@@ -204,13 +217,28 @@ function op_delete() {
           </p>
         </div>
       </div>
-      <div v-if="node.tag" class="tag_list">
+      <div v-if="!tagging && node.tag" class="tag_list">
         <dl v-for="group in node.tag">
           <dt>{{ group.title }}</dt>
           <dd v-for="tag in group.sub" @click="go('tag', tag.id)">
             {{ tag.title }}
           </dd>
         </dl>
+      </div>
+      <div v-if="tagging" class="tag_list editing">
+        <dl v-for="group in node.tag">
+          <dt>{{ group.title }}</dt>
+          <dd v-for="tag in group.sub">
+            <span>{{ tag.title }}</span>
+            <span
+              class="sysIcon sysIcon_cuowu"
+              @click="delTag"
+            ></span>
+          </dd>
+        </dl>
+        <hinter
+
+        ></hinter>
       </div>
     </template>
     <template v-else-if="mode === 'img'">

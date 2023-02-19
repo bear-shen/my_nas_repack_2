@@ -126,6 +126,7 @@ function addFolder() {
           title: targetTitle,
           pid: `${pid}`,
         } as api_file_mkdir_req);
+        getList();
         if (!res) return;
       },
     },
@@ -159,7 +160,10 @@ function addFile() {
     component: [
       {
         componentName: "uploader",
-        data: {pid: pid,},
+        data: {
+          pid: pid,
+          emitGo: emitGo,
+        },
       },
     ],
   });

@@ -17,6 +17,7 @@ import type {type_file} from "../../../share/Database";
 const props = defineProps<{
   data: {
     pid: number;
+    emitGo: Function;
     [key: string]: any;
   };
   modalData: ModalStruct;
@@ -71,6 +72,7 @@ async function goUpload() {
     await uploadFile(list.value[i1]);
   }
   uploading = false;
+  props.data.emitGo('reload');
 }
 
 async function uploadFile(file: uploadFile) {
