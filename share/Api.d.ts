@@ -70,3 +70,7 @@ export type api_file_mod_req = {
     description: string,
 }
 export type api_file_mod_resp = {}
+
+export type api_tag_col = {
+    group: col_tag_group,
+} & col_tag;

@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {onMounted, type Ref, ref} from "vue";
-import type {api_node_col, api_file_list_req, api_file_mov_req} from "../../../share/Api";
+import type {api_tag_col, api_node_col, api_file_list_req, api_file_mov_req} from "../../../share/Api";
 import {useModalStore} from "@/stores/modalStore";
 import {query} from "@/Helper";
 import ContentEditable from "@/components/ContentEditable.vue";
 import Hinter from "@/components/Hinter.vue";
+// import type {col_tag} from "../../../share/Database";
+// import {api_tag_col} from "../../../share/Api";
 
 const modalStore = useModalStore();
 const props = defineProps<{
@@ -93,15 +95,38 @@ async function op_rename() {
 
 function op_tag() {
   if (tagging) {
-
+    const tagSet = new Set<number>();
+    if (props.node.tag)
+      for (let i1 = 0; i1 < props.node.tag.length; i1++) {
+        for (let i2 = 0; i2 < props.node.tag[i1].sub.length; i2++) {
+          const id = props.node.tag[i1].sub[i2].id;
+          if (id)
+            tagSet.add(id);
+        }
+      }
   }
+  //
   tagging.value = !tagging.value;
 }
 
-function tag_del(tagId:number) {
+function tag_del(tagId: number) {
+  if (!props.node.tag) return;
+  for (let i1 = 0; i1 < props.node.tag.length; i1++) {
+    for (let i2 = 0; i2 < props.node.tag[i1].sub.length; i2++) {
+      if (props.node.tag[i1].sub[i2].id !== tagId) continue;
+      props.node.tag[i1].sub.splice(i2, 1);
+      return;
+    }
+  }
 }
 
-function tag_hint() {
+async function tag_hint(text: string): Promise<api_tag_col[]> {
+  return [
+    {
+      id:1,
+      group:{},
+    }
+  ];
 }
 
 function tag_add() {
@@ -231,8 +256,8 @@ function op_delete() {
           <dd v-for="tag in group.sub">
             <span>{{ tag.title }}</span>
             <span
-              class="sysIcon sysIcon_cuowu"
-              @click="delTag"
+              class="sysIcon sysIcon_delete"
+              @click="tag_del(tag.id)"
             ></span>
           </dd>
         </dl>
@@ -474,5 +499,10 @@ function op_delete() {
   }
   margin: 0 0 $fontSize * 0.5 0;
   -webkit-column-break-inside: avoid;
+}
+.tag_list.editing {
+  .sysIcon {
+    padding-left: $fontSize*0.25;
+  }
 }
 </style>

@@ -740,16 +740,7 @@ function checkAlpha() {
   background-color: fade-out(mkColor(map-get($colors, bk), 4), 0.25);
   position: absolute;
   padding: $fontSize * 0.25;
-  &:before {
-    z-index: -1;
-    filter: blur($fontSize * 0.05);
-    backdrop-filter: blur($fontSize * 0.05);
-    content: "";
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
-  }
+  @include blurBackground();
   .modal_header {
     height: $fontSize;
     line-height: $fontSize;
