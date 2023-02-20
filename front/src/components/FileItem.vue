@@ -504,5 +504,8 @@ function op_delete() {
   .sysIcon {
     padding-left: $fontSize*0.25;
   }
+  dd,.hinter{
+    margin-top: $fontSize*0.25;
+  }
 }
 </style>

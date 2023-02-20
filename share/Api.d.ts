@@ -74,3 +74,29 @@ export type api_file_mod_resp = {}
 export type api_tag_col = {
     group: col_tag_group,
 } & col_tag;
+
+
+export type api_tag_list_req = {
+    keyword?: string,
+    id_group?: string,
+    is_del?: string,
+} & { [key: string]: any };
+
+export type api_tag_list_resp =
+    api_tag_col[];
+
+export type api_tag_del_req = {
+    id?: string,
+} & { [key: string]: any };
+export type api_tag_del_resp = {};
+
+export type api_tag_mod_req = {
+    id?: string,
+    id_group?: string,
+    title?: string,
+    alt?: string,
+    description?: string,
+    status?: string,
+} & { [key: string]: any };
+
+export type api_tag_mod_resp = {};
