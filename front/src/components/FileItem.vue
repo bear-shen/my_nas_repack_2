@@ -7,6 +7,7 @@ import {query} from "@/Helper";
 import ContentEditable from "@/components/ContentEditable.vue";
 import Hinter from "@/components/Hinter.vue";
 import GenFunc from "../../../share/GenFunc";
+import type {col_tag, col_tag_group} from "../../../share/Database";
 // import type {col_tag} from "../../../share/Database";
 // import {api_tag_col} from "../../../share/Api";
 
@@ -94,8 +95,8 @@ async function op_rename() {
   renaming.value = !renaming.value;
 }
 
-function op_tag() {
-  if (tagging) {
+async function op_tag() {
+  if (tagging.value) {
     const tagSet = new Set<number>();
     if (props.node.tag)
       for (let i1 = 0; i1 < props.node.tag.length; i1++) {
@@ -105,6 +106,10 @@ function op_tag() {
             tagSet.add(id);
         }
       }
+    const formData = new FormData();
+    formData.set('id_node', `${props.node.id}`);
+    formData.set('tag_list', Array.from(tagSet).join(','));
+    const res = await query<api_tag_list_resp>('tag/attach', formData);
   }
   //
   tagging.value = !tagging.value;
@@ -129,12 +134,27 @@ async function tag_hint(text: string): Promise<api_tag_list_resp | false> {
   return res;
 }
 
-function tag_add() {
+function tag_add(item: api_tag_col) {
+  // console.info(item);
+  const curNode = props.node;
+  if (!curNode.tag) curNode.tag = [];
+  let curGroup = null;
+  for (let i1 = 0; i1 < curNode.tag.length; i1++) {
+    if (curNode.tag[i1].id !== item.id_group) continue;
+    curGroup = curNode.tag[i1];
+    break;
+  }
+  if (!curGroup) {
+    curGroup = item.group as (col_tag_group & { sub: col_tag[]; });
+    curGroup.sub = [];
+    curNode.tag.push(curGroup);
+  }
+  curGroup.sub.push(item);
 }
 
 function tag_parse(item: api_tag_col) {
   if (!item) return '';
-  console.info(item);
+  // console.info(item);
   return `${item.group.title} : ${item.title}`;
 }
 
@@ -259,12 +279,9 @@ function op_delete() {
       <div v-if="tagging" class="tag_list editing">
         <dl v-for="group in node.tag">
           <dt>{{ group.title }}</dt>
-          <dd v-for="tag in group.sub">
+          <dd v-for="tag in group.sub" @click="tag_del(tag.id)">
             <span>{{ tag.title }}</span>
-            <span
-              class="sysIcon sysIcon_delete"
-              @click="tag_del(tag.id)"
-            ></span>
+            <span class="sysIcon sysIcon_delete"></span>
           </dd>
         </dl>
         <hinter
@@ -400,7 +417,7 @@ function op_delete() {
       }
       .title {
         font-size: $fontSize;
-        line-height: $fontSize;
+        //line-height: $fontSize;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -409,6 +426,7 @@ function op_delete() {
       }
       .editing {
         font-size: $fontSize;
+        background-color: mkColor(map-get($colors, bk), 4);
       }
       .bar {
         margin: $fontSize * 0.5 0 0 0;
@@ -512,7 +530,7 @@ function op_delete() {
   .sysIcon {
     padding-left: $fontSize*0.25;
   }
-  dd, .hinter {
+  dt, dd, .hinter {
     margin-top: $fontSize*0.25;
   }
 }

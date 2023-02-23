@@ -101,3 +101,21 @@ export type api_tag_mod_req = {
 } & { [key: string]: any };
 
 export type api_tag_mod_resp = {};
+
+export type api_tag_attach_req = {
+    id_node?: string,
+    tag_list?: string,
+} & { [key: string]: any };
+
+export type api_tag_attach_resp = {};
+
+
+
+
+
+
+
+
+
+
+

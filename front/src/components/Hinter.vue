@@ -5,10 +5,10 @@ import GenFunc from "../../../share/GenFunc";
 
 type valType = any;
 
-const emits = defineEmits(["update:modelValue"]);
+// const emits = defineEmits(["update:modelValue"]);
 const props = defineProps<{
-  modelValue: valType,
-  preValue: string,
+  // modelValue: valType,
+  // preValue: string,
   getList: Function,
   submit: Function,
   parseText: Function,
@@ -16,9 +16,11 @@ const props = defineProps<{
 
 const editor: Ref<HTMLElement | null> = ref(null);
 
+// const value: Ref<valType> = ref(null);
+
 async function inputText() {
   GenFunc.debounce(async () => {
-    console.info('input', editor.value, editor.value?.innerText);
+    // console.info('input', editor.value, editor.value?.innerText);
     list.value = await props.getList(editor.value?.innerHTML);
   }, 200, 'hinterDebounce');
   // props.modelValue = editor.value?.innerHTML;
@@ -27,21 +29,22 @@ async function inputText() {
 
 //https://stackoverflow.com/questions/59125857/how-to-watch-props-change-with-vue-composition-api-vue-3
 //这边如果填上会影响光标的定位，所以还是不要这样写，用onMounted一次性填充就行
-watch(() => props.modelValue, async (to) => {
-  console.info(to);
-  // curVal.value = to;
+// watch(() => props.modelValue, async (to) => {
+//   console.info(to);
+// curVal.value = to;
 // if (editor.value)
 //   editor.value.innerText = to;
-});
+// });
 
-const curVal: Ref<valType> = ref(props.modelValue);
-onMounted(() => {
-  if (props.modelValue)
-    curVal.value = props.modelValue;
+// const curVal: Ref<valType> = ref(props.modelValue);
+const curVal: Ref<valType> = ref(null);
+// onMounted(() => {
+//   if (props.modelValue)
+//     curVal.value = props.modelValue;
 
-  // if (editor.value)
-  //   editor.value.innerText = value.value;
-});
+// if (editor.value)
+//   editor.value.innerText = value.value;
+// });
 
 const list: Ref<valType[]> = ref([]);
 
@@ -51,10 +54,14 @@ function parseText(value: valType) {
   return value;
 }
 
-function setItem(value: valType) {
+async function setItem(value: valType) {
   // console.info(value);
-  curVal.value = value;
-  emits('update:modelValue', value);
+  curVal.value = null;
+  if (editor.value)
+    editor.value.innerHTML = '';
+  list.value = [];
+  await props.submit(value);
+  // emits('update:modelValue', value);
 }
 
 let blur = false;
@@ -77,8 +84,7 @@ function setFocus() {
       @input="inputText"
       @focus="setFocus"
       @blur="setBlur"
-      ref="editor"
-      v-html="parseText(curVal)"></div>
+      ref="editor"></div>
     <ul>
       <li v-for="item in list"
           v-html="parseText(item)"
@@ -104,9 +110,10 @@ function setFocus() {
     background-color: mkColor(map-get($colors, bk), 3);
   }
   > ul {
-    position: absolute;
+    position: relative;
     left: 0;
     z-index: 5;
+    -webkit-column-break-inside: auto;
     @include fillAvailable(width);
     @include blurBackground();
     > li {

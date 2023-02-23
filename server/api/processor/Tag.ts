@@ -2,7 +2,7 @@ import {Fields} from 'formidable';
 // import PersistentFile from 'formidable';
 import {IncomingMessage, ServerResponse} from 'http';
 import {ParsedForm} from '../types';
-import {api_tag_col, api_tag_del_req, api_tag_del_resp, api_tag_list_req, api_tag_list_resp, api_tag_mod_req, api_tag_mod_resp} from '../../../share/Api';
+import {api_tag_attach_req, api_tag_attach_resp, api_tag_col, api_tag_del_req, api_tag_del_resp, api_tag_list_req, api_tag_list_resp, api_tag_mod_req, api_tag_mod_resp} from '../../../share/Api';
 import NodeModel from '../../model/NodeModel';
 import GenFunc from '../../../share/GenFunc';
 import {col_node, col_tag, col_tag_group} from '../../../share/Database';
@@ -10,6 +10,7 @@ import TagModel from '../../model/TagModel';
 import TagGroupModel from '../../model/TagGroupModel';
 import FileModel from '../../model/FileModel';
 import * as fp from "../../lib/FileProcessor";
+import ORM from "../../lib/ORM";
 
 export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_tag_list_resp> {
@@ -84,5 +85,19 @@ export default class {
         }
 
         return null;
+    };
+
+    async attach(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_tag_attach_resp> {
+        const request = data.fields as api_tag_attach_req;
+        const tagList = request.tag_list.split(',');
+        const tagSet = new Set<string>();
+        tagList.forEach(tag => {
+            if (!tag) return;
+            tagSet.add(tag);
+        })
+        await (new NodeModel()).where('id', request.id_node).update({
+            list_tag_id: Array.from(tagSet),
+        });
+        return;
     };
 };
