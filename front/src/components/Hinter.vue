@@ -1,6 +1,7 @@
 <script setup lang="ts">
 //https://www.jb51.net/article/246976.htm
 import {onMounted, ref, type Ref, watch} from "vue";
+import GenFunc from "../../../share/GenFunc";
 
 type valType = any;
 
@@ -8,16 +9,18 @@ const emits = defineEmits(["update:modelValue"]);
 const props = defineProps<{
   modelValue: valType,
   preValue: string,
-  onInput: Function,
-  onSubmit: Function,
+  getList: Function,
+  submit: Function,
   parseText: Function,
 }>();
 
 const editor: Ref<HTMLElement | null> = ref(null);
 
 async function inputText() {
-  console.info('input', editor.value, editor.value?.innerText);
-  list.value = await props.onInput(editor.value?.innerHTML);
+  GenFunc.debounce(async () => {
+    console.info('input', editor.value, editor.value?.innerText);
+    list.value = await props.getList(editor.value?.innerHTML);
+  }, 200, 'hinterDebounce');
   // props.modelValue = editor.value?.innerHTML;
   // emits('update:modelValue', editor.value?.innerText);
 }
@@ -40,9 +43,7 @@ onMounted(() => {
   //   editor.value.innerText = value.value;
 });
 
-const list: Ref<valType[]> = ref([
-  '12314', '12314', '12314', '12314', '12314', '12314',
-]);
+const list: Ref<valType[]> = ref([]);
 
 function parseText(value: valType) {
   if (props.parseText)

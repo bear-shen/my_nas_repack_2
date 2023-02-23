@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {onMounted, type Ref, ref} from "vue";
-import type {api_tag_col, api_node_col, api_file_list_req, api_file_mov_req} from "../../../share/Api";
+import type {api_tag_col, api_node_col, api_file_list_req, api_file_mov_req, api_tag_list_resp, api_tag_list_req, api_file_mov_resp} from "../../../share/Api";
 import {useModalStore} from "@/stores/modalStore";
 import {query} from "@/Helper";
 import ContentEditable from "@/components/ContentEditable.vue";
 import Hinter from "@/components/Hinter.vue";
+import GenFunc from "../../../share/GenFunc";
 // import type {col_tag} from "../../../share/Database";
 // import {api_tag_col} from "../../../share/Api";
 
@@ -87,7 +88,7 @@ async function op_rename() {
     formData.set('id', `${props.node.id}`);
     formData.set('title', props.node.title ?? '');
     formData.set('description', props.node.description ?? '');
-    const res = await query<api_file_mov_req>('file/mod', formData);
+    const res = await query<api_file_mov_resp>('file/mod', formData);
     emits("go", 'reload');
   }
   renaming.value = !renaming.value;
@@ -120,16 +121,21 @@ function tag_del(tagId: number) {
   }
 }
 
-async function tag_hint(text: string): Promise<api_tag_col[]> {
-  return [
-    {
-      id:1,
-      group:{},
-    }
-  ];
+async function tag_hint(text: string): Promise<api_tag_list_resp | false> {
+  const formData = new FormData();
+  formData.set('keyword', text);
+  formData.set('size', '20');
+  const res = await query<api_tag_list_resp>('tag/get', formData);
+  return res;
 }
 
 function tag_add() {
+}
+
+function tag_parse(item: api_tag_col) {
+  if (!item) return '';
+  console.info(item);
+  return `${item.group.title} : ${item.title}`;
 }
 
 function op_imp_tag_eh() {
@@ -262,7 +268,9 @@ function op_delete() {
           </dd>
         </dl>
         <hinter
-
+          :get-list="tag_hint"
+          :submit="tag_add"
+          :parse-text="tag_parse"
         ></hinter>
       </div>
     </template>
@@ -504,7 +512,7 @@ function op_delete() {
   .sysIcon {
     padding-left: $fontSize*0.25;
   }
-  dd,.hinter{
+  dd, .hinter {
     margin-top: $fontSize*0.25;
   }
 }

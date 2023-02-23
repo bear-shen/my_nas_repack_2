@@ -14,7 +14,6 @@ import * as fp from "../../lib/FileProcessor";
 export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_tag_list_resp> {
         const request = data.fields as api_tag_list_req;
-        const target = [];
         const model = new TagModel();
         if (request.keyword) {
             model.where(
@@ -29,6 +28,9 @@ export default class {
         }
         if (request.is_del) {
             model.where('status', 0);
+        }
+        if (request.size) {
+            model.limit(parseInt(request.size));
         }
         model.order('id', 'asc');
         const tagLs: api_tag_col[] = await model.select() as api_tag_col[];
@@ -51,7 +53,7 @@ export default class {
                     tag.group = group;
             });
         }
-        return target;
+        return tagLs;
     };
 
     async del(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_tag_del_resp> {

@@ -14,11 +14,12 @@ import { type RowDataPacket } from "mysql2";
 import { ParsedForm } from './types';
 import File from "./processor/File";
 import User from "./processor/User";
+import Tag from "./processor/Tag";
 type t = RowDataPacket;
 const controllers = {
     file: File,
     user: User,
-    tag: 0,
+    tag: Tag,
     tag_group: 0,
     user_group: 0,
     local: 0,

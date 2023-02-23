@@ -78,6 +78,7 @@ export type api_tag_col = {
 
 export type api_tag_list_req = {
     keyword?: string,
+    size?: string,
     id_group?: string,
     is_del?: string,
 } & { [key: string]: any };
