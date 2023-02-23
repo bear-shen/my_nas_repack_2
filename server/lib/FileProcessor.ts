@@ -136,6 +136,7 @@ async function ls(dirId: number): Promise<FileStat[]> {
 
 async function mkdir(dirId: number, name: string): Promise<false | col_node> {
     let parentInfo = rootNode;
+    name = titleFilter(name);
     const ifDup = await (new NodeModel)
         .where('id_parent', dirId)
         .where('title', name)
@@ -192,6 +193,7 @@ async function put(fromTmpPath: string, toDir: number | col_node, name: string):
     // const ifDup = await (new NodeModel).where('id_parent', parentNode.id).where('title', name).first();
     if (ifDup) return false;
     //
+    name = titleFilter(name);
     const suffix = getSuffix(name);
     const stat = await fs.stat(fromTmpPath);
     const fileInfo = {
@@ -247,6 +249,7 @@ async function mv(nodeId: number | col_node, toDirId: number | col_node, name: s
     const toDir = await getNodeByIdOrNode(toDirId);
     //
     const sameDir = node.id_parent === toDir.id;
+    if (name) name = titleFilter(name);
     //
     console.info('mv to', toDir.title, name);
     const ifDup = await checkName(toDir.id, name === false ? node.title : name);
@@ -260,7 +263,7 @@ async function mv(nodeId: number | col_node, toDirId: number | col_node, name: s
             list_node: newNodeList,
         });
         //如果是不同的目标文件夹的话,需要更改对应的文件索引
-        if(node.type === 'directory'){
+        if (node.type === 'directory') {
             const cascadeNode = await (new NodeModel).whereRaw('find_in_set( ? ,list_node)', node.id).select(["id", "list_node"]);
             cascadeNode.forEach(async child => {
                 const childIndex = child.list_node.indexOf(node.id);
@@ -291,6 +294,7 @@ async function cp(nodeId: number | col_node, toDirId: number | col_node, name: s
     const node = await getNodeByIdOrNode(nodeId);
     const toDir = await getNodeByIdOrNode(toDirId);
     //
+    name = titleFilter(name);
     const ifDup = await checkName(toDir.id, name);
     if (ifDup && ifDup.id !== nodeId) return false;
     const newNodeList = [...toDir.list_node, toDir.id];
@@ -385,6 +389,10 @@ async function buildIndex(nodeId: number | col_node, cascade: boolean = false) {
     await (new NodeModel()).where('id', node.id).update({
         index_node: nodeIndex
     });
+}
+
+function titleFilter(title: string) {
+    return title.replace(/['/,\r\n\t\\:*?"|<>]/i, ' ');
 }
 
 export {
