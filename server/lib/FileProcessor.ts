@@ -392,7 +392,7 @@ async function buildIndex(nodeId: number | col_node, cascade: boolean = false) {
 }
 
 function titleFilter(title: string) {
-    return title.replace(/['/,\r\n\t\\:*?"|<>]/i, ' ');
+    return title.replaceAll(/[\^'/,\r\n\t\\:*?"|<>]/igm, ' ');
 }
 
 export {
@@ -415,6 +415,7 @@ export {
     stat,
     //
     FileStat,
+    titleFilter,
 };
 
 type FileStat = col_node & {

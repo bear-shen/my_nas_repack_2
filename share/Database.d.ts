@@ -55,7 +55,7 @@ export type col_user_group = {
     admin?: 0 | 1,
     status?: 0 | 1,
     auth?: Array<{
-        id_dir: number;
+        id_node: number;
         allow_r: boolean | number,
         allow_w: boolean | number,
     }>,
@@ -76,7 +76,7 @@ export type col_user = {
 
 export type col_tag_group = {
     id?: number,
-    id_dir?: number,
+    id_node?: number,
     title?: string,
     description?: string,
     sort?: number,

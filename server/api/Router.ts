@@ -1,8 +1,8 @@
-import { IncomingMessage, ServerResponse } from "http";
-import { Fields, PersistentFile } from "formidable";
+import {IncomingMessage, ServerResponse} from "http";
+import {Fields, PersistentFile} from "formidable";
 // import ORM from "./lib/ORM";
 // import { conn } from "./lib/SQL";
-import { type RowDataPacket } from "mysql2";
+import {type RowDataPacket} from "mysql2";
 // import UserController from "./controller/UserController";
 // import DevController from "./controller/DevController";
 // import FileController from "./controller/FileController";
@@ -11,16 +11,18 @@ import { type RowDataPacket } from "mysql2";
 // import UserGroupController from "./controller/UserGroupController";
 // import LocalController from "./controller/LocalController";
 // import ConfigController from "./controller/ConfigController";
-import { ParsedForm } from './types';
+import {ParsedForm} from './types';
 import File from "./processor/File";
 import User from "./processor/User";
 import Tag from "./processor/Tag";
+import TagGroup from "./processor/TagGroup";
+
 type t = RowDataPacket;
 const controllers = {
     file: File,
     user: User,
     tag: Tag,
-    tag_group: 0,
+    tag_group: TagGroup,
     user_group: 0,
     local: 0,
     config: 0,

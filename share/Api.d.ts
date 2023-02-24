@@ -100,7 +100,7 @@ export type api_tag_mod_req = {
     status?: string,
 } & { [key: string]: any };
 
-export type api_tag_mod_resp = {};
+export type api_tag_mod_resp = api_tag_mod_req;
 
 export type api_tag_attach_req = {
     id_node?: string,
@@ -110,7 +110,35 @@ export type api_tag_attach_req = {
 export type api_tag_attach_resp = {};
 
 
+export type api_tag_group = {
+    node: col_node & {
+        tree?: { id: number, title: string }[],
+    },
+} & col_tag_group;
 
+export type api_tag_group_list_req = {
+    keyword?: string,
+    is_del?: string,
+} & { [key: string]: any };
+
+export type api_tag_group_list_resp =
+    api_tag_group[];
+
+export type api_tag_group_del_req = {
+    id?: string,
+} & { [key: string]: any };
+export type api_tag_group_del_resp = {};
+
+export type api_tag_group_mod_req = {
+    id?: string,
+    title?: string,
+    description?: string,
+    id_node?: string,
+    sort?: string,
+    status?: string,
+} & { [key: string]: any };
+
+export type api_tag_group_mod_resp = api_tag_group_mod_req;
 
 
 

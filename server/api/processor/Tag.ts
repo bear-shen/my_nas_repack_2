@@ -11,6 +11,7 @@ import TagGroupModel from '../../model/TagGroupModel';
 import FileModel from '../../model/FileModel';
 import * as fp from "../../lib/FileProcessor";
 import ORM from "../../lib/ORM";
+import {ResultSetHeader} from "mysql2";
 
 export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_tag_list_resp> {
@@ -59,13 +60,13 @@ export default class {
 
     async del(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_tag_del_resp> {
         const request = data.fields as api_tag_del_req;
-        const model = await (new TagModel()).where('id', request.id).update({status: 1});
+        const model = await (new TagModel()).where('id', request.id).update({status: 0});
         return null;
     };
 
     async mod(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_tag_mod_resp> {
         const request = data.fields as api_tag_mod_req;
-        if (request.id) {
+        if (parseInt(request.id)) {
             // const ifExs = await (new TagModel()).where('id', request.id).first();
             await (new TagModel()).where('id', request.id).update({
                 id_group: request.id_group,
@@ -75,16 +76,16 @@ export default class {
                 status: request.status,
             });
         } else {
-            await (new TagModel()).insert({
+            const res = await (new TagModel()).insert({
                 id_group: request.id_group,
                 title: request.title,
                 alt: request.alt,
                 description: request.description,
                 status: request.status,
             });
+            request.id = `${res.insertId}`;
         }
-
-        return null;
+        return request;
     };
 
     async attach(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_tag_attach_resp> {
