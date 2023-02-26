@@ -37,7 +37,7 @@ const containerDef = {};
   // height: calc(100vh - $headerHeight - $footerHeight);
   height: calc(100vh - $headerHeight);
   display: flex;
-  background-color: mkColor(map-get($colors, bk), 4);
+  background-color: mkColor(map-get($colors, bk), 2);
 }
 .fr_navi {
   height: 100%;

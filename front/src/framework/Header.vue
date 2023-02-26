@@ -80,6 +80,6 @@ const user = {
 .user li:hover,
 .navi div:hover {
   background-color: mkColor(map-get($colors, bk), 2);
-  color: mkColor(map-get($colors, font), 3);
+  color: mkColor(map-get($colors, font), 2);
 }
 </style>

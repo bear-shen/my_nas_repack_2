@@ -10,7 +10,7 @@ import FileModel from '../../model/FileModel';
 import * as fp from "../../lib/FileProcessor";
 import ORM from "../../lib/ORM";
 import {ResultSetHeader} from "mysql2";
-import type {api_tag_group, api_tag_group_del_req, api_tag_group_del_resp, api_tag_group_list_req, api_tag_group_list_resp, api_tag_group_mod_resp} from "../../../share/Api";
+import type {api_tag_group_col, api_tag_group_del_req, api_tag_group_del_resp, api_tag_group_list_req, api_tag_group_list_resp, api_tag_group_mod_resp} from "../../../share/Api";
 import {api_tag_group_mod_req} from "../../../share/Api";
 
 export default class {
@@ -29,7 +29,7 @@ export default class {
             model.where('status', 0);
         }
         model.order('id', 'desc');
-        const tagGroupLs = await model.select() as api_tag_group[];
+        const tagGroupLs = await model.select() as api_tag_group_col[];
         //
         const nodeIdSet = new Set<number>();
         tagGroupLs.forEach(tagGroup => {
@@ -49,9 +49,10 @@ export default class {
             const subNodeIdLs = new Set<number>();
             nodeLs.forEach(node => {
                 nodeMap.set(node.id, node);
-                node.list_node.forEach(nodeId => {
-                    if (nodeId) subNodeIdLs.add(nodeId);
-                })
+                if (node.list_node)
+                    node.list_node.forEach(nodeId => {
+                        if (nodeId) subNodeIdLs.add(nodeId);
+                    })
             });
             if (subNodeIdLs.size) {
                 const subNodeLs = await (new NodeModel()).whereIn('id', Array.from(subNodeIdLs)).select();
@@ -62,13 +63,15 @@ export default class {
         }
         tagGroupLs.forEach(tagGroup => {
             tagGroup.node = nodeMap.get(tagGroup.id_node);
-            tagGroup.node.list_node.forEach(nodeId => {
-                const node = nodeMap.get(nodeId);
-                tagGroup.node.tree.push({
-                    id: node.id,
-                    title: node.title,
+            tagGroup.node.tree = [];
+            if (tagGroup.node.list_node)
+                tagGroup.node.list_node.forEach(nodeId => {
+                    const node = nodeMap.get(nodeId);
+                    tagGroup.node.tree.push({
+                        id: node.id,
+                        title: node.title,
+                    });
                 });
-            });
         });
         return tagGroupLs;
     };

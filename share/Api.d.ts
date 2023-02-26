@@ -110,7 +110,7 @@ export type api_tag_attach_req = {
 export type api_tag_attach_resp = {};
 
 
-export type api_tag_group = {
+export type api_tag_group_col = {
     node: col_node & {
         tree?: { id: number, title: string }[],
     },
@@ -122,7 +122,7 @@ export type api_tag_group_list_req = {
 } & { [key: string]: any };
 
 export type api_tag_group_list_resp =
-    api_tag_group[];
+    api_tag_group_col[];
 
 export type api_tag_group_del_req = {
     id?: string,
