@@ -25,9 +25,11 @@ import type {
   api_file_list_resp,
   api_file_list_req,
   api_tag_group_col, api_tag_group_list_req, api_tag_group_list_resp,
-  api_tag_col, api_tag_list_req, api_tag_list_resp,
+  api_tag_col, api_tag_list_req, api_tag_list_resp, api_node_col,
 } from "../../../share/Api";
 import {useModalStore} from "@/stores/modalStore";
+import ContentEditable from "@/components/ContentEditable.vue";
+import Hinter from "@/components/Hinter.vue";
 
 //
 const localConfigure = useLocalConfigureStore();
@@ -41,7 +43,7 @@ let queryData = {
   is_del: "",
 } as api_tag_group_list_req;
 
-const groupList: Ref<api_tag_group_col[]> = ref([]);
+const groupList: Ref<(api_tag_group_col & { edit?: boolean })[]> = ref([]);
 const tagList: Ref<api_tag_col[]> = ref([]);
 const curGroup: Ref<api_tag_group_col | null> = ref(null);
 onMounted(async () => {
@@ -102,34 +104,89 @@ function go(ext: api_file_list_req) {
     query: tQuery,
   });
 }
+
+function modGroup(index: number) {
+  console.info(index);
+}
+
+function delGroup(index: number) {
+  console.info(index);
+}
+
+async function node_hint(text: string): Promise<api_file_list_resp | false> {
+  console.info('node_hint');
+  return false;
+}
+
+function node_add(item: api_node_col) {
+  console.info('node_add');
+}
+
+function node_parse(item: api_node_col) {
+  console.info('node_parse');
+  if (!item) return '';
+}
 </script>
 
 <template>
   <div class="fr_content" ref="contentDOM">
-    <div class="list_tag_group">
-      <div class="tag_group tag_group_add">
+    <div class="list_tag_group" v-if="curGroup">
+      <div :class="{
+        tag_group:true,
+        tag_group_add:true,
+        active:curGroup.id===0,
+}"
+      >
         <span class="sysIcon sysIcon_plus-square-o"></span>
       </div>
-      <div class="tag_group"
-           v-for="group in groupList">
-        <div class="title">{{ group.title }}</div>
-        <div class="description">{{ group.description }}</div>
-        <div class="node">
-          <template v-if="group.node.tree">
+      <div v-for="(group,index) in groupList"
+           :class="{
+        active:curGroup.id===group.id,
+        tag_group:true,
+        }"
+      >
+        <template v-if="!group.edit">
+          <div class="title">{{ group.title }}</div>
+          <div class="description">{{ group.description }}</div>
+          <div class="node">
+            <template v-if="group.node.tree">
           <span v-for="sub in group.node.tree">
             {{ sub.title }}
           </span>
-          </template>
-          <span>{{ group.node.title }}</span>
-        </div>
-        <div class="operator">
-          <span class="sort">
-            {{ group.sort }}
-          </span>
-          <!--          <div class="operate">-->
-          <span class="sysIcon sysIcon_delete"></span>
-          <!--          </div>-->
-        </div>
+            </template>
+            <span>{{ group.node.title }}</span>
+          </div>
+          <div class="operator">
+            <div class="sort">
+              {{ group.sort }}
+            </div>
+            <!--          <div class="operate">-->
+            <div>
+              <span class="sysIcon sysIcon_edit" @click="modGroup(index)"></span>
+              <span class="sysIcon sysIcon_delete" @click="delGroup(index)"></span>
+            </div>
+            <!--          </div>-->
+          </div>
+        </template>
+        <template v-else>
+          <content-editable class="title" v-model="group.title"></content-editable>
+          <content-editable class="description" v-model="group.description"></content-editable>
+          <hinter
+            class="node"
+            :get-list="node_hint"
+            :submit="node_add"
+            :parse-text="node_parse"
+          ></hinter>
+          <div class="operator">
+            <content-editable class="sort" v-model="group.sort"></content-editable>
+            <!--          <div class="operate">-->
+            <div>
+              <span class="sysIcon sysIcon_save" @click="modGroup(index)"></span>
+              <span class="sysIcon sysIcon_delete" @click="delGroup(index)"></span>
+            </div>
+            <!--          </div>-->
+          </div>
+        </template>
       </div>
     </div>
     <div class="list_tag">
@@ -189,8 +246,11 @@ function go(ext: api_file_list_req) {
       }
       .operator {
         display: flex;
-        span {
+        div {
           display: inline-block;
+        }
+        .sysIcon {
+          margin-left: $fontSize;
         }
         justify-content: space-between;
       }
