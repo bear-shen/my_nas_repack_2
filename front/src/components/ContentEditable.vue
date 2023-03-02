@@ -4,7 +4,7 @@ import {onMounted, ref, type Ref, watch} from "vue";
 
 const emits = defineEmits(["update:modelValue"]);
 const props = defineProps<{
-  modelValue: string
+  modelValue: any
 }>();
 
 const editor: Ref<HTMLElement | null> = ref(null);
@@ -26,6 +26,7 @@ function inputText() {
 
 const value: Ref<string> = ref(props.modelValue);
 onMounted(() => {
+  // console.info('contentEditable', editor.value, editor.value?.innerHTML);
   value.value = props.modelValue;
   if (editor.value)
     editor.value.innerText = value.value;
@@ -44,6 +45,7 @@ function setFocus() {
 
 <template>
   <div
+    class="content_editor"
     contenteditable="true"
     @input="inputText"
     @focus="setFocus"

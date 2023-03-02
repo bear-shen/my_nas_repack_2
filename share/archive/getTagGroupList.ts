@@ -12,10 +12,10 @@ export default [
       title: 'group dir title',
     },
     //
-    tree: {
-      id: [0, 1, 2, 3, 4,],
-      title: ['root', 'path1', 'path2', 'path3', 'path4',],
-    },
+    // tree: {
+    //   id: [0, 1, 2, 3, 4,],
+    //   title: ['root', 'path1', 'path2', 'path3', 'path4',],
+    // },
     //
     time_create: '1919-08-10 11:45:14',
     time_update: '1919-08-10 11:45:14',
@@ -68,10 +68,10 @@ export default [
       title: 'group dir title',
     },
     //
-    tree: {
-      id: [0, 1, 2, 3, 4,],
-      title: ['root', 'path1', 'path2', 'path3', 'path4',],
-    },
+    // tree: {
+    //   id: [0, 1, 2, 3, 4,],
+    //   title: ['root', 'path1', 'path2', 'path3', 'path4',],
+    // },
     //
     time_create: '1919-08-10 11:45:14',
     time_update: '1919-08-10 11:45:14',
@@ -124,10 +124,10 @@ export default [
       title: 'group dir title',
     },
     //
-    tree: {
-      id: [0, 1, 2, 3, 4,],
-      title: ['root', 'path1', 'path2', 'path3', 'path4',],
-    },
+    // tree: {
+    //   id: [0, 1, 2, 3, 4,],
+    //   title: ['root', 'path1', 'path2', 'path3', 'path4',],
+    // },
     //
     time_create: '1919-08-10 11:45:14',
     time_update: '1919-08-10 11:45:14',

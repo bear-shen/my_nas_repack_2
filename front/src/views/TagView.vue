@@ -26,6 +26,7 @@ import type {
   api_file_list_req,
   api_tag_group_col, api_tag_group_list_req, api_tag_group_list_resp,
   api_tag_col, api_tag_list_req, api_tag_list_resp, api_node_col,
+  api_tag_group_mod_req, api_tag_group_mod_resp,
 } from "../../../share/Api";
 import {useModalStore} from "@/stores/modalStore";
 import ContentEditable from "@/components/ContentEditable.vue";
@@ -105,26 +106,77 @@ function go(ext: api_file_list_req) {
   });
 }
 
-function modGroup(index: number) {
+async function modGroup(index: number) {
   console.info(index);
+  if (!groupList.value[index].edit) {
+    groupList.value[index].edit = true;
+    return;
+  }
+  const res = await query<api_tag_group_mod_resp>("tag_group/mod", groupList.value[index]);
+  groupList.value[index].edit = false;
+  return;
 }
 
-function delGroup(index: number) {
+async function delGroup(index: number) {
   console.info(index);
+  const group = groupList.value.splice(index, 1)[0];
+  const res = await query<api_tag_group_mod_resp>("tag_group/del", {
+    id: group.id,
+  });
 }
 
-async function node_hint(text: string): Promise<api_file_list_resp | false> {
+async function addGroup() {
+  const curLs = groupList.value;
+  groupList.value = [];
+  curLs.unshift({
+    title: '',
+    description: '',
+    id_node: 0,
+    sort: 0,
+    status: 1,
+    node: {},
+    edit: true,
+  });
+  setTimeout(() => {
+    groupList.value = curLs;
+    console.info(groupList.value);
+  }, 20);
+}
+
+async function node_hint(text: string): Promise<api_node_col[] | false> {
   console.info('node_hint');
-  return false;
+  let queryData = {
+    sort: "",
+    type: "directory",
+    keyword: text,
+    pid: "",
+    tid: "",
+    no_file: '1',
+    with_crumb: '1',
+    limit: '20',
+  } as api_file_list_req;
+  const res = await query<api_file_list_resp>("file/get", queryData);
+  if (!res) return false;
+  console.info(res)
+  return res.list;
 }
 
-function node_add(item: api_node_col) {
-  console.info('node_add');
+function node_submit(item: api_node_col, groupIndex: number) {
+  console.info('node_add', item, groupIndex);
+  groupList.value[groupIndex].id_node = item.id;
+  groupList.value[groupIndex].node = item;
 }
 
 function node_parse(item: api_node_col) {
   console.info('node_parse');
   if (!item) return '';
+  const treeMap = [] as string[];
+  item.crumb_node?.forEach(crumb => {
+    if (crumb.title)
+      treeMap.push(crumb.title);
+  });
+  if (item.title) treeMap.push(item.title);
+  return `/ ${treeMap.join(' / ')}`;
 }
 </script>
 
@@ -136,37 +188,42 @@ function node_parse(item: api_node_col) {
         tag_group_add:true,
         active:curGroup.id===0,
 }"
+           @click="addGroup"
       >
         <span class="sysIcon sysIcon_plus-square-o"></span>
       </div>
       <div v-for="(group,index) in groupList"
+           :key="`tagView_group_${index}`"
            :class="{
         active:curGroup.id===group.id,
         tag_group:true,
+        edit:group.edit,
         }"
       >
         <template v-if="!group.edit">
-          <div class="title">{{ group.title }}</div>
+          <div class="title">
+            <div>{{ group.title }}</div>
+            <div class="operator">
+              <span class="sysIcon sysIcon_edit" @click="modGroup(index)"></span>
+              <span class="sysIcon sysIcon_delete" @click="delGroup(index)"></span>
+            </div>
+          </div>
           <div class="description">{{ group.description }}</div>
           <div class="node">
-            <template v-if="group.node.tree">
-          <span v-for="sub in group.node.tree">
+            <template v-if="group.node.crumb_node">
+          <span v-for="sub in group.node.crumb_node">
             {{ sub.title }}
           </span>
             </template>
             <span>{{ group.node.title }}</span>
           </div>
-          <div class="operator">
-            <div class="sort">
-              {{ group.sort }}
-            </div>
-            <!--          <div class="operate">-->
-            <div>
-              <span class="sysIcon sysIcon_edit" @click="modGroup(index)"></span>
-              <span class="sysIcon sysIcon_delete" @click="delGroup(index)"></span>
-            </div>
-            <!--          </div>-->
-          </div>
+          <!--          <div class="operator">-->
+          <!--          <div class="sort">-->
+          <!--            {{ group.sort }}-->
+          <!--          </div>-->
+          <!--          <div class="operate">-->
+          <!--          </div>-->
+          <!--          </div>-->
         </template>
         <template v-else>
           <content-editable class="title" v-model="group.title"></content-editable>
@@ -174,8 +231,10 @@ function node_parse(item: api_node_col) {
           <hinter
             class="node"
             :get-list="node_hint"
-            :submit="node_add"
+            :submit="node_submit"
             :parse-text="node_parse"
+            v-model="group.node"
+            :meta="index"
           ></hinter>
           <div class="operator">
             <content-editable class="sort" v-model="group.sort"></content-editable>
@@ -203,7 +262,7 @@ function node_parse(item: api_node_col) {
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss">
 .fr_content {
   padding-bottom: 0;
   height: 100%;
@@ -213,10 +272,13 @@ function node_parse(item: api_node_col) {
     height: 100%;
     @include smallScroll();
     overflow-y: scroll;
+    .active {
+      background-color: mkColor(map-get($colors, bk), 2);
+    }
     .tag_group_add {
       span {
-        font-size: $fontSize*3;
-        line-height: $fontSize*5;
+        font-size: $fontSize*2;
+        line-height: $fontSize*4;
       }
       //text-align: center;
     }
@@ -231,6 +293,8 @@ function node_parse(item: api_node_col) {
       }
       .title {
         color: map-get($colors, font);
+        display: flex;
+        justify-content: space-between;
       }
       .node {
         span::before {
@@ -245,15 +309,45 @@ function node_parse(item: api_node_col) {
         }
       }
       .operator {
-        display: flex;
+        /*display: flex;
         div {
           display: inline-block;
-        }
+        }*/
         .sysIcon {
           margin-left: $fontSize;
+          cursor: pointer;
         }
-        justify-content: space-between;
+        //justify-content: space-between;
       }
+      .sort {
+        width: $fontSize*5;
+      }
+      &.edit {
+        .title, .description, .sort {
+          padding: 0 $fontSize*0.5;
+        }
+        .title, .description,.operator {
+          display: block;
+          background-color: mkColor(map-get($colors, bk), 2);
+        }
+        .title::before {
+          content: 'T: ';
+        }
+        .description::before {
+          content: 'D: ';
+        }
+        .sort::before {
+          content: 'S: ';
+        }
+        .operator {
+          display: flex;
+          justify-content: space-between;
+          padding-right: $fontSize*0.5;
+        }
+      }
+    }
+    .hinter > div, .content_editor {
+      background-color: mkColor(map-get($colors, bk), 2);
     }
   }
   .list_tag {}

@@ -23,6 +23,7 @@ export default class {
         if (request.pid && request.pid !== '0') {
             const model = new NodeModel();
             const curNode = await model.where('id', request.pid).first();
+            //tree这个是.path下面的，with_crumb是单独节点的
             const treeNodeIdLs = curNode.list_node;
             const treeNodeLs = await (new NodeModel).whereIn('id', treeNodeIdLs).select();
             const treeNodeMap = GenFunc.toMap(treeNodeLs, 'id');
@@ -51,7 +52,7 @@ export default class {
                 // 'index_node',
                 'title',
                 'like',
-                `%${request.keyword}%`
+                `%${request.keyword.trim()}%`
             );
         }
         if (request.pid) {
@@ -106,7 +107,11 @@ export default class {
                     break;
             }
         }
+        if (request.limit) {
+            model.limit(parseInt(request.limit));
+        }
         const nodeLs: api_node_col[] = await model.select();
+        // console.info(nodeLs);
         //
         const tagIdSet = new Set<number>();
         const fileIdSet = new Set<number>();

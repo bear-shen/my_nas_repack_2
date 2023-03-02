@@ -7,14 +7,23 @@ type valType = any;
 
 // const emits = defineEmits(["update:modelValue"]);
 const props = defineProps<{
-  // modelValue: valType,
+  modelValue: valType,
   // preValue: string,
   getList: Function,
   submit: Function,
   parseText: Function,
+  meta: any,
 }>();
 
 const editor: Ref<HTMLElement | null> = ref(null);
+
+onMounted(() => {
+  if (editor.value && props.modelValue) {
+    console.info(props.modelValue);
+    // console.info(props.parseText(props.modelValue));
+    editor.value.innerHTML = props.parseText(props.modelValue);
+  }
+});
 
 // const value: Ref<valType> = ref(null);
 
@@ -29,12 +38,12 @@ async function inputText() {
 
 //https://stackoverflow.com/questions/59125857/how-to-watch-props-change-with-vue-composition-api-vue-3
 //这边如果填上会影响光标的定位，所以还是不要这样写，用onMounted一次性填充就行
-// watch(() => props.modelValue, async (to) => {
-//   console.info(to);
-// curVal.value = to;
-// if (editor.value)
-//   editor.value.innerText = to;
-// });
+watch(() => props.modelValue, async (to) => {
+  console.info(to);
+  curVal.value = to;
+  if (editor.value)
+    editor.value.innerHTML = props.parseText(to);
+});
 
 // const curVal: Ref<valType> = ref(props.modelValue);
 const curVal: Ref<valType> = ref(null);
@@ -60,7 +69,7 @@ async function setItem(value: valType) {
   if (editor.value)
     editor.value.innerHTML = '';
   list.value = [];
-  await props.submit(value);
+  await props.submit(value, props.meta);
   // emits('update:modelValue', value);
 }
 

@@ -63,11 +63,11 @@ export default class {
         }
         tagGroupLs.forEach(tagGroup => {
             tagGroup.node = nodeMap.get(tagGroup.id_node);
-            tagGroup.node.tree = [];
+            tagGroup.node.crumb_node = [];
             if (tagGroup.node.list_node)
                 tagGroup.node.list_node.forEach(nodeId => {
                     const node = nodeMap.get(nodeId);
-                    tagGroup.node.tree.push({
+                    tagGroup.node.crumb_node.push({
                         id: node.id,
                         title: node.title,
                     });

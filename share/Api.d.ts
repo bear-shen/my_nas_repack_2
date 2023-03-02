@@ -3,7 +3,10 @@ import {col_file, col_file_with_path, col_node, col_tag, col_tag_group, col_user
 export type api_node_col = {
     is_file?: number,
     is_fav?: number,
-    tree?: { id: number, title: string }[],
+    //初版的设计是分开存储方便遍历
+    //后来又改了
+    //现在总之放crumb_node了
+    // tree?: { id: number, title: string }[],
     file?: {
         preview?: col_file_with_path,
         normal?: col_file_with_path,
@@ -35,6 +38,7 @@ export type api_file_list_req = {
     no_file?: string,
     no_tag?: string,
     with_crumb?: string,
+    limit?: string,
 } & { [key: string]: any }
 
 export type api_user_login_req = {
@@ -112,7 +116,7 @@ export type api_tag_attach_resp = {};
 
 export type api_tag_group_col = {
     node: col_node & {
-        tree?: { id: number, title: string }[],
+        crumb_node?: col_node[],
     },
 } & col_tag_group;
 
