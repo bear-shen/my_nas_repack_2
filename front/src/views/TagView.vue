@@ -140,13 +140,15 @@ function go(ext: api_file_list_req) {
 }
 
 async function modGroup(index: number) {
-  console.info(index);
+  // console.info(index);
   if (!groupList.value[index].edit) {
     groupList.value[index].edit = true;
     return;
   }
   const res = await query<api_tag_group_mod_resp>("tag_group/mod", groupList.value[index]);
+  if (!res) return;
   groupList.value[index].edit = false;
+  groupList.value[index].id = parseInt(res.id ?? '');
   return;
 }
 
@@ -255,14 +257,16 @@ async function delTag(index: number) {
 }
 
 async function modTag(index: number) {
-  console.info(index);
+  // console.info(index);
   if (!tagList.value[index].edit) {
     tagList.value[index].edit = true;
     return;
   }
-  const res = await query<api_tag_mod_resp>("tag/mod", groupList.value[index]);
+  tagList.value[index].alt = tagList.value[index].alt_text?.split(/,/m)
+  const res = await query<api_tag_mod_resp>("tag/mod", tagList.value[index]);
+  if (!res) return;
   tagList.value[index].edit = false;
-  return;
+  tagList.value[index].id = parseInt(res.id ?? '');
 }
 
 
@@ -501,13 +505,31 @@ async function modTag(index: number) {
         justify-content: space-between;
         span {
           margin-left: $fontSize*0.5;
+          min-width: $fontSize*2;
         }
+      }
+      .content_editor {
+        background-color: mkColor(map-get($colors, bk), 2);
       }
       .description {}
       .alt {}
       .operator {}
       //color: mkColor(map-get($colors, font_sub), 2);
       color: map-get($colors, font_sub);
+    }
+    .tag.edit {
+      .title .content_editor::before {
+        content: 'T: ';
+      }
+      .description::before {
+        content: 'D: ';
+      }
+      .alt::before {
+        content: 'A: ';
+      }
+    }
+    .tag:hover {
+      background-color: mkColor(map-get($colors, bk), 4);
     }
   }
 }

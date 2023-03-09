@@ -30,6 +30,8 @@ export default class {
         }
         if (request.is_del) {
             model.where('status', 0);
+        } else {
+            model.where('status', 1);
         }
         if (request.size) {
             model.limit(parseInt(request.size));
@@ -66,12 +68,13 @@ export default class {
 
     async mod(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_tag_mod_resp> {
         const request = data.fields as api_tag_mod_req;
+        // request.alt = request.alt.split(/,/i);
         if (parseInt(request.id)) {
             // const ifExs = await (new TagModel()).where('id', request.id).first();
             await (new TagModel()).where('id', request.id).update({
                 id_group: request.id_group,
                 title: request.title,
-                alt: request.alt,
+                alt: request.alt.split(/,/i),
                 description: request.description,
                 status: request.status,
             });
