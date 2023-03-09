@@ -27,6 +27,8 @@ export default class {
         }
         if (request.is_del) {
             model.where('status', 0);
+        } else {
+            model.where('status', 1);
         }
         model.order('id', 'desc');
         const tagGroupLs = await model.select() as api_tag_group_col[];
