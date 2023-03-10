@@ -479,14 +479,14 @@ async function modTag(index: number) {
   }
   .list_tag {
     width: calc(100% - $fontSize * 20);
-    height: 100%;
+    //height: 100%;
     @include smallScroll();
     overflow-y: scroll;
     > div {
       font-size: $fontSize;
       -webkit-column-break-inside: avoid;
     }
-    columns: $fontSize * 15 4;
+    columns: $fontSize * 15 5;
     column-gap: 0;
     //display: flex;
     //justify-content: left;
@@ -514,6 +514,9 @@ async function modTag(index: number) {
       .description {}
       .alt {}
       .operator {}
+      >div{
+        word-break: break-all;
+      }
       //color: mkColor(map-get($colors, font_sub), 2);
       color: map-get($colors, font_sub);
     }
