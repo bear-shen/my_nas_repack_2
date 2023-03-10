@@ -87,7 +87,8 @@ export default {
                 'us', 'en', '英',
             ],
             //
-            cur_lib: 'libx264',
+            // cur_lib: 'libx264',
+            cur_lib: 'hevc_nvenc',
             libx264: {
                 codec_lib: 'libx264',
                 pixFmt: 'yuv422p10',
