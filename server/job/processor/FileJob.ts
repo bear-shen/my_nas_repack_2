@@ -15,7 +15,7 @@ import {
     videoStr,
     audioStr,
     imageStr,
-} from '../../lib/FFmpeg';
+} from '../../lib/FFMpeg';
 import {getRelPathByFile} from "../../lib/FileProcessor";
 import Config from "../../ServerConfig";
 
