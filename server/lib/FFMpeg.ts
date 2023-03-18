@@ -295,7 +295,52 @@ ${(tranRate || tranACodec) ? audioConf.ff_encoder : '-c:a copy'}
 }
 
 async function audioStr(meta: ffMeta): Promise<string> {
-    return;
+    const audioConf = limitation["audio"];
+    //
+    let tranContainer = true;
+    let tranACodec = true;
+    let tranRate = false;
+    //
+    let audioIndex = 0;
+    for (let i1 = 0; i1 < meta.streams.length; i1++) {
+        if (meta.streams[i1].codec_type == 'audio') {
+            audioIndex = i1;
+            break;
+        }
+    }
+    //容器
+    for (let i1 = 0; i1 < audioConf.allow_container.length; i1++) {
+        const kw = audioConf.allow_container[i1];
+        if (meta.format.format_name.toLowerCase().indexOf(kw) === -1) continue;
+        tranContainer = false;
+        break;
+    }
+    //编码
+    for (let i1 = 0; i1 < audioConf.allow_codec.length; i1++) {
+        const kw = audioConf.allow_codec[i1];
+        const track = meta.streams[audioIndex];
+        if (track.codec_name.toLowerCase().indexOf(kw) === -1) continue;
+        tranACodec = false;
+        break;
+    }
+    //基础
+    let rate = parseInt(meta.format.size) / parseInt(meta.format.duration);
+    if (rate > audioConf.allow_rate) {
+        tranRate = true;
+    }
+    console.info(
+        'tranContainer', tranContainer,
+        'tranACodec', tranACodec,
+        'tranRate', tranRate,
+        'audioIndex', audioIndex,
+    );
+    let str = `[execMask.program]
+-hide_banner -hwaccel auto -y
+-i [execMask.resource]
+${(tranRate || tranACodec) ? audioConf.ff_encoder : '-c:a copy'}
+-map 0:${audioIndex} 
+[execMask.target]`.replaceAll(/[\r\n]+/gm, " \\\n");
+    return str;
 }
 
 /**
