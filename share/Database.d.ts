@@ -9,8 +9,8 @@ export type col_node = {
     type?: type_file,
     title?: string,
     description?: string,
-    status?: 0 | 1 | -1,
-    building?: 0 | 1,
+    status?: 0 | 1 | -1,//recycle normal deleted
+    building?: 0 | 1 | -1,//complete waiting  error
     //节点树
     list_node?: number[],
     //标签

@@ -25,33 +25,6 @@ export default class {
         const node = await (new NodeModel).where('id', nodeId).first();
         if (!node) throw new Error('node not found');
         const fileId = node.index_file_id.raw;
-        if (fileId) {
-            const fileRAW = await (new FileModel).where('id', fileId).first();
-            if (!fileRAW) throw new Error('file not found');
-            const rawFilePath = Config.path.local + getRelPathByFile(fileRAW);
-            switch (node.type) {
-                case 'audio':
-                    loadMeta(rawFilePath);
-                    break;
-                case 'video':
-                    break;
-                case 'image':
-                    break;
-                case 'binary':
-                    break;
-                case 'text':
-                    break;
-                case 'subtitle':
-                    break;
-                case 'pdf':
-                    break;
-                case 'directory':
-                    break;
-            }
-        }
-        await (new NodeModel).where('id', nodeId).update({
-            building: 0,
-        })
         return;
     }
 }

@@ -1,9 +1,12 @@
 import Config from "../ServerConfig";
 import * as fs from "fs/promises";
 import {isArray} from "util";
+import ServerConfig from "../ServerConfig";
 
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
+
+const conf = ServerConfig.parser;
 
 type ffMeta = {
     format: {
@@ -30,69 +33,6 @@ type ffMeta = {
     }[];
 };
 
-const execMask = {
-    resource: 'resource',
-    target: 'target',
-    program: '.\\ffmpeg.exe',
-};
-
-const limitation = {
-    cover: {
-        max_length: 640,
-        allow_size: 1024 * 512,
-        allow_container: ['jpg', 'jpeg', 'image2', 'png', 'gif', 'webp',],
-        ff_encoder: '-c:v webp -quality 65',
-    },
-    preview: {
-        max_length: 1280,
-        allow_size: 1024 * 1024,
-        allow_container: ['jpg', 'jpeg', 'image2', 'png', 'gif', 'webp',],
-        ff_encoder: '-c:v webp -quality 75',
-    },
-    image: {
-        max_length: 2560,
-        allow_size: 1024 * 1024 * 4,
-        allow_container: ['jpg', 'jpeg', 'image2', 'png', 'gif', 'webp',],
-        ff_encoder: '-c:v webp -quality 80',
-    },
-    video: {
-        length: 1920,
-        length_small: 1280,
-        format: 'mp4',
-        allow_codec: ['vp8', 'vp9', 'h264', 'hevc', 'av1', 'vp10',],
-        // allow_rate: 4000 * 1000,
-        //注意是 B/s
-        allow_rate: 1024 * 1024 * 6 / 8,
-        allow_container: ['mp4', 'ogg', 'webm', 'm4a',],
-        ff_encoder: '-c:v hevc_nvenc -profile:v main10 -level 5 ' +
-            '-rc-lookahead 80 -qp 16 -bf 4 ',
-    },
-    audio: {
-        quality: 1.5,  //+- 110
-        format: 'aac',
-        codec_lib: 'aac',
-        allow_codec: ['flac', 'mp3', 'aac', 'wav', 'vorbis', 'ogg', 'pcm',],
-        allow_container: ['flac', 'mp3', 'aac', 'wav', 'vorbis', 'ogg',],
-        // allow_rate: 120 * 1000,
-        allow_rate: 1024 * 1024 * 1 / 8,
-        priority_kw: [
-            'jpn', 'jps', 'japan', 'jp', '日',
-            'cht', 'chs', 'chin', 'zh-', '中',
-            'us', 'en', '英',
-        ],
-        ff_encoder: '-c:a aac -q:a 1.3',
-    },
-    subtitle: {
-        format: 'vtt',
-        allow_codec: ['ass', 'ssa', 'vtt', 'srt', 'subrip',],
-        priority_kw: [
-            'cht', 'chs', 'chin', 'zh-', '中',
-            'jpn', 'jps', 'japan', 'jp', '日',
-            'us', 'en', '英',
-        ],
-    },
-};
-
 async function loadMeta(path: string): Promise<ffMeta> {
     let meta;
     try {
@@ -110,7 +50,7 @@ async function loadMeta(path: string): Promise<ffMeta> {
 // Array.isArray([])
 
 async function subtitleStr(meta: ffMeta): Promise<Map<string, string>> {
-    const subConf = limitation["subtitle"];
+    const subConf = conf["subtitle"];
     const resMap = new Map<string, string>();
     let multiCount = meta.streams.length > 1;
     // const langSet = new Set<string>();
@@ -143,10 +83,10 @@ ${multiCount ? `-map s:${i1}` : ''}
  * 音轨map转成单音轨
  * subtitle需要提取并转换成vtt
  * */
-async function videoStr(meta: ffMeta): Promise<{ video: string, subtitle: Map<string, string> }> {
-    const videoConf = limitation["video"];
-    const audioConf = limitation["audio"];
-    const subConf = limitation["subtitle"];
+async function videoStr(meta: ffMeta): Promise<string | boolean> {
+    const videoConf = conf["video"];
+    const audioConf = conf["audio"];
+    // const subConf = conf["subtitle"];
     //
     let tranContainer = true;
     let tranACodec = true;
@@ -158,13 +98,13 @@ async function videoStr(meta: ffMeta): Promise<{ video: string, subtitle: Map<st
     let h = 0;
     //
     let multiAudio = false;
-    let hasSub = false;
+    // let hasSub = false;
     let videoIndex = -1;
     let audioIndex = -1;
     //
     let videoCount = 0;
     let audioCount = 0;
-    let subCount = 0;
+    // let subCount = 0;
     for (let i1 = 0; i1 < meta.streams.length; i1++) {
         if (meta.streams[i1].codec_type == 'video') {
             videoCount += 1;
@@ -172,12 +112,12 @@ async function videoStr(meta: ffMeta): Promise<{ video: string, subtitle: Map<st
         if (meta.streams[i1].codec_type == 'audio') {
             audioCount += 1;
         }
-        if (meta.streams[i1].codec_type == 'subtitle') {
-            subCount += 1;
-        }
+        // if (meta.streams[i1].codec_type == 'subtitle') {
+        //     subCount += 1;
+        // }
     }
     multiAudio = audioCount > 1;
-    hasSub = subCount > 0;
+    // hasSub = subCount > 0;
     //这里计算的索引和ff自动区分的索引不同
     //应当如 -map 0:3 而不是 -map 0:a:3
     for (let i1 = 0; i1 < meta.streams.length; i1++) {
@@ -222,10 +162,10 @@ async function videoStr(meta: ffMeta): Promise<{ video: string, subtitle: Map<st
         }
     }
     //
-    let subMap = new Map<string, string>();
-    if (hasSub) {
-        subMap = await subtitleStr(meta);
-    }
+    // let subMap = new Map<string, string>();
+    // if (hasSub) {
+    //     subMap = await subtitleStr(meta);
+    // }
     //容器
     for (let i1 = 0; i1 < videoConf.allow_container.length; i1++) {
         const kw = videoConf.allow_container[i1];
@@ -273,15 +213,16 @@ async function videoStr(meta: ffMeta): Promise<{ video: string, subtitle: Map<st
         'w', w,
         'h', h,
         'multiAudio', multiAudio,
-        'hasSub', hasSub,
+        // 'hasSub', hasSub,
         'videoIndex', videoIndex,
         'audioIndex', audioIndex,
         'videoCount', videoCount,
         'audioCount', audioCount,
-        'subCount', subCount,
+        // 'subCount', subCount,
     );
     if (!(tranRate || tranContainer || tranACodec || tranVCodec)) {
-        return {video: '', subtitle: subMap};
+        return true;
+        // return {video: true, subtitle: subMap};
     }
     let str = `[execMask.program]
 -hide_banner -hwaccel auto -y
@@ -291,11 +232,30 @@ ${tranLength ? `-s ${Math.round(tranLength ? w * videoConf.length / maxLen : w)}
 ${(tranRate || tranACodec) ? audioConf.ff_encoder : '-c:a copy'}
 -map 0:${videoIndex} -map 0:${audioIndex}
 [execMask.target]`.replaceAll(/[\r\n]+/gm, " \\\n");
-    return {video: str, subtitle: subMap};
+    return str;
+    // return {video: str, subtitle: subMap};
 }
 
-async function audioStr(meta: ffMeta): Promise<string> {
-    const audioConf = limitation["audio"];
+async function videoExtractSub(meta: ffMeta): Promise<Map<string, string>> {
+    const subConf = conf["subtitle"];
+    // let subMap = new Map<string, string>();
+    let hasSub = false;
+    let subCount = 0;
+    for (let i1 = 0; i1 < meta.streams.length; i1++) {
+        if (meta.streams[i1].codec_type == 'subtitle') {
+            subCount += 1;
+        }
+    }
+    hasSub = subCount > 0;
+    let subMap = new Map<string, string>();
+    if (hasSub) {
+        subMap = await subtitleStr(meta);
+    }
+    return subMap;
+}
+
+async function audioStr(meta: ffMeta): Promise<string | boolean> {
+    const audioConf = conf["audio"];
     //
     let tranContainer = true;
     let tranACodec = true;
@@ -334,10 +294,13 @@ async function audioStr(meta: ffMeta): Promise<string> {
         'tranRate', tranRate,
         'audioIndex', audioIndex,
     );
+    if (!(tranRate || tranACodec || tranContainer)) {
+        return true;
+    }
     let str = `[execMask.program]
 -hide_banner -hwaccel auto -y
 -i [execMask.resource]
-${(tranRate || tranACodec) ? audioConf.ff_encoder : '-c:a copy'}
+${(tranContainer || tranRate || tranACodec) ? audioConf.ff_encoder : '-c:a copy'}
 -map 0:${audioIndex} 
 [execMask.target]`.replaceAll(/[\r\n]+/gm, " \\\n");
     return str;
@@ -380,7 +343,7 @@ async function imageStr(meta: ffMeta, level: 'cover' | 'preview' | 'image'): Pro
      *      else
      *          video
      * */
-    const imgConf = limitation[level];
+    const imgConf = conf[level];
     let tranType = false;
     let tranSize = false;
     let tranLength = false;
@@ -465,6 +428,7 @@ export {
     loadMeta,
     subtitleStr,
     videoStr,
+    videoExtractSub,
     audioStr,
     imageStr,
 };

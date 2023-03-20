@@ -1,15 +1,10 @@
-import { IncomingMessage, ServerResponse } from "http";
+import {IncomingMessage, ServerResponse} from "http";
 import fs from "fs";
 import ServerConfig from "../ServerConfig";
 import http from "http";
 import Authorize from "./Authorize";
 import Method from "./Method";
-import { respCode } from "./Lib";
-
-fs.mkdirSync(
-    ServerConfig.path.temp,
-    { recursive: true, mode: 0o777 }
-);
+import {respCode} from "./Lib";
 
 
 /**

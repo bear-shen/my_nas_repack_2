@@ -4,14 +4,102 @@ import * as fs from "fs/promises";
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
-const convertConfig = Config.parser;
+// const convertConfig = Config.parser;
+const convertConfig = {
+    //@see https://slhck.info/video/2017/02/24/vbr-settings.html
+    i_cover: {
+        length: 640,
+        quality: 70,
+        format: 'webp',
+        codec_lib: 'libwebp',
+        allow_size: 1024 * 512,
+        allow_container: ['jpg', 'jpeg', 'image2', 'png', 'gif', 'webp',],
+    },
+    i_preview: {
+        length: 1280,
+        quality: 75,
+        format: 'webp',
+        codec_lib: 'webp',
+        allow_size: 1024 * 1024,
+        allow_container: ['jpg', 'jpeg', 'image2', 'png', 'gif', 'webp',],
+    },
+    i_normal: {
+        length: 2560,
+        quality: 80,
+        format: 'webp',
+        codec_lib: 'webp',
+        allow_size: 1024 * 1024 * 4,
+        allow_container: ['jpg', 'jpeg', 'image2', 'png', 'gif', 'webp',],
+    },
+    v_normal: {
+        length: 1920,
+        length_small: 1440,
+        format: 'mp4',
+        allow_codec: ['vp8', 'vp9', 'h264', 'hevc', 'av1', 'vp10',],
+        // allow_rate: 4000 * 1000,
+        allow_rate: 1024 * 1024 * 20,
+        allow_container: ['mp4', 'ogg', 'webm', 'm4a',],
+        // @todo 这个处理起来太麻烦了。。。反正webdav做好了，手动处理吧
+        priority_audio: [
+            'cht', 'chs', 'chin', 'zh-', '中',
+            'jpn', 'jps', 'japan', 'jp', '日',
+            'us', 'en', '英',
+        ],
+        priority_subtitle: [
+            'cht', 'chs', 'chin', 'zh-', '中',
+            'jpn', 'jps', 'japan', 'jp', '日',
+            'us', 'en', '英',
+        ],
+        //
+        // cur_lib: 'libx264',
+        cur_lib: 'hevc_nvenc',
+        libx264: {
+            codec_lib: 'libx264',
+            pixFmt: 'yuv422p10',
+            quality: 15,  //+- 3500
+            quality_small: 15,  //
+        },
+        h264_nvenc: {
+            codec_lib: 'h264_nvenc',
+            pixFmt: 'yuv420p',
+            target_rate: 6000,  //bufsize *= 5
+            target_rate_small: 3000,
+            lookahead: 40,
+            preset: 'slow',
+        },
+        hevc_nvenc: {
+            codec_lib: 'hevc_nvenc',
+            pixFmt: 'p010le',
+            //bufsize *= 10
+            //maxrate *= 8
+            //minrate /= 4
+            target_rate: 4000,
+            target_rate_small: 2500,
+            lookahead: 80,
+            bf: 4,
+            preset: 'slow',
+        },
+    },
+    a_normal: {
+        quality: 1.5,  //+- 110
+        format: 'aac',
+        codec_lib: 'aac',
+        allow_codec: ['flac', 'mp3', 'aac', 'wav',],
+        allow_container: ['flac', 'mp3', 'aac', 'wav',],
+        // allow_rate: 120 * 1000,
+        allow_rate: 1024 * 1024,
+    },
+    stt_normal: {
+        format: 'vtt',
+    },
+};
 
 async function loadMeta(path: string) {
     let meta;
     try {
         // await fs.stat(path);
         const vidProbe = `ffprobe -v quiet -hide_banner -print_format json -show_format -show_streams -i '${path}'`;// > '${root}/dev/${path}.json'
-        const { stdout, stderr } = await exec(vidProbe);
+        const {stdout, stderr} = await exec(vidProbe);
         // console.info(stdout, stderr);
         meta = JSON.parse(stdout);
     } catch (e: any) {
@@ -63,7 +151,7 @@ async function videoStr(meta: any)
         const aStr = (tranA || tranR)
             ? `-c:a ${convertConfig.a_normal.codec_lib} -q:a ${convertConfig.a_normal.quality}`
             : '-c:a copy'
-            ;
+        ;
         let tranSize = '';
         let maxLen = 0;
         let isSmall = false;
@@ -94,22 +182,22 @@ async function videoStr(meta: any)
                 case 'h264_nvenc':
                     rate = isSmall ? vConf.h264_nvenc.target_rate_small : vConf.h264_nvenc.target_rate;
                     vStr = `-c:v ${vConf.h264_nvenc.codec_lib
-                        } -preset ${vConf.h264_nvenc.preset} -pix_fmt ${vConf.h264_nvenc.pixFmt} -b:v ${rate
-                        }k -maxrate:v ${rate * 4
-                        }k -minrate:v ${Math.round(rate / 4)
-                        }k -bufsize:v ${rate * 5
-                        }k -rc-lookahead ${vConf.h264_nvenc.lookahead} ${tranSize}`;
+                    } -preset ${vConf.h264_nvenc.preset} -pix_fmt ${vConf.h264_nvenc.pixFmt} -b:v ${rate
+                    }k -maxrate:v ${rate * 4
+                    }k -minrate:v ${Math.round(rate / 4)
+                    }k -bufsize:v ${rate * 5
+                    }k -rc-lookahead ${vConf.h264_nvenc.lookahead} ${tranSize}`;
                     break;
                 case 'hevc_nvenc':
                     rate = isSmall ? vConf.hevc_nvenc.target_rate_small : vConf.hevc_nvenc.target_rate;
                     vStr = `-c:v ${vConf.hevc_nvenc.codec_lib
-                        } -preset ${vConf.hevc_nvenc.preset} -pix_fmt ${vConf.hevc_nvenc.pixFmt} -b:v ${rate
-                        }k -maxrate:v ${rate * 8
-                        }k -minrate:v ${Math.round(rate / 4)
-                        }k -bufsize:v ${rate * 10
-                        }k -rc-lookahead ${vConf.hevc_nvenc.lookahead
-                        } -bf ${vConf.hevc_nvenc.bf
-                        } ${tranSize}`;
+                    } -preset ${vConf.hevc_nvenc.preset} -pix_fmt ${vConf.hevc_nvenc.pixFmt} -b:v ${rate
+                    }k -maxrate:v ${rate * 8
+                    }k -minrate:v ${Math.round(rate / 4)
+                    }k -bufsize:v ${rate * 10
+                    }k -rc-lookahead ${vConf.hevc_nvenc.lookahead
+                    } -bf ${vConf.hevc_nvenc.bf
+                    } ${tranSize}`;
                     break;
             }
 
@@ -154,7 +242,7 @@ async function audioStr(meta: any)
         const aStr = (tranA || tranR)
             ? `-c:a ${convertConfig.a_normal.codec_lib} -q:a ${convertConfig.a_normal.quality}`
             : '-c:a copy'
-            ;
+        ;
         procStr = `ffmpeg -hide_banner -hwaccel auto -y -i '{resource}' ${aStr} '{target}'`;
     }
     // console.info(procStr);

@@ -4,6 +4,7 @@ import ServerConfig from "../ServerConfig";
 import QueueModel from "../model/QueueModel";
 import FileJob from "./processor/FileJob";
 import jobs from "./jobs";
+import fs from "fs";
 
 console.info('job watcher init');
 

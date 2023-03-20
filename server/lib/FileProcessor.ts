@@ -155,7 +155,7 @@ async function mkdir(dirId: number, name: string): Promise<false | col_node> {
         title: name,
         // description: description,
         status: 1,
-        building: 0,
+        building: 1,
         list_node: [...parentInfo.list_node, parentInfo.id],
         list_tag_id: [],
         index_file_id: {},
@@ -183,6 +183,38 @@ async function get(nodeId: number | col_node, from: number, to: number): Promise
 
 async function touch(path: string): Promise<false> {
     return false;
+}
+
+/**
+ * 添加文件不添加节点
+ * suffix其实可以内部处理的，不过前面反正会用到
+ * */
+async function putFile(fromTmpPath: string, suffix: string): Promise<col_file> {
+    const stat = await fs.stat(fromTmpPath);
+    const fileInfo = {
+        uuid: await getUUID(),
+        suffix: suffix,
+        size: stat.size,
+        meta: {},
+        status: 1,
+    } as col_file;
+    //---------------------------------------
+    //先落地
+    // console.info('FileProcessor put: node cmp');
+    const targetPath = Config.path.local + getRelPathByFile(fileInfo);
+    try {
+        await fs.stat(getDir(targetPath));
+    } catch (e) {
+        await fs.mkdir(getDir(targetPath), {recursive: true, mode: 0o777});
+    }
+    // console.info('FileProcessor put: mkdir');
+    await fs.cp(fromTmpPath, targetPath);
+    await fs.rm(fromTmpPath);
+    //---------------------------------------
+    //再写入
+    const insRes = await (new FileModel).insert(fileInfo);
+    fileInfo.id = insRes.insertId;
+    return fileInfo;
 }
 
 async function put(fromTmpPath: string, toDir: number | col_node, name: string): Promise<false | col_node> {
@@ -408,6 +440,7 @@ export {
     mkdir,
     get,
     touch,
+    putFile,
     put,
     mv,
     rm,

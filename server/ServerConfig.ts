@@ -1,7 +1,8 @@
 import os from 'os';
-import { type_file } from '../share/Database';
+import {type_file} from '../share/Database';
+import fs from "fs";
 
-export default {
+const ServerConfig = {
     // pathPrefix: '/api',
     port: {
         api: 8090,
@@ -41,7 +42,7 @@ export default {
         webdav: '/webdav',
     },
     //hashFunction: process.cwd() + '/binary/b3sum_linux_x64_bin --no-names {fileName}',
-    parser: {
+    /*parser: {
         //@see https://slhck.info/video/2017/02/24/vbr-settings.html
         i_cover: {
             length: 640,
@@ -128,5 +129,72 @@ export default {
         stt_normal: {
             format: 'vtt',
         },
+    },*/
+    parser: {
+        ffProgram: 'ffmpeg',
+        cover: {
+            format: 'webp',
+            max_length: 640,
+            allow_size: 1024 * 512,
+            allow_container: ['jpg', 'jpeg', 'image2', 'png', 'gif', 'webp',],
+            ff_encoder: '-c:v webp -quality 65',
+        },
+        preview: {
+            format: 'webp',
+            max_length: 1280,
+            allow_size: 1024 * 1024,
+            allow_container: ['jpg', 'jpeg', 'image2', 'png', 'gif', 'webp',],
+            ff_encoder: '-c:v webp -quality 75',
+        },
+        image: {
+            format: 'webp',
+            max_length: 2560,
+            allow_size: 1024 * 1024 * 4,
+            allow_container: ['jpg', 'jpeg', 'image2', 'png', 'gif', 'webp',],
+            ff_encoder: '-c:v webp -quality 80',
+        },
+        video: {
+            length: 1920,
+            length_small: 1280,
+            format: 'mp4',
+            allow_codec: ['vp8', 'vp9', 'h264', 'hevc', 'av1', 'vp10',],
+            // allow_rate: 4000 * 1000,
+            //注意是 B/s
+            allow_rate: 1024 * 1024 * 6 / 8,
+            allow_container: ['mp4', 'ogg', 'webm', 'm4a',],
+            ff_encoder: '-c:v hevc_nvenc -profile:v main10 -level 5 ' +
+                '-rc-lookahead 80 -qp 16 -bf 4 ',
+        },
+        audio: {
+            quality: 1.5,  //+- 110
+            format: 'aac',
+            codec_lib: 'aac',
+            allow_codec: ['flac', 'mp3', 'aac', 'wav', 'vorbis', 'ogg', 'pcm',],
+            allow_container: ['flac', 'mp3', 'aac', 'wav', 'vorbis', 'ogg',],
+            // allow_rate: 120 * 1000,
+            allow_rate: 1024 * 1024 * 1 / 8,
+            priority_kw: [
+                'jpn', 'jps', 'japan', 'jp', '日',
+                'cht', 'chs', 'chin', 'zh-', '中',
+                'us', 'en', '英',
+            ],
+            ff_encoder: '-c:a aac -q:a 1.3',
+        },
+        subtitle: {
+            format: 'vtt',
+            allow_codec: ['ass', 'ssa', 'vtt', 'srt', 'subrip',],
+            priority_kw: [
+                'cht', 'chs', 'chin', 'zh-', '中',
+                'jpn', 'jps', 'japan', 'jp', '日',
+                'us', 'en', '英',
+            ],
+        },
     },
 };
+
+fs.mkdirSync(
+    ServerConfig.path.temp,
+    {recursive: true, mode: 0o777}
+);
+
+export default ServerConfig;
