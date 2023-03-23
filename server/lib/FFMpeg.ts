@@ -49,8 +49,21 @@ async function loadMeta(path: string): Promise<ffMeta> {
 
 // Array.isArray([])
 
-async function subtitleStr(meta: ffMeta): Promise<Map<string, string>> {
+/**
+ * subTitle=>subParseStr
+ * */
+async function subtitleStr(meta: ffMeta): Promise<boolean | Map<string, string>> {
     const subConf = conf["subtitle"];
+    //字幕仅支持vtt容器其他都要转，所以判断container就行
+    let tranContainer = true;
+    for (let i1 = 0; i1 < subConf.allow_container.length; i1++) {
+        const kw = subConf.allow_container[i1];
+        if (meta.format.format_name.toLowerCase().indexOf(kw) === -1) continue;
+        tranContainer = false;
+        break;
+    }
+    if (!tranContainer) return true;
+    //
     const resMap = new Map<string, string>();
     let multiCount = meta.streams.length > 1;
     // const langSet = new Set<string>();
@@ -72,7 +85,7 @@ async function subtitleStr(meta: ffMeta): Promise<Map<string, string>> {
         }
         let str = `[execMask.program]
 -i [execMask.resource]
-${multiCount ? `-map s:${i1}` : ''}
+${multiCount ? `-map 0:${i1}` : ''}
 [execMask.target]`.replaceAll(/[\r\n]+/gm, " \\\n");
         resMap.set(lang, str);
     }
@@ -248,8 +261,11 @@ async function videoExtractSub(meta: ffMeta): Promise<Map<string, string>> {
     }
     hasSub = subCount > 0;
     let subMap = new Map<string, string>();
+
     if (hasSub) {
-        subMap = await subtitleStr(meta);
+        const subStrMap = await subtitleStr(meta);
+        if (typeof subStrMap === 'boolean') return subMap;
+        subMap = subStrMap;
     }
     return subMap;
 }

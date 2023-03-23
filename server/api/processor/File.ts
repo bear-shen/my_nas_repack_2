@@ -10,6 +10,7 @@ import TagModel from '../../model/TagModel';
 import TagGroupModel from '../../model/TagGroupModel';
 import FileModel from '../../model/FileModel';
 import * as fp from "../../lib/FileProcessor";
+import ServerConfig from "../../ServerConfig";
 
 export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_list_resp> {
@@ -165,8 +166,9 @@ export default class {
                 for (const key in node.index_file_id) {
                     if (!Object.prototype.hasOwnProperty.call(node.index_file_id, key)) continue;
                     const fileId = node.index_file_id[key];
-                    const file = fileMap.get(fileId);
+                    const file = fileMap.get(fileId)
                     node.file[key] = file;
+                    node.file[key].path = ServerConfig.path.api + fp.getRelPathByFile(file);
                 }
             });
         }

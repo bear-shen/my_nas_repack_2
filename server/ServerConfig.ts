@@ -27,7 +27,7 @@ const ServerConfig = {
         password: 'root',
     },
     suffix: {
-        video: ['mp4', 'avi', 'mkv', 'm4a', '3gp',],
+        video: ['mp4', 'avi', 'mkv', 'm4a', '3gp', 'flv', 'hlv', 'rm', 'rmvb',],
         audio: ['wav', 'flac', 'mp3', 'aac',],
         image: ['jpg', 'png', 'jpeg', 'tif', 'tiff', 'bmp', 'gif', 'webp',],
         text: ['txt', 'html', 'json',],
@@ -182,7 +182,8 @@ const ServerConfig = {
         },
         subtitle: {
             format: 'vtt',
-            allow_codec: ['ass', 'ssa', 'vtt', 'srt', 'subrip',],
+            allow_container: ['webvtt',],
+            allow_codec: ['ass', 'ssa', 'vtt', 'srt', 'subrip', 'mov_text',],
             priority_kw: [
                 'cht', 'chs', 'chin', 'zh-', '中',
                 'jpn', 'jps', 'japan', 'jp', '日',
