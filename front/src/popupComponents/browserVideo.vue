@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, type Ref, watch } from "vue";
-import type { ModalConstruct, ModalStruct } from "../modal";
-import { queryDemo, query } from "@/Helper";
-import type { api_node_col, api_file_list_resp } from "../../../share/Api";
+import {onMounted, onUnmounted, ref, type Ref, watch} from "vue";
+import type {ModalConstruct, ModalStruct} from "../modal";
+import {queryDemo, query} from "@/Helper";
+import type {api_node_col, api_file_list_resp} from "../../../share/Api";
 import smp_file_list_resp from "../../../share/sampleApi/smp_file_list_resp";
 import GenFunc from "../../../share/GenFunc";
-import { useEventStore } from "@/stores/event";
-import { useLocalConfigureStore } from "@/stores/localConfigure";
+import {useEventStore} from "@/stores/event";
+import {useLocalConfigureStore} from "@/stores/localConfigure";
+import type {col_node} from "../../../share/Database";
+
 const localConfigure = useLocalConfigureStore();
 const props = defineProps<{
   data: {
@@ -15,7 +17,7 @@ const props = defineProps<{
     [key: string]: any;
   };
   modalData: ModalStruct;
-  nodeList: api_node_col;
+  nodeList: api_node_col[];
   curIndex: number;
   curNode: api_node_col;
 }>();
@@ -42,10 +44,10 @@ const mediaMeta = ref({
   loop: localConfigure.get("browser_play_mode") === "single",
 });
 const modeKey = localConfigure.listen("browser_play_mode", (v) =>
-  Object.assign(mediaMeta.value, { loop: v === "single" })
+  Object.assign(mediaMeta.value, {loop: v === "single"})
 );
 const volumeKey = localConfigure.listen("browser_play_volume", (v) =>
-  Object.assign(mediaMeta.value, { volume: v })
+  Object.assign(mediaMeta.value, {volume: v})
 );
 
 function onInitMeta() {
@@ -60,6 +62,7 @@ function onInitMeta() {
   if (meta.play) dom.play();
   dom.volume = meta.mute ? 0 : meta.volume / 100;
 }
+
 function togglePlay() {
   const dom = mediaDOM.value;
   if (!dom) return;
@@ -69,8 +72,9 @@ function togglePlay() {
   } else {
     dom.play();
   }
-  Object.assign(mediaMeta.value, { play: !meta.play });
+  Object.assign(mediaMeta.value, {play: !meta.play});
 }
+
 function onEnd(e: Event) {
   console.info("onEnd", e);
   const dom = mediaDOM.value;
@@ -83,7 +87,9 @@ function onEnd(e: Event) {
   }
   emits("nav", props.curIndex + 1);
 }
+
 onMounted(() => {
+  loadSubtitle();
   contentDOM.value?.addEventListener("wheel", wheelListener);
   document.addEventListener("keydown", keymap);
 });
@@ -100,8 +106,9 @@ const eventStore = useEventStore();
 let changeEvtKey = eventStore.listen(
   `modal_browser_change_${props.modalData.nid}`,
   (data) => {
-    Object.assign(mediaMeta.value, { show: false });
-    setTimeout(() => Object.assign(mediaMeta.value, { show: true }), 50);
+    Object.assign(mediaMeta.value, {show: false});
+    loadSubtitle();
+    setTimeout(() => Object.assign(mediaMeta.value, {show: true}), 50);
   }
 );
 onUnmounted(() => {
@@ -114,6 +121,7 @@ onUnmounted(() => {
   localConfigure.release("browser_play_mode", modeKey);
   localConfigure.release("browser_play_volume", volumeKey);
 });
+
 function onTimeUpdate(e: Event) {
   const dom = mediaDOM.value;
   if (!dom) return;
@@ -128,6 +136,7 @@ const dragData = {
   w: 0,
   orgX: 0,
 };
+
 function onDragging(e: MouseEvent) {
   const dom = mediaDOM.value;
   if (!dom) return;
@@ -149,6 +158,7 @@ function onDragging(e: MouseEvent) {
   // console.info("onDragging");
   // console.info(e);
 }
+
 function mouseMoveListener(e: MouseEvent) {
   // console.info("mouseMoveListener");
   e.preventDefault();
@@ -157,18 +167,20 @@ function mouseMoveListener(e: MouseEvent) {
   //
   const dom = mediaDOM.value;
   if (!dom) return;
-  Object.assign(dragData, { x: e.clientX });
+  Object.assign(dragData, {x: e.clientX});
   let delta = (dragData.x - dragData.orgX) / dragData.w;
   if (delta > 1) delta = 1;
   if (delta < 0) delta = 0;
   dom.currentTime = dom.duration * delta;
 }
+
 function mouseUpListener() {
   // console.info("mouseUpListener");
-  Object.assign(dragData, { active: false });
+  Object.assign(dragData, {active: false});
   document.removeEventListener("mousemove", mouseMoveListener);
   document.removeEventListener("mouseup", mouseUpListener);
 }
+
 function wheelListener(e: WheelEvent) {
   const dom = mediaDOM.value;
   if (!dom) return;
@@ -177,19 +189,20 @@ function wheelListener(e: WheelEvent) {
   if (volume < 0) volume = 0;
   if (volume > 100) volume = 100;
   dom.volume = volume / 100;
-  Object.assign(mediaMeta.value, { volume: volume });
+  Object.assign(mediaMeta.value, {volume: volume});
   localConfigure.set("browser_play_volume", volume);
 }
+
 function keymap(e: KeyboardEvent) {
   if ((e.target as HTMLElement).tagName !== "BODY") return;
   if (!props.modalData.layout.active) return;
   // console.info(e);
   switch (e.key) {
     case "ArrowUp":
-      wheelListener({ deltaY: -1 } as WheelEvent);
+      wheelListener({deltaY: -1} as WheelEvent);
       break;
     case "ArrowDown":
-      wheelListener({ deltaY: 1 } as WheelEvent);
+      wheelListener({deltaY: 1} as WheelEvent);
       break;
     case "ArrowLeft":
     case "ArrowRight":
@@ -202,6 +215,7 @@ function keymap(e: KeyboardEvent) {
       break;
   }
 }
+
 function parseTime(t: number) {
   const d = {
     h: "" + Math.floor(t / 3600),
@@ -215,6 +229,22 @@ function parseTime(t: number) {
   if (d.h !== "0") s = `${d.h}:${s}`;
   // console.info(t, d);
   return s;
+}
+
+
+const subtitleList = ref([] as (api_node_col & { label?: string })[]);
+
+function loadSubtitle() {
+  let befInd = props.curNode.title?.lastIndexOf('.');
+  let preStr = props.curNode.title?.substring(0, befInd) ?? '';
+  if (!preStr) return subtitleList.value = [];
+  const subNode = [] as (api_node_col & { label?: string })[];
+  props.nodeList.forEach(node => {
+    let aftStr = node.title?.substring(preStr.length);
+    if (node.type === 'subtitle' && node.title?.indexOf(preStr) === 0) subNode.push(Object.assign({label: aftStr}, node));
+  });
+  subtitleList.value = subNode;
+  // return subNode;
 }
 </script>
 
@@ -250,7 +280,7 @@ function parseTime(t: number) {
               :style="{
                 left: (100 * mediaMeta.time) / mediaMeta.duration + '%',
               }"
-              >|</span
+            >|</span
             >
           </div>
         </div>
@@ -283,7 +313,11 @@ function parseTime(t: number) {
           @ended="onEnd"
           @timeupdate="onTimeUpdate"
         >
-          <source :src="props.curNode.file?.normal?.path" />
+          <source :src="props.curNode.file?.normal?.path"/>
+          <template v-for="(subtitle,index) in subtitleList">
+            <track v-if="index===0" default :src="subtitle.file?.normal?.path" kind="subtitles" :srclang="subtitle.label" :label="subtitle.label"/>
+            <track v-else :src="subtitle.file?.normal?.path" kind="subtitles" :srclang="subtitle.label" :label="subtitle.label"/>
+          </template>
         </video>
       </template>
     </div>

@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, type Ref, watch } from "vue";
-import type { ModalConstruct, ModalStruct } from "../modal";
-import { queryDemo, query } from "@/Helper";
-import type { api_node_col, api_file_list_resp } from "../../../share/Api";
+import {onMounted, onUnmounted, ref, type Ref, watch} from "vue";
+import type {ModalConstruct, ModalStruct} from "../modal";
+import {queryDemo, query} from "@/Helper";
+import type {api_node_col, api_file_list_resp} from "../../../share/Api";
 import smp_file_list_resp from "../../../share/sampleApi/smp_file_list_resp";
 import GenFunc from "../../../share/GenFunc";
-import { useEventStore } from "@/stores/event";
+import {useEventStore} from "@/stores/event";
+
 const props = defineProps<{
   data: {
     query: { [key: string]: any };
@@ -13,7 +14,7 @@ const props = defineProps<{
     [key: string]: any;
   };
   modalData: ModalStruct;
-  nodeList: api_node_col;
+  nodeList: api_node_col[];
   curIndex: api_node_col;
   curNode: api_node_col;
 }>();
@@ -33,9 +34,11 @@ const imgLayout = ref({
   orgW: 0,
   orgH: 0,
 });
+
 function onload(e: any) {
   console.info("onload", e);
 }
+
 function loadImageRes(): any {
   // console.info("loadImageRes");
   const dom = imgDOM.value;
@@ -52,6 +55,7 @@ function loadImageRes(): any {
   });
   fitImg();
 }
+
 onMounted(() => {
   console.warn("mounted");
   Object.assign(imgLayout.value, {
@@ -83,6 +87,7 @@ onUnmounted(() => {
     changeEvtKey
   );
 });
+
 async function fitImg() {
   // console.info("fitImg");
   const domLayout = contentDOM.value;
@@ -120,6 +125,7 @@ let dragData = {
   orgX: 0,
   orgY: 0,
 };
+
 function onDragging(e: MouseEvent) {
   if (!props.modalData.layout.active) return;
   const layout = imgLayout.value;
@@ -133,6 +139,7 @@ function onDragging(e: MouseEvent) {
   Object.assign(dragData, t);
   // console.info(e);
 }
+
 document.addEventListener("mousemove", function (e: MouseEvent) {
   e.preventDefault();
   e.stopPropagation();
@@ -149,6 +156,7 @@ document.addEventListener("mouseup", function () {
   dragData.active = false;
 });
 document.addEventListener("wheel", setZoom);
+
 function setZoom(e?: WheelEvent, dir?: number) {
   // console.info();
   // if (!props.modalData.layout.active) return;
