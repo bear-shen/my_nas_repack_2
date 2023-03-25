@@ -7,6 +7,8 @@ import smp_file_list_resp from "../../../share/sampleApi/smp_file_list_resp";
 import GenFunc from "../../../share/GenFunc";
 import { useEventStore } from "@/stores/event";
 import { useLocalConfigureStore } from "@/stores/localConfigure";
+import type {col_node} from "../../../share/Database";
+
 const localConfigure = useLocalConfigureStore();
 const props = defineProps<{
   data: {
@@ -177,13 +179,13 @@ function wheelListener(e: WheelEvent) {
   if (volume < 0) volume = 0;
   if (volume > 100) volume = 100;
   dom.volume = volume / 100;
-  Object.assign(mediaMeta.value, { volume: volume });
+  // Object.assign(mediaMeta.value, { volume: volume });
   localConfigure.set("browser_play_volume", volume);
 }
 function keymap(e: KeyboardEvent) {
   if ((e.target as HTMLElement).tagName !== "BODY") return;
   if (!props.modalData.layout.active) return;
-  console.info(e);
+  // console.info(e);
   switch (e.key) {
     case " ":
       togglePlay();
@@ -280,7 +282,7 @@ function parseTime(t: number) {
         ></span>
         <audio
           ref="mediaDOM"
-          :item_id="props.curNode.id"
+          :data-item-id="props.curNode.id"
           :poster="props.curNode.file?.cover?.path"
           @loadedmetadata="onInitMeta()"
           @ended="onEnd"

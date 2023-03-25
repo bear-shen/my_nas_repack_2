@@ -189,7 +189,7 @@ function wheelListener(e: WheelEvent) {
   if (volume < 0) volume = 0;
   if (volume > 100) volume = 100;
   dom.volume = volume / 100;
-  Object.assign(mediaMeta.value, {volume: volume});
+  // Object.assign(mediaMeta.value, {volume: volume});
   localConfigure.set("browser_play_volume", volume);
 }
 
@@ -198,6 +198,9 @@ function keymap(e: KeyboardEvent) {
   if (!props.modalData.layout.active) return;
   // console.info(e);
   switch (e.key) {
+    case " ":
+      togglePlay();
+      break;
     case "ArrowUp":
       wheelListener({deltaY: -1} as WheelEvent);
       break;
@@ -307,7 +310,7 @@ function loadSubtitle() {
         ></span> -->
         <video
           ref="mediaDOM"
-          :item_id="props.curNode.id"
+          :data-item-id="props.curNode.id"
           :poster="props.curNode.file?.cover?.path"
           @loadedmetadata="onInitMeta()"
           @ended="onEnd"
@@ -315,8 +318,14 @@ function loadSubtitle() {
         >
           <source :src="props.curNode.file?.normal?.path"/>
           <template v-for="(subtitle,index) in subtitleList">
-            <track v-if="index===0" default :src="subtitle.file?.normal?.path" kind="subtitles" :srclang="subtitle.label" :label="subtitle.label"/>
-            <track v-else :src="subtitle.file?.normal?.path" kind="subtitles" :srclang="subtitle.label" :label="subtitle.label"/>
+            <track v-if="index===0" default
+                   :src="subtitle.file?.normal?.path" kind="subtitles"
+                   :srclang="subtitle.label" :label="subtitle.label"
+            />
+            <track v-else
+                   :src="subtitle.file?.normal?.path" kind="subtitles"
+                   :srclang="subtitle.label" :label="subtitle.label"
+            />
           </template>
         </video>
       </template>
@@ -380,5 +389,16 @@ function loadSubtitle() {
   }
   .info {
   }
+  video::cue {
+    //-webkit-text-stroke: $fontSize*0.5 black;
+    //text-shadow: black;
+    //outline: green solid 3px;
+    color: white;
+    background-color: rgba(0,0,0,0.5);
+    //background-color: rgba(255,255,255,0.5);
+    margin-bottom: 200px;
+    font-size: $fontSize*1.5;
+  }
 }
+
 </style>
