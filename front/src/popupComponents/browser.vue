@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { onMounted, ref, watch, onUnmounted } from "vue";
-import type { Ref } from "vue";
-import type { ModalConstruct, ModalStruct } from "../modal";
-import { queryDemo, query } from "@/Helper";
-import type { api_node_col, api_file_list_resp } from "../../../share/Api";
+import {onMounted, ref, watch, onUnmounted} from "vue";
+import type {Ref} from "vue";
+import type {ModalConstruct, ModalStruct} from "../modal";
+import {queryDemo, query} from "@/Helper";
+import type {api_node_col, api_file_list_resp} from "../../../share/Api";
 import smp_file_list_resp from "../../../share/sampleApi/smp_file_list_resp";
 import GenFunc from "../../../share/GenFunc";
 import browserBaseVue from "./browserBase.vue";
 import browserImageVue from "./browserImage.vue";
 import browserAudioVue from "./browserAudio.vue";
 import browserVideoVue from "./browserVideo.vue";
-import { useLocalConfigureStore } from "@/stores/localConfigure";
-import { useEventStore } from "@/stores/event";
-import type { type_file } from "../../../share/Database";
+import {useLocalConfigureStore} from "@/stores/localConfigure";
+import {useEventStore} from "@/stores/event";
+import type {type_file} from "../../../share/Database";
 //------------------
 const props = defineProps<{
   data: {
@@ -36,6 +36,11 @@ const playModes = ["queue", "loop", "single", "shuffle"];
 let playMode: Ref<string> = ref(
   localConfigure.get("browser_play_mode") ?? "loop"
 );
+const ignoreFileType = [
+  'directory',
+  'subtitle',
+] as type_file[];
+
 function togglePlayMode() {
   let curModeIndex = playModes.indexOf(playMode.value);
   curModeIndex += 1;
@@ -44,14 +49,17 @@ function togglePlayMode() {
   localConfigure.set("browser_play_mode", playMode.value);
   checkNext();
 }
+
 //------------------
 let showDetail: Ref<boolean> = ref(
   localConfigure.get("browser_show_detail") ?? false
 );
+
 function toggleDetail() {
   showDetail.value = !showDetail.value;
   localConfigure.set("browser_show_detail", showDetail.value);
 }
+
 //------------------
 onMounted(() => {
   console.info("mounted");
@@ -73,6 +81,7 @@ let curNode: Ref<api_node_col> = ref({});
 // getList();
 // });
 getList();
+
 async function getList() {
   const res = await query<api_file_list_resp>("file/get", props.data.query);
   if (!res) return;
@@ -98,6 +107,7 @@ async function getList() {
 //------------------
 let hasNext = ref(true);
 let hasPrev = ref(true);
+
 function checkNext() {
   let isEnd = false;
   let isStart = false;
@@ -123,8 +133,10 @@ function checkNext() {
       break;
   }
 }
+
 //
 const eventStore = useEventStore();
+
 function goNext() {
   let listLen = nodeList.value.length;
   if (playMode.value === "shuffle") {
@@ -132,8 +144,12 @@ function goNext() {
   } else {
     curIndex.value += 1;
   }
-  goNav();
+  if (curIndex.value < 0) curIndex.value = nodeList.value.length - 1;
+  while (curIndex.value > listLen - 1) curIndex.value -= listLen;
+  if (!isValidNav()) goNext();
+  else goNav();
 }
+
 function goPrev() {
   let listLen = nodeList.value.length;
   if (playMode.value === "shuffle") {
@@ -141,8 +157,13 @@ function goPrev() {
   } else {
     curIndex.value -= 1;
   }
-  goNav();
+  // const listLen = nodeList.value.length;
+  if (curIndex.value < 0) curIndex.value = nodeList.value.length - 1;
+  while (curIndex.value > listLen - 1) curIndex.value -= listLen;
+  if (!isValidNav()) goPrev();
+  else goNav();
 }
+
 function emitNav(index: number) {
   let listLen = nodeList.value.length;
   if (playMode.value === "shuffle") {
@@ -150,12 +171,19 @@ function emitNav(index: number) {
   } else {
     curIndex.value = index;
   }
-  goNav();
-}
-function goNav() {
-  const listLen = nodeList.value.length;
+  // const listLen = nodeList.value.length;
   if (curIndex.value < 0) curIndex.value = nodeList.value.length - 1;
   while (curIndex.value > listLen - 1) curIndex.value -= listLen;
+  if (!isValidNav()) emitNav(index + 1);
+  else goNav();
+}
+
+function isValidNav() {
+  const node = nodeList.value[curIndex.value];
+  return ignoreFileType.indexOf(node.type ?? 'directory') === -1;
+}
+
+function goNav() {
   const changeType = curNode.value.type !== nodeList.value[curIndex.value].type;
   curNode.value = nodeList.value[curIndex.value];
   props.modalData.base.title = curNode.value.title ?? "";
@@ -168,6 +196,7 @@ function goNav() {
     );
   checkNext();
 }
+
 //------------------
 
 function keymap(e: KeyboardEvent) {
@@ -185,7 +214,8 @@ function keymap(e: KeyboardEvent) {
   }
 }
 
-function goDownload() {}
+function goDownload() {
+}
 </script>
 
 <template>
@@ -257,7 +287,7 @@ function goDownload() {}
     padding-left: $fontSize * 0.25;
     $blurSize: $fontSize * 0.25;
     text-shadow: 0 0 $blurSize black, 0 0 $blurSize black, 0 0 $blurSize black,
-      0 0 $blurSize black;
+    0 0 $blurSize black;
     color: map-get($colors, font);
     p:first-child {
       color: map-get($colors, font_active);

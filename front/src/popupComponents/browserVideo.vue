@@ -240,11 +240,14 @@ const subtitleList = ref([] as (api_node_col & { label?: string })[]);
 function loadSubtitle() {
   let befInd = props.curNode.title?.lastIndexOf('.');
   let preStr = props.curNode.title?.substring(0, befInd) ?? '';
+  // console.warn(preStr);
   if (!preStr) return subtitleList.value = [];
   const subNode = [] as (api_node_col & { label?: string })[];
   props.nodeList.forEach(node => {
-    let aftStr = node.title?.substring(preStr.length);
-    if (node.type === 'subtitle' && node.title?.indexOf(preStr) === 0) subNode.push(Object.assign({label: aftStr}, node));
+    if (node.type !== 'subtitle') return;
+    let aftStr = node.title?.substring(0, preStr.length);
+    // console.info(aftStr);
+    if (node.title?.indexOf(preStr) === 0) subNode.push(Object.assign({label: aftStr}, node));
   });
   subtitleList.value = subNode;
   // return subNode;
@@ -339,7 +342,7 @@ function loadSubtitle() {
     video {
       position: absolute;
       width: 100%;
-      height: 100%;
+      height: calc(100% - $fontSize * 2.5);
       object-fit: contain;
       left: 0;
       top: 0;
@@ -394,9 +397,9 @@ function loadSubtitle() {
     //text-shadow: black;
     //outline: green solid 3px;
     color: white;
-    background-color: rgba(0,0,0,0.5);
+    background-color: rgba(0, 0, 0, 0.5);
     //background-color: rgba(255,255,255,0.5);
-    margin-bottom: 200px;
+    //margin-bottom: 200px;
     font-size: $fontSize*1.5;
   }
 }
