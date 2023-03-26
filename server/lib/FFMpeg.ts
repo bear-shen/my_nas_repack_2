@@ -1,12 +1,11 @@
 import Config from "../ServerConfig";
 import * as fs from "fs/promises";
 import {isArray} from "util";
-import ServerConfig from "../ServerConfig";
 
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
-const conf = ServerConfig.parser;
+const conf = Config.parser;
 
 type ffMeta = {
     format: {

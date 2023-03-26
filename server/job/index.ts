@@ -1,6 +1,5 @@
 import {IncomingMessage, ServerResponse} from "http";
 // import fs from "fs";
-import ServerConfig from "../ServerConfig";
 import QueueModel from "../model/QueueModel";
 import FileJob from "./processor/FileJob";
 import jobs from "./jobs";

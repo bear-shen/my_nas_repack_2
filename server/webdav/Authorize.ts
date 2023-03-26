@@ -1,7 +1,6 @@
 import { IncomingMessage } from "http";
 import { fromByteArray, toByteArray } from "base64-js";
 import { makePass } from '../lib/Auth';
-import ServerConfig from "../ServerConfig";
 import UserModel from '../model/UserModel';
 
 const md5 = require('md5');

@@ -1,6 +1,6 @@
 import {IncomingMessage, ServerResponse} from "http";
 import fs from "fs";
-import ServerConfig from "../ServerConfig";
+import Config from "../ServerConfig";
 import http from "http";
 import Authorize from "./Authorize";
 import Method from "./Method";
@@ -63,8 +63,8 @@ const server = http.createServer(async function (req: IncomingMessage, res: Serv
     }
     if (!res.writableEnded) res.end();
 });
-server.listen(ServerConfig.port.webdav);
-console.info('server now listen on:', ServerConfig.port.webdav);
+server.listen(Config.port.webdav);
+console.info('server now listen on:', Config.port.webdav);
 
 
 

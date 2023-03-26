@@ -1,9 +1,9 @@
-import { IncomingMessage, ServerResponse } from "http";
-import { Element, ElementCompact } from "xml-js";
+import {IncomingMessage, ServerResponse} from "http";
+import {Element, ElementCompact} from "xml-js";
 import * as fp from "../../lib/FileProcessor";
 
 import * as convert from 'xml-js';
-import { ReadStream } from "fs";
+import {ReadStream} from "fs";
 
 /**
  * header
@@ -11,9 +11,9 @@ import { ReadStream } from "fs";
  * depth=0  当前目录
  * */
 
-import { Buffer } from "buffer";
-import ServerConfig from "../../ServerConfig";
-import { getRelPath, getRequestBuffer, respCode } from "../Lib";
+import {Buffer} from "buffer";
+import Config from "../../ServerConfig";
+import {getRelPath, getRequestBuffer, respCode} from "../Lib";
 
 export default async function (req: IncomingMessage, res: ServerResponse) {
     const relPath = getRelPath(req.url, req.headers.host, res);
@@ -25,7 +25,7 @@ export default async function (req: IncomingMessage, res: ServerResponse) {
     const outputData = getBase();
     // console.info(relPath);
     const xmlBuffer = await (await getRequestBuffer(req, res)).toString();
-    const xmlData = convert.xml2js(xmlBuffer, { compact: true });
+    const xmlData = convert.xml2js(xmlBuffer, {compact: true});
     const xmlLs = getXmlAttr(xmlData);
     // console.info(JSON.stringify(xmlData));
     //console.info(xmlLs);
@@ -37,7 +37,7 @@ export default async function (req: IncomingMessage, res: ServerResponse) {
         if (i1 === 0) {
             const fi = await fp.stat(curNode);
             if (!fi) return respCode(404, res);
-            fileLs.push(Object.assign(fi, { relPath: `${dirPath}${fi.title === 'root' ? '' : '/' + fi.title}` }));
+            fileLs.push(Object.assign(fi, {relPath: `${dirPath}${fi.title === 'root' ? '' : '/' + fi.title}`}));
         } else if (i1 === 1) {
             const fl = await fp.ls(curNode.id);
             //if (fl) continue;
@@ -57,7 +57,7 @@ export default async function (req: IncomingMessage, res: ServerResponse) {
 function resp(res: ServerResponse, outputData: ElementCompact) {
     // console.info(JSON.stringify(outputData));
     // const output = convert.js2xml(outputData, {compact: true, spaces: 4});
-    const output = convert.js2xml(outputData, { compact: true, });
+    const output = convert.js2xml(outputData, {compact: true,});
     if (output) res.setHeader('Content-Type', 'text/xml; charset="utf-8"');
     res.statusCode = 207;
     // console.info(output);
@@ -78,7 +78,7 @@ function getXmlAttr(xml: any): string[] {
 
 function getBase(): ElementCompact {
     return {
-        _declaration: { _attributes: { version: "1.0", encoding: "utf-8" } },
+        _declaration: {_attributes: {version: "1.0", encoding: "utf-8"}},
         'multistatus': {
             _attributes: {
                 'xmlns:D': 'DAV:',
@@ -121,16 +121,16 @@ function buildRespNode(xmlLs: string[], node: (fp.FileStat & { relPath: string }
             break;
         case "directory":
             mime = 'httpd/unix-directory';
-            resourceType = { 'collection': {} };
+            resourceType = {'collection': {}};
             break;
     }
     const availProp = {
-        'creationdate': { _text: node.time_create },
-        'getlastmodified': { _text: node.time_update },
-        'executable': { _text: 'F' },
+        'creationdate': {_text: node.time_create},
+        'getlastmodified': {_text: node.time_update},
+        'executable': {_text: 'F'},
         'resourcetype': resourceType,
-        'getcontenttype': { _text: mime },
-        'getcontentlength': { _text: node.file?.raw?.size ?? 0 },
+        'getcontenttype': {_text: mime},
+        'getcontentlength': {_text: node.file?.raw?.size ?? 0},
     };
     const target = {
         _attributes: {
@@ -139,10 +139,10 @@ function buildRespNode(xmlLs: string[], node: (fp.FileStat & { relPath: string }
             'xmlns:g0': 'DAV:',
             'xmlns:g1': 'SAR:',
         },
-        'href': { _text: ServerConfig.path.webdav + encodeURI(node.relPath), },
+        'href': {_text: Config.path.webdav + encodeURI(node.relPath),},
         'propstat': {
             'prop': {},
-            'D:status': { _text: 'HTTP/1.1 200 OK', },
+            'D:status': {_text: 'HTTP/1.1 200 OK',},
         },
     } as ElementCompact;
     for (let i1 = 0; i1 < xmlLs.length; i1++) {

@@ -1,24 +1,9 @@
-import {Fields} from 'formidable';
-import PersistentFile from 'formidable';
-import {IncomingMessage, ServerResponse} from 'http';
-import {api_file_list_resp, api_node_col, api_file_list_req, api_file_upload_resp, api_file_upload_req, api_file_mkdir_resp, api_file_mkdir_req, api_file_mov_req, api_file_mod_req} from '../../../share/Api';
 import NodeModel from '../../model/NodeModel';
-import GenFunc from '../../../share/GenFunc';
-import {col_file, col_node, col_tag} from '../../../share/Database';
-import TagModel from '../../model/TagModel';
-import TagGroupModel from '../../model/TagGroupModel';
+import {col_file, col_node} from '../../../share/Database';
 import FileModel from '../../model/FileModel';
 import * as fp from "../../lib/FileProcessor";
-import {
-    loadMeta,
-    subtitleStr,
-    videoStr,
-    audioStr,
-    imageStr,
-} from '../../lib/FFMpeg';
-import {getRelPathByFile} from "../../lib/FileProcessor";
+import * as FFMpeg from '../../lib/FFMpeg';
 import Config from "../../ServerConfig";
-import * as FFMpeg from "../../lib/FFMpeg";
 import util from "util";
 
 const exec = util.promisify(require('child_process').exec);
@@ -127,7 +112,7 @@ export default class {
                         let nFileInfo: col_file;
                         try {
                             const tmpFilePath = await genTmpPath(parserConfig.format);
-                            const exeStr = parseStr(ffStr, filePath, tmpFilePath);
+                            const exeStr = parseFFStr(ffStr, filePath, tmpFilePath);
                             const {stdout, stderr} = await exec(exeStr);
                             console.info(stdout, stderr);
                             nFileInfo = await fp.putFile(tmpFilePath, parserConfig.format);
@@ -239,7 +224,7 @@ async function execFFmpeg(file: col_file, type: string,): Promise<col_file | boo
     let nFileInfo: col_file;
     try {
         const tmpFilePath = await genTmpPath(parserConfig.format);
-        const exeStr = parseStr(ffStr, filePath, tmpFilePath);
+        const exeStr = parseFFStr(ffStr, filePath, tmpFilePath);
         const {stdout, stderr} = await exec(exeStr);
         console.info(stdout, stderr);
         nFileInfo = await fp.putFile(tmpFilePath, parserConfig.format);
@@ -252,12 +237,11 @@ async function execFFmpeg(file: col_file, type: string,): Promise<col_file | boo
 
 async function genTmpPath(suffix: string) {
     const uuid = await fp.getUUID();
-    const path = Config.path.temp + '/t_' + uuid + '.' + suffix;
-    return path;
+    return Config.path.temp + '/t_' + uuid + '.' + suffix;
 }
 
 
-function parseStr(str: string, source: string, target: string) {
+function parseFFStr(str: string, source: string, target: string) {
     str = str.replace('[execMask.program]', Config.parser.ffProgram);
     str = str.replace('[execMask.resource]', source);
     str = str.replace('[execMask.target]', target);

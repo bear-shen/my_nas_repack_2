@@ -1,6 +1,6 @@
 import {IncomingMessage, ServerResponse} from "http";
 import fs from "fs";
-import ServerConfig from "../ServerConfig";
+import Config from "../ServerConfig";
 import http from "http";
 import Authorize from "./Authorize";
 import formidable, {Fields, Files, PersistentFile} from "formidable";
@@ -63,8 +63,8 @@ const server = http.createServer(async function (req: IncomingMessage, res: Serv
         res.end();
     }
 });
-server.listen(ServerConfig.port.api);
-console.info('server now listen on:', ServerConfig.port.api);
+server.listen(Config.port.api);
+console.info('server now listen on:', Config.port.api);
 
 
 function parseForm(req: IncomingMessage): Promise<ParsedForm> {
