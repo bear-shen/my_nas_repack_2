@@ -317,6 +317,13 @@ function triggleLazyLoad() {
   // const top = contentDOM.value.scrollTop;
   // console.info(top);
 }
+
+/*function selectNode(e: MouseEvent, node: api_node_col) {
+  console.info(e, node);
+}*/
+
+/*function toGo() {
+}*/
 </script>
 
 <template>
@@ -392,6 +399,8 @@ function triggleLazyLoad() {
         @go="emitGo"
       ></FileItem>
     </div>
+    <!--    @click="selectNode($event,node)"-->
+    <!--    @dblclick="toGo"-->
     <!-- <directory-layout></directory-layout> -->
   </div>
 </template>

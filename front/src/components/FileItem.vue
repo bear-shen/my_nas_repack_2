@@ -192,7 +192,7 @@ function op_delete() {
             class="title editing"
           ></content-editable>
           <p v-else class="title" @click="go('node', node.id)">{{ node.title }}</p>
-          <p>{{ node.time_update }}</p>
+          <p v-if="!renaming">{{ node.time_update }}</p>
           <p v-if="!renaming && node.description">{{ node.description }}</p>
           <content-editable
             v-if="renaming" v-model="node.description"
@@ -382,12 +382,18 @@ function op_delete() {
 </template>
 
 <style scoped lang="scss">
+.node_node {
+  &:hover, .select {
+    background-color: mkColor(map-get($colors, bk), 4);
+  }
+}
 .node_node.mode_detail {
   //  -webkit-column-break-after: avoid;
   //-webkit-column-break-before: avoid;
   -webkit-column-break-inside: avoid;
   //padding: 0 0 $fontSize * 0.5 0;
-  padding: 0 $fontSize * 0.5 $fontSize;
+  //padding: 0 $fontSize * 0.5 $fontSize;
+  padding: $fontSize * 0.5;
   display: block;
   $contentHeight: $fontSize * 5;
   .content {
@@ -478,6 +484,8 @@ function op_delete() {
   font-size: $fontSize;
   p {
     display: table-cell;
+    line-height: $fontSize*1.25;
+    vertical-align: middle;
   }
   .type {
     //span:first-child {
@@ -523,7 +531,9 @@ function op_delete() {
   &:hover .title {
     color: map-get($colors, "font");
   }
-  margin: 0 0 $fontSize * 0.5 0;
+  //margin: 0 0 $fontSize * 0.5 0;
+  padding: $fontSize * 0.5;
+  //margin: $fontSize * 0.5;
   -webkit-column-break-inside: avoid;
 }
 .tag_list.editing {
