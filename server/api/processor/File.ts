@@ -1,8 +1,8 @@
 import {Fields} from 'formidable';
-import PersistentFile from 'formidable';
+import {PersistentFile} from 'formidable';
 import {IncomingMessage, ServerResponse} from 'http';
 import {ParsedForm} from '../types';
-import {api_file_list_resp, api_node_col, api_file_list_req, api_file_upload_resp, api_file_upload_req, api_file_mkdir_resp, api_file_mkdir_req, api_file_mov_req, api_file_mod_req} from '../../../share/Api';
+import {api_file_list_resp, api_node_col, api_file_list_req, api_file_upload_resp, api_file_upload_req, api_file_mkdir_resp, api_file_mkdir_req, api_file_mov_req, api_file_mod_req, api_file_cover_req, api_file_cover_resp, api_file_delete_resp, api_file_delete_req} from '../../../share/Api';
 import NodeModel from '../../model/NodeModel';
 import GenFunc from '../../../share/GenFunc';
 import {col_node, col_tag} from '../../../share/Database';
@@ -258,4 +258,32 @@ export default class {
         const dir = await fp.mkdir(parseInt(request.pid) ?? 0, request.title);
         return dir;
     }
+
+    async cover(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<false | api_file_cover_resp> {
+        const request = data.fields as api_file_cover_req;
+        const curNode = await new NodeModel().where('id', request.id).first();
+        if (!curNode) return;
+        const curPNode = await new NodeModel().where('id', curNode.id_parent).first();
+        if (!curPNode) return;
+        const coverId = curNode.index_file_id.cover;
+        if (!coverId) return;
+        await new NodeModel().where('id', curNode.id_parent).update({
+            index_file_id: {
+                cover: coverId,
+            },
+        });
+        return curNode;
+    }
+
+    async delete(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<false | api_file_delete_resp> {
+        const request = data.fields as api_file_delete_req;
+        const curNode = await new NodeModel().where('id', request.id).first();
+        if (!curNode) return;
+        await new NodeModel().where('id', curNode.id).update({
+            status: 0
+        });
+        return curNode;
+    }
+
+
 };

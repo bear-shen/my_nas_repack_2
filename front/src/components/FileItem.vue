@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {onMounted, type Ref, ref} from "vue";
-import type {api_tag_col, api_node_col, api_file_list_req, api_file_mov_req, api_tag_list_resp, api_tag_list_req, api_file_mov_resp} from "../../../share/Api";
+import type {
+  api_tag_col, api_node_col, api_file_list_req, api_file_mov_req,
+  api_tag_list_resp, api_tag_list_req, api_file_mov_resp, api_file_cover_req,
+  api_file_delete_req, api_file_delete_resp
+} from "../../../share/Api";
 import {useModalStore} from "@/stores/modalStore";
 import {query} from "@/Helper";
 import ContentEditable from "@/components/ContentEditable.vue";
@@ -161,7 +165,11 @@ function tag_parse(item: api_tag_col) {
 function op_imp_tag_eh() {
 }
 
-function op_set_cover() {
+async function op_set_cover() {
+  const formData = new FormData();
+  formData.set('id', `${props.node.id}`);
+  const res = await query<api_file_cover_req>('file/cover', formData);
+  return res;
 }
 
 function op_set_favourite() {
@@ -170,8 +178,14 @@ function op_set_favourite() {
 function op_delete_forever() {
 }
 
-function op_delete() {
+async function op_delete() {
+  const formData = new FormData();
+  formData.set('id', `${props.node.id}`);
+  const res = await query<api_file_delete_req>('file/delete', formData);
+  emits('go', 'reload');
+  return res;
 }
+
 </script>
 
 <template>

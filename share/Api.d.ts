@@ -145,6 +145,16 @@ export type api_tag_group_mod_req = {
 export type api_tag_group_mod_resp = api_tag_group_mod_req;
 
 
+export type api_file_cover_req = {
+    id: string,
+}
+export type api_file_cover_resp = col_node;
+
+
+export type api_file_delete_req = {
+    id: string,
+}
+export type api_file_delete_resp = col_node;
 
 
 
