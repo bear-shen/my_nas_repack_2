@@ -16,6 +16,7 @@ import File from "./processor/File";
 import User from "./processor/User";
 import Tag from "./processor/Tag";
 import TagGroup from "./processor/TagGroup";
+import Local from "./processor/Local";
 
 type t = RowDataPacket;
 const controllers = {
@@ -24,7 +25,7 @@ const controllers = {
     tag: Tag,
     tag_group: TagGroup,
     user_group: 0,
-    local: 0,
+    local: Local,
     config: 0,
     dev: 0,
 }

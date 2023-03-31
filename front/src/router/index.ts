@@ -1,5 +1,6 @@
 import FileView from '@/views/FileView.vue';
 import {createRouter, createWebHistory} from 'vue-router'
+import LocalView from '../views/LocalView.vue'
 import TagView from '../views/TagView.vue'
 import HomeView from '../views/HomeView.vue'
 
@@ -51,7 +52,7 @@ const routes = [
     {
         path: '/local',
         name: 'Local',
-        component: HomeView,
+        component: LocalView,
         meta: {icon: 'sysIcon_yingpan1',},
     },
     {

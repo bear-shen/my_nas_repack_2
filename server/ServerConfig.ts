@@ -40,6 +40,7 @@ const ServerConfig = {
         local: process.cwd() + '/../file',
         api: '/file',
         webdav: '/webdav',
+        root_local: '/',
     },
     //hashFunction: process.cwd() + '/binary/b3sum_linux_x64_bin --no-names {fileName}',
     /*parser: {
@@ -183,7 +184,7 @@ const ServerConfig = {
         subtitle: {
             format: 'vtt',
             allow_container: ['webvtt',],
-            allow_codec: ['ass', 'ssa', 'vtt', 'srt', 'subrip', 'mov_text','webvtt',],
+            allow_codec: ['ass', 'ssa', 'vtt', 'srt', 'subrip', 'mov_text', 'webvtt',],
             priority_kw: [
                 'cht', 'chs', 'chin', 'zh-', '中',
                 'jpn', 'jps', 'japan', 'jp', '日',

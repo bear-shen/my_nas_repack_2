@@ -157,6 +157,25 @@ export type api_file_delete_req = {
 export type api_file_delete_resp = col_node;
 
 
+export type api_local_ls_req = {
+    path: string,
+};
+export type api_local_ls_resp = {} | null;
+export type api_local_rm_req = {
+    path: string,
+};
+export type api_local_rm_resp = {} | null;
+export type api_local_mv_req = {
+    from: string,
+    to: string,
+};
+export type api_local_mv_resp = {} | null;
+export type api_local_cp_req = {
+    from: string,
+    to: string,
+};
+export type api_local_cp_resp = {} | null;
+
 
 
 
