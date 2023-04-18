@@ -176,7 +176,16 @@ export type api_local_cp_req = {
 };
 export type api_local_cp_resp = {} | null;
 
-
+export type api_local_file_statement = {
+    name: string,
+    path: string,
+    timeModified: string,
+    timeCreated: string,
+    isFile: boolean,
+    isDir: boolean,
+    type: string,
+    size: number,
+}
 
 
 

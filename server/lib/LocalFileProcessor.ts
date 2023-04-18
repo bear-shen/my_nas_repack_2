@@ -4,6 +4,7 @@ import Config from "../ServerConfig";
 import * as fs from 'fs/promises';
 import {ReadStream, Stats} from 'fs';
 import * as fsNP from 'fs';
+import type {api_local_file_statement} from "../../share/Api";
 
 //util
 function getUUID(): string {
@@ -47,7 +48,7 @@ function getType(suffix: string): string {
     return 'binary';
 }
 
-async function statFromStat(relPath: string, isFullPath?: boolean): Promise<fileStatement> {
+async function statFromStat(relPath: string, isFullPath?: boolean): Promise<api_local_file_statement> {
     const localPath = isFullPath ? relPath : Config.path.root_local + relPath;
     // console.info(localPath);
     try {
@@ -74,7 +75,7 @@ async function statFromStat(relPath: string, isFullPath?: boolean): Promise<file
 }
 
 //dir
-async function ls(path: string): Promise<fileStatement[]> {
+async function ls(path: string): Promise<api_local_file_statement[]> {
     const nPath = path.replace(/\/$/, '');
     const fList = await fs.readdir(Config.path.root_local + path);
     // console.info(fList);
@@ -83,7 +84,7 @@ async function ls(path: string): Promise<fileStatement[]> {
         targetF.push(nPath + '/' + i);
     });
     // console.info(targetF);
-    const target: fileStatement[] = [];
+    const target: api_local_file_statement[] = [];
     for (let i1 = 0; i1 < targetF.length; i1++) {
         const fStat = await stat(targetF[i1]);
         if (!fStat) continue;
@@ -148,7 +149,7 @@ async function cp(fromPath: string, toPath: string): Promise<boolean> {
     return;
 }
 
-async function stat(relPath: string): Promise<fileStatement> {
+async function stat(relPath: string): Promise<api_local_file_statement> {
     // console.info(Config.path.root_local + path);
     // console.info(fs.stat(Config.path.root_local + path));
     // console.info(await fs.stat(Config.path.root_local + path));
@@ -169,16 +170,5 @@ export {
     rm,
     cp,
     stat,
-    fileStatement,
 };
 
-type fileStatement = {
-    name: string,
-    path: string,
-    timeModified: string,
-    timeCreated: string,
-    isFile: boolean,
-    isDir: boolean,
-    type: string,
-    size: number,
-}
