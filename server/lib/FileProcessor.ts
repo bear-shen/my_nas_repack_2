@@ -161,9 +161,9 @@ async function mkdir(dirId: number, name: string): Promise<false | col_node> {
         index_file_id: {},
         index_node: {},
     } as col_node;
-    await (new NodeModel).insert(nodeInfo);
+    const insRes = await (new NodeModel).insert(nodeInfo);
     // nodeInfo.id = await (new NodeModel).lastInsertId();
-    return nodeInfo;
+    return Object.assign(nodeInfo, {id: insRes.insertId});
 }
 
 //file
@@ -217,7 +217,7 @@ async function putFile(fromTmpPath: string, suffix: string): Promise<col_file> {
     return fileInfo;
 }
 
-async function put(fromTmpPath: string, toDir: number | col_node, name: string): Promise<false | col_node> {
+async function put(fromTmpPath: string, toDir: number | col_node, name: string, isCopy: boolean = false): Promise<false | col_node> {
     // console.info('FileProcessor put: init');
     const parentNode = await getNodeByIdOrNode(toDir);
     //
@@ -246,11 +246,13 @@ async function put(fromTmpPath: string, toDir: number | col_node, name: string):
     }
     // console.info('FileProcessor put: mkdir');
     await fs.cp(fromTmpPath, targetPath);
-    await fs.rm(fromTmpPath);
+    if (!isCopy)
+        await fs.rm(fromTmpPath);
     //---------------------------------------
     //再写入
     await (new FileModel).insert(fileInfo);
     //last insert id 不靠谱的，用uuid回传
+    //ResultSetHeader 里的insertId似乎没问题
     const curFileInfo = await (new FileModel).where('uuid', fileInfo.uuid).first(['id']);
     fileInfo.id = curFileInfo.id;
     // console.info(fileInfo.id, 'ref to', name);
@@ -267,13 +269,13 @@ async function put(fromTmpPath: string, toDir: number | col_node, name: string):
         index_file_id: {raw: fileInfo.id,},
         index_node: {},
     } as col_node;
-    await (new NodeModel).insert(nodeInfo);
+    const insRes = await (new NodeModel).insert(nodeInfo);
     // try {
     // await fs.stat(fromTmpPath);
     // await fs.rm(fromTmpPath);
     // } catch (e) {
     // }
-    return nodeInfo;
+    return Object.assign(nodeInfo, {id: insRes.insertId});
 }
 
 async function mv(nodeId: number | col_node, toDirId: number | col_node, name: string | false = false, description: string | false = false): Promise<boolean> {

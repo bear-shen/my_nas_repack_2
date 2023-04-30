@@ -28,15 +28,16 @@ foreach ($tls as $fl) {
     }
     $keyLs       = array_filter($keyLs, function ($val) {
         $fKey = [
-            '汉化', '翻译', '漢化', '中国', '翻訳', 'chinese', 'english', '翻訳',
+            '汉化', '翻译', '漢化', '中国', '翻訳', 'chinese', 'english', '翻訳', '汉化',
             "r18", "r-18", "高解像度", "psd", "补档",
             "えっちビデオ", "どえっち動画", "序章", "胡桃", "どえっち特別版", "無料版！",
             "※r-18注意※", "※微エロ注意※", "同人誌", "r-18", "まとめ1", "※エロ注意※", "まとめ2", "リクエスト", "全体公開", "食べ放題プラン限定", "ちょいエロ", "乳首あり注意", "まとめ", "新春リク", "skeb", "みんなで自己紹介",
             "差分",
-            "表情", "セリフ", "再販",
+            "表情", "セリフ", "再販", 'オリジナル', 'オリジ',
+            'アンソロジ', '同人誌', 'コミッ', 'comic',
         ];
         foreach ($fKey as $key) {
-            if (stripos($val, $key)) return false;
+            if (stripos($val, $key) !== false) return false;
         }
         return true;
     });
@@ -64,8 +65,8 @@ foreach ($fMetaLs as $i => $f) {
         foreach ($tMetaLs as $t) {
             if (!$t->isAuthor) continue;
             foreach ($t->keyLs as $key) {
-                if ($f->author == $key) $toDir = '作品合集 ' . $t->name;
-                if ($f->group == $key) $toDir = '作品合集 ' . $t->name;
+                if (strtolower($f->author) == strtolower($key)) $toDir = '作品合集 ' . $t->name;
+                if (strtolower($f->group) == strtolower($key)) $toDir = '作品合集 ' . $t->name;
             }
         }
     }
@@ -73,7 +74,7 @@ foreach ($fMetaLs as $i => $f) {
         foreach ($tMetaLs as $t) {
             if (!$t->isParody) continue;
             foreach ($t->keyLs as $key) {
-                if ($f->parody == $key) $toDir = '合集 ' . $t->name;
+                if (strtolower($f->parody) == strtolower($key)) $toDir = '合集 ' . $t->name;
             }
         }
     }
@@ -115,18 +116,20 @@ foreach ($fMetaLs as $i => $f) {
 foreach ($authCountMap as $author => $count) {
     if ($count < 2) continue;
     $toDirPath = $tmpDir . 'n作品合集 ' . $author;
-    if (!file_exists($toDirPath))
-        @mkdir($toDirPath, 0777, true);
-    $fMetaLs = array_values($fMetaLs);
+    $fMetaLs   = array_values($fMetaLs);
     foreach ($fMetaLs as $i => $f) {
         /** @var $f folderMeta */
         if ($f->author == $author) {
             $mvTo = $toDirPath . '\\' . $f->name;
+            if (!file_exists($toDirPath))
+                @mkdir($toDirPath, 0777, true);
             @rename($f->path, $mvTo);
             unset($fMetaLs[$i]);
         }
         if ($f->group == $author) {
             $mvTo = $toDirPath . '\\' . $f->name;
+            if (!file_exists($toDirPath))
+                @mkdir($toDirPath, 0777, true);
             @rename($f->path, $mvTo);
             unset($fMetaLs[$i]);
         }
@@ -135,13 +138,13 @@ foreach ($authCountMap as $author => $count) {
 foreach ($parodyCountMap as $parody => $count) {
     if ($count < 2) continue;
     $toDirPath = $tmpDir . 'n合集 ' . $parody;
-    if (!file_exists($toDirPath))
-        @mkdir($toDirPath, 0777, true);
-    $fMetaLs = array_values($fMetaLs);
+    $fMetaLs   = array_values($fMetaLs);
     foreach ($fMetaLs as $i => $f) {
         /** @var $f folderMeta */
         if ($f->parody == $parody) {
             $mvTo = $toDirPath . '\\' . $f->name;
+            if (!file_exists($toDirPath))
+                @mkdir($toDirPath, 0777, true);
             @rename($f->path, $mvTo);
             unset($fMetaLs[$i]);
         }

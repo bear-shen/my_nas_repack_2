@@ -39,7 +39,7 @@ function getSuffix(fileName: string): string {
 
 function getType(suffix: string): string {
     let ifHit = -1;
-    console.info(suffix);
+    // console.info(suffix);
     for (const key in Config.suffix) {
         ifHit = Config.suffix[key].indexOf(suffix);
         if (ifHit === -1) continue;
