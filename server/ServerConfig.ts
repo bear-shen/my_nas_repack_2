@@ -40,7 +40,8 @@ const ServerConfig = {
         local: process.cwd() + '/../file',
         api: '/file',
         webdav: '/webdav',
-        root_local: '/',
+        root_local: '',
+        // root_local: '/',
     },
     //hashFunction: process.cwd() + '/binary/b3sum_linux_x64_bin --no-names {fileName}',
     /*parser: {

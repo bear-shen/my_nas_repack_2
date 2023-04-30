@@ -160,7 +160,7 @@ export type api_file_delete_resp = col_node;
 export type api_local_ls_req = {
     path: string,
 };
-export type api_local_ls_resp = {} | null;
+export type api_local_ls_resp = api_local_file_statement[];
 export type api_local_rm_req = {
     path: string,
 };
@@ -175,6 +175,11 @@ export type api_local_cp_req = {
     to: string,
 };
 export type api_local_cp_resp = {} | null;
+export type api_local_import_req = {
+    sourceDir: string,
+    targetNodeId: number,
+};
+export type api_local_import_resp = {} | null;
 
 export type api_local_file_statement = {
     name: string,
