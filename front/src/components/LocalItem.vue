@@ -98,11 +98,6 @@ if (props.depth == 1) {
 
 <template>
   <tr :class="['local_item', ]" @click="toggle">
-    <td v-if="props.meta.isDir" class="listIcon listIcon_file_directory"></td>
-    <td v-else-if="props.meta.isFile" class="listIcon listIcon_file_text"></td>
-    <td class="path" :style="{paddingLeft:(depth-1)*15+'px'}">{{ props.meta.path }}</td>
-    <td>{{ props.meta.timeCreated }}</td>
-    <td>{{ props.meta.timeModified }}</td>
     <td class="operate" @click.stop>
       <!--      <button @click="rm">rm</button>-->
       <!--      <button @click=d"mv">mv</button>-->
@@ -111,6 +106,11 @@ if (props.depth == 1) {
       <!--      <button v-if="meta.isDir" @click="upd">upd</button>-->
       <button v-if="meta.isDir" @click="imp">imp</button>
     </td>
+    <td v-if="props.meta.isDir" class="listIcon listIcon_file_directory"></td>
+    <td v-else-if="props.meta.isFile" class="listIcon listIcon_file_text"></td>
+    <td class="path" :style="{paddingLeft:(depth-1)*15+'px'}">{{ props.meta.path }}</td>
+    <td>{{ props.meta.timeCreated }}</td>
+    <td>{{ props.meta.timeModified }}</td>
   </tr>
   <template v-if="expand && props.meta.isDir">
     <template v-for="sub in list">

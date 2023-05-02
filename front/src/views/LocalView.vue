@@ -58,7 +58,14 @@ const rootStatement = {
   }
   td.operate {
     //min-width: $fontSize*40;
+    //text-align: left;
     text-align: right;
+    button{
+      background-color: mkColor(map-get($colors, bk), 2);
+      &:hover{
+        background-color: mkColor(map-get($colors, bk), 6);
+      }
+    }
   }
 }
 </style>
