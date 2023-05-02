@@ -15,8 +15,8 @@ const exec = util.promisify(require('child_process').exec);
 
 export default class {
     static async run(payload: { [key: string]: any }): Promise<any> {
-        const src = payload.source.replace(/\/$/, '');
-        const targetId = payload.id;
+        const src = payload.sourceDir.replace(/\/$/, '');
+        const targetId = payload.targetNodeId;
         let importRoot = await (new NodeModel).where('id', targetId).first();
         if (!importRoot) importRoot = {
             id: 0,
