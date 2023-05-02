@@ -85,8 +85,9 @@ async function onChange(e: KeyboardEvent) {
 async function onConfirm(node: api_node_col) {
   console.info(node);
   const modalStore = useModalStore();
-  await props.data.call(node);
-  modalStore.close(props.modalData.nid);
+  const res = await props.data.call(node);
+  if (!res)
+    return modalStore.close(props.modalData.nid);
 }
 
 // async function onSwitch() {

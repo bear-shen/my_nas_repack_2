@@ -27,6 +27,7 @@ const rootStatement = {
     width: 100%;
   }
   tr {
+    padding: 0 $fontSize;
     height: $fontSize*1.5;
     line-height: $fontSize*1.5;
     &:nth-child(2n), &:hover {
@@ -41,8 +42,16 @@ const rootStatement = {
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  td:first-child {
+    padding-left: $fontSize;
+  }
+  td:last-child {
+    padding-right: $fontSize;
+  }
   td.listIcon {
     width: $fontSize*2;
+    line-height: $fontSize*2;
+    font-size: $fontSize*1.5;
   }
   td.path {
     //width: 60%;

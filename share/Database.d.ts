@@ -109,7 +109,8 @@ export type col_queue = {
     id?: number,
     type?: string,
     payload?: { [key: string]: any },
-    status?: 0 | 1,
+    //-2 unknown -1 failed 0 success 1 new
+    status?: 0 | 1 | -2 | -1,
     time_create?: string,
     time_update?: string,
 }

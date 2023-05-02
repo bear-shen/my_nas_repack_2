@@ -177,7 +177,7 @@ export type api_local_cp_req = {
 export type api_local_cp_resp = {} | null;
 export type api_local_import_req = {
     sourceDir: string,
-    targetNodeId: number,
+    targetNodeId: string,
 };
 export type api_local_import_resp = {} | null;
 

@@ -19,6 +19,7 @@ import FileModel from '../../model/FileModel';
 import * as fp from "../../lib/FileProcessor";
 import * as lfp from "../../lib/LocalFileProcessor";
 import Config from "../../ServerConfig";
+import QueueModel from "../../model/QueueModel";
 
 export default class {
     async ls(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<any> {
@@ -52,6 +53,11 @@ export default class {
 
     async imp(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<any> {
         const request = data.fields as api_local_import_req;
+        await (new QueueModel).insert({
+            type: 'import/run',
+            payload: request,
+            status: 1,
+        });
         return null;
     };
 

@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import {onMounted, type Ref, ref} from "vue";
 import {query} from "@/Helper";
-import type {api_local_file_statement, api_local_ls_resp, api_tag_list_resp} from "../../../share/Api";
+import type {
+  api_node_col, api_local_file_statement,
+  api_local_ls_resp, api_tag_list_resp, api_local_import_resp
+} from "../../../share/Api";
+import GenFunc from "../../../share/GenFunc";
+import {useModalStore} from "@/stores/modalStore";
 
 const props = defineProps<{
   path: string;
@@ -37,6 +42,42 @@ async function upd() {
 }
 
 async function imp() {
+  const modalStore = useModalStore();
+  modalStore.set({
+    title: "locator",
+    alpha: false,
+    key: "",
+    single: false,
+    w: 400,
+    h: 60,
+    minW: 400,
+    minH: 60,
+    // h: 160,
+    resizable: true,
+    movable: false,
+    fullscreen: false,
+    component: [
+      {
+        componentName: "locator",
+        data: {
+          query: {type: 'directory'},
+          call: async (node: api_node_col) => {
+            console.info(node);
+            const formData = new FormData();
+            formData.set('sourceDir', props.meta.path);
+            formData.set('targetNodeId', `${node.id}`);
+            const res = await query<api_local_import_resp>('local/imp', formData);
+            // return true;
+          }
+        },
+      },
+    ],
+    /* callback: {
+      close: function (modal) {
+        console.info(modal);
+      },
+    }, */
+  });
 
 }
 
