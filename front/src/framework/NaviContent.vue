@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // import { defineProps } from "vue";
-import { useRouter, useRoute, type RouteRecordRaw } from "vue-router";
-import { type routes } from "../router";
+import {useRouter, useRoute, type RouteRecordRaw} from "vue-router";
+import {type routes} from "../router";
 // const props = defineProps(["depth", "records"]);
 const props = defineProps({
   depth: Number,
@@ -12,8 +12,10 @@ const records = props.records as RouteRecordRaw[];
 const router = useRouter();
 const route = useRoute();
 
-function go(route: RouteRecordRaw): void {
-  router.push(route.path);
+async function go(route: RouteRecordRaw) {
+  console.info('go', route);
+  const res = await router.push(route.path);
+  console.info(res);
 }
 </script>
 

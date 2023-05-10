@@ -197,6 +197,7 @@ function setMode(mode: string) {
 }
 
 onMounted(async () => {
+  console.info('onMounted');
   localConfigure.release("file_view_mode", modeKey);
   Object.assign(queryData, GenFunc.copyObject(route.query));
   await getList();
@@ -295,9 +296,10 @@ function search() {
     query: tQuery,
   });
 }
+// console.info('here');
 
 onBeforeRouteUpdate(async (to) => {
-  // console.info(to);
+  console.info('onBeforeRouteUpdate',to);
   Object.assign(queryData, to.query);
   await getList();
 });
