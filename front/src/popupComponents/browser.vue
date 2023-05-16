@@ -10,6 +10,7 @@ import browserBaseVue from "./browserBase.vue";
 import browserImageVue from "./browserImage.vue";
 import browserAudioVue from "./browserAudio.vue";
 import browserVideoVue from "./browserVideo.vue";
+import browserPDFVue from "./browserPDF.vue";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {useEventStore} from "@/stores/event";
 import type {type_file} from "../../../share/Database";
@@ -26,6 +27,7 @@ const regComponentLs = {
   audio: browserAudioVue,
   video: browserVideoVue,
   image: browserImageVue,
+  pdf: browserPDFVue,
   base: browserBaseVue,
 } as { [key: string]: any };
 
@@ -215,6 +217,9 @@ function keymap(e: KeyboardEvent) {
 }
 
 function goDownload() {
+  let filePath = curNode.value.file?.raw?.path;
+  if (!filePath) return;
+  window.open(`${filePath}?filename=${curNode.value.title}`);
 }
 </script>
 

@@ -129,6 +129,7 @@ export default class {
             node.list_node.forEach(nodeId => {
                 if (nodeId) parentIdSet.add(nodeId);
             });
+            node.is_file = node.type === 'directory' ? 0 : 1;
         });
         if (!request.no_tag && tagIdSet.size) {
             const tagLs = await (new TagModel).whereIn('id', Array.from(tagIdSet)).select();

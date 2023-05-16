@@ -46,6 +46,9 @@ function go(type: string, id?: number) {
 }
 
 function op_download() {
+  let filePath = props.node.file?.raw?.path;
+  if (!filePath) return;
+  window.open(`${filePath}?filename=${props.node.title}`);
 }
 
 function op_move() {
@@ -589,7 +592,9 @@ async function op_delete() {
     dd {
       margin-left: $fontSize * 0.5;
       color: map-get($colors, "font_sub");
-      white-space: nowrap;
+      word-break: break-word;
+      max-width: 90%;
+      overflow: hidden;
       text-overflow: ellipsis;
       &:hover {
         color: map-get($colors, "font");
