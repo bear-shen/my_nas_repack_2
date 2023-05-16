@@ -35,6 +35,7 @@ export type api_file_list_req = {
     pid?: string,
     tid?: string,
     deleted?: string,
+    favourite?: string,
     no_file?: string,
     no_tag?: string,
     with_crumb?: string,

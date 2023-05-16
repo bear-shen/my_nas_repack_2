@@ -172,31 +172,31 @@ export default class {
                 }
             });
         }
-        if (request.with_crumb && parentIdSet.size) {
-            const parentLs = await new NodeModel()
-                .whereIn('id', Array.from(parentIdSet))
-                .select([
-                    'id', 'title', 'status', 'type',
-                ]);
-            const parentMap = new Map<number, col_node>();
-            parentLs.forEach(node => {
-                parentMap.set(node.id, node);
-            })
+        //
+        const parentMap = new Map<number, col_node>();
+        if (request.with_crumb) {
+            if (parentIdSet.size) {
+                const parentLs = await new NodeModel()
+                    .whereIn('id', Array.from(parentIdSet))
+                    .select([
+                        'id', 'title', 'status', 'type',
+                    ]);
+                parentLs.forEach(node => {
+                    parentMap.set(node.id, node);
+                });
+            }
+            parentMap.set(0, {
+                id: 0, title: 'root', status: 1, type: 'directory'
+            });
             nodeLs.forEach(node => {
                 node.crumb_node = [];
                 node.list_node.forEach(nodeId => {
-                    if (nodeId) {
-                        const parentNode = parentMap.get(nodeId);
-                        if (parentNode) {
-                            node.crumb_node.push(parentNode);
-                        }
-                    } else {
-                        node.crumb_node.push({
-                            id: 0, title: 'root', status: 1, type: 'directory'
-                        });
+                    const parentNode = parentMap.get(nodeId);
+                    if (parentNode) {
+                        node.crumb_node.push(parentNode);
                     }
-                })
-            })
+                });
+            });
         }
         target.list = nodeLs;
         // nodeLs.forEach(item => target.list.push(item));
@@ -285,5 +285,32 @@ export default class {
         return curNode;
     }
 
+    async delete_forever(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<false | api_file_delete_resp> {
+        const request = data.fields as api_file_delete_req;
+        const curNode = await new NodeModel().where('id', request.id).first();
+        if (!curNode) return;
+        if (curNode.status != 0) throw new Error('node is not deleted');
+        await new NodeModel().where('id', request.id).update({status: -1});
+        await (new NodeModel).whereRaw('find_in_set( ? ,list_node)', curNode.id).update({status: -1});
+        // const fileIdSet = new Set<number>();
+        // for (const type in curNode.index_file_id) {
+        //     fileIdSet.add(curNode.index_file_id[type]);
+        // }
+        // if (curNode.type === 'directory') {
+        //     const cascadeNode = await (new NodeModel).whereRaw('find_in_set( ? ,list_node)', curNode.id).select([
+        //         'id',
+        //         'title',
+        //         'type',
+        //         'index_file_id',
+        //     ]);
+        //     cascadeNode.forEach(node => {
+        //         for (const type in node.index_file_id) {
+        //             fileIdSet.add(node.index_file_id[type]);
+        //         }
+        //     });
+        // }
+        // const fileList = await (new FileModel).whereIn('id', Array.from(fileIdSet)).select();
+        return;
+    }
 
 };

@@ -324,6 +324,37 @@ async function rm(nodeId: number): Promise<boolean> {
     return false;
 }
 
+async function rmReal(fileId: number | col_file) {
+    let isId: boolean;
+    switch (typeof fileId) {
+        case 'bigint':
+        case 'number':
+        case 'string':
+            isId = true;
+            break;
+        case 'object':
+        default:
+            isId = false;
+            break;
+    }
+    let fileInfo: col_file;
+    if (isId)
+        fileInfo = await (new FileModel()).where('id', fileId).first();
+    else
+        fileInfo = fileId as col_file;
+    const targetPath = Config.path.local + getRelPathByFile(fileInfo);
+    await fs.rm(targetPath);
+    let dirPath = getDir(targetPath);
+    for (let i1 = 0; i1 < 2; i1++) {
+        let dirLs = await fs.readdir(dirPath);
+        if (!dirLs.length) {
+            await fs.rmdir(dirPath)
+        }
+        dirPath = getDir(dirPath);
+    }
+    await (new FileModel()).where('id', fileInfo.id).delete();
+}
+
 async function cp(nodeId: number | col_node, toDirId: number | col_node, name: string): Promise<boolean> {
     const node = await getNodeByIdOrNode(nodeId);
     const toDir = await getNodeByIdOrNode(toDirId);
@@ -446,6 +477,7 @@ export {
     put,
     mv,
     rm,
+    rmReal,
     cp,
     stat,
     //

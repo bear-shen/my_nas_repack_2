@@ -15,12 +15,12 @@ const routes = [
         // children: [
         // ],
     },
-    {
-        path: '/favourite',
-        name: 'Favourite',
-        component: FileView_F,
-        meta: {icon: 'sysIcon_star-o',},
-    },
+    // {
+    //     path: '/favourite',
+    //     name: 'Favourite',
+    //     component: FileView_F,
+    //     meta: {icon: 'sysIcon_star-o',},
+    // },
     {
         path: '/recycle',
         name: 'Recycle',

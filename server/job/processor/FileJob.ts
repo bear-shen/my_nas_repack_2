@@ -7,6 +7,7 @@ import Config from "../../ServerConfig";
 import util from "util";
 import TagModel from "../../model/TagModel";
 import TagGroupModel from "../../model/TagGroupModel";
+import * as fs from 'fs/promises';
 
 const exec = util.promisify(require('child_process').exec);
 
@@ -188,6 +189,30 @@ export default class {
         //
         await buildIndex(node);
     }
+
+    static async deleteForever(payload: { [key: string]: any }): Promise<any> {
+        const nodeId = payload.id;
+        let node: col_node;
+        if (typeof nodeId === 'object')
+            node = nodeId;
+        else
+            node = await (new NodeModel()).where('id', nodeId).first();
+        //
+        await (new NodeModel()).where('id', nodeId).delete();
+        for (const type in node.index_file_id) {
+            const fileId = node.index_file_id[type];
+            const ifExs = await checkOrphanFile(fileId)
+            if (ifExs > 1) continue;
+            await fp.rmReal(fileId);
+        }
+    }
+}
+
+async function checkOrphanFile(fileId: number) {
+    return await (new NodeModel)
+        .whereRaw("JSON_CONTAINS(JSON_EXTRACT(index_file_id, '$.*'), ?)", fileId)
+        // .where('status', '<>', -1)
+        .count('id');
 }
 
 async function buildIndex(inNode: number | col_node) {

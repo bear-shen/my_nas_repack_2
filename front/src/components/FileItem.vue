@@ -192,78 +192,97 @@ async function op_delete() {
   <div :class="['node_node', `mode_${mode}`]" :data-index="index">
     <template v-if="mode === 'detail'">
       <div class="content">
-        <div v-if="node.file?.cover" class="thumb" @click="go('node', node.id)">
-          <img :src="node.file?.cover.path"/>
-        </div>
-        <div
-          v-else
-          @click="go('node', node.id)"
-          :class="['thumb', 'listIcon', `listIcon_file_${node.type}`]"
-        ></div>
+
+        <template v-if="node.status">
+          <div v-if="node.file?.cover" class="thumb" @click="go('node', node.id)">
+            <img :src="node.file?.cover.path"/>
+          </div>
+          <div v-else
+               @click="go('node', node.id)"
+               :class="['thumb', 'listIcon', `listIcon_file_${node.type}`]"
+          ></div>
+        </template>
+        <template v-else>
+          <div v-if="node.file?.cover" class="thumb">
+            <img :src="node.file?.cover.path"/>
+          </div>
+          <div v-else
+               :class="['thumb', 'listIcon', `listIcon_file_${node.type}`]"
+          ></div>
+        </template>
         <div class="meta">
-          <content-editable
-            v-if="renaming" v-model="node.title"
-            class="title editing"
-          ></content-editable>
-          <p v-else class="title" @click="go('node', node.id)">{{ node.title }}</p>
-          <p v-if="!renaming">{{ node.time_update }}</p>
-          <p v-if="!renaming && node.description">{{ node.description }}</p>
-          <content-editable
-            v-if="renaming" v-model="node.description"
-            class="editing"
-          ></content-editable>
+          <template v-if="node.status">
+            <p v-if="!renaming" class="title" @click="go('node', node.id)">{{ node.title }}</p>
+            <content-editable
+              v-else v-model="node.title"
+              class="title editing"
+            ></content-editable>
+            <p v-if="!renaming">{{ node.time_update }}</p>
+            <p v-if="!renaming && node.description">{{ node.description }}</p>
+            <content-editable
+              v-if="renaming" v-model="node.description"
+              class="editing"
+            ></content-editable>
+          </template>
+          <template v-else>
+            <p class="title">{{ node.title }}</p>
+            <p><span v-for="crumb in node.crumb_node"> / {{ crumb.title }}</span></p>
+            <p>{{ node.time_update }}</p>
+            <p v-if="node.description">{{ node.description }}</p>
+          </template>
           <p class="bar">
             <!---->
-            <button
-              v-if="node.is_file"
-              :class="['sysIcon', 'sysIcon_download']"
-              @click="op_download"
-            >
-              DL
-            </button>
-            <!-- <button
-            v-if="!node.is_file"
-            :class="['sysIcon', 'sysIcon_stack']"
-            @click="go"
-          >
-            IN
-          </button> -->
-            <button
-              :class="['sysIcon', 'sysIcon_edit', { active: renaming }]"
-              @click="op_rename"
-            >
-              RN
-            </button>
-            <button :class="['sysIcon', 'sysIcon_folderopen']" @click="op_move">
-              MV
-            </button>
-            <button
-              :class="['sysIcon', 'sysIcon_tag-o', { active: tagging }]"
-              @click="op_tag"
-            >
-              TAG
-            </button>
-            <button
-              :class="['sysIcon', 'sysIcon_tag-o']"
-              @click="op_imp_tag_eh"
-            >
-              IMP EH TAG
-            </button>
-            <button
-              v-if="node.file?.cover?.path"
-              :class="['sysIcon', 'sysIcon_scan']"
-              @click="op_set_cover"
-            >
-              COV
-            </button>
-            <button
-              :class="['sysIcon', 'sysIcon_star-o', { active: node.is_fav }]"
-              @click="op_set_favourite"
-            >
-              FAV
-            </button>
-            <!--        <button :class="['sysIcon','sysIcon_link',]" @click="op_share">SHR</button>-->
             <template v-if="node.status">
+              <button
+                v-if="node.is_file"
+                :class="['sysIcon', 'sysIcon_download']"
+                @click="op_download"
+              >
+                DL
+              </button>
+              <!-- <button
+              v-if="!node.is_file"
+              :class="['sysIcon', 'sysIcon_stack']"
+              @click="go"
+            >
+              IN
+            </button> -->
+              <button
+                :class="['sysIcon', 'sysIcon_edit', { active: renaming }]"
+                @click="op_rename"
+              >
+                RN
+              </button>
+              <button :class="['sysIcon', 'sysIcon_folderopen']" @click="op_move">
+                MV
+              </button>
+              <button
+                :class="['sysIcon', 'sysIcon_tag-o', { active: tagging }]"
+                @click="op_tag"
+              >
+                TAG
+              </button>
+              <button
+                :class="['sysIcon', 'sysIcon_tag-o']"
+                @click="op_imp_tag_eh"
+              >
+                IMP EH TAG
+              </button>
+              <button
+                v-if="node.file?.cover?.path"
+                :class="['sysIcon', 'sysIcon_scan']"
+                @click="op_set_cover"
+              >
+                COV
+              </button>
+              <button
+                :class="['sysIcon', 'sysIcon_star-o', { active: node.is_fav }]"
+                @click="op_set_favourite"
+              >
+                FAV
+              </button>
+              <!--        <button :class="['sysIcon','sysIcon_link',]" @click="op_share">SHR</button>-->
+
               <button :class="['sysIcon', 'sysIcon_delete']" @click="op_delete">
                 DEL
               </button>
@@ -306,91 +325,183 @@ async function op_delete() {
       </div>
     </template>
     <template v-else-if="mode === 'img'">
-      <div v-if="node.file?.cover" class="thumb" @click="go('node', node.id)">
-        <img :src="node.file?.cover.path"/>
-      </div>
-      <div
-        v-else
-        :class="['thumb', 'listIcon', `listIcon_file_${node.type}`]"
-        @click="go('node', node.id)"
-      ></div>
-      <p class="title" @click="go('node', node.id)">{{ node.title }}</p>
-      <p>{{ node.time_update }}</p>
+      <template v-if="node.status">
+        <div v-if="node.file?.cover" class="thumb" @click="go('node', node.id)">
+          <img :src="node.file?.cover.path"/>
+        </div>
+        <div
+          v-else
+          :class="['thumb', 'listIcon', `listIcon_file_${node.type}`]"
+          @click="go('node', node.id)"
+        ></div>
+        <p class="title" @click="go('node', node.id)">{{ node.title }}</p>
+        <p>{{ node.time_update }}</p>
+      </template>
+      <template v-else>
+        <div v-if="node.file?.cover" class="thumb">
+          <img :src="node.file?.cover.path"/>
+        </div>
+        <div
+          v-else
+          :class="['thumb', 'listIcon', `listIcon_file_${node.type}`]"
+        ></div>
+        <p class="title">{{ node.title }}</p>
+        <p>{{ node.time_update }}</p>
+      </template>
     </template>
     <template v-else-if="mode === 'text'">
-      <p class="type" @click="go('node', node.id)">
+      <template v-if="node.status">
+        <p class="type" @click="go('node', node.id)">
         <span
           :class="['thumb', 'listIcon', `listIcon_file_${node.type}`]"
         ></span>
-        <span>{{ node.type }}</span>
-      </p>
-      <p class="title" @click="go('node', node.id)">{{ node.title }}</p>
-      <p class="time">{{ node.time_update }}</p>
-      <p class="bar">
-        <!---->
-        <button
-          v-if="node.is_file"
-          :class="['sysIcon', 'sysIcon_download']"
-          @click="op_download"
-        >
-          DL
-        </button>
-        <!-- <button
-            v-if="!node.is_file"
-            :class="['sysIcon', 'sysIcon_stack']"
-            @click="go"
-          >
-            IN
-          </button> -->
-        <button
-          :class="['sysIcon', 'sysIcon_edit', { active: renaming }]"
-          @click="op_rename"
-        >
-          RN
-        </button>
-        <button :class="['sysIcon', 'sysIcon_folderopen']" @click="op_move">
-          MV
-        </button>
-        <button
-          :class="['sysIcon', 'sysIcon_tag-o', { active: tagging }]"
-          @click="op_tag"
-        >
-          TAG
-        </button>
-        <button :class="['sysIcon', 'sysIcon_tag-o']" @click="op_imp_tag_eh">
-          IMP EH TAG
-        </button>
-        <button
-          v-if="node.file?.cover?.path"
-          :class="['sysIcon', 'sysIcon_scan']"
-          @click="op_set_cover"
-        >
-          COV
-        </button>
-        <button
-          :class="['sysIcon', 'sysIcon_star-o', { active: node.is_fav }]"
-          @click="op_set_favourite"
-        >
-          FAV
-        </button>
-        <!--        <button :class="['sysIcon','sysIcon_link',]" @click="op_share">SHR</button>-->
-        <template v-if="node.status">
-          <button :class="['sysIcon', 'sysIcon_delete']" @click="op_delete">
-            DEL
-          </button>
-        </template>
-        <template v-else>
+          <span>{{ node.type }}</span>
+        </p>
+        <p class="title" @click="go('node', node.id)">{{ node.title }}</p>
+        <p class="time">{{ node.time_update }}</p>
+        <p class="bar">
+          <!---->
           <button
-            :class="['sysIcon', 'sysIcon_delete']"
-            @click="op_delete_forever"
+            v-if="node.is_file"
+            :class="['sysIcon', 'sysIcon_download']"
+            @click="op_download"
           >
-            rDEL
+            DL
           </button>
-          <button :class="['sysIcon', 'sysIcon_delete']" @click="op_delete">
-            REC
+          <!-- <button
+              v-if="!node.is_file"
+              :class="['sysIcon', 'sysIcon_stack']"
+              @click="go"
+            >
+              IN
+            </button> -->
+          <button
+            :class="['sysIcon', 'sysIcon_edit', { active: renaming }]"
+            @click="op_rename"
+          >
+            RN
           </button>
-        </template>
-      </p>
+          <button :class="['sysIcon', 'sysIcon_folderopen']" @click="op_move">
+            MV
+          </button>
+          <button
+            :class="['sysIcon', 'sysIcon_tag-o', { active: tagging }]"
+            @click="op_tag"
+          >
+            TAG
+          </button>
+          <button :class="['sysIcon', 'sysIcon_tag-o']" @click="op_imp_tag_eh">
+            IMP EH TAG
+          </button>
+          <button
+            v-if="node.file?.cover?.path"
+            :class="['sysIcon', 'sysIcon_scan']"
+            @click="op_set_cover"
+          >
+            COV
+          </button>
+          <button
+            :class="['sysIcon', 'sysIcon_star-o', { active: node.is_fav }]"
+            @click="op_set_favourite"
+          >
+            FAV
+          </button>
+          <!--        <button :class="['sysIcon','sysIcon_link',]" @click="op_share">SHR</button>-->
+          <template v-if="node.status">
+            <button :class="['sysIcon', 'sysIcon_delete']" @click="op_delete">
+              DEL
+            </button>
+          </template>
+          <template v-else>
+            <button
+              :class="['sysIcon', 'sysIcon_delete']"
+              @click="op_delete_forever"
+            >
+              rDEL
+            </button>
+            <button :class="['sysIcon', 'sysIcon_delete']" @click="op_delete">
+              REC
+            </button>
+          </template>
+        </p>
+      </template>
+      <template v-else>
+        <p class="type">
+        <span
+          :class="['thumb', 'listIcon', `listIcon_file_${node.type}`]"
+        ></span>
+          <span>{{ node.type }}</span>
+        </p>
+        <p><span v-for="crumb in node.crumb_node"> / {{ crumb.title }}</span></p>
+        <p class="title">{{ node.title }}</p>
+        <p class="time">{{ node.time_update }}</p>
+        <p class="bar">
+          <!---->
+          <template v-if="node.status">
+            <button
+              v-if="node.is_file"
+              :class="['sysIcon', 'sysIcon_download']"
+              @click="op_download"
+            >
+              DL
+            </button>
+            <!-- <button
+                v-if="!node.is_file"
+                :class="['sysIcon', 'sysIcon_stack']"
+                @click="go"
+              >
+                IN
+              </button> -->
+            <button
+              :class="['sysIcon', 'sysIcon_edit', { active: renaming }]"
+              @click="op_rename"
+            >
+              RN
+            </button>
+            <button :class="['sysIcon', 'sysIcon_folderopen']" @click="op_move">
+              MV
+            </button>
+            <button
+              :class="['sysIcon', 'sysIcon_tag-o', { active: tagging }]"
+              @click="op_tag"
+            >
+              TAG
+            </button>
+            <button :class="['sysIcon', 'sysIcon_tag-o']" @click="op_imp_tag_eh">
+              IMP EH TAG
+            </button>
+            <button
+              v-if="node.file?.cover?.path"
+              :class="['sysIcon', 'sysIcon_scan']"
+              @click="op_set_cover"
+            >
+              COV
+            </button>
+            <button
+              :class="['sysIcon', 'sysIcon_star-o', { active: node.is_fav }]"
+              @click="op_set_favourite"
+            >
+              FAV
+            </button>
+            <!--        <button :class="['sysIcon','sysIcon_link',]" @click="op_share">SHR</button>-->
+
+            <button :class="['sysIcon', 'sysIcon_delete']" @click="op_delete">
+              DEL
+            </button>
+          </template>
+          <template v-else>
+            <button
+              :class="['sysIcon', 'sysIcon_delete']"
+              @click="op_delete_forever"
+            >
+              rDEL
+            </button>
+            <button :class="['sysIcon', 'sysIcon_delete']" @click="op_delete">
+              REC
+            </button>
+          </template>
+        </p>
+      </template>
     </template>
   </div>
 </template>

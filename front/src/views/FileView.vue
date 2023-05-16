@@ -176,6 +176,20 @@ let nodeList: Ref<api_node_col[]> = ref([]);
 // getList();
 // });
 async function getList() {
+  console.info('getList', route.name);
+  delete queryData.deleted;
+  delete queryData.favourite;
+  switch (route.name) {
+    default:
+      break;
+    case 'Recycle':
+      queryData.deleted = '1';
+      queryData.with_crumb = '1';
+      break;
+    case 'Favourite':
+      queryData.favourite = '1';
+      break;
+  }
   const res = await query<api_file_list_resp>("file/get", queryData);
   if (!res) return;
   // console.info(res);
@@ -296,10 +310,11 @@ function search() {
     query: tQuery,
   });
 }
+
 // console.info('here');
 
 onBeforeRouteUpdate(async (to) => {
-  console.info('onBeforeRouteUpdate',to);
+  console.info('onBeforeRouteUpdate', to);
   Object.assign(queryData, to.query);
   await getList();
 });
@@ -418,7 +433,7 @@ function triggleLazyLoad() {
     padding: 0 $fontSize * 0.5;
     height: $fontSize * 1.5;
     line-height: $fontSize * 1.5;
-    margin-bottom: $fontSize;
+    //margin-bottom: $fontSize;
     * {
       height: $fontSize * 1.5;
       line-height: $fontSize * 1.5;
