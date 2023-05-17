@@ -218,14 +218,19 @@ export default class {
         return target;
     };
 
-    async del(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<any> {
-        return null;
-    };
+    // async del(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<any> {
+    //     return null;
+    // };
 
     async mov(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<any> {
         const request = data.fields as api_file_mov_req;
         const fromNode = await (new NodeModel()).where('id', request.node_id).first();
         await fp.mv(parseInt(request.node_id), parseInt(request.target_id));
+        (new QueueModel).insert({
+            type: 'file/buildIndex',
+            payload: {id: request.node_id},
+            status: 1,
+        });
         return null;
     };
 
@@ -233,6 +238,11 @@ export default class {
         const request = data.fields as api_file_mod_req;
         const fromNode = await (new NodeModel()).where('id', request.id).first();
         await fp.mv(fromNode.id, fromNode.id_parent, request.title, request.description);
+        (new QueueModel).insert({
+            type: 'file/buildIndex',
+            payload: {id: fromNode.id},
+            status: 1,
+        });
         return null;
     };
 
@@ -252,6 +262,16 @@ export default class {
             );
             if (!fileInfo) continue;
             resultLs.push(fileInfo);
+            (new QueueModel).insert({
+                type: 'file/build',
+                payload: {id: fileInfo.id},
+                status: 1,
+            });
+            (new QueueModel).insert({
+                type: 'file/buildIndex',
+                payload: {id: fileInfo.id},
+                status: 1,
+            });
             // console.info(filesKey);
             // console.info(file);
         }
@@ -261,6 +281,11 @@ export default class {
     async mkdir(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<false | api_file_mkdir_resp> {
         const request = data.fields as api_file_mkdir_req;
         const dir = await fp.mkdir(parseInt(request.pid) ?? 0, request.title);
+        if (dir) (new QueueModel).insert({
+            type: 'file/buildIndex',
+            payload: {id: dir.id},
+            status: 1,
+        });
         return dir;
     }
 

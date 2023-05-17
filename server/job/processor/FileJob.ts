@@ -186,8 +186,39 @@ export default class {
         await (new NodeModel()).where('id', node.id).update({
             building: ifErr ? -1 : 0,
         });
-        //
-        await buildIndex(node);
+    }
+
+
+    static async buildIndex(payload: { [key: string]: any }): Promise<any> {
+        const nodeId = payload.id;
+        let node: col_node;
+        if (typeof nodeId === 'object')
+            node = nodeId;
+        else
+            node = await (new NodeModel()).where('id', nodeId).first();
+        const tagLs = await (new TagModel).whereIn('id', node.list_tag_id).select();
+        const tagGroupIdSet = new Set<number>;
+        tagLs.forEach(tag => {
+            tagGroupIdSet.add(tag.id_group);
+        });
+        const tagGroupLs = await (new TagGroupModel).whereIn('id', Array.from(tagGroupIdSet)).select();
+        const tagGroupMap = new Map<number, col_tag_group>();
+        tagGroupLs.forEach(tagGroup => {
+            tagGroupMap.set(tagGroup.id, tagGroup);
+        });
+        node.index_node.tag = [];
+        tagLs.forEach(tag => {
+                const tagGroup = tagGroupMap.get(tag.id_group);
+                node.index_node.tag.push(`${tagGroup.title}:${tag.title}`);
+                tag.alt.forEach(alt => node.index_node.tag.push(`${tagGroup.title}:${alt}`));
+                node.index_node.tag.push(`${tag.description}`);
+            }
+        );
+        node.index_node.title = node.title;
+        node.index_node.description = node.description;
+        await (new NodeModel()).where('id', node.id).update({
+            index_node: node.index_node,
+        });
     }
 
     static async deleteForever(payload: { [key: string]: any }): Promise<any> {
@@ -250,37 +281,6 @@ async function checkOrphanFile(fileId: number) {
         .count('id');
 }
 
-async function buildIndex(inNode: number | col_node) {
-    const nodeId = inNode;
-    let node: col_node;
-    if (typeof nodeId === 'object')
-        node = nodeId;
-    else
-        node = await (new NodeModel()).where('id', nodeId).first();
-    const tagLs = await (new TagModel).whereIn('id', node.list_tag_id).select();
-    const tagGroupIdSet = new Set<number>;
-    tagLs.forEach(tag => {
-        tagGroupIdSet.add(tag.id_group);
-    });
-    const tagGroupLs = await (new TagGroupModel).whereIn('id', Array.from(tagGroupIdSet)).select();
-    const tagGroupMap = new Map<number, col_tag_group>();
-    tagGroupLs.forEach(tagGroup => {
-        tagGroupMap.set(tagGroup.id, tagGroup);
-    });
-    node.index_node.tag = [];
-    tagLs.forEach(tag => {
-            const tagGroup = tagGroupMap.get(tag.id_group);
-            node.index_node.tag.push(`${tagGroup.title}:${tag.title}`);
-            tag.alt.forEach(alt => node.index_node.tag.push(`${tagGroup.title}:${alt}`));
-            node.index_node.tag.push(`${tag.description}`);
-        }
-    );
-    node.index_node.title = node.title;
-    node.index_node.description = node.description;
-    await (new NodeModel()).where('id', node.id).update({
-        index_node: node.index_node,
-    });
-}
 
 async function execFFmpeg(file: col_file, type: string,): Promise<col_file | boolean> {
     const filePath = Config.path.local + fp.getRelPathByFile(file);

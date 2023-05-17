@@ -1,6 +1,7 @@
-import { IncomingMessage, ServerResponse } from "http";
+import {IncomingMessage, ServerResponse} from "http";
 import * as fp from "../../lib/FileProcessor";
-import { getRelPath, getRequestFile, respCode } from "../Lib";
+import {getRelPath, getRequestFile, respCode} from "../Lib";
+import QueueModel from "../../model/QueueModel";
 
 export default async function (req: IncomingMessage, res: ServerResponse) {
     const relPath = getRelPath(req.url, req.headers.host, res);
@@ -25,7 +26,13 @@ export default async function (req: IncomingMessage, res: ServerResponse) {
     const targetRelNodeLs = await fp.relPath2node(targetRelPath);
     if (targetRelNodeLs && !overwrite) return respCode(409, res);
     // 
-    await fp.cp(curNode, targetDirNode, targetName);
+    const cpRes = await fp.cp(curNode, targetDirNode, targetName);
+    if (cpRes)
+        (new QueueModel).insert({
+            type: 'file/buildIndex',
+            payload: {id: cpRes.id},
+            status: 1,
+        });
     return respCode(201, res);
 }
 

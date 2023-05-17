@@ -363,7 +363,7 @@ async function rmReal(fileId: number | col_file) {
     await (new FileModel()).where('id', fileInfo.id).delete();
 }
 
-async function cp(nodeId: number | col_node, toDirId: number | col_node, name: string): Promise<boolean> {
+async function cp(nodeId: number | col_node, toDirId: number | col_node, name: string): Promise<false | col_node> {
     const node = await getNodeByIdOrNode(nodeId);
     const toDir = await getNodeByIdOrNode(toDirId);
     //
@@ -383,7 +383,8 @@ async function cp(nodeId: number | col_node, toDirId: number | col_node, name: s
         index_file_id: node.index_file_id,
         index_node: node.index_node,
     } as col_node;
-    await (new NodeModel).insert(newNodeInfo);
+    const res = await (new NodeModel).insert(newNodeInfo);
+    newNodeInfo.id = res.insertId;
     //
     if (newNodeInfo.type === 'directory') {
         const cascadeNode = await (new NodeModel).whereRaw('find_in_set( ? ,list_node)', node.id).select(["id", "list_node"]);
@@ -394,7 +395,7 @@ async function cp(nodeId: number | col_node, toDirId: number | col_node, name: s
             })
         });
     }
-    return true;
+    return newNodeInfo;
 }
 
 async function stat(nodeId: number | col_node): Promise<FileStat> {
