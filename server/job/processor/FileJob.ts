@@ -191,7 +191,18 @@ export default class {
     }
 
     static async deleteForever(payload: { [key: string]: any }): Promise<any> {
+        if (!payload.id) {
+            throw new Error('id not found');
+        }
+        // console.info(1);
+        // try {
         const curNode = await new NodeModel().where('id', payload.id).first();
+        if (!curNode) throw new Error('node not found or already deleted');
+        // } catch (e) {
+        //     console.info(e);
+        // }
+        // console.info(2);
+        // return ;
         const fileNodeIdList = [];
         const dirNodeIdList = [];
         if (curNode.type === 'directory') {
@@ -209,6 +220,8 @@ export default class {
         } else {
             fileNodeIdList.push(curNode.id);
         }
+        console.info(`delete dir node:${dirNodeIdList.join(',')}`);
+        console.info(`delete file node:${fileNodeIdList.join(',')}`);
         if (dirNodeIdList.length)
             await (new NodeModel()).whereIn('id', dirNodeIdList).delete();
         if (fileNodeIdList.length)

@@ -68,6 +68,8 @@ export default class {
             request.type ||
             request.pid ||
             request.tid ||
+            request.deleted ||
+            request.favourite ||
             false
         )) {
             console.info('file/get: no querydata, set id_parent=0')
@@ -168,7 +170,8 @@ export default class {
                 for (const key in node.index_file_id) {
                     if (!Object.prototype.hasOwnProperty.call(node.index_file_id, key)) continue;
                     const fileId = node.index_file_id[key];
-                    const file = fileMap.get(fileId)
+                    const file = fileMap.get(fileId);
+                    if (!file) continue;
                     node.file[key] = file;
                     node.file[key].path = Config.path.api + fp.getRelPathByFile(file);
                 }
@@ -282,7 +285,7 @@ export default class {
         const curNode = await new NodeModel().where('id', request.id).first();
         if (!curNode) return;
         await new NodeModel().where('id', curNode.id).update({
-            status: 0
+            status: curNode.status ? 0 : 1,
         });
         return curNode;
     }
@@ -295,7 +298,7 @@ export default class {
         await new NodeModel().where('id', request.id).update({status: -1});
         (new QueueModel).insert({
             type: 'file/deleteForever',
-            payload: {list: curNode.id},
+            payload: {id: curNode.id},
             status: 1,
         });
         // const fileIdSet = new Set<number>();

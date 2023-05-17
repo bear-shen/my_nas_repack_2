@@ -342,6 +342,8 @@ async function rmReal(fileId: number | col_file) {
         fileInfo = await (new FileModel()).where('id', fileId).first();
     else
         fileInfo = fileId as col_file;
+    // if (!fileInfo) throw new Error('file not found');
+    if (!fileInfo) return false;
     const targetPath = Config.path.local + getRelPathByFile(fileInfo);
     try {
         await fs.stat(getDir(targetPath));

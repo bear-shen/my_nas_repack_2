@@ -12,6 +12,7 @@ async function run() {
     while (true) {
         const ifExs = await (new QueueModel).where('status', 1).order('id').first();
         if (!ifExs) break;
+        await setStatus(ifExs.id, 2);
         console.info([ifExs.type, ifExs.payload])
         if (!jobs[ifExs.type]) {
             await setStatus(ifExs.id, -2);
