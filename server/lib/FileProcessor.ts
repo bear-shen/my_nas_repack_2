@@ -343,6 +343,12 @@ async function rmReal(fileId: number | col_file) {
     else
         fileInfo = fileId as col_file;
     const targetPath = Config.path.local + getRelPathByFile(fileInfo);
+    try {
+        await fs.stat(getDir(targetPath));
+    } catch (e: any) {
+        console.info(e);
+        return;
+    }
     await fs.rm(targetPath);
     let dirPath = getDir(targetPath);
     for (let i1 = 0; i1 < 2; i1++) {

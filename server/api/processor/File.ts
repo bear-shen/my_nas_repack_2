@@ -11,6 +11,7 @@ import TagGroupModel from '../../model/TagGroupModel';
 import FileModel from '../../model/FileModel';
 import * as fp from "../../lib/FileProcessor";
 import Config from "../../ServerConfig";
+import QueueModel from "../../model/QueueModel";
 
 export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_list_resp> {
@@ -292,7 +293,11 @@ export default class {
         if (!curNode) return;
         if (curNode.status != 0) throw new Error('node is not deleted');
         await new NodeModel().where('id', request.id).update({status: -1});
-        await (new NodeModel).whereRaw('find_in_set( ? ,list_node)', curNode.id).update({status: -1});
+        (new QueueModel).insert({
+            type: 'file/deleteForever',
+            payload: {list: curNode.id},
+            status: 1,
+        });
         // const fileIdSet = new Set<number>();
         // for (const type in curNode.index_file_id) {
         //     fileIdSet.add(curNode.index_file_id[type]);

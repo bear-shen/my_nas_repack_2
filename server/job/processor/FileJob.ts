@@ -191,20 +191,42 @@ export default class {
     }
 
     static async deleteForever(payload: { [key: string]: any }): Promise<any> {
-        const nodeId = payload.id;
-        let node: col_node;
-        if (typeof nodeId === 'object')
-            node = nodeId;
-        else
-            node = await (new NodeModel()).where('id', nodeId).first();
-        //
-        await (new NodeModel()).where('id', nodeId).delete();
+        const curNode = await new NodeModel().where('id', payload.id).first();
+        const fileNodeIdList = [];
+        const dirNodeIdList = [];
+        if (curNode.type === 'directory') {
+            dirNodeIdList.push(curNode.id);
+            await (new NodeModel).whereRaw('find_in_set( ? ,list_node)', curNode.id).update({status: -1});
+            const subNodeList = await (new NodeModel)
+                .whereRaw('find_in_set( ? ,list_node)', curNode.id)
+                .select(['id', 'type',]);
+            subNodeList.forEach(node => {
+                if (node.type === 'directory')
+                    dirNodeIdList.push(node.id);
+                else
+                    fileNodeIdList.push(node.id);
+            });
+        } else {
+            fileNodeIdList.push(curNode.id);
+        }
+        if (dirNodeIdList.length)
+            await (new NodeModel()).whereIn('id', dirNodeIdList).delete();
+        if (fileNodeIdList.length)
+            await deleteNodeForever(fileNodeIdList);
+    }
+}
+
+async function deleteNodeForever(nodeIdList: number[]) {
+    const nodeLs = await (new NodeModel()).whereIn('id', nodeIdList).select();
+    for (let i1 = 0; i1 < nodeLs.length; i1++) {
+        const node = nodeLs[i1];
         for (const type in node.index_file_id) {
             const fileId = node.index_file_id[type];
-            const ifExs = await checkOrphanFile(fileId)
+            const ifExs = await checkOrphanFile(fileId);
             if (ifExs > 1) continue;
             await fp.rmReal(fileId);
         }
+        await (new NodeModel()).where('id', node.id).delete();
     }
 }
 

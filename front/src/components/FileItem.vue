@@ -178,7 +178,12 @@ async function op_set_cover() {
 function op_set_favourite() {
 }
 
-function op_delete_forever() {
+async function op_delete_forever() {
+  const formData = new FormData();
+  formData.set('id', `${props.node.id}`);
+  const res = await query<api_file_delete_req>('file/delete_forever', formData);
+  emits('go', 'reload');
+  return res;
 }
 
 async function op_delete() {
