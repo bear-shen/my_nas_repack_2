@@ -196,24 +196,28 @@ export default class {
             node = nodeId;
         else
             node = await (new NodeModel()).where('id', nodeId).first();
-        const tagLs = await (new TagModel).whereIn('id', node.list_tag_id).select();
-        const tagGroupIdSet = new Set<number>;
-        tagLs.forEach(tag => {
-            tagGroupIdSet.add(tag.id_group);
-        });
-        const tagGroupLs = await (new TagGroupModel).whereIn('id', Array.from(tagGroupIdSet)).select();
-        const tagGroupMap = new Map<number, col_tag_group>();
-        tagGroupLs.forEach(tagGroup => {
-            tagGroupMap.set(tagGroup.id, tagGroup);
-        });
         node.index_node.tag = [];
-        tagLs.forEach(tag => {
-                const tagGroup = tagGroupMap.get(tag.id_group);
-                node.index_node.tag.push(`${tagGroup.title}:${tag.title}`);
-                tag.alt.forEach(alt => node.index_node.tag.push(`${tagGroup.title}:${alt}`));
-                node.index_node.tag.push(`${tag.description}`);
+        if (node.list_tag_id.length) {
+            const tagLs = await (new TagModel).whereIn('id', node.list_tag_id).select();
+            if (tagLs.length) {
+                const tagGroupIdSet = new Set<number>;
+                tagLs.forEach(tag => {
+                    tagGroupIdSet.add(tag.id_group);
+                });
+                const tagGroupLs = await (new TagGroupModel).whereIn('id', Array.from(tagGroupIdSet)).select();
+                const tagGroupMap = new Map<number, col_tag_group>();
+                tagGroupLs.forEach(tagGroup => {
+                    tagGroupMap.set(tagGroup.id, tagGroup);
+                });
+                tagLs.forEach(tag => {
+                        const tagGroup = tagGroupMap.get(tag.id_group);
+                        node.index_node.tag.push(`${tagGroup.title}:${tag.title}`);
+                        tag.alt.forEach(alt => node.index_node.tag.push(`${tagGroup.title}:${alt}`));
+                        node.index_node.tag.push(`${tag.description}`);
+                    }
+                );
             }
-        );
+        }
         node.index_node.title = node.title;
         node.index_node.description = node.description;
         await (new NodeModel()).where('id', node.id).update({

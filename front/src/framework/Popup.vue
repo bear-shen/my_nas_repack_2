@@ -6,7 +6,7 @@ import {
   defineComponent,
   ref,
   shallowRef,
-  createApp,
+  createApp, onMounted, onUnmounted,
 } from "vue";
 import type {
   ModalFormConstruct,
@@ -282,6 +282,12 @@ function toggleActive(nid: string) {
     if (node.nid === nid) {
       node.layout.index = diffStamp;
       node.layout.active = true;
+      setTimeout(() => {
+        const ifInput: null | HTMLInputElement = document.querySelector(`.modal_dom[data-ref-id="${node.nid}"] input`);
+        if (ifInput) {
+          ifInput.focus();
+        }
+      }, 100);
     } else {
       node.layout.active = false;
     }
@@ -483,6 +489,28 @@ function checkAlpha() {
 
 //-----------
 
+onMounted(() => {
+  console.info("Popup mounted");
+  document.addEventListener("keydown", keymap);
+});
+onUnmounted(() => {
+  console.info("unmounted");
+  document.removeEventListener("keydown", keymap);
+});
+
+function keymap(e: KeyboardEvent) {
+  console.info(e);
+  if ((e.target as HTMLElement).tagName !== "BODY") return;
+  switch (e.key) {
+    case 'Escape':
+      modalList.value.forEach((value, key) => {
+        if (value.layout.active) {
+          close(value.nid);
+        }
+      });
+      break;
+  }
+}
 
 
 /* modalStore.set({

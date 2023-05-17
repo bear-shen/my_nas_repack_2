@@ -61,17 +61,17 @@ function onDragover(e: DragEvent) {
   e.preventDefault();
 }
 
-let uploading = false;
+let uploading = ref(false);
 
 async function goUpload() {
   if (!list.value.length) return;
-  uploading = true;
+  uploading.value = true;
   console.info("goUpload");
   for (let i1 = 0; i1 < list.value.length; i1++) {
     if (list.value[i1].status !== "waiting") continue;
     await uploadFile(list.value[i1]);
   }
-  uploading = false;
+  uploading.value = false;
   props.data.emitGo('reload');
 }
 
