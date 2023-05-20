@@ -4,7 +4,7 @@ import get from "./processor/get";
 import head from "./processor/head";
 // import lock from "./processor/lock";
 import move from "./processor/move";
-// import options from "./processor/options";
+import options from "./processor/options";
 // import post from "./processor/post";
 import propfind from "./processor/propfind";
 // import proppatch from "./processor/proppatch";
@@ -12,19 +12,19 @@ import propfind from "./processor/propfind";
 // import unlock from "./processor/unlock";
 import put from "./processor/put";
 import mkcol from "./processor/mkcol";
-import { IncomingMessage, ServerResponse } from 'http';
+import {IncomingMessage, ServerResponse} from 'http';
 
 const ref = {
     'GET': get,//@todo
     'MOVE': move,//@todo
-    // 'OPTIONS': options,//@todo
+    'OPTIONS': options,
     'PROPFIND': propfind,
     'PUT': put,//@todo
     'MKCOL': mkcol,//@todo
     'DELETE': deleteFunc,//@todo
     'COPY': copy,//@todo
     //
-    'HEAD': head,
+    // 'HEAD': head,//@todo
     // 'LOCK': lock,//@todo
     // 'POST': post,//@todo
     // 'PROPPATCH': proppatch,//@todo
