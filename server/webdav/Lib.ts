@@ -1,5 +1,5 @@
-import { ReadStream, WriteStream } from "fs";
-import { IncomingMessage, ServerResponse } from "http";
+import {ReadStream, WriteStream} from "fs";
+import {IncomingMessage, ServerResponse} from "http";
 import Util from "../lib/Util";
 import Config from "../ServerConfig";
 import * as fs from 'fs/promises';
@@ -23,9 +23,11 @@ export function getRequestBuffer(req: IncomingMessage, res: ServerResponse): Pro
             wrote += chunk.length;
         });
         req.on('end', async () => resolve(bodyBuffer));
-        res.on('close', async () => { })
+        res.on('close', async () => {
+        })
     });
 }
+
 //@see https://github.com/OpenMarshal/npm-WebDAV-Server/blob/master/src/server/v2/webDAVServer/StartStop.ts#L30
 export function getRequestFile(req: IncomingMessage, res: ServerResponse): Promise<string> {
     return new Promise((resolve: any) => {
@@ -52,7 +54,9 @@ export function getRequestFile(req: IncomingMessage, res: ServerResponse): Promi
         });
         req.on('end', async () => {
             // console.info('getRequestFile:end');
-            resolve(reqTmpFilePath);
+            ws.close(() => {
+                resolve(reqTmpFilePath);
+            });
         });
         res.on('close', async () => {
             // console.info('getRequestFile close');

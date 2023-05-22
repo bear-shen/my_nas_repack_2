@@ -9,6 +9,11 @@ import {ReadStream} from "fs";
  * header
  * depth=1  当前目录加父目录
  * depth=0  当前目录
+ *
+ * 不加d前缀winscp无法读取文件
+ * path不加斜杠winscp无法识别目录
+ * 日期不用utcstring/gmtstring winscp无法识别目录
+ * 总结winscp吔屎
  * */
 
 import {Buffer} from "buffer";
@@ -17,10 +22,13 @@ import {getRelPath, getRequestBuffer, respCode} from "../Lib";
 
 export default async function (req: IncomingMessage, res: ServerResponse) {
     const relPath = getRelPath(req.url, req.headers.host, res);
+    console.info(relPath, req.url, req.headers.host,);
     if (!relPath) return;
     const nodeLs = await fp.relPath2node(relPath);
+    // console.info(nodeLs);
     if (!nodeLs) return respCode(404, res);
     const curNode = nodeLs[nodeLs.length - 1];
+    // console.info(curNode);
     //
     const outputData = getBase();
     // console.info(relPath);
@@ -31,6 +39,7 @@ export default async function (req: IncomingMessage, res: ServerResponse) {
     //console.info(xmlLs);
     //
     let depth = Number.parseInt(req.headers.depth ? req.headers.depth as string : '0');
+    // console.info(depth);
     let fileLs = [] as (fp.FileStat & { relPath: string })[];
     let dirPath = fp.getDir(relPath);
     for (let i1 = 0; i1 <= depth; i1++) {
@@ -40,16 +49,19 @@ export default async function (req: IncomingMessage, res: ServerResponse) {
             fileLs.push(Object.assign(fi, {relPath: `${dirPath}${fi.title === 'root' ? '' : '/' + fi.title}`}));
         } else if (i1 === 1) {
             const fl = await fp.ls(curNode.id);
+            // console.info(curNode.id, fl);
             //if (fl) continue;
             fl.forEach(f => fileLs.push(Object.assign(f, {
                 relPath: `${dirPath}/${f.title}`
+                // relPath: `${dirPath}/dev`
             })));
         }
     }
     // console.info(fileLs);
     fileLs.forEach(f => {
-        outputData.multistatus.response.push(buildRespNode(xmlLs, f))
+        outputData['D:multistatus']['D:response'].push(buildRespNode(xmlLs, f))
     });
+    // console.info(outputData);
     //
     return resp(res, outputData);
 }
@@ -79,13 +91,13 @@ function getXmlAttr(xml: any): string[] {
 function getBase(): ElementCompact {
     return {
         _declaration: {_attributes: {version: "1.0", encoding: "utf-8"}},
-        'multistatus': {
+        'D:multistatus': {
             _attributes: {
                 'xmlns:D': 'DAV:',
-                'xmlns:ns1': "SAR:",
-                'xmlns:ns0': "DAV:",
+                // 'xmlns:ns1': "SAR:",
+                // 'xmlns:ns0': "DAV:",
             },
-            'response': [
+            'D:response': [
                 // {
                 //     _attributes: {'xmlns:lp1': 'DAV:', 'xmlns:lp2': 'http://apache.org/dav/props/',},
                 //     'D:href': {_text: '/dav/',},
@@ -121,34 +133,54 @@ function buildRespNode(xmlLs: string[], node: (fp.FileStat & { relPath: string }
             break;
         case "directory":
             mime = 'httpd/unix-directory';
-            resourceType = {'collection': {}};
+            resourceType = {'D:collection': {}};
             break;
     }
     const availProp = {
-        'creationdate': {_text: node.time_create},
-        'getlastmodified': {_text: node.time_update},
-        'executable': {_text: 'F'},
-        'resourcetype': resourceType,
-        'getcontenttype': {_text: mime},
-        'getcontentlength': {_text: node.file?.raw?.size ?? 0},
+        'D:creationdate': {_text: (new Date(node.time_create)).toUTCString()},
+        'D:getlastmodified': {_text: (new Date(node.time_update)).toUTCString()},
+        'D:executable': {_text: 'F'},
+        'D:resourcetype': resourceType,
+        'D:getcontenttype': {_text: mime},
+        'D:getcontentlength': {_text: node.file?.raw?.size ?? 0},
+        'D:displayname': {_text: node.title},
     };
+    if (node.type === 'directory') {
+        delete availProp['D:getcontentlength'];
+        delete availProp['D:getcontenttype'];
+        delete availProp['D:executable'];
+    }
     const target = {
         _attributes: {
-            'xmlns:lp1': 'DAV:',
-            'xmlns:lp2': 'http://apache.org/dav/props/',
-            'xmlns:g0': 'DAV:',
-            'xmlns:g1': 'SAR:',
+            // 'xmlns:lp1': 'DAV:',
+            // 'xmlns:lp2': 'http://apache.org/dav/props/',
+            // 'xmlns:g0': 'DAV:',
+            // 'xmlns:g1': 'SAR:',
         },
-        'href': {_text: Config.path.webdav + encodeURI(node.relPath),},
-        'propstat': {
-            'prop': {},
-            'D:status': {_text: 'HTTP/1.1 200 OK',},
+        'D:href': {
+            _text:
+                Config.path.webdav
+                + encodeURI(node.relPath)
+                //winscp不加这个无法识别为目录，这货不判断prop
+                + (node.type === 'directory' ? '/' : '')
+            ,
+        },
+        'D:propstat': {
+            'prop': {} as { [key: string]: any },
+            'status': {_text: 'HTTP/1.1 200 OK',},
         },
     } as ElementCompact;
-    for (let i1 = 0; i1 < xmlLs.length; i1++) {
-        const propKey = xmlLs[i1] as keyof typeof availProp;
-        if (availProp[propKey]) {
-            target.propstat.prop[propKey] = availProp[propKey];
+    if (xmlLs.length)
+        for (let i1 = 0; i1 < xmlLs.length; i1++) {
+            const key = xmlLs[i1] as keyof typeof availProp;
+            if (availProp[key]) {
+                target['D:propstat'].prop[key] = availProp[key];
+            }
+        }
+    else {
+        for (const key in availProp) {
+            if (!Object.prototype.hasOwnProperty.call(availProp, key)) continue;
+            target['D:propstat'].prop[key] = availProp[key as keyof typeof availProp];
         }
     }
     return target;

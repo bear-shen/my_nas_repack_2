@@ -20,6 +20,6 @@ export default async function (req: IncomingMessage, res: ServerResponse) {
     res.setHeader('Server', 'nodejs-dav/0.1');
     res.setHeader('DAV', '1,2');
     // res.setHeader('DAV', '<http://apache.org/dav/propset/fs/1>');
-    res.setHeader('MS-Author-Via', 'DAV');
+    // res.setHeader('MS-Author-Via', 'DAV');
     return respCode(200, res);
 }
