@@ -15,16 +15,16 @@ import mkcol from "./processor/mkcol";
 import {IncomingMessage, ServerResponse} from 'http';
 
 const ref = {
-    'GET': get,//@todo
-    'MOVE': move,//@todo
+    'GET': get,
+    'MOVE': move,
     'OPTIONS': options,
     'PROPFIND': propfind,
-    'PUT': put,//@todo
-    'MKCOL': mkcol,//@todo
-    'DELETE': deleteFunc,//@todo
-    'COPY': copy,//@todo
+    'PUT': put,
+    'MKCOL': mkcol,
+    'DELETE': deleteFunc,
+    'COPY': copy,
+    'HEAD': head,
     //
-    // 'HEAD': head,//@todo
     // 'LOCK': lock,//@todo
     // 'POST': post,//@todo
     // 'PROPPATCH': proppatch,//@todo

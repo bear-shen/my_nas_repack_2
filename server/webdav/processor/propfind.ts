@@ -22,7 +22,7 @@ import {getRelPath, getRequestBuffer, respCode} from "../Lib";
 
 export default async function (req: IncomingMessage, res: ServerResponse) {
     const relPath = getRelPath(req.url, req.headers.host, res);
-    console.info(relPath, req.url, req.headers.host,);
+    // console.info(relPath, req.url, req.headers.host,);
     if (!relPath) return;
     const nodeLs = await fp.relPath2node(relPath);
     // console.info(nodeLs);
@@ -137,18 +137,18 @@ function buildRespNode(xmlLs: string[], node: (fp.FileStat & { relPath: string }
             break;
     }
     const availProp = {
-        'D:creationdate': {_text: (new Date(node.time_create)).toUTCString()},
-        'D:getlastmodified': {_text: (new Date(node.time_update)).toUTCString()},
-        'D:executable': {_text: 'F'},
-        'D:resourcetype': resourceType,
-        'D:getcontenttype': {_text: mime},
-        'D:getcontentlength': {_text: node.file?.raw?.size ?? 0},
-        'D:displayname': {_text: node.title},
+        'creationdate': {_text: (new Date(node.time_create)).toUTCString()},
+        'getlastmodified': {_text: (new Date(node.time_update)).toUTCString()},
+        'executable': {_text: 'F'},
+        'resourcetype': resourceType,
+        'getcontenttype': {_text: mime},
+        'getcontentlength': {_text: node.file?.raw?.size ?? 0},
+        'displayname': {_text: node.title},
     };
     if (node.type === 'directory') {
-        delete availProp['D:getcontentlength'];
-        delete availProp['D:getcontenttype'];
-        delete availProp['D:executable'];
+        delete availProp['getcontentlength'];
+        delete availProp['getcontenttype'];
+        delete availProp['executable'];
     }
     const target = {
         _attributes: {
@@ -166,21 +166,22 @@ function buildRespNode(xmlLs: string[], node: (fp.FileStat & { relPath: string }
             ,
         },
         'D:propstat': {
-            'prop': {} as { [key: string]: any },
-            'status': {_text: 'HTTP/1.1 200 OK',},
+            'D:prop': {} as { [key: string]: any },
+            'D:status': {_text: 'HTTP/1.1 200 OK',},
         },
     } as ElementCompact;
+    // console.info(xmlLs);
     if (xmlLs.length)
         for (let i1 = 0; i1 < xmlLs.length; i1++) {
             const key = xmlLs[i1] as keyof typeof availProp;
             if (availProp[key]) {
-                target['D:propstat'].prop[key] = availProp[key];
+                target['D:propstat']['D:prop']['D:' + key] = availProp[key];
             }
         }
     else {
         for (const key in availProp) {
             if (!Object.prototype.hasOwnProperty.call(availProp, key)) continue;
-            target['D:propstat'].prop[key] = availProp[key as keyof typeof availProp];
+            target['D:propstat']['D:prop']['D:' + key] = availProp[key as keyof typeof availProp];
         }
     }
     return target;
