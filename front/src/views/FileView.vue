@@ -66,7 +66,7 @@ let queryData = {
   pid: "",
   tid: "",
 } as api_file_list_req;
-let usePid = true;
+let usePid = false;
 //
 // defineProps<{
 // msg: string;
@@ -431,7 +431,7 @@ function triggleLazyLoad() {
     justify-content: space-between;
     flex-wrap: wrap;
     padding: 0 $fontSize * 0.5;
-    height: $fontSize * 1.5;
+    //height: $fontSize * 1.5;
     line-height: $fontSize * 1.5;
     //margin-bottom: $fontSize;
     * {
@@ -439,6 +439,10 @@ function triggleLazyLoad() {
       line-height: $fontSize * 1.5;
       padding-top: 0;
       padding-bottom: 0;
+    }
+    >*{
+      display: inline-block;
+      overflow: hidden;
     }
     label {
       margin-right: $fontSize;
@@ -457,6 +461,7 @@ function triggleLazyLoad() {
       display: inline-block;
     }
     .crumb {
+      white-space: nowrap;
       .item {
         padding-left: $fontSize * 0.25;
       }

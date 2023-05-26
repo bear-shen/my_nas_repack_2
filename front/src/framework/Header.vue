@@ -46,6 +46,11 @@ const user = {
   display: flex;
   justify-content: space-between;
   line-height: $headerHeight;
+  * {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 .logo {
   font-size: $fontSize;

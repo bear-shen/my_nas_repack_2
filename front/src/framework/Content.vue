@@ -61,6 +61,7 @@ const user = {
 .user {
   font-size: $fontSize;
   position: relative;
+white-space: nowrap;
   &:hover .action {
     display: block;
   }

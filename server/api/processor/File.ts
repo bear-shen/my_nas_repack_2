@@ -57,7 +57,7 @@ export default class {
                 `%${request.keyword.trim()}%`
             );
         }
-        if (request.pid) {
+        if (parseInt(request.pid)) {
             model.where('id_parent', request.pid);
         }
         if (request.tid) {
