@@ -72,10 +72,10 @@ onMounted(() => {
 });
 //
 const eventStore = useEventStore();
-// let resizingEvtKey = eventStore.listen(
-//   `modal_resizing_${props.modalData.nid}`,
-//   (data) => fitImg()
-// );
+let resizingEvtKey = eventStore.listen(
+  `modal_resizing_${props.modalData.nid}`,
+  (data) => fitImg()
+);
 let changeEvtKey = eventStore.listen(
   `modal_browser_change_${props.modalData.nid}`,
   (data) => loadImageRes()
@@ -90,9 +90,12 @@ onUnmounted(() => {
 
 async function fitImg() {
   // console.info("fitImg");
-  const domLayout = contentDOM.value;
-  const domW = domLayout?.clientWidth ?? 0;
-  const domH = domLayout?.clientHeight ?? 0;
+  // const domLayout = contentDOM.value;
+  // const domW = domLayout?.clientWidth ?? 0;
+  // const domH = domLayout?.clientHeight ?? 0;
+  const modalLayout = props.modalData.layout;
+  const domW = modalLayout.w ?? 0;
+  const domH = modalLayout.h ?? 0;
   const layout = imgLayout.value;
   const wRatio = domW / layout.orgW;
   const hRatio = domH / layout.orgH;
@@ -174,10 +177,13 @@ function setZoom(e?: WheelEvent, dir?: number) {
   const iLayout = imgLayout.value;
   const iDOM = imgDOM.value;
   const cDOM = contentDOM.value;
+  // const cDOM = props.modalData.layout;
   if (!iDOM) return;
   if (!cDOM) return;
   const domW = cDOM?.clientWidth ?? 0;
   const domH = cDOM?.clientHeight ?? 0;
+  // const domW = cDOM?.w?? 0;
+  // const domH = cDOM?.h ?? 0;
   const wRatio = domW / iLayout.orgW;
   const hRatio = domH / iLayout.orgH;
   const orgRatio = Math.min(wRatio, hRatio);

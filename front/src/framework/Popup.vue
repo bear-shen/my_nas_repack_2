@@ -306,7 +306,9 @@ function fullscreen(nid: string) {
   };
   //
   Object.assign(modal.layout, t);
+  // setTimeout(() =>
   eventStore.trigger(`modal_resizing_${modal.nid}`, modal.layout);
+  // );
 }
 
 function resetWindow(nid: string) {
@@ -323,7 +325,9 @@ function resetWindow(nid: string) {
   t.y = (window.innerHeight - t.h) / 2;
   //
   Object.assign(modal.layout, t);
+  // setTimeout(() =>
   eventStore.trigger(`modal_resizing_${modal.nid}`, modal.layout);
+  // );
 }
 
 function close(nid: string) {

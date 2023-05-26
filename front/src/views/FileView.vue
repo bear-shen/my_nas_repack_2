@@ -315,7 +315,13 @@ function search() {
 
 onBeforeRouteUpdate(async (to) => {
   console.info('onBeforeRouteUpdate', to);
-  Object.assign(queryData, to.query);
+  queryData = Object.assign({
+    sort: "",
+    type: "",
+    keyword: "",
+    pid: "",
+    tid: "",
+  }, JSON.parse(JSON.stringify(to.query)));
   await getList();
 });
 //
@@ -440,7 +446,7 @@ function triggleLazyLoad() {
       padding-top: 0;
       padding-bottom: 0;
     }
-    >*{
+    > * {
       display: inline-block;
       overflow: hidden;
     }

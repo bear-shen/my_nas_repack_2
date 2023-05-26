@@ -101,8 +101,9 @@ async function getList() {
   crumbList.value = res.path;
   nodeList.value = res.list;
   curIndex.value = index;
-  curNode.value = node;
+  // curNode.value = node;
   // console.info(crumbList);
+  goNav();
   checkNext();
 }
 
