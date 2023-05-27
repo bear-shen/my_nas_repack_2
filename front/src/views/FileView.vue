@@ -486,11 +486,17 @@ function triggleLazyLoad() {
     }
   }
   .content_detail.mode_detail {
-    columns: $fontSize * 20 6;
-    column-gap: 0;
+    //columns: $fontSize * 20 6;
+    //column-gap: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
   }
   .content_detail.mode_img {
-    columns: $fontSize * 10 12;
+    //columns: $fontSize * 10 12;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
   }
   .content_detail.mode_text {
     display: table;

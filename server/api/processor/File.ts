@@ -66,7 +66,7 @@ export default class {
         if (!(
             request.keyword ||
             request.type ||
-            request.pid ||
+            parseInt(request.pid) ||
             request.tid ||
             request.deleted ||
             request.favourite ||

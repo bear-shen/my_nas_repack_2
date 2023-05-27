@@ -528,6 +528,7 @@ async function op_delete() {
   -webkit-column-break-inside: avoid;
   //padding: 0 0 $fontSize * 0.5 0;
   //padding: 0 $fontSize * 0.5 $fontSize;
+  width: $fontSize*25;
   padding: $fontSize * 0.5;
   display: block;
   $contentHeight: $fontSize * 5;
@@ -642,6 +643,7 @@ async function op_delete() {
 }
 .node_node.mode_img {
   text-align: center;
+  width: $fontSize*8;
   .thumb {
     padding: 0 $fontSize * 0.5;
     height: $fontSize * 10;
