@@ -200,7 +200,6 @@ async function op_delete() {
   <div :class="['node_node', `mode_${mode}`]" :data-index="index">
     <template v-if="mode === 'detail'">
       <div class="content">
-
         <template v-if="node.status">
           <div v-if="node.file?.cover" class="thumb" @click="go('node', node.id)">
             <img :src="node.file?.cover.path"/>
@@ -220,7 +219,8 @@ async function op_delete() {
         </template>
         <div class="meta">
           <template v-if="node.status">
-            <p v-if="!renaming" class="title" @click="go('node', node.id)">{{ node.title }}</p>
+            <p v-if="!renaming" class="title">{{ node.title }}</p>
+            <!--            <p v-if="!renaming" class="title" @click="go('node', node.id)">{{ node.title }}</p>-->
             <content-editable
               v-else v-model="node.title"
               class="title editing"
@@ -342,7 +342,8 @@ async function op_delete() {
           :class="['thumb', 'listIcon', `listIcon_file_${node.type}`]"
           @click="go('node', node.id)"
         ></div>
-        <p class="title" @click="go('node', node.id)">{{ node.title }}</p>
+        <!--        <p class="title" @click="go('node', node.id)">{{ node.title }}</p>-->
+        <p class="title">{{ node.title }}</p>
         <p>{{ node.time_update }}</p>
       </template>
       <template v-else>
@@ -365,7 +366,8 @@ async function op_delete() {
         ></span>
           <span>{{ node.type }}</span>
         </p>
-        <p class="title" @click="go('node', node.id)">{{ node.title }}</p>
+        <p class="title">{{ node.title }}</p>
+        <!--        <p class="title" @click="go('node', node.id)">{{ node.title }}</p>-->
         <p class="time">{{ node.time_update }}</p>
         <p class="bar">
           <!---->

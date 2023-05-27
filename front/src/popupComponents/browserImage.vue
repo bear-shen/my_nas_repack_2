@@ -90,6 +90,7 @@ onUnmounted(() => {
 
 async function fitImg() {
   // console.info("fitImg");
+  //dom的更新要比事件推送的迟，所以能用数值就用数值
   // const domLayout = contentDOM.value;
   // const domW = domLayout?.clientWidth ?? 0;
   // const domH = domLayout?.clientHeight ?? 0;

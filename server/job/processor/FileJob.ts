@@ -186,8 +186,8 @@ export default class {
         await (new NodeModel()).where('id', node.id).update({
             building: ifErr ? -1 : 0,
         });
+        await cascadeCover(node.id);
     }
-
 
     static async buildIndex(payload: { [key: string]: any }): Promise<any> {
         const nodeId = payload.id;
@@ -261,6 +261,21 @@ export default class {
             await (new NodeModel()).whereIn('id', dirNodeIdList).delete();
         if (fileNodeIdList.length)
             await deleteNodeForever(fileNodeIdList);
+    }
+}
+
+async function cascadeCover(nodeId: number) {
+    const node = await (new NodeModel()).where('id', nodeId).first();
+    if (!node.index_file_id?.cover) return;
+    const nodeLs = node.list_node.reverse();
+    for (let i1 = 0; i1 < nodeLs.length; i1++) {
+        if (!nodeLs[i1]) break;
+        const pNode = await (new NodeModel()).where('id', nodeLs[i1]).first();
+        if (!pNode) break;
+        if (pNode.index_file_id.cover) break;
+        await (new NodeModel()).where('id', nodeLs[i1]).update({
+            index_file_id: Object.assign(pNode.index_file_id, {cover: node.index_file_id.cover})
+        });
     }
 }
 
