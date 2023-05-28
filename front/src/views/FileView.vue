@@ -60,13 +60,16 @@ const def = {
   listType: ["detail", "text", "img"],
 };
 let queryData = {
-  sort: "",
-  type: "",
-  keyword: "",
+  mode: "",
   pid: "",
-  tid: "",
+  keyword: "",
+  tag_id: "",
+  node_type: "",
+  inside: "",
+  with: "",
+  group: "",
 } as api_file_list_req;
-let usePid = false;
+// let usePid = false;
 //
 // defineProps<{
 // msg: string;
@@ -177,25 +180,61 @@ let nodeList: Ref<api_node_col[]> = ref([]);
 // });
 async function getList() {
   console.info('getList', route.name);
-  delete queryData.deleted;
-  delete queryData.favourite;
   switch (route.name) {
     default:
       break;
     case 'Recycle':
-      queryData.deleted = '1';
-      queryData.with_crumb = '1';
+      queryData.group = 'deleted';
       break;
     case 'Favourite':
-      queryData.favourite = '1';
+      queryData.group = 'favourite';
       break;
   }
   const res = await query<api_file_list_resp>("file/get", queryData);
   if (!res) return;
   // console.info(res);
   crumbList.value = res.path;
-  nodeList.value = res.list;
+  nodeList.value = sortList(res.list);
+
   // console.info(crumbList);
+}
+
+function sortList(list: col_node[]) {
+  let sortType: [keyof col_node, string] = ['id', 'asc'];
+  switch (sortVal.value) {
+    default:
+    case 'id_asc':
+      sortType = ['id', 'asc',];
+      break;
+    case 'id_desc':
+      sortType = ['id', 'desc',];
+      break;
+    case 'name_asc':
+      sortType = ['title', 'asc',];
+      break;
+    case 'name_desc':
+      sortType = ['title', 'desc',];
+      break;
+    case 'crt_asc':
+      sortType = ['time_create', 'asc',];
+      break;
+    case 'crt_desc':
+      sortType = ['time_create', 'desc',];
+      break;
+    case 'upd_asc':
+      sortType = ['time_update', 'asc',];
+      break;
+    case 'upd_desc':
+      sortType = ['time_update', 'desc',];
+      break;
+  }
+  list.sort((a, b) => {
+    const va = a[sortType[0]];
+    const vb = b[sortType[0]];
+    const rev = sortType[1] == 'desc' ? -1 : 1;
+    return (va ? va : 0) > (vb ? vb : 0) ? rev * 1 : rev * -1;
+  })
+  return list;
 }
 
 //
@@ -208,6 +247,24 @@ const modeKey = localConfigure.listen(
 
 function setMode(mode: string) {
   localConfigure.set("file_view_mode", mode);
+}
+
+//
+
+let sortVal: Ref<string> = ref(localConfigure.get("file_view_sort") ?? "name_asc");
+const sortKey = localConfigure.listen(
+  "file_view_sort",
+  (v) => {
+    sortVal.value = v;
+    const preVal = nodeList.value;
+    nodeList.value = [];
+    nodeList.value = sortList(preVal);
+  }
+);
+
+function setSort(sortVal: string) {
+  console.info('setSort', sortVal);
+  localConfigure.set("file_view_sort", sortVal);
 }
 
 onMounted(async () => {
@@ -227,10 +284,19 @@ onUnmounted(() => {
 
 //
 function go(ext: api_file_list_req) {
-  if (!ext.tid) ext.tid = "";
+  if (!ext.tag_id) ext.tag_id = "";
   if (!ext.keyword) ext.keyword = "";
-  if (!ext.type) ext.type = "";
-  const tQuery = Object.assign(GenFunc.copyObject(queryData), ext);
+  if (!ext.node_type) ext.node_type = "";
+  const tQuery = Object.assign({
+    mode: "",
+    pid: "",
+    keyword: "",
+    tag_id: "",
+    node_type: "",
+    inside: "",
+    with: "",
+    group: "",
+  }, ext);
   router.push({
     path: route.path,
     query: tQuery,
@@ -244,7 +310,7 @@ function emitGo(type: string, code: number) {
       getList();
       break;
     case "tag":
-      go({tid: `${code}`});
+      go({tag_id: `${code}`, mode: 'tag'});
       break;
     case "node":
       let node;
@@ -256,7 +322,7 @@ function emitGo(type: string, code: number) {
       if (!node) break;
       switch (node.type) {
         case "directory":
-          go({pid: `${node.id}`});
+          go({pid: `${node.id}`, mode: 'directory'});
           break;
         default:
           popupDetail(GenFunc.copyObject(queryData), node.id ?? 0);
@@ -300,9 +366,13 @@ function popupDetail(queryData: { [key: string]: any }, curNodeId: number) {
 //
 function search() {
   const tQuery = GenFunc.copyObject(queryData);
-  if (usePid && crumbList.value.length) {
+  if (tQuery.inside && crumbList.value.length) {
     tQuery.pid =
       crumbList.value[crumbList.value.length - 1].id?.toString() ?? "";
+  }
+  tQuery.mode = 'search';
+  if (!queryData.keyword && (!queryData.node_type || queryData.node_type == 'any')) {
+    return go({pid: queryData.pid, mode: 'directory',});
   }
   console.info(tQuery);
   router.push({
@@ -316,12 +386,15 @@ function search() {
 onBeforeRouteUpdate(async (to) => {
   console.info('onBeforeRouteUpdate', to);
   queryData = Object.assign({
-    sort: "",
-    type: "",
-    keyword: "",
+    mode: "",
     pid: "",
-    tid: "",
-  }, JSON.parse(JSON.stringify(to.query)));
+    keyword: "",
+    tag_id: "",
+    node_type: "",
+    inside: "",
+    with: "",
+    group: "",
+  }, GenFunc.copyObject(to.query));
   await getList();
 });
 //
@@ -357,7 +430,7 @@ function triggleLazyLoad() {
           class="item"
           v-for="(node, nodeIndex) in crumbList"
           :key="nodeIndex"
-          @click="go({ pid: `${node?.id}` })"
+          @click="go({ pid: `${node?.id}`,mode:'directory' })"
         >{{ node.title }}
         </a>
       </div>
@@ -367,21 +440,16 @@ function triggleLazyLoad() {
         </label>
         <label>
           <span>Type : </span>
-          <select v-model="queryData.type">
+          <select v-model="queryData.node_type">
             <option v-for="type in def.fileType">{{ type }}</option>
-          </select>
-        </label>
-        <label>
-          <span>Sort : </span>
-          <select v-model="queryData.sort">
-            <option v-for="(sort, key) in def.sort" :value="key">
-              {{ sort }}
-            </option>
           </select>
         </label>
         <label v-if="crumbList.length">
           <span>InDir : </span>
-          <input type="checkbox" v-model="usePid" id="FV_S_CB"/>
+          <input type="checkbox" v-model="queryData.inside" id="FV_S_CB"
+                 true-value="1"
+                 false-value=""
+          />
           <label for="FV_S_CB"></label>
         </label>
         <!--      <label>
@@ -401,6 +469,15 @@ function triggleLazyLoad() {
       <div class="display">
         <a class="sysIcon sysIcon_addfolder" @click="addFolder"></a>
         <a class="sysIcon sysIcon_addfile" @click="addFile"></a>
+        <a class="sysIcon sysIcon_fengefu"></a>
+        <label>
+          <span>Sort : </span>
+          <select v-model="sortVal" @change="setSort(sortVal)">
+            <option v-for="(sortItem, key) in def.sort" :value="key">
+              {{ sortItem }}
+            </option>
+          </select>
+        </label>
         <a class="sysIcon sysIcon_fengefu"></a>
         <a
           v-for="type in def.listType"

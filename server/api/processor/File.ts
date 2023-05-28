@@ -22,7 +22,7 @@ export default class {
             path: [] as col_node[],
             list: [] as api_node_col[],
         };
-        if (request.pid && request.pid !== '0') {
+        if (parseInt(request.pid)) {
             const model = new NodeModel();
             const curNode = await model.where('id', request.pid).first();
             //tree这个是.path下面的，with_crumb是单独节点的
@@ -48,71 +48,61 @@ export default class {
             });
             target.path.push(curNode);
         }
+        /*switch (request.mode) {
+            default:
+            case 'directory':
+                break;
+            case 'search':
+                break;
+            case 'tag':
+                break;
+        }*/
         const model = new NodeModel();
-        if (request.keyword) {
-            model.where(
-                // 'index_node',
-                'title',
-                'like',
-                `%${request.keyword.trim()}%`
-            );
+
+        switch (request.mode) {
+            default:
+            case 'directory':
+                model.where('id_parent', request.pid);
+                break;
+            case 'search':
+                model.where(
+                    // 'index_node',
+                    'title',
+                    'like',
+                    `%${request.keyword.trim()}%`
+                );
+                if (request.pid) {
+                    if (request.inside)
+                        model.whereRaw('find_in_set(?,list_node)', request.pid);
+                    else
+                        model.where('id_parent', request.pid);
+                }
+                break;
+            case 'tag':
+                model.whereRaw('find_in_set(?,list_tag_id)', request.tag_id);
+                if (request.pid) {
+                    if (request.inside)
+                        model.whereRaw('find_in_set(?,list_node)', request.pid);
+                    else
+                        model.where('id_parent', request.pid);
+                }
+                break;
         }
-        if (parseInt(request.pid)) {
-            model.where('id_parent', request.pid);
+        if (request.node_type) {
+            if (request.node_type !== 'any')
+                model.where('type', request.node_type);
         }
-        if (request.tid) {
-            model.whereRaw('find_in_set(?,list_tag_id)', request.tid);
-        }
-        if (!(
-            request.keyword ||
-            request.type ||
-            parseInt(request.pid) ||
-            request.tid ||
-            request.deleted ||
-            request.favourite ||
-            false
-        )) {
-            console.info('file/get: no querydata, set id_parent=0')
-            model.where('id_parent', 0);
-        }
-        if (request.type) {
-            model.where('type', request.type);
-        }
-        if (request.deleted) {
-            model.where('status', 0);
-        } else {
-            model.where('status', 1);
-        }
-        if (request.sort) {
-            switch (request.sort) {
-                case 'id_asc':
-                    model.order('id', 'asc');
-                    break;
-                case 'id_desc':
-                    model.order('id', 'desc');
-                    break;
-                case 'name_asc':
-                    model.order('title', 'asc');
-                    break;
-                case 'name_desc':
-                    model.order('title', 'desc');
-                    break;
-                case 'crt_asc':
-                    model.order('time_create', 'asc');
-                    break;
-                case 'crt_desc':
-                    model.order('time_create', 'desc');
-                    break;
-                case 'upd_asc':
-                    model.order('time_update', 'asc');
-                    break;
-                case 'upd_desc':
-                    model.order('time_update', 'desc');
-                    break;
-            }
-        }
-        if (request.limit) {
-            model.limit(parseInt(request.limit));
+        switch (request.group) {
+            default:
+            case 'directory':
+                model.where('status', 1);
+                break;
+            case 'deleted':
+                model.where('status', 0);
+                break;
+            case 'favourite':
+                model.where('status', 1);
+                break;
         }
         const nodeLs: api_node_col[] = await model.select();
         // console.info(nodeLs);
@@ -134,7 +124,12 @@ export default class {
             });
             node.is_file = node.type === 'directory' ? 0 : 1;
         });
-        if (!request.no_tag && tagIdSet.size) {
+        let withConf = ['file', 'tag', 'crumb']
+        if (request.with || request.with.length) {
+            withConf = request.with.split(',');
+        }
+        // console.info(withConf);
+        if (withConf.indexOf('tag') !== -1 && tagIdSet.size) {
             const tagLs = await (new TagModel).whereIn('id', Array.from(tagIdSet)).select();
             const tagGroupIdSet = new Set<number>();
             const tagMap = GenFunc.toMap(tagLs, 'id', (tag) => {
@@ -161,7 +156,7 @@ export default class {
                 });
             });
         }
-        if (!request.no_file && fileIdSet.size) {
+        if (withConf.indexOf('file') !== -1 && fileIdSet.size) {
             const fileLs = await (new FileModel).whereIn('id', Array.from(fileIdSet)).select();
             const fileMap = GenFunc.toMap(fileLs, 'id');
             // const tagGroupIdSet = new Set();
@@ -179,7 +174,7 @@ export default class {
         }
         //
         const parentMap = new Map<number, col_node>();
-        if (request.with_crumb) {
+        if (withConf.indexOf('crumb') !== -1) {
             if (parentIdSet.size) {
                 const parentLs = await new NodeModel()
                     .whereIn('id', Array.from(parentIdSet))

@@ -28,7 +28,7 @@ export type api_file_list_resp = {
     list: api_node_col[],
 }
 
-export type api_file_list_req = {
+/*export type api_file_list_req = {
     keyword?: string,
     type?: type_file | string,
     sort?: string,
@@ -40,7 +40,27 @@ export type api_file_list_req = {
     no_tag?: string,
     with_crumb?: string,
     limit?: string,
-} & { [key: string]: any }
+} & { [key: string]: any }*/
+
+export type api_file_list_req = {
+    mode?: 'directory' | 'search' | 'tag' | string,
+    pid?: string,
+    keyword?: string,
+    tag_id?: string,
+    inside?: '1' | '' | string,
+    //
+    node_type?: type_file | string,
+    //
+    // sort?: string,
+    // detail: string,
+    with?: 'file' | 'tag' | 'crumb' | string,
+    group?: 'directory' | 'deleted' | 'favourite' | string,
+    // favourite?: string,
+    // no_file?: string,
+    // no_tag?: string,
+    // with_crumb?: string,
+    // limit?: string,
+}
 
 export type api_user_login_req = {
     username: string,
