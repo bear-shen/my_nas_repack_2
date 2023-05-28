@@ -104,6 +104,9 @@ export default class {
                 model.where('status', 1);
                 break;
         }
+        if (request.limit) {
+            model.limit(parseInt(request.limit));
+        }
         const nodeLs: api_node_col[] = await model.select();
         // console.info(nodeLs);
         //
@@ -127,6 +130,9 @@ export default class {
         let withConf = ['file', 'tag', 'crumb']
         if (request.with || request.with.length) {
             withConf = request.with.split(',');
+            if (withConf.indexOf('none') !== -1) {
+                withConf = [];
+            }
         }
         // console.info(withConf);
         if (withConf.indexOf('tag') !== -1 && tagIdSet.size) {

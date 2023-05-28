@@ -53,13 +53,13 @@ export type api_file_list_req = {
     //
     // sort?: string,
     // detail: string,
-    with?: 'file' | 'tag' | 'crumb' | string,
+    with?: 'file' | 'tag' | 'crumb' | 'none' | string,
     group?: 'directory' | 'deleted' | 'favourite' | string,
     // favourite?: string,
     // no_file?: string,
     // no_tag?: string,
     // with_crumb?: string,
-    // limit?: string,
+    limit?: string,
 }
 
 export type api_user_login_req = {

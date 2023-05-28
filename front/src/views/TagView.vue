@@ -129,10 +129,19 @@ onUnmounted(() => {
 
 //
 function go(ext: api_file_list_req) {
-  if (!ext.tid) ext.tid = "";
+  if (!ext.tag_id) ext.tag_id = "";
   if (!ext.keyword) ext.keyword = "";
-  if (!ext.type) ext.type = "";
-  const tQuery = Object.assign(GenFunc.copyObject(queryData), ext);
+  if (!ext.node_type) ext.node_type = "";
+  const tQuery = Object.assign({
+    mode: "",
+    pid: "",
+    keyword: "",
+    tag_id: "",
+    node_type: "",
+    inside: "",
+    with: "",
+    group: "",
+  }, ext);
   router.push({
     path: route.path,
     query: tQuery,
@@ -181,16 +190,13 @@ async function addGroup() {
 
 async function node_hint(text: string): Promise<api_node_col[] | false> {
   console.info('node_hint');
-  let queryData = {
-    sort: "",
-    type: "directory",
+  let queryData: api_file_list_req = {
+    mode: "search",
+    node_type: "directory",
     keyword: text,
-    pid: "",
-    tid: "",
-    no_file: '1',
-    with_crumb: '1',
+    with: 'none',
     limit: '20',
-  } as api_file_list_req;
+  };
   const res = await query<api_file_list_resp>("file/get", queryData);
   if (!res) return false;
   console.info(res)
@@ -514,7 +520,7 @@ async function modTag(index: number) {
       .description {}
       .alt {}
       .operator {}
-      >div{
+      > div {
         word-break: break-all;
       }
       //color: mkColor(map-get($colors, font_sub), 2);

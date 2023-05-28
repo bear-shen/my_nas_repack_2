@@ -13,7 +13,7 @@ import browserVideoVue from "./browserVideo.vue";
 import browserPDFVue from "./browserPDF.vue";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {useEventStore} from "@/stores/event";
-import type {type_file} from "../../../share/Database";
+import type {type_file, col_node} from "../../../share/Database";
 //------------------
 const props = defineProps<{
   data: {
@@ -23,6 +23,30 @@ const props = defineProps<{
   };
   modalData: ModalStruct;
 }>();
+const def = {
+  fileType: [
+    "any",
+    "directory",
+    "file",
+    "audio",
+    "video",
+    "image",
+    "binary",
+    "text",
+    "pdf",
+  ],
+  sort: {
+    id_asc: "id ↑",
+    id_desc: "id ↓",
+    name_asc: "name ↑",
+    name_desc: "name ↓",
+    crt_asc: "crt time ↑",
+    crt_desc: "crt time ↓",
+    upd_asc: "upd time ↑",
+    upd_desc: "upd time ↓",
+  },
+  listType: ["detail", "text", "img"],
+};
 const regComponentLs = {
   audio: browserAudioVue,
   video: browserVideoVue,
@@ -99,8 +123,8 @@ async function getList() {
   if (!node) node = res.list[0];
   // console.info(res);
   crumbList.value = res.path;
-  nodeList.value = res.list;
-  curIndex.value = index;
+  nodeList.value = sortList(res.list);
+  curIndex.value = locateCurNode(res.list, node);
   // curNode.value = node;
   // console.info(crumbList);
   goNav();
@@ -222,6 +246,76 @@ function goDownload() {
   if (!filePath) return;
   window.open(`${filePath}?filename=${curNode.value.title}`);
 }
+
+function locateCurNode(list: col_node[], node: col_node) {
+  let index = 0;
+  list.forEach((item, ind) => {
+    if (item.id === node.id)
+      index = ind;
+  });
+  return index;
+}
+
+let sortVal: Ref<string> = ref(localConfigure.get("file_view_sort") ?? "name_asc");
+
+/*const sortKey = localConfigure.listen(
+  "file_view_sort",
+  (v) => {
+    sortVal.value = v;
+    const preVal = nodeList.value;
+    nodeList.value = [];
+    nodeList.value = sortList(preVal);
+  }
+);*/
+
+function setSort(val: string) {
+  console.info('setSort', val);
+  sortVal.value = val;
+  const orgLs = nodeList.value;
+  nodeList.value = [];
+  sortList(orgLs);
+  curIndex.value = locateCurNode(orgLs, curNode.value);
+  nodeList.value = orgLs;
+  // localConfigure.set("file_view_sort", sortVal);
+}
+
+function sortList(list: col_node[]) {
+  let sortType: [keyof col_node, string] = ['id', 'asc'];
+  switch (sortVal.value) {
+    default:
+    case 'id_asc':
+      sortType = ['id', 'asc',];
+      break;
+    case 'id_desc':
+      sortType = ['id', 'desc',];
+      break;
+    case 'name_asc':
+      sortType = ['title', 'asc',];
+      break;
+    case 'name_desc':
+      sortType = ['title', 'desc',];
+      break;
+    case 'crt_asc':
+      sortType = ['time_create', 'asc',];
+      break;
+    case 'crt_desc':
+      sortType = ['time_create', 'desc',];
+      break;
+    case 'upd_asc':
+      sortType = ['time_update', 'asc',];
+      break;
+    case 'upd_desc':
+      sortType = ['time_update', 'desc',];
+      break;
+  }
+  list.sort((a, b) => {
+    const va = a[sortType[0]];
+    const vb = b[sortType[0]];
+    const rev = sortType[1] == 'desc' ? -1 : 1;
+    return (va ? va : 0) > (vb ? vb : 0) ? rev * 1 : rev * -1;
+  })
+  return list;
+}
 </script>
 
 <template>
@@ -251,6 +345,13 @@ function goDownload() {
     </template>
     <template v-slot:btn>
       <div class="btn">
+        <label>
+          <select v-model="sortVal" @change="setSort(sortVal)">
+            <option v-for="(sortItem, key) in def.sort" :value="key">
+              {{ sortItem }}
+            </option>
+          </select>
+        </label>
         <button
           :class="['sysIcon', `sysIcon_player_${playMode}`]"
           @click="togglePlayMode"

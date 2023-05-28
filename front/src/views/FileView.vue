@@ -252,15 +252,15 @@ function setMode(mode: string) {
 //
 
 let sortVal: Ref<string> = ref(localConfigure.get("file_view_sort") ?? "name_asc");
-const sortKey = localConfigure.listen(
-  "file_view_sort",
-  (v) => {
-    sortVal.value = v;
-    const preVal = nodeList.value;
-    nodeList.value = [];
-    nodeList.value = sortList(preVal);
-  }
-);
+// const sortKey = localConfigure.listen(
+//   "file_view_sort",
+//   (v) => {
+//     sortVal.value = v;
+//     const preVal = nodeList.value;
+//     nodeList.value = [];
+//     nodeList.value = sortList(preVal);
+//   }
+// );
 
 function setSort(sortVal: string) {
   console.info('setSort', sortVal);
