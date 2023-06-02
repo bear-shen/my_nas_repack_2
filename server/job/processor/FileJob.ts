@@ -34,6 +34,7 @@ export default class {
         // const conf = Config.parser;
         //
         let parsedFile: col_file | boolean;
+        // console.info(node);
         switch (node.type) {
             case 'audio':
                 //
@@ -320,9 +321,11 @@ async function execFFmpeg(file: col_file, type: string,): Promise<col_file | boo
             parserConfig = Config.parser[type];
             break;
         case 'subtitle':
+            console.info(meta);
             method = FFMpeg.subtitleStr;
             const ffMap = await method(meta) as Map<string, string>;
             ffStr = ffMap.get('default');
+            if (!ffStr) ffStr = false;
             parserConfig = Config.parser[type];
             break;
         case 'image':
@@ -337,6 +340,7 @@ async function execFFmpeg(file: col_file, type: string,): Promise<col_file | boo
     if (typeof ffStr === 'boolean') return true;
     // let format = conf.audio.format;
     let nFileInfo: col_file;
+    // console.info(ffStr,);
     try {
         const tmpFilePath = await genTmpPath(parserConfig.format);
         const exeStr = parseFFStr(ffStr, filePath, tmpFilePath);

@@ -316,13 +316,6 @@ function setZoom(e?: WheelEvent, dir?: number) {
       top: 0;
     }
   }
-  .btn {
-    button {
-      vertical-align: bottom;
-      font-size: $fontSize;
-      line-height: $fontSize;
-    }
-  }
   .navigator {
   }
   .base {

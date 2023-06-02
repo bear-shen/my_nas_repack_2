@@ -100,12 +100,19 @@ onUnmounted(() => {
 // }, 1000);
 
 let crumbList: Ref<api_node_col[]> = ref([]);
+//注意这个是全量的nodeList，传递到内部遍历的也是这个
 let nodeList: Ref<api_node_col[]> = ref([]);
+//这个是筛选后的nodeList，但是想了一下这个在导航阶段做掉就可以了
+// let nodeList: Ref<api_node_col[]> = ref([]);
 let curIndex: Ref<number> = ref(0);
 let curNode: Ref<api_node_col> = ref({});
 // onMounted(async () => {
 // getList();
 // });
+
+// watch(curNode, async to => {
+// })
+
 getList();
 
 async function getList() {
@@ -122,12 +129,14 @@ async function getList() {
   }
   if (!node) node = res.list[0];
   // console.info(res);
+  console.warn(node.title);
   crumbList.value = res.path;
   nodeList.value = sortList(res.list);
-  curIndex.value = locateCurNode(res.list, node);
+  curIndex.value = locateCurNode(nodeList.value, node);
+  // nodeList.value = sortList(res.list);
   // curNode.value = node;
   // console.info(crumbList);
-  goNav();
+  modNav();
   checkNext();
 }
 
@@ -174,7 +183,7 @@ function goNext() {
   if (curIndex.value < 0) curIndex.value = nodeList.value.length - 1;
   while (curIndex.value > listLen - 1) curIndex.value -= listLen;
   if (!isValidNav()) goNext();
-  else goNav();
+  else modNav();
 }
 
 function goPrev() {
@@ -188,7 +197,7 @@ function goPrev() {
   if (curIndex.value < 0) curIndex.value = nodeList.value.length - 1;
   while (curIndex.value > listLen - 1) curIndex.value -= listLen;
   if (!isValidNav()) goPrev();
-  else goNav();
+  else modNav();
 }
 
 function emitNav(index: number) {
@@ -202,7 +211,7 @@ function emitNav(index: number) {
   if (curIndex.value < 0) curIndex.value = nodeList.value.length - 1;
   while (curIndex.value > listLen - 1) curIndex.value -= listLen;
   if (!isValidNav()) emitNav(index + 1);
-  else goNav();
+  else modNav();
 }
 
 function isValidNav() {
@@ -210,18 +219,25 @@ function isValidNav() {
   return ignoreFileType.indexOf(node.type ?? 'directory') === -1;
 }
 
-function goNav() {
+function modNav() {
   const changeType = curNode.value.type !== nodeList.value[curIndex.value].type;
+  // curIndex.value = locateCurNode(nodeList.value, curNode.value);
   curNode.value = nodeList.value[curIndex.value];
-  props.modalData.base.title = curNode.value.title ?? "";
-  console.warn(changeType);
+  modTitle();
   //类型相同的时候添加一个事件用于预处理
+  console.warn(changeType);
   if (!changeType)
     eventStore.trigger(
       `modal_browser_change_${props.modalData.nid}`,
       curNode.value.id
     );
   checkNext();
+}
+
+function modTitle() {
+  props.modalData.base.title =
+    (curIndex.value + 1) + '/' + nodeList.value.length + ' ' +
+    (curNode.value.title ?? "");
 }
 
 //------------------
@@ -256,7 +272,8 @@ function locateCurNode(list: col_node[], node: col_node) {
   return index;
 }
 
-let sortVal: Ref<string> = ref(localConfigure.get("file_view_sort") ?? "name_asc");
+
+const sortVal: Ref<string> = ref(localConfigure.get("browser_list_sort") ?? "name_asc");
 
 /*const sortKey = localConfigure.listen(
   "file_view_sort",
@@ -274,8 +291,8 @@ function setSort(val: string) {
   const orgLs = nodeList.value;
   nodeList.value = [];
   sortList(orgLs);
-  curIndex.value = locateCurNode(orgLs, curNode.value);
   nodeList.value = orgLs;
+  curIndex.value = locateCurNode(orgLs, curNode.value);
   // localConfigure.set("file_view_sort", sortVal);
 }
 
@@ -314,7 +331,16 @@ function sortList(list: col_node[]) {
     const rev = sortType[1] == 'desc' ? -1 : 1;
     return (va ? va : 0) > (vb ? vb : 0) ? rev * 1 : rev * -1;
   })
+  curIndex.value = locateCurNode(nodeList.value, curNode.value);
+  modTitle();
+  localConfigure.set("browser_list_sort", sortVal)
   return list;
+}
+
+const filterVal: Ref<string> = ref(localConfigure.get("browser_list_filter") ?? "any");
+
+function setFilter(target: string) {
+  localConfigure.set("browser_list_filter", target);
 }
 </script>
 
@@ -345,13 +371,19 @@ function sortList(list: col_node[]) {
     </template>
     <template v-slot:btn>
       <div class="btn">
-        <label>
-          <select v-model="sortVal" @change="setSort(sortVal)">
-            <option v-for="(sortItem, key) in def.sort" :value="key">
-              {{ sortItem }}
-            </option>
-          </select>
-        </label>
+      </div>
+      <div class="btn">
+        <select v-model="filterVal" @change="setFilter(filterVal)">
+          <option v-for="(fileType, key) in def.fileType" :value="key">
+            {{ fileType }}
+          </option>
+        </select>
+        <br>
+        <select v-model="sortVal" @change="setSort(sortVal)">
+          <option v-for="(sortItem, key) in def.sort" :value="key">
+            {{ sortItem }}
+          </option>
+        </select>
         <button
           :class="['sysIcon', `sysIcon_player_${playMode}`]"
           @click="togglePlayMode"
@@ -462,6 +494,18 @@ function sortList(list: col_node[]) {
       right: 0;
       text-align: right;
     }
+    .btn {
+      button, select {
+        vertical-align: bottom;
+        font-size: $fontSize;
+        line-height: $fontSize;
+      }
+    }
+  }
+}
+.modal_browser.base {
+  .content {
+    text-align: center;
   }
 }
 </style>

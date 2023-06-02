@@ -41,15 +41,4 @@ const props = defineProps<{
 </template>
 
 <style lang="scss">
-.modal_browser.base {
-  .content {
-    text-align: center;
-  }
-  /*.navigator {
-  }
-  .base {
-  }
-  .info {
-  }*/
-}
 </style>
