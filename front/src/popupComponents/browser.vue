@@ -26,7 +26,7 @@ const props = defineProps<{
 const def = {
   fileType: [
     "any",
-    "directory",
+    // "directory",
     "file",
     "audio",
     "video",
@@ -58,7 +58,7 @@ const regComponentLs = {
 //------------------
 const localConfigure = useLocalConfigureStore();
 //------------------
-const playModes = ["queue", "loop", "single", "shuffle"];
+const playModes = [/*"queue",*/ "loop", "single", "shuffle"];
 let playMode: Ref<string> = ref(
   localConfigure.get("browser_play_mode") ?? "loop"
 );
@@ -136,7 +136,7 @@ async function getList() {
   // nodeList.value = sortList(res.list);
   // curNode.value = node;
   // console.info(crumbList);
-  modNav();
+  onModNav();
   checkNext();
 }
 
@@ -145,81 +145,77 @@ let hasNext = ref(true);
 let hasPrev = ref(true);
 
 function checkNext() {
-  let isEnd = false;
-  let isStart = false;
-  let listLen = nodeList.value.length;
-  if (listLen < 1) {
-    hasNext.value = false;
+  //queue去掉以后这个没有用了
+  return;
+  console.info('checkNext',);
+  // console.log()
+  let hasPrevL = true;
+  let hasNextL = true;
+  //
+  let validListLen = 0;
+  nodeList.value.forEach((node, index) => {
+    validListLen += isValidNav(index) ? 1 : 0
+  })
+  if (!validListLen) {
     hasPrev.value = false;
+    hasNext.value = false;
     return;
   }
-  if (curIndex.value === 0) isStart = true;
-  if (curIndex.value === listLen - 1) isEnd = true;
+  let isStart = curIndex.value === 0;
+  let isEnd = curIndex.value === nodeList.value.length - 1;
+  console.info(isStart, isEnd);
   switch (playMode.value) {
     case "queue":
-      if (isEnd) hasNext.value = false;
-      if (isStart) hasPrev.value = false;
-      return;
+      if (isStart) hasPrevL = false;
+      if (isEnd) hasNextL = false;
       break;
     case "loop":
     case "single":
     case "shuffle":
-      hasNext.value = true;
-      hasPrev.value = true;
       break;
   }
+  hasPrev.value = hasPrevL;
+  hasNext.value = hasNextL;
+  // console.info(hasPrev.value, hasNext.value)
 }
 
 //
 const eventStore = useEventStore();
 
-function goNext() {
+function goNav(curNavIndex: number, offset: number, counter: number = 0): any {
+  // console.info('goNav', [curNavIndex, offset, counter,]);
   let listLen = nodeList.value.length;
-  if (playMode.value === "shuffle") {
-    curIndex.value += Math.round(Math.random() * listLen);
-  } else {
-    curIndex.value += 1;
-  }
-  if (curIndex.value < 0) curIndex.value = nodeList.value.length - 1;
-  while (curIndex.value > listLen - 1) curIndex.value -= listLen;
-  if (!isValidNav()) goNext();
-  else modNav();
-}
 
-function goPrev() {
-  let listLen = nodeList.value.length;
   if (playMode.value === "shuffle") {
-    curIndex.value += Math.round(Math.random() * listLen);
-  } else {
-    curIndex.value -= 1;
+    offset = Math.round(Math.random() * listLen);
   }
-  // const listLen = nodeList.value.length;
-  if (curIndex.value < 0) curIndex.value = nodeList.value.length - 1;
-  while (curIndex.value > listLen - 1) curIndex.value -= listLen;
-  if (!isValidNav()) goPrev();
-  else modNav();
+  let nextIndex = curNavIndex + offset;
+  while (nextIndex < 0) nextIndex += listLen;
+  while (nextIndex > listLen - 1) nextIndex -= listLen;
+  if (!counter) counter = 0;
+  counter += 1;
+  if (counter > listLen) return;
+  // console.info(isValidNav(nextIndex));
+  if (!isValidNav(nextIndex)) return goNav(nextIndex, offset, counter);
+  curIndex.value = nextIndex;
+  onModNav();
 }
 
 function emitNav(index: number) {
-  let listLen = nodeList.value.length;
-  if (playMode.value === "shuffle") {
-    curIndex.value += Math.round(Math.random() * listLen);
-  } else {
-    curIndex.value = index;
-  }
-  // const listLen = nodeList.value.length;
-  if (curIndex.value < 0) curIndex.value = nodeList.value.length - 1;
-  while (curIndex.value > listLen - 1) curIndex.value -= listLen;
-  if (!isValidNav()) emitNav(index + 1);
-  else modNav();
+  let delta = index - curIndex.value;
+  goNav(curIndex.value, delta);
 }
 
-function isValidNav() {
-  const node = nodeList.value[curIndex.value];
+function isValidNav(nextIndex: number) {
+  const node = nodeList.value[nextIndex];
+  // console.info([node.type, filterVal.value, ignoreFileType.indexOf(node.type ?? 'directory')]);
+  if (filterVal.value != 'any') {
+    return filterVal.value == node.type;
+  }
   return ignoreFileType.indexOf(node.type ?? 'directory') === -1;
 }
 
-function modNav() {
+function onModNav() {
   const changeType = curNode.value.type !== nodeList.value[curIndex.value].type;
   // curIndex.value = locateCurNode(nodeList.value, curNode.value);
   curNode.value = nodeList.value[curIndex.value];
@@ -235,6 +231,7 @@ function modNav() {
 }
 
 function modTitle() {
+  console.info(['modTitle', curIndex.value, nodeList.value.length]);
   props.modalData.base.title =
     (curIndex.value + 1) + '/' + nodeList.value.length + ' ' +
     (curNode.value.title ?? "");
@@ -249,10 +246,10 @@ function keymap(e: KeyboardEvent) {
   // console.info(e);
   switch (e.key) {
     case "ArrowLeft":
-      goPrev();
+      goNav(curIndex.value, -1);
       break;
     case "ArrowRight":
-      goNext();
+      goNav(curIndex.value, +1);
       break;
   }
 }
@@ -293,6 +290,7 @@ function setSort(val: string) {
   sortList(orgLs);
   nodeList.value = orgLs;
   curIndex.value = locateCurNode(orgLs, curNode.value);
+  modTitle();
   // localConfigure.set("file_view_sort", sortVal);
 }
 
@@ -332,7 +330,6 @@ function sortList(list: col_node[]) {
     return (va ? va : 0) > (vb ? vb : 0) ? rev * 1 : rev * -1;
   })
   curIndex.value = locateCurNode(nodeList.value, curNode.value);
-  modTitle();
   localConfigure.set("browser_list_sort", sortVal)
   return list;
 }
@@ -341,6 +338,7 @@ const filterVal: Ref<string> = ref(localConfigure.get("browser_list_filter") ?? 
 
 function setFilter(target: string) {
   localConfigure.set("browser_list_filter", target);
+  checkNext();
 }
 </script>
 
@@ -374,7 +372,7 @@ function setFilter(target: string) {
       </div>
       <div class="btn">
         <select v-model="filterVal" @change="setFilter(filterVal)">
-          <option v-for="(fileType, key) in def.fileType" :value="key">
+          <option v-for="(fileType, key) in def.fileType" :value="fileType">
             {{ fileType }}
           </option>
         </select>
@@ -402,10 +400,10 @@ function setFilter(target: string) {
     </template>
     <template v-slot:navigator>
       <div class="pagination">
-        <div v-if="hasPrev" class="left" @click="goPrev">
+        <div v-if="hasPrev" class="left" @click="goNav(curIndex,-1)">
           <span class="sysIcon sysIcon_arrowleft"></span>
         </div>
-        <div v-if="hasNext" class="right" @click="goNext">
+        <div v-if="hasNext" class="right" @click="goNav(curIndex,+1)">
           <span class="sysIcon sysIcon_arrowright"></span>
         </div>
       </div>

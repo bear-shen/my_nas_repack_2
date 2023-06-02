@@ -1,7 +1,7 @@
-import type { api_user_login_req, api_user_login_resp } from "../../share/Api";
+import type {api_user_login_req, api_user_login_resp} from "../../share/Api";
 import FrontConfig from "./FrontConfig";
 
-import { useModalStore } from "@/stores/modalStore";
+import {useModalStore} from "@/stores/modalStore";
 
 export function queryDemo<K>(
     path: string, data: { [key: string]: any } | FormData,
@@ -123,7 +123,17 @@ export function throwError(msg: string) {
         fullscreen: false,
         text: msg,
         callback: {
-            close: (modal) => { },
+            close: (modal) => {
+            },
         },
     });
+}
+
+//@todo
+export function print() {
+    return;
+    // const calee = (new Error('') as any).stack.split("\n")[2].trim().split(" ")[1];
+    // console.info(calee, ...arguments);
+    // console.info(calee.codePointAt(0)%8, ...arguments);
+    // console.log("%cThis is a green text", "color:green");
 }

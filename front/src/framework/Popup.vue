@@ -503,7 +503,7 @@ onUnmounted(() => {
 });
 
 function keymap(e: KeyboardEvent) {
-  console.info(e);
+  // console.info(e);
   if ((e.target as HTMLElement).tagName !== "BODY") return;
   switch (e.key) {
     case 'Escape':
