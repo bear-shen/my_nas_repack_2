@@ -18,16 +18,17 @@ import {useModalStore} from "@/stores/modalStore";
 //------------------
 const locatorInput: Ref<HTMLInputElement | null> = ref(null);
 
-let queryData = {
-  sort: "",
-  type: "",
-  keyword: "",
-  pid: "",
-  tid: "",
-  no_tag: "1",
-  no_file: "1",
-  with_crumb: "1",
-} as api_file_list_req;
+let queryData: api_file_list_req = {
+  mode: 'search',
+  pid: '',
+  keyword: '',
+  tag_id: '',
+  inside: '',
+  node_type: 'directory',
+  with: 'crumb',
+  group: '',
+  limit: '20',
+};
 
 const props = defineProps<{
   data: {
