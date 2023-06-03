@@ -177,11 +177,17 @@ export default class {
                 if (parsedFile === false) ifErr = true;
                 else if (parsedFile === true) node.index_file_id.normal = node.index_file_id.raw;
                 else node.index_file_id.normal = parsedFile.id;
+                await (new NodeModel()).where('id', node.id).update({
+                    index_file_id: node.index_file_id,
+                });
                 break;
             case 'pdf':
                 break;
             case 'directory':
                 break;
+        }
+        if (ifErr) {
+            //
         }
         //
         await (new NodeModel()).where('id', node.id).update({
@@ -337,7 +343,7 @@ async function execFFmpeg(file: col_file, type: string,): Promise<col_file | boo
             parserConfig = Config.parser[type];
             break;
     }
-    if (typeof ffStr === 'boolean') return true;
+    if (typeof ffStr === 'boolean') return ffStr;
     // let format = conf.audio.format;
     let nFileInfo: col_file;
     // console.info(ffStr,);

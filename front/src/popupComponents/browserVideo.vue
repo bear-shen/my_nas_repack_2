@@ -40,7 +40,7 @@ const mediaMeta = ref({
   mute: false,
   //
   play: false,
-  show: true,
+  show: false,
   loop: localConfigure.get("browser_play_mode") === "single",
 });
 const modeKey = localConfigure.listen("browser_play_mode", (v) =>
@@ -88,11 +88,22 @@ function onEnd(e: Event) {
   emits("nav", props.curIndex + 1);
 }
 
-onMounted(() => {
-  loadSubtitle();
+onMounted(async () => {
+  await beforeInit();
   contentDOM.value?.addEventListener("wheel", wheelListener);
   document.addEventListener("keydown", keymap);
 });
+
+async function beforeInit() {
+  Object.assign(mediaMeta.value, {show: false});
+  subtitleList.value = [];
+  await loadSubtitle();
+  //触发事件以后props数据并没有实时刷新，等一会再执行
+  setTimeout(() => {
+    Object.assign(mediaMeta.value, {show: true});
+  }, 50);
+}
+
 /* watch(props, async (to) => {
   if (to.curNode.id === imgLayout.value.loaded) return;
   // console.warn(to.curNode.id, fr.curNode.id);
@@ -105,15 +116,9 @@ onMounted(() => {
 const eventStore = useEventStore();
 let changeEvtKey = eventStore.listen(
   `modal_browser_change_${props.modalData.nid}`,
-  (data) => {
+  async (data) => {
     console.info('modal_browser_change_');
-    Object.assign(mediaMeta.value, {show: false});
-    subtitleList.value = [];
-    //触发事件以后props数据并没有实时刷新，等一会再执行
-    setTimeout(() => {
-      Object.assign(mediaMeta.value, {show: true});
-      loadSubtitle();
-    }, 50);
+    await beforeInit();
   }
 );
 onUnmounted(() => {
@@ -250,11 +255,12 @@ function loadSubtitle() {
   const subNode = [] as (api_node_col & { label?: string })[];
   props.nodeList.forEach(node => {
     if (node.type !== 'subtitle') return;
+    if (!node.file?.normal?.path) return;
     let aftStr = node.title?.substring(0, preStr.length);
     // console.info(aftStr);
     if (node.title?.indexOf(preStr) === 0) subNode.push(Object.assign({label: aftStr}, node));
   });
-  console.info(props.curNode.title, JSON.stringify(subNode));
+  // console.info(props.curNode.title, JSON.stringify(subNode));
   subtitleList.value = subNode;
   // return subNode;
 }
