@@ -76,16 +76,16 @@ let resizingEvtKey = eventStore.listen(
   `modal_resizing_${props.modalData.nid}`,
   (data) => fitImg()
 );
-let changeEvtKey = eventStore.listen(
-  `modal_browser_change_${props.modalData.nid}`,
-  (data) => loadImageRes()
-);
+watch(() => props.curNode, async (to) => {
+  loadImageRes();
+});
+
 onUnmounted(() => {
   // eventStore.release(`modal_resizing_${props.modalData.nid}`, resizingEvtKey);
-  eventStore.release(
-    `modal_browser_change_${props.modalData.nid}`,
-    changeEvtKey
-  );
+  // eventStore.release(
+  //   `modal_browser_change_${props.modalData.nid}`,
+  //   changeEvtKey
+  // );
 });
 
 async function fitImg() {

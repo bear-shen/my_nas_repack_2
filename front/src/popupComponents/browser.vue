@@ -229,12 +229,13 @@ function onModNav() {
   curNode.value = nodeList.value[curIndex.value];
   modTitle();
   //类型相同的时候添加一个事件用于预处理
-  console.warn(changeType);
-  if (!changeType)
-    eventStore.trigger(
-      `modal_browser_change_${props.modalData.nid}`,
-      curNode.value.id
-    );
+  //这边更新的效率会比props的慢，还是watch好用
+  // console.warn(changeType);
+  // if (!changeType)
+  //   eventStore.trigger(
+  //     `modal_browser_change_${props.modalData.nid}`,
+  //     curNode.value.id
+  //   );
   checkNext();
 }
 
@@ -250,14 +251,19 @@ function modTitle() {
 function keymap(e: KeyboardEvent) {
   if ((e.target as HTMLElement).tagName !== "BODY") return;
   if (!props.modalData.layout.active) return;
-  if (["audio", "video"].indexOf(curNode.value.type ?? "") !== -1) return;
-  // console.info(e);
+  console.info(e);
   switch (e.key) {
     case "ArrowLeft":
+      if (["audio", "video"].indexOf(curNode.value.type ?? "") !== -1) return;
       goNav(curIndex.value, -1);
       break;
     case "ArrowRight":
+      if (["audio", "video"].indexOf(curNode.value.type ?? "") !== -1) return;
       goNav(curIndex.value, +1);
+      break;
+    case '[':
+      break;
+    case ']':
       break;
   }
 }

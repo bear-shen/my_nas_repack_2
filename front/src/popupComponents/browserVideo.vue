@@ -98,9 +98,9 @@ async function beforeInit() {
   // console.info('beforeInit');
   Object.assign(mediaMeta.value, {show: false});
   subtitleList.value = [];
-  //触发事件以后props数据并没有实时刷新，等一会再执行
+  loadSubtitle();
+  // video的dom更新需要删了才能刷新
   setTimeout(() => {
-    loadSubtitle();
     Object.assign(mediaMeta.value, {show: true});
   }, 50);
 }
@@ -114,21 +114,25 @@ async function beforeInit() {
   loadImageRes();
 }); */
 //
-const eventStore = useEventStore();
-let changeEvtKey = eventStore.listen(
-  `modal_browser_change_${props.modalData.nid}`,
-  (data) => {
-    console.info('modal_browser_change_');
-    beforeInit();
-  }
-);
+
+watch(() => props.curNode, async (to) => {
+  beforeInit();
+});
+// const eventStore = useEventStore();
+// let changeEvtKey = eventStore.listen(
+//   `modal_browser_change_${props.modalData.nid}`,
+//   (data) => {
+//     console.info('modal_browser_change_');
+//     beforeInit();
+//   }
+// );
 onUnmounted(() => {
   document.removeEventListener("wheel", wheelListener);
   document.removeEventListener("keydown", keymap);
-  eventStore.release(
-    `modal_browser_change_${props.modalData.nid}`,
-    changeEvtKey
-  );
+  // eventStore.release(
+  //   `modal_browser_change_${props.modalData.nid}`,
+  //   changeEvtKey
+  // );
   localConfigure.release("browser_play_mode", modeKey);
   localConfigure.release("browser_play_volume", volumeKey);
 });

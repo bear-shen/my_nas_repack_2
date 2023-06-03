@@ -99,20 +99,25 @@ onMounted(() => {
 }); */
 //
 const eventStore = useEventStore();
-let changeEvtKey = eventStore.listen(
-  `modal_browser_change_${props.modalData.nid}`,
-  (data) => {
-    Object.assign(mediaMeta.value, { show: false });
-    setTimeout(() => Object.assign(mediaMeta.value, { show: true }), 50);
-  }
-);
+
+watch(() => props.curNode, async (to) => {
+  Object.assign(mediaMeta.value, { show: false });
+  setTimeout(() => Object.assign(mediaMeta.value, { show: true }), 50);
+});
+// let changeEvtKey = eventStore.listen(
+//   `modal_browser_change_${props.modalData.nid}`,
+//   (data) => {
+//     Object.assign(mediaMeta.value, { show: false });
+//     setTimeout(() => Object.assign(mediaMeta.value, { show: true }), 50);
+//   }
+// );
 onUnmounted(() => {
   document.removeEventListener("wheel", wheelListener);
   document.removeEventListener("keydown", keymap);
-  eventStore.release(
-    `modal_browser_change_${props.modalData.nid}`,
-    changeEvtKey
-  );
+  // eventStore.release(
+  //   `modal_browser_change_${props.modalData.nid}`,
+  //   changeEvtKey
+  // );
   localConfigure.release("browser_play_mode", modeKey);
   localConfigure.release("browser_play_volume", volumeKey);
 });
