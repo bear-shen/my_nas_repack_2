@@ -575,7 +575,8 @@ function triggleLazyLoad() {
     //column-gap: 0;
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-around;
+    //justify-content: space-around;
+    justify-content: left;
   }
   .content_detail.mode_img {
     //columns: $fontSize * 10 12;

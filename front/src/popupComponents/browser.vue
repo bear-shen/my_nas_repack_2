@@ -365,7 +365,7 @@ function setFilter(target: string) {
     @nav="emitNav"
   >
     <template v-slot:info>
-      <div class="info">
+      <div :class="{info:true,detail:showDetail}">
         <p v-if="showDetail">
           {{ curNode.title }} ({{
             GenFunc.kmgt(curNode.file?.raw?.size ?? 0, 2)
@@ -436,6 +436,15 @@ function setFilter(target: string) {
     color: map-get($colors, font);
     p:first-child {
       color: map-get($colors, font_active);
+    }
+    p:first-child {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 80%;
+    }
+    &.detail p:first-child {
+      white-space: normal;
     }
   }
   .pagination {
