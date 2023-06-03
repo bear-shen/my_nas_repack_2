@@ -333,13 +333,21 @@ function emitGo(type: string, code: number) {
 }
 
 function popupDetail(queryData: { [key: string]: any }, curNodeId: number) {
+  let w = localConfigure.get("browser_layout_w");
+  let h = localConfigure.get("browser_layout_h");
+  // console.info(w, h);
+  const iw = window.innerWidth;
+  const ih = window.innerHeight;
+  if (iw < w) w = 0;
+  if (ih < h) h = 0;
+  console.info(w, h);
   modalStore.set({
     title: "file browser",
     alpha: false,
     key: "",
     single: false,
-    w: 400,
-    h: 400,
+    w: w ? w : 400,
+    h: h ? h : 400,
     minW: 400,
     minH: 400,
     // h: 160,

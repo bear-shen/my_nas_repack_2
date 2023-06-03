@@ -55,8 +55,18 @@ const regComponentLs = {
   base: browserBaseVue,
 } as { [key: string]: any };
 
-//------------------
+const eventStore = useEventStore();
 const localConfigure = useLocalConfigureStore();
+//------------------
+let resizingEvtKey = eventStore.listen(
+  `modal_resizing_${props.modalData.nid}`,
+  (data) => {
+    localConfigure.set("browser_layout_w", props.modalData.layout.w);
+    localConfigure.set("browser_layout_h", props.modalData.layout.h);
+  }
+);
+
+//------------------
 //------------------
 const playModes = [/*"queue",*/ "loop", "single", "shuffle"];
 let playMode: Ref<string> = ref(
@@ -180,8 +190,6 @@ function checkNext() {
 }
 
 //
-const eventStore = useEventStore();
-
 function goNav(curNavIndex: number, offset: number, counter: number = 0): any {
   // console.info('goNav', [curNavIndex, offset, counter,]);
   let listLen = nodeList.value.length;

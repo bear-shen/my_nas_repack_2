@@ -348,6 +348,7 @@ let resizing = {
 };
 
 function onResizeStart(modalNid: string, e: MouseEvent) {
+  // console.info('onResizeStart', modalNid, e);
   e.preventDefault();
   e.stopPropagation();
   // console.info("onResizeStart", e);
@@ -358,6 +359,7 @@ function onResizeStart(modalNid: string, e: MouseEvent) {
     if (modal.nid !== modalNid) return;
     resizing.modal = modal;
   });
+  // console.info(!resizing.modal, resizing.modal?.layout.fullscreen);
   if (!resizing.modal) return;
   if (resizing.modal.layout.fullscreen) return;
   resizing.modalX = resizing.modal.layout.x;
@@ -428,6 +430,7 @@ function onResizing(e: MouseEvent) {
       t.h = resizing.modalH + d.y;
       break;
     case "modal_header":
+    case "modal_title":
       t.x = resizing.modalX + d.x;
       t.y = resizing.modalY + d.y;
       break;
