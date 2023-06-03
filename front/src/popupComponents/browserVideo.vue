@@ -95,11 +95,12 @@ onMounted(async () => {
 });
 
 async function beforeInit() {
+  // console.info('beforeInit');
   Object.assign(mediaMeta.value, {show: false});
   subtitleList.value = [];
-  await loadSubtitle();
   //触发事件以后props数据并没有实时刷新，等一会再执行
   setTimeout(() => {
+    loadSubtitle();
     Object.assign(mediaMeta.value, {show: true});
   }, 50);
 }
@@ -116,9 +117,9 @@ async function beforeInit() {
 const eventStore = useEventStore();
 let changeEvtKey = eventStore.listen(
   `modal_browser_change_${props.modalData.nid}`,
-  async (data) => {
+  (data) => {
     console.info('modal_browser_change_');
-    await beforeInit();
+    beforeInit();
   }
 );
 onUnmounted(() => {
@@ -244,10 +245,11 @@ function parseTime(t: number) {
   return s;
 }
 
-
+const subtitleIndex = ref(0);
 const subtitleList = ref([] as (api_node_col & { label?: string })[]);
 
 function loadSubtitle() {
+  // console.info(props.curNode.title);
   let befInd = props.curNode.title?.lastIndexOf('.');
   let preStr = props.curNode.title?.substring(0, befInd) ?? '';
   // console.warn(preStr);
@@ -256,13 +258,22 @@ function loadSubtitle() {
   props.nodeList.forEach(node => {
     if (node.type !== 'subtitle') return;
     if (!node.file?.normal?.path) return;
-    let aftStr = node.title?.substring(0, preStr.length);
+    let aftStr = node.title?.substring(preStr.length);
     // console.info(aftStr);
     if (node.title?.indexOf(preStr) === 0) subNode.push(Object.assign({label: aftStr}, node));
   });
   // console.info(props.curNode.title, JSON.stringify(subNode));
   subtitleList.value = subNode;
   // return subNode;
+}
+
+function toggleSubtitle(index: number) {
+  const trackList = mediaDOM.value?.textTracks;
+  if (!trackList) return;
+  for (let i1 = 0; i1 < trackList.length; i1++) {
+    if (index == i1) trackList[i1].mode = 'showing';
+    else trackList[i1].mode = 'disabled';
+  }
 }
 </script>
 
@@ -301,6 +312,13 @@ function loadSubtitle() {
             >|</span
             >
           </div>
+          <select
+            v-if="subtitleList &&subtitleList.length"
+            v-model="subtitleIndex" @change="toggleSubtitle(subtitleIndex)">
+            <option v-for="(item, key) in subtitleList" :value="key">
+              {{ item.label }}
+            </option>
+          </select>
         </div>
       </div>
       <div class="r">
@@ -333,11 +351,7 @@ function loadSubtitle() {
         >
           <source :src="props.curNode.file?.normal?.path"/>
           <template v-for="(subtitle,index) in subtitleList">
-            <track v-if="index===0" default
-                   :src="subtitle.file?.normal?.path" kind="subtitles"
-                   :srclang="subtitle.label" :label="subtitle.label"
-            />
-            <track v-else
+            <track :default="subtitleIndex==index?true:false"
                    :src="subtitle.file?.normal?.path" kind="subtitles"
                    :srclang="subtitle.label" :label="subtitle.label"
             />
