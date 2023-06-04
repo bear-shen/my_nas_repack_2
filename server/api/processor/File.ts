@@ -23,7 +23,7 @@ export default class {
             path: [] as col_node[],
             list: [] as api_node_col[],
         };
-        ORM.dumpSql = true;
+        // ORM.dumpSql = true;
         if (parseInt(request.pid)) {
             const model = new NodeModel();
             const curNode = await model.where('id', request.pid).first();
@@ -76,18 +76,18 @@ export default class {
                 );
                 if (request.pid) {
                     if (request.dir_only)
-                        model.whereRaw('find_in_set(?,list_node)', request.pid);
-                    else
                         model.where('id_parent', request.pid);
+                    else
+                        model.whereRaw('find_in_set(?,list_node)', request.pid);
                 }
                 break;
             case 'tag':
                 model.whereRaw('find_in_set(?,list_tag_id)', request.tag_id);
                 if (request.pid) {
                     if (request.dir_only)
-                        model.whereRaw('find_in_set(?,list_node)', request.pid);
-                    else
                         model.where('id_parent', request.pid);
+                    else
+                        model.whereRaw('find_in_set(?,list_node)', request.pid);
                 }
                 break;
         }

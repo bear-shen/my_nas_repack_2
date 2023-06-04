@@ -384,6 +384,8 @@ function search() {
   if (tQuery.dir_only && crumbList.value.length) {
     tQuery.pid =
       crumbList.value[crumbList.value.length - 1].id?.toString() ?? "";
+  // } else {
+  //   delete tQuery.pid;
   }
   tQuery.mode = 'search';
   if (!queryData.keyword && (!queryData.node_type || queryData.node_type == 'any')) {
