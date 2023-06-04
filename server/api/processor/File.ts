@@ -12,6 +12,7 @@ import FileModel from '../../model/FileModel';
 import * as fp from "../../lib/FileProcessor";
 import Config from "../../ServerConfig";
 import QueueModel from "../../model/QueueModel";
+import ORM from "../../lib/ORM";
 
 export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_list_resp> {
@@ -22,6 +23,7 @@ export default class {
             path: [] as col_node[],
             list: [] as api_node_col[],
         };
+        ORM.dumpSql = true;
         if (parseInt(request.pid)) {
             const model = new NodeModel();
             const curNode = await model.where('id', request.pid).first();
@@ -57,6 +59,7 @@ export default class {
             case 'tag':
                 break;
         }*/
+
         const model = new NodeModel();
 
         switch (request.mode) {
@@ -72,7 +75,7 @@ export default class {
                     `%${request.keyword.trim()}%`
                 );
                 if (request.pid) {
-                    if (request.inside)
+                    if (request.dir_only)
                         model.whereRaw('find_in_set(?,list_node)', request.pid);
                     else
                         model.where('id_parent', request.pid);
@@ -81,7 +84,7 @@ export default class {
             case 'tag':
                 model.whereRaw('find_in_set(?,list_tag_id)', request.tag_id);
                 if (request.pid) {
-                    if (request.inside)
+                    if (request.dir_only)
                         model.whereRaw('find_in_set(?,list_node)', request.pid);
                     else
                         model.where('id_parent', request.pid);

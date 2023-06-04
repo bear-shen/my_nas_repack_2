@@ -48,8 +48,8 @@
  *     SELECT ...
  *     [ON DUPLICATE KEY UPDATE assignment_list]
  * */
-import { conn } from "./SQL";
-import { ResultSetHeader, RowDataPacket } from "mysql2";
+import {conn} from "./SQL";
+import {ResultSetHeader, RowDataPacket} from "mysql2";
 
 class queryDefinition {
     type: string; // expression|operator|sub|raw
@@ -68,6 +68,7 @@ const dml = {
 //@todo orm的字段部分没有处理好，这里后期要想办法
 class ORM {
     public table = '';
+    static dumpSql = false;
     public _dataset = {
         query: [] as Array<queryDefinition>,
         queryPos: [] as Array<queryDefinition>,//linked to query
@@ -373,7 +374,8 @@ ${sqlPart.limit}`.trim();
         // console.info(this._dataset);
         // console.info(sql, this._dataset.binds.full);
         const [rows, fields] = await conn().execute(sql, this._dataset.binds.full);
-        // console.info(rows, fields);
+        if (ORM.dumpSql)
+            console.info(sql, this._dataset.binds.full);
         return rows;
     }
 
@@ -435,6 +437,8 @@ ${sqlPart.limit}`.trim();
         // this._dataset.binds.full.push(...this._dataset.binds.sort);
         this._dataset.binds.full.push(...this._dataset.binds.limit);
         const [rows, fields] = await conn().execute(sql, this._dataset.binds.full);
+        if (ORM.dumpSql)
+            console.info(sql, this._dataset.binds.full);
         return rows;
     }
 
@@ -465,6 +469,8 @@ ${sqlPart.limit}`.trim();
 value (${sqlPart.value})`.trim();
         // console.info(sql, this._dataset.binds);
         const [rows, fields] = await conn().execute(sql, this._dataset.binds.full);
+        if (ORM.dumpSql)
+            console.info(sql, this._dataset.binds.full);
         return rows as ResultSetHeader;
     }
 
@@ -499,6 +505,8 @@ value (${sqlPart.value})`.trim();
 values ${sqlPart.value}`.trim();
         // console.info(sql, this._dataset.binds);
         const [rows, fields] = await conn().execute(sql, this._dataset.binds.full);
+        if (ORM.dumpSql)
+            console.info(sql, this._dataset.binds.full);
         return rows as ResultSetHeader;
     }
 
@@ -541,6 +549,8 @@ ${sqlPart.limit}`.trim();
         // this._dataset.binds.full.push(...this._dataset.binds.sort);
         this._dataset.binds.full.push(...this._dataset.binds.limit);
         const [rows, fields] = await conn().execute(sql, this._dataset.binds.full);
+        if (ORM.dumpSql)
+            console.info(sql, this._dataset.binds.full);
         return rows;
     }
 }

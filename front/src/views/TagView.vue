@@ -138,7 +138,7 @@ function go(ext: api_file_list_req) {
     keyword: "",
     tag_id: "",
     node_type: "",
-    inside: "",
+    dir_only: "",
     with: "",
     group: "",
   }, ext);

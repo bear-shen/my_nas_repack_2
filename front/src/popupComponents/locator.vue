@@ -23,7 +23,7 @@ let queryData: api_file_list_req = {
   pid: '',
   keyword: '',
   tag_id: '',
-  inside: '',
+  dir_only: '',
   node_type: 'directory',
   with: 'crumb',
   group: '',

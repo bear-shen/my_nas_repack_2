@@ -47,7 +47,7 @@ export type api_file_list_req = {
     pid?: string,
     keyword?: string,
     tag_id?: string,
-    inside?: '1' | '' | string,
+    dir_only?: '1' | '' | string,
     //
     node_type?: type_file | string,
     //

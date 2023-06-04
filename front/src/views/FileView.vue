@@ -65,7 +65,7 @@ let queryData = {
   keyword: "",
   tag_id: "",
   node_type: "",
-  inside: "",
+  dir_only: "",
   with: "",
   group: "",
 } as api_file_list_req;
@@ -120,10 +120,10 @@ function addFolder() {
     ],
     callback: {
       submit: async (modal) => {
-        console.info(modal);
+        // console.info(modal);
         const formData = modal.content.form;
         const targetTitle = formData[0].value;
-        console.info(targetTitle)
+        // console.info(targetTitle)
         if (!targetTitle) return true;
         const res = await query<api_file_mkdir_resp>("file/mkdir", {
           title: targetTitle,
@@ -180,6 +180,8 @@ let nodeList: Ref<api_node_col[]> = ref([]);
 // });
 async function getList() {
   console.info('getList', route.name);
+  crumbList.value = [];
+  nodeList.value = [];
   switch (route.name) {
     default:
       break;
@@ -267,7 +269,9 @@ function setSort(sortVal: string) {
   localConfigure.set("file_view_sort", sortVal);
   const preList = nodeList.value;
   nodeList.value = [];
-  nodeList.value = sortList(preList);
+  setTimeout(() => {
+    nodeList.value = sortList(preList);
+  }, 50);
 }
 
 onMounted(async () => {
@@ -296,7 +300,7 @@ function go(ext: api_file_list_req) {
     keyword: "",
     tag_id: "",
     node_type: "",
-    inside: "",
+    dir_only: "",
     with: "",
     group: "",
   }, ext);
@@ -343,7 +347,7 @@ function popupDetail(queryData: { [key: string]: any }, curNodeId: number) {
   const ih = window.innerHeight;
   if (iw < w) w = 0;
   if (ih < h) h = 0;
-  console.info(w, h);
+  // console.info(w, h);
   modalStore.set({
     title: "file browser",
     alpha: false,
@@ -377,7 +381,7 @@ function popupDetail(queryData: { [key: string]: any }, curNodeId: number) {
 //
 function search() {
   const tQuery = GenFunc.copyObject(queryData);
-  if (tQuery.inside && crumbList.value.length) {
+  if (tQuery.dir_only && crumbList.value.length) {
     tQuery.pid =
       crumbList.value[crumbList.value.length - 1].id?.toString() ?? "";
   }
@@ -402,7 +406,7 @@ onBeforeRouteUpdate(async (to) => {
     keyword: "",
     tag_id: "",
     node_type: "",
-    inside: "",
+    dir_only: "",
     with: "",
     group: "",
   }, GenFunc.copyObject(to.query));
@@ -457,7 +461,7 @@ function triggleLazyLoad() {
         </label>
         <label v-if="crumbList.length">
           <span>InDir : </span>
-          <input type="checkbox" v-model="queryData.inside" id="FV_S_CB"
+          <input type="checkbox" v-model="queryData.dir_only" id="FV_S_CB"
                  true-value="1"
                  false-value=""
           />
