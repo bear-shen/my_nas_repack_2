@@ -159,12 +159,13 @@ async function getList(ext: api_file_list_req = {}) {
     node = res.list[i1];
     break;
   }
-  if (!node) node = res.list[0];
-  // console.info(res);
-  console.warn(node.title);
   crumbList.value = res.path;
   nodeList.value = sortList(res.list);
+  // console.info(res);
+  if (!node) node = nodeList.value[0];
+  console.warn(node.title);
   curIndex.value = locateCurNode(nodeList.value, node);
+  console.info(curIndex.value);
   // nodeList.value = sortList(res.list);
   // curNode.value = node;
   // console.info(crumbList);
