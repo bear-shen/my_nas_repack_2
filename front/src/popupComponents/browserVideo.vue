@@ -231,6 +231,8 @@ function keymap(e: KeyboardEvent) {
         time: dom.currentTime,
       });
       break;
+    case "Enter":
+      break;
   }
 }
 

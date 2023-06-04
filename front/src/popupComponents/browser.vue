@@ -58,13 +58,23 @@ const regComponentLs = {
 const eventStore = useEventStore();
 const localConfigure = useLocalConfigureStore();
 //------------------
+let ifFullscreen = false;
 let resizingEvtKey = eventStore.listen(
   `modal_resizing_${props.modalData.nid}`,
   (data) => {
-    if (!props.modalData.layout.fullscreen) {
+    // console.info(ifFullscreen, !props.modalData.layout.fullscreen);
+    if (ifFullscreen && !props.modalData.layout.fullscreen) {
+      let w = localConfigure.get("browser_layout_w");
+      let h = localConfigure.get("browser_layout_h");
+      // console.info('from fs', w, h);
+      props.modalData.layout.w = w;
+      props.modalData.layout.h = h;
+    } else if (!props.modalData.layout.fullscreen) {
+      // console.info('set', props.modalData.layout.w);
       localConfigure.set("browser_layout_w", props.modalData.layout.w);
       localConfigure.set("browser_layout_h", props.modalData.layout.h);
     }
+    ifFullscreen = props.modalData.layout.fullscreen;
   }
 );
 
@@ -100,11 +110,11 @@ function toggleDetail() {
 
 //------------------
 onMounted(() => {
-  console.info("mounted");
+  // console.info("mounted");
   document.addEventListener("keydown", keymap);
 });
 onUnmounted(() => {
-  console.info("unmounted");
+  // console.info("unmounted");
   document.removeEventListener("keydown", keymap);
 });
 // setTimeout(() => {
@@ -163,9 +173,9 @@ async function getList(ext: api_file_list_req = {}) {
   nodeList.value = sortList(res.list);
   // console.info(res);
   if (!node) node = nodeList.value[0];
-  console.warn(node.title);
+  // console.warn(node.title);
   curIndex.value = locateCurNode(nodeList.value, node);
-  console.info(curIndex.value);
+  // console.info(curIndex.value);
   // nodeList.value = sortList(res.list);
   // curNode.value = node;
   // console.info(crumbList);
@@ -274,7 +284,7 @@ function modTitle() {
 async function keymap(e: KeyboardEvent) {
   if ((e.target as HTMLElement).tagName !== "BODY") return;
   if (!props.modalData.layout.active) return;
-  console.info(e);
+  // console.info(e);
   let dirNode, parentLsQ, parentLs, len, curParentIndex, targetNode;
   switch (e.key) {
     case "ArrowLeft":
@@ -326,6 +336,8 @@ async function keymap(e: KeyboardEvent) {
       targetNode = parentLs[curParentIndex];
       props.data.query.pid = `${targetNode.id}`;
       await getList();
+      break;
+    case 'Enter':
       break;
   }
 }

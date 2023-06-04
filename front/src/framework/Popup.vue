@@ -311,7 +311,11 @@ function fullscreen(nid: string) {
   // );
 }
 
+
 function resetWindow(nid: string) {
+  // let w = localConfigure.get("browser_layout_w");
+  // let h = localConfigure.get("browser_layout_h");
+  // console.info('from fs', w, h);
   const modal = modalList.value.get(nid);
   if (!modal) return;
   const t = {

@@ -57,7 +57,7 @@ function loadImageRes(): any {
 }
 
 onMounted(() => {
-  console.warn("mounted");
+  // console.warn("mounted");
   Object.assign(imgLayout.value, {
     loaded: false,
     w: 0,
