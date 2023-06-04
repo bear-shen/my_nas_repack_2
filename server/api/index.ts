@@ -42,6 +42,7 @@ const server = http.createServer(async function (req: IncomingMessage, res: Serv
     const data = await parseForm(req);
     data.uid = authResult === true ? 0 : authResult;
     //
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
     let result = null;
     try {
         result = await Router(urlInfo, data, req, res);

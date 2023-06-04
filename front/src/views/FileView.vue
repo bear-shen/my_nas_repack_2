@@ -265,6 +265,9 @@ let sortVal: Ref<string> = ref(localConfigure.get("file_view_sort") ?? "name_asc
 function setSort(sortVal: string) {
   console.info('setSort', sortVal);
   localConfigure.set("file_view_sort", sortVal);
+  const preList = nodeList.value;
+  nodeList.value = [];
+  nodeList.value = sortList(preList);
 }
 
 onMounted(async () => {

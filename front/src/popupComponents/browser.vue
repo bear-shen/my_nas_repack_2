@@ -3,7 +3,7 @@ import {onMounted, ref, watch, onUnmounted} from "vue";
 import type {Ref} from "vue";
 import type {ModalConstruct, ModalStruct} from "../modal";
 import {queryDemo, query} from "@/Helper";
-import type {api_node_col, api_file_list_resp} from "../../../share/Api";
+import type {api_node_col, api_file_list_resp, api_file_list_req} from "../../../share/Api";
 import smp_file_list_resp from "../../../share/sampleApi/smp_file_list_resp";
 import GenFunc from "../../../share/GenFunc";
 import browserBaseVue from "./browserBase.vue";
@@ -13,11 +13,11 @@ import browserVideoVue from "./browserVideo.vue";
 import browserPDFVue from "./browserPDF.vue";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {useEventStore} from "@/stores/event";
-import type {type_file, col_node} from "../../../share/Database";
+import type {type_file, col_node,} from "../../../share/Database";
 //------------------
 const props = defineProps<{
   data: {
-    query: { [key: string]: any };
+    query: api_file_list_req;
     curId: number;
     [key: string]: any;
   };
@@ -61,8 +61,10 @@ const localConfigure = useLocalConfigureStore();
 let resizingEvtKey = eventStore.listen(
   `modal_resizing_${props.modalData.nid}`,
   (data) => {
-    localConfigure.set("browser_layout_w", props.modalData.layout.w);
-    localConfigure.set("browser_layout_h", props.modalData.layout.h);
+    if (!props.modalData.layout.fullscreen) {
+      localConfigure.set("browser_layout_w", props.modalData.layout.w);
+      localConfigure.set("browser_layout_h", props.modalData.layout.h);
+    }
   }
 );
 
@@ -122,10 +124,30 @@ let curNode: Ref<api_node_col> = ref({});
 
 // watch(curNode, async to => {
 // })
+/*async function getParent(): Promise<api_file_list_resp> {
+  const res = await query<api_file_list_resp>("file/get", {
+    pid: props.data.query.pid,
+    with: 'none',
+  } as api_file_list_req);
+  if (!res) return {path: [], list: []};
+  return res;
+}*/
+
+async function getParentDir(pid: number | string): Promise<api_file_list_resp> {
+  const res = await query<api_file_list_resp>("file/get", {
+    pid: `${pid}`,
+    with: 'none',
+  } as api_file_list_req);
+  if (!res) return {path: [], list: []};
+  return res;
+}
 
 getList();
 
-async function getList() {
+async function getList(ext: api_file_list_req = {}) {
+  // let queryData = GenFunc.copyObject(props.data.query);
+  if (ext)
+    props.data.query = Object.assign(props.data.query, ext);
   const res = await query<api_file_list_resp>("file/get", props.data.query);
   if (!res) return;
   //
@@ -240,7 +262,7 @@ function onModNav() {
 }
 
 function modTitle() {
-  console.info(['modTitle', curIndex.value, nodeList.value.length]);
+  // console.info(['modTitle', curIndex.value, nodeList.value.length]);
   props.modalData.base.title =
     (curIndex.value + 1) + '/' + nodeList.value.length + ' ' +
     (curNode.value.title ?? "");
@@ -248,10 +270,11 @@ function modTitle() {
 
 //------------------
 
-function keymap(e: KeyboardEvent) {
+async function keymap(e: KeyboardEvent) {
   if ((e.target as HTMLElement).tagName !== "BODY") return;
   if (!props.modalData.layout.active) return;
   console.info(e);
+  let dirNode, parentLsQ, parentLs, len, curParentIndex, targetNode;
   switch (e.key) {
     case "ArrowLeft":
       if (["audio", "video"].indexOf(curNode.value.type ?? "") !== -1) return;
@@ -262,8 +285,46 @@ function keymap(e: KeyboardEvent) {
       goNav(curIndex.value, +1);
       break;
     case '[':
+      if (!crumbList.value.length) return;
+      // const crumbLs = await getParent();
+      // if (!crumbLs.path || !crumbLs.path.length) return;
+      // console.info(crumbLs);
+      dirNode = crumbList.value[crumbList.value.length - 1];
+      parentLsQ = await getParentDir(dirNode.id_parent ?? '');
+      parentLs = sortList(parentLsQ.list);
+      len = parentLs.length;
+      if (len < 2) return;
+      curParentIndex = 0;
+      parentLs.forEach((node, index) => {
+        if (node.id == props.data.query.pid) curParentIndex = index;
+      });
+      curParentIndex -= 1;
+      while (curParentIndex < 0) curParentIndex += len;
+      while (curParentIndex > len - 1) curParentIndex -= len;
+      targetNode = parentLs[curParentIndex];
+      props.data.query.pid = `${targetNode.id}`;
+      await getList();
       break;
     case ']':
+      if (!crumbList.value.length) return;
+      // const crumbLs = await getParent();
+      // if (!crumbLs.path || !crumbLs.path.length) return;
+      // console.info(crumbLs);
+      dirNode = crumbList.value[crumbList.value.length - 1];
+      parentLsQ = await getParentDir(dirNode.id_parent ?? '');
+      parentLs = sortList(parentLsQ.list);
+      len = parentLs.length;
+      if (len < 2) return;
+      curParentIndex = 0;
+      parentLs.forEach((node, index) => {
+        if (node.id == props.data.query.pid) curParentIndex = index;
+      });
+      curParentIndex += 1;
+      while (curParentIndex < 0) curParentIndex += len;
+      while (curParentIndex > len - 1) curParentIndex -= len;
+      targetNode = parentLs[curParentIndex];
+      props.data.query.pid = `${targetNode.id}`;
+      await getList();
       break;
   }
 }
