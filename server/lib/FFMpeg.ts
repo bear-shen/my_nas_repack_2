@@ -241,8 +241,8 @@ async function videoStr(meta: ffMeta): Promise<string | boolean> {
 -i [execMask.resource]
 ${(tranRate || tranVCodec || tranLength) ? videoConf.ff_encoder : '-c:v copy'}
 ${tranLength ? `-s ${Math.round(tranLength ? w * videoConf.length / maxLen : w)}x${Math.round(tranLength ? h * videoConf.length / maxLen : h)}` : ''}
-${(tranRate || tranACodec) ? audioConf.ff_encoder : '-c:a copy'}
--map 0:${videoIndex} -map 0:${audioIndex}
+${(audioIndex !== -1) && (tranRate || tranACodec) ? audioConf.ff_encoder : '-c:a copy'}
+-map 0:${videoIndex} ${audioIndex !== -1 ? `-map 0:${audioIndex}` : ''}
 [execMask.target]`.replaceAll(/[\r\n]+/gm, " \\\n");
     return str;
     // return {video: str, subtitle: subMap};
