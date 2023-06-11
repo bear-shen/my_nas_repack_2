@@ -311,6 +311,8 @@ async function checkOrphanFile(fileId: number) {
 async function execFFmpeg(file: col_file, type: string,): Promise<col_file | boolean> {
     const filePath = Config.path.local + fp.getRelPathByFile(file);
     const meta = await FFMpeg.loadMeta(filePath);
+    // console.info('===============================');
+    // console.info(meta);
     let method;
     let imgLevel;
     let parserConfig;
@@ -370,5 +372,7 @@ function parseFFStr(str: string, source: string, target: string) {
     str = str.replace('[execMask.program]', Config.parser.ffProgram);
     str = str.replace('[execMask.resource]', source);
     str = str.replace('[execMask.target]', target);
+    // console.info('===============================');
+    // console.info(str);
     return str;
 }

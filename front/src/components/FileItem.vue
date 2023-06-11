@@ -294,6 +294,9 @@ async function op_delete() {
               <button :class="['sysIcon', 'sysIcon_delete']" @click="op_delete">
                 DEL
               </button>
+              <button :class="['sysIcon', 'sysIcon_setting']">
+                OP
+              </button>
             </template>
             <template v-else>
               <button

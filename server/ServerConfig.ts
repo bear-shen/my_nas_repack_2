@@ -164,8 +164,9 @@ const ServerConfig = {
             //注意是 B/s
             allow_rate: 1024 * 1024 * 6 / 8,
             allow_container: ['mp4', 'ogg', 'webm', 'm4a',],
+            //pix_fmt必须指定不然浏览器不认
             ff_encoder: '-c:v hevc_nvenc -profile:v main10 -level 5 ' +
-                '-rc-lookahead 80 -qp 16 -bf 4 ',
+                '-rc-lookahead 80 -qp 16 -bf 4 -pix_fmt p010le ',
         },
         audio: {
             quality: 1.5,  //+- 110
