@@ -90,7 +90,7 @@ export function respCode(code: keyof typeof ErrorCode, res: ServerResponse) {
 export function getRelPath(url: string, host: string, res: ServerResponse): string | void {
     // console.info(url);
     const urlInfo = new URL(url, 'http://' + host);
-    const reqPath = decodeURI(urlInfo.pathname);
+    const reqPath = decodeURIComponent(urlInfo.pathname);
     const davRootPos = reqPath.indexOf(Config.path.webdav);
     //
     if (davRootPos === -1) return respCode(404, res);

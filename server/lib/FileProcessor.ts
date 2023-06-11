@@ -40,8 +40,11 @@ async function relPath2node(relPath: string): Promise<col_node[] | false> {
     const nodeList = [rootNode];
     if (nPathArr.length > 0)
         for (let i1 = 0; i1 < nPathArr.length; i1++) {
+            // console.info(nodeList[i1].id, nPathArr[i1]);
             if (!nPathArr[i1].length) continue;
+            // ORM.dumpSql = true;
             const curNode = await (new NodeModel).where('id_parent', nodeList[i1].id).where('title', nPathArr[i1]).first();
+            // console.info(curNode);
             if (!curNode) return false;
             nodeList.push(curNode);
         }

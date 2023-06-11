@@ -1,14 +1,15 @@
-import { IncomingMessage, ServerResponse } from "http";
+import {IncomingMessage, ServerResponse} from "http";
 import * as fp from "../../lib/FileProcessor";
 import Config from "../../ServerConfig";
-import { getRelPath, getRequestFile, respCode, setResponseFile } from '../Lib';
-import { col_node } from '../../../share/Database';
+import {getRelPath, getRequestFile, respCode, setResponseFile} from '../Lib';
+import {col_node} from '../../../share/Database';
 
 export default async function (req: IncomingMessage, res: ServerResponse) {
     const relPath = getRelPath(req.url, req.headers.host, res);
     // console.info(relPath);
     if (!relPath) return;
     const nodeLs = await fp.relPath2node(relPath);
+    // console.info(nodeLs);
     if (!nodeLs) return respCode(404, res);
     const node = nodeLs[nodeLs.length - 1];
     if (node.type === 'directory') return await printDir(node, nodeLs, res);
