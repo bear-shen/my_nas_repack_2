@@ -22,6 +22,22 @@ const props = defineProps<{
   index: number;
 }>();
 const emits = defineEmits(["go"]);
+//
+const localConfigure = useLocalConfigureStore();
+let mode: Ref<string> = ref(localConfigure.get("file_view_mode") ?? "detail");
+const modeKey = localConfigure.listen(
+  "file_view_mode",
+  (v) => {
+    mode.value = v;
+    buildBtnDef(mode.value + '_' + (props.node.status ? 'enabled' : 'disabled'));
+  }
+);
+
+// console.info(modeKey);
+function setMode(mode: string) {
+  localConfigure.set("file_view_mode", mode);
+}
+
 type BtnDef = {
   cls: string[],
   title: string,
@@ -31,105 +47,135 @@ type BtnDef = {
   sub?: BtnDef[],
 };
 const btnDef: Ref<BtnDef[]> = ref([]);
-if (props.node.status) {
-  btnDef.value = [
-    {
-      cls: ['sysIcon', 'sysIcon_download'],
-      click: op_download,
-      title: 'DL',
-      show: (btn: BtnDef) => {
-        return !!props.node.is_file
-      },
-      active: false,
-    },
-    {
-      cls: ['sysIcon', 'sysIcon_edit'],
-      click: op_rename,
-      title: 'RN',
-      show: true,
-      active: false,
-    },
-    {
-      cls: ['sysIcon', 'sysIcon_folderopen'],
-      click: op_move,
-      title: 'MV',
-      show: true,
-      active: false,
-    },
-    {
-      cls: ['sysIcon', 'sysIcon_star-o'],
-      click: op_set_favourite,
-      title: 'FAV',
-      show: true,
-      active: !!props.node.is_fav,
-    },
-    {
-      cls: ['sysIcon', 'sysIcon_delete'],
-      click: op_delete,
-      title: 'DEL',
-      show: true,
-      active: false,
-    },
-    {
-      cls: ['sysIcon', 'sysIcon_setting'],
-      title: 'OP',
-      show: true,
-      active: false,
-      sub: [
+buildBtnDef(mode.value + '_' + (props.node.status ? 'enabled' : 'disabled'));
+
+function buildBtnDef(key: string) {
+  console.info(key);
+  switch (key) {
+    case 'detail_enabled':
+      btnDef.value = [
         {
-          cls: ['sysIcon', 'sysIcon_tag-o'],
-          click: op_tag,
-          title: 'TAG',
+          cls: ['sysIcon', 'sysIcon_download'],
+          click: op_download,
+          title: 'DL',
+          show: (btn: BtnDef) => {
+            return !!props.node.is_file
+          },
+          active: false,
+        },
+        {
+          cls: ['sysIcon', 'sysIcon_edit'],
+          click: op_rename,
+          title: 'RN',
           show: true,
           active: false,
         },
         {
-          cls: ['sysIcon', 'sysIcon_tag-o'],
-          click: op_imp_tag_eh,
-          title: 'IMP EH TAG',
+          cls: ['sysIcon', 'sysIcon_folderopen'],
+          click: op_move,
+          title: 'MV',
           show: true,
           active: false,
         },
         {
-          cls: ['sysIcon', 'sysIcon_scan'],
-          click: op_set_cover,
-          title: 'COV',
-          show: () => !!props.node.file?.cover?.path,
+          cls: ['sysIcon', 'sysIcon_star-o'],
+          click: op_set_favourite,
+          title: 'FAV',
+          show: true,
+          active: !!props.node.is_fav,
+        },
+        {
+          cls: ['sysIcon', 'sysIcon_delete'],
+          click: op_delete,
+          title: 'DEL',
+          show: true,
           active: false,
         },
-      ],
-    },
-  ];
-} else {
-  btnDef.value = [
-    {
-      cls: ['sysIcon', 'sysIcon_delete'],
-      click: op_delete_forever,
-      title: 'rDEL',
-      show: true,
-      active: false,
-    },
-    {
-      cls: ['sysIcon', 'sysIcon_delete'],
-      click: op_delete,
-      title: 'REC',
-      show: true,
-      active: false,
-    },
-  ];
-
-}
-//
-const localConfigure = useLocalConfigureStore();
-let mode: Ref<string> = ref(localConfigure.get("file_view_mode") ?? "detail");
-const modeKey = localConfigure.listen(
-  "file_view_mode",
-  (v) => (mode.value = v)
-);
-
-// console.info(modeKey);
-function setMode(mode: string) {
-  localConfigure.set("file_view_mode", mode);
+        {
+          cls: ['sysIcon', 'sysIcon_setting'],
+          title: 'OP',
+          show: true,
+          active: false,
+          sub: [
+            {
+              cls: ['sysIcon', 'sysIcon_tag-o'],
+              click: op_tag,
+              title: 'TAG',
+              show: true,
+              active: false,
+            },
+            {
+              cls: ['sysIcon', 'sysIcon_tag-o'],
+              click: op_imp_tag_eh,
+              title: 'IMP EH TAG',
+              show: true,
+              active: false,
+            },
+            {
+              cls: ['sysIcon', 'sysIcon_scan'],
+              click: op_set_cover,
+              title: 'COV',
+              show: () => !!props.node.file?.cover?.path,
+              active: false,
+            },
+          ],
+        },
+      ];
+      break;
+    case 'text_enabled':
+      btnDef.value = [
+        {
+          cls: ['sysIcon', 'sysIcon_download'],
+          click: op_download,
+          title: 'DL',
+          show: (btn: BtnDef) => {
+            return !!props.node.is_file
+          },
+          active: false,
+        },
+        {
+          cls: ['sysIcon', 'sysIcon_folderopen'],
+          click: op_move,
+          title: 'MV',
+          show: true,
+          active: false,
+        },
+        {
+          cls: ['sysIcon', 'sysIcon_star-o'],
+          click: op_set_favourite,
+          title: 'FAV',
+          show: true,
+          active: !!props.node.is_fav,
+        },
+        {
+          cls: ['sysIcon', 'sysIcon_delete'],
+          click: op_delete,
+          title: 'DEL',
+          show: true,
+          active: false,
+        },
+      ];
+      break;
+    case 'text_disabled':
+    case 'detail_disabled':
+      btnDef.value = [
+        {
+          cls: ['sysIcon', 'sysIcon_delete'],
+          click: op_delete_forever,
+          title: 'rDEL',
+          show: true,
+          active: false,
+        },
+        {
+          cls: ['sysIcon', 'sysIcon_delete'],
+          click: op_delete,
+          title: 'REC',
+          show: true,
+          active: false,
+        },
+      ];
+      break;
+  }
 }
 
 //
