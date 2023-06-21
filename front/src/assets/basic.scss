@@ -1,5 +1,4 @@
 @import "variables";
-
 * {
   list-style: none;
   margin: 0;
@@ -14,35 +13,29 @@
   transition: 0.2s opacity;
   vertical-align: top;
 }
-
 body {
   font-size: 0;
   background-color: map-get($colors, bk);
   color: map-get($colors, font);
 }
-
 table {
   border-collapse: collapse;
 }
-
 .pointer {
   cursor: pointer;
 }
-
 // ----------------------------------------------------
 input,
 button,
 select,
-textarea {
+textarea, .btn {
   cursor: pointer;
 }
-
 button,
-select {
+select, .btn {
   background-color: map_get($colors, input_button_bk);
   color: map_get($colors, input_button_font);
   padding: $fontSize*0.25;
-
   &:hover,
   &.active,
   &.disabled,
@@ -50,15 +43,12 @@ select {
     background-color: map_get($colors, input_button_bk_active);
     color: map_get($colors, input_button_font_active);
   }
-
   @include smallScroll();
 }
-
 input {
   background-color: map_get($colors, input_bk);
   color: map_get($colors, input_font);
   padding: $fontSize*0.25;
-
   &:hover,
   &:focus,
   &.active,
@@ -67,13 +57,11 @@ input {
     color: map_get($colors, input_font_active);
   }
 }
-
 textarea {
   background-color: map_get($colors, input_bk);
   color: map_get($colors, input_font);
   padding: $fontSize*0.25;
   @include smallScroll();
-
   &:hover,
   &:focus,
   &.active,
@@ -82,17 +70,14 @@ textarea {
     color: map_get($colors, input_font_active);
   }
 }
-
 ::selection {
   background-color: map_get($colors, selection_bk);
   color: map_get($colors, selection);
 }
-
 input[type='checkbox'],
 input[type='radio'] {
   display: none;
-
-  +label {
+  + label {
     display: inline-block;
     width: max-content;
     /*background-image: linear-gradient(0deg, hsla(250, 30%, 30%, 1) 0%, rgb(25, 25, 25) 100%);*/
@@ -102,19 +87,16 @@ input[type='radio'] {
     line-height: $fontSize;
     //border-radius: 0.5*$fontSize;
     vertical-align: baseline;
-
     &::after {
       font-family: "sysIcon" !important;
       font-size: 0.75em;
       content: '\e600';
     }
   }
-
   &:checked {
-    +label {
+    + label {
       //background-image: linear-gradient(0deg, rgba(100, 100, 100, 1) 0%, rgba(150, 150, 150, 1) 100%);
       background-color: map_get($colors, positive);
-
       &::after {
         content: '\e62c';
       }

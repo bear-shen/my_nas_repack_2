@@ -289,7 +289,7 @@ function toggleSubtitle(index: number) {
     <div class="base">
       <div class="l">
         <slot name="info"></slot>
-        <div class="btn">
+        <div class="btnContainer">
           <button
             :class="{
               sysIcon: true,
@@ -328,7 +328,7 @@ function toggleSubtitle(index: number) {
         </div>
       </div>
       <div class="r">
-        <slot name="btn"></slot>
+        <slot name="btnContainer"></slot>
       </div>
     </div>
     <slot name="navigator"></slot>
@@ -380,7 +380,7 @@ function toggleSubtitle(index: number) {
       top: 0;
     }
   }
-  .l .btn {
+  .l .btnContainer {
     button {
       vertical-align: bottom;
       font-size: $fontSize;

@@ -21,10 +21,10 @@ const props = defineProps<{
     <div class="base">
       <div class="l">
         <slot name="info"></slot>
-        <!-- <div class="btn"></div> -->
+        <!-- <div class="btnContainer"></div> -->
       </div>
       <div class="r">
-        <slot name="btn"></slot>
+        <slot name="btnContainer"></slot>
       </div>
     </div>
     <slot name="navigator"></slot>

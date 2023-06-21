@@ -22,6 +22,103 @@ const props = defineProps<{
   index: number;
 }>();
 const emits = defineEmits(["go"]);
+type BtnDef = {
+  cls: string[],
+  title: string,
+  click?: (btn: BtnDef) => any,
+  show?: true | ((btn: BtnDef) => boolean),
+  active: boolean,
+  sub?: BtnDef[],
+};
+const btnDef: Ref<BtnDef[]> = ref([]);
+if (props.node.status) {
+  btnDef.value = [
+    {
+      cls: ['sysIcon', 'sysIcon_download'],
+      click: op_download,
+      title: 'DL',
+      show: (btn: BtnDef) => {
+        return !!props.node.is_file
+      },
+      active: false,
+    },
+    {
+      cls: ['sysIcon', 'sysIcon_edit'],
+      click: op_rename,
+      title: 'RN',
+      show: true,
+      active: false,
+    },
+    {
+      cls: ['sysIcon', 'sysIcon_folderopen'],
+      click: op_move,
+      title: 'MV',
+      show: true,
+      active: false,
+    },
+    {
+      cls: ['sysIcon', 'sysIcon_star-o'],
+      click: op_set_favourite,
+      title: 'FAV',
+      show: true,
+      active: !!props.node.is_fav,
+    },
+    {
+      cls: ['sysIcon', 'sysIcon_delete'],
+      click: op_delete,
+      title: 'DEL',
+      show: true,
+      active: false,
+    },
+    {
+      cls: ['sysIcon', 'sysIcon_setting'],
+      title: 'OP',
+      show: true,
+      active: false,
+      sub: [
+        {
+          cls: ['sysIcon', 'sysIcon_tag-o'],
+          click: op_tag,
+          title: 'TAG',
+          show: true,
+          active: false,
+        },
+        {
+          cls: ['sysIcon', 'sysIcon_tag-o'],
+          click: op_imp_tag_eh,
+          title: 'IMP EH TAG',
+          show: true,
+          active: false,
+        },
+        {
+          cls: ['sysIcon', 'sysIcon_scan'],
+          click: op_set_cover,
+          title: 'COV',
+          show: () => !!props.node.file?.cover?.path,
+          active: false,
+        },
+      ],
+    },
+  ];
+} else {
+  btnDef.value = [
+    {
+      cls: ['sysIcon', 'sysIcon_delete'],
+      click: op_delete_forever,
+      title: 'rDEL',
+      show: true,
+      active: false,
+    },
+    {
+      cls: ['sysIcon', 'sysIcon_delete'],
+      click: op_delete,
+      title: 'REC',
+      show: true,
+      active: false,
+    },
+  ];
+
+}
 //
 const localConfigure = useLocalConfigureStore();
 let mode: Ref<string> = ref(localConfigure.get("file_view_mode") ?? "detail");
@@ -88,8 +185,8 @@ function op_move() {
   //
 }
 
-async function op_rename() {
-  if (renaming) {
+async function op_rename(btn: BtnDef) {
+  if (btn.active) {
     console.info(props.node.title, props.node.description, props.node);
     // console.info(props.node);
     const formData = new FormData();
@@ -99,11 +196,12 @@ async function op_rename() {
     const res = await query<api_file_mov_resp>('file/mod', formData);
     emits("go", 'reload');
   }
-  renaming.value = !renaming.value;
+  btn.active = !btn.active;
+  renaming.value = btn.active;
 }
 
-async function op_tag() {
-  if (tagging.value) {
+async function op_tag(btn: BtnDef) {
+  if (btn.active) {
     const tagSet = new Set<number>();
     if (props.node.tag)
       for (let i1 = 0; i1 < props.node.tag.length; i1++) {
@@ -119,7 +217,8 @@ async function op_tag() {
     const res = await query<api_tag_list_resp>('tag/attach', formData);
   }
   //
-  tagging.value = !tagging.value;
+  btn.active = !btn.active;
+  tagging.value = btn.active;
 }
 
 function tag_del(tagId: number) {
@@ -168,14 +267,14 @@ function tag_parse(item: api_tag_col) {
 function op_imp_tag_eh() {
 }
 
-async function op_set_cover() {
+async function op_set_cover(btn: BtnDef) {
   const formData = new FormData();
   formData.set('id', `${props.node.id}`);
   const res = await query<api_file_cover_req>('file/cover', formData);
   return res;
 }
 
-function op_set_favourite() {
+function op_set_favourite(btn: BtnDef) {
 }
 
 async function op_delete_forever() {
@@ -238,78 +337,25 @@ async function op_delete() {
             <p>{{ node.time_update }}</p>
             <p v-if="node.description">{{ node.description }}</p>
           </template>
-          <p class="bar">
-            <!---->
-            <template v-if="node.status">
-              <button
-                v-if="node.is_file"
-                :class="['sysIcon', 'sysIcon_download']"
-                @click="op_download"
-              >
-                DL
-              </button>
-              <!-- <button
-              v-if="!node.is_file"
-              :class="['sysIcon', 'sysIcon_stack']"
-              @click="go"
-            >
-              IN
-            </button> -->
-              <button
-                :class="['sysIcon', 'sysIcon_edit', { active: renaming }]"
-                @click="op_rename"
-              >
-                RN
-              </button>
-              <button :class="['sysIcon', 'sysIcon_folderopen']" @click="op_move">
-                MV
-              </button>
-              <button
-                :class="['sysIcon', 'sysIcon_tag-o', { active: tagging }]"
-                @click="op_tag"
-              >
-                TAG
-              </button>
-              <button
-                :class="['sysIcon', 'sysIcon_tag-o']"
-                @click="op_imp_tag_eh"
-              >
-                IMP EH TAG
-              </button>
-              <button
-                v-if="node.file?.cover?.path"
-                :class="['sysIcon', 'sysIcon_scan']"
-                @click="op_set_cover"
-              >
-                COV
-              </button>
-              <button
-                :class="['sysIcon', 'sysIcon_star-o', { active: node.is_fav }]"
-                @click="op_set_favourite"
-              >
-                FAV
-              </button>
-              <!--        <button :class="['sysIcon','sysIcon_link',]" @click="op_share">SHR</button>-->
-
-              <button :class="['sysIcon', 'sysIcon_delete']" @click="op_delete">
-                DEL
-              </button>
-              <button :class="['sysIcon', 'sysIcon_setting']">
-                OP
-              </button>
+          <section class="bar">
+            <template v-for="btn in btnDef">
+              <template v-if="btn.show && (btn.show===true ||btn.show(btn))">
+                <template v-if="btn.sub">
+                  <dl>
+                    <dt :class="btn.active?btn.cls.concat(['active','btn']):btn.cls.concat(['btn'])">{{ btn.title }}</dt>
+                    <dd>
+                      <template v-for="btn in btn.sub">
+                        <button :class="btn.active?btn.cls.concat(['active']):btn.cls" @click="btn.click?btn.click(btn):null">{{ btn.title }}</button>
+                      </template>
+                    </dd>
+                  </dl>
+                </template>
+                <template v-else>
+                  <button :class="btn.active?btn.cls.concat(['active']):btn.cls" @click="btn.click?btn.click(btn):null">{{ btn.title }}</button>
+                </template>
+              </template>
             </template>
-            <template v-else>
-              <button
-                :class="['sysIcon', 'sysIcon_delete']"
-                @click="op_delete_forever"
-              >
-                rDEL
-              </button>
-              <button :class="['sysIcon', 'sysIcon_delete']" @click="op_delete">
-                REC
-              </button>
-            </template>
-          </p>
+          </section>
         </div>
       </div>
       <div v-if="!tagging && node.tag" class="tag_list">
@@ -362,159 +408,29 @@ async function op_delete() {
       </template>
     </template>
     <template v-else-if="mode === 'text'">
-      <template v-if="node.status">
-        <p class="type" @click="go('node', node.id)">
+      <p class="type" @click="go('node', node.id)">
         <span
           :class="['thumb', 'listIcon', `listIcon_file_${node.type}`]"
         ></span>
-          <span>{{ node.type }}</span>
-        </p>
-        <p class="title">{{ node.title }}</p>
-        <!--        <p class="title" @click="go('node', node.id)">{{ node.title }}</p>-->
-        <p class="time">{{ node.time_update }}</p>
-        <p class="bar">
-          <!---->
-          <button
-            v-if="node.is_file"
-            :class="['sysIcon', 'sysIcon_download']"
-            @click="op_download"
-          >
-            DL
-          </button>
-          <!-- <button
-              v-if="!node.is_file"
-              :class="['sysIcon', 'sysIcon_stack']"
-              @click="go"
-            >
-              IN
-            </button> -->
-          <button
-            :class="['sysIcon', 'sysIcon_edit', { active: renaming }]"
-            @click="op_rename"
-          >
-            RN
-          </button>
-          <button :class="['sysIcon', 'sysIcon_folderopen']" @click="op_move">
-            MV
-          </button>
-          <button
-            :class="['sysIcon', 'sysIcon_tag-o', { active: tagging }]"
-            @click="op_tag"
-          >
-            TAG
-          </button>
-          <button :class="['sysIcon', 'sysIcon_tag-o']" @click="op_imp_tag_eh">
-            IMP EH TAG
-          </button>
-          <button
-            v-if="node.file?.cover?.path"
-            :class="['sysIcon', 'sysIcon_scan']"
-            @click="op_set_cover"
-          >
-            COV
-          </button>
-          <button
-            :class="['sysIcon', 'sysIcon_star-o', { active: node.is_fav }]"
-            @click="op_set_favourite"
-          >
-            FAV
-          </button>
-          <!--        <button :class="['sysIcon','sysIcon_link',]" @click="op_share">SHR</button>-->
-          <template v-if="node.status">
-            <button :class="['sysIcon', 'sysIcon_delete']" @click="op_delete">
-              DEL
-            </button>
+        <span>{{ node.type }}</span>
+      </p>
+      <p class="title">{{ node.title }}</p>
+      <!--        <p class="title" @click="go('node', node.id)">{{ node.title }}</p>-->
+      <p class="time">{{ node.time_update }}</p>
+      <section class="bar">
+        <template v-for="btn in btnDef">
+          <template v-if="btn.show && (btn.show===true ||btn.show(btn))">
+            <template v-if="btn.sub">
+              <template v-for="btn in btn.sub">
+                <button :class="btn.active?btn.cls.concat(['active']):btn.cls" @click="btn.click?btn.click(btn):null">{{ btn.title }}</button>
+              </template>
+            </template>
+            <template v-else>
+              <button :class="btn.active?btn.cls.concat(['active']):btn.cls" @click="btn.click?btn.click(btn):null">{{ btn.title }}</button>
+            </template>
           </template>
-          <template v-else>
-            <button
-              :class="['sysIcon', 'sysIcon_delete']"
-              @click="op_delete_forever"
-            >
-              rDEL
-            </button>
-            <button :class="['sysIcon', 'sysIcon_delete']" @click="op_delete">
-              REC
-            </button>
-          </template>
-        </p>
-      </template>
-      <template v-else>
-        <p class="type">
-        <span
-          :class="['thumb', 'listIcon', `listIcon_file_${node.type}`]"
-        ></span>
-          <span>{{ node.type }}</span>
-        </p>
-        <p><span v-for="crumb in node.crumb_node"> / {{ crumb.title }}</span></p>
-        <p class="title">{{ node.title }}</p>
-        <p class="time">{{ node.time_update }}</p>
-        <p class="bar">
-          <!---->
-          <template v-if="node.status">
-            <button
-              v-if="node.is_file"
-              :class="['sysIcon', 'sysIcon_download']"
-              @click="op_download"
-            >
-              DL
-            </button>
-            <!-- <button
-                v-if="!node.is_file"
-                :class="['sysIcon', 'sysIcon_stack']"
-                @click="go"
-              >
-                IN
-              </button> -->
-            <button
-              :class="['sysIcon', 'sysIcon_edit', { active: renaming }]"
-              @click="op_rename"
-            >
-              RN
-            </button>
-            <button :class="['sysIcon', 'sysIcon_folderopen']" @click="op_move">
-              MV
-            </button>
-            <button
-              :class="['sysIcon', 'sysIcon_tag-o', { active: tagging }]"
-              @click="op_tag"
-            >
-              TAG
-            </button>
-            <button :class="['sysIcon', 'sysIcon_tag-o']" @click="op_imp_tag_eh">
-              IMP EH TAG
-            </button>
-            <button
-              v-if="node.file?.cover?.path"
-              :class="['sysIcon', 'sysIcon_scan']"
-              @click="op_set_cover"
-            >
-              COV
-            </button>
-            <button
-              :class="['sysIcon', 'sysIcon_star-o', { active: node.is_fav }]"
-              @click="op_set_favourite"
-            >
-              FAV
-            </button>
-            <!--        <button :class="['sysIcon','sysIcon_link',]" @click="op_share">SHR</button>-->
-
-            <button :class="['sysIcon', 'sysIcon_delete']" @click="op_delete">
-              DEL
-            </button>
-          </template>
-          <template v-else>
-            <button
-              :class="['sysIcon', 'sysIcon_delete']"
-              @click="op_delete_forever"
-            >
-              rDEL
-            </button>
-            <button :class="['sysIcon', 'sysIcon_delete']" @click="op_delete">
-              REC
-            </button>
-          </template>
-        </p>
-      </template>
+        </template>
+      </section>
     </template>
   </div>
 </template>
@@ -579,13 +495,36 @@ async function op_delete() {
       color: map-get($colors, "font_sub");
     }
     .bar {
-      font-size: $fontSize * 0.8;
-      line-height: $fontSize * 0.8;
-      button {
-        padding: $fontSize * 0.2;
-        font-size: $fontSize * 0.8;
-        line-height: $fontSize * 0.8;
+      font-size: $fontSize * 0.75;
+      line-height: $fontSize * 0.75;
+      .sysIcon::before {
+        margin-right: $fontSize*0.25;
+      }
+      button, dt {
+        padding: $fontSize * 0.25;
+        font-size: $fontSize * 0.75;
+        line-height: $fontSize * 0.75;
         //        margin: 0 $fontSize * 0.1 0;
+      }
+      dl {
+        display: inline-block;
+        &:hover {
+          dd {
+            display: block;
+          }
+        }
+        dt {
+          display: inline-block;
+        }
+        dd {
+          //display: block;
+          display: none;
+          position: fixed;
+          z-index: 10;
+          button {
+            display: block;
+          }
+        }
       }
     }
   }

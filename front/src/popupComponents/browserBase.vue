@@ -23,7 +23,7 @@ const props = defineProps<{
         <!-- <div class="btn"></div> -->
       </div>
       <div class="r">
-        <slot name="btn"></slot>
+        <slot name="btnContainer"></slot>
       </div>
     </div>
     <slot name="navigator"></slot>

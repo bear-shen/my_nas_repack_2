@@ -455,10 +455,10 @@ function setFilter(target: string) {
         <p v-if="showDetail">{{ curNode.description }}</p>
       </div>
     </template>
-    <template v-slot:btn>
-      <div class="btn">
-      </div>
-      <div class="btn">
+    <template v-slot:btnContainer>
+<!--      <div class="btnContainer">-->
+<!--      </div>-->
+      <div class="btnContainer">
         <select v-model="filterVal" @change="setFilter(filterVal)">
           <option v-for="(fileType, key) in def.fileType" :value="fileType">
             {{ fileType }}
@@ -589,7 +589,7 @@ function setFilter(target: string) {
       right: 0;
       text-align: right;
     }
-    .btn {
+    .btnContainer {
       button, select {
         vertical-align: bottom;
         font-size: $fontSize;
