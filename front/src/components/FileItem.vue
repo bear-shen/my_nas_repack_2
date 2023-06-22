@@ -50,7 +50,7 @@ const btnDef: Ref<BtnDef[]> = ref([]);
 buildBtnDef(mode.value + '_' + (props.node.status ? 'enabled' : 'disabled'));
 
 function buildBtnDef(key: string) {
-  console.info(key);
+  // console.info(key);
   switch (key) {
     case 'detail_enabled':
       btnDef.value = [

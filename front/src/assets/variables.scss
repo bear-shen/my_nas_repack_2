@@ -46,32 +46,35 @@ $hinterIndex: 250;
 }
 //$colorDef_bk: rgba(25, 49, 52, 1);
 //$colorDef_font: rgb(210, 200, 165);
-$colorDef_bk: rgba(35, 39, 46, 1);
+$colorDef_bk: hsla(210, 10%, 20%, 1);
 $colorDef_font: rgb(197, 197, 197);
-$colorDef_button: rgba(25, 49, 52, 1);
+$colorDef_button: hsla(210, 20%, 10%, 1);
 $colorDef_positive: rgba(40, 114, 70, 1);
 $colorDef_negative: rgba(150, 52, 38, 1);
 $colors: (
   //内容背景
         bk:$colorDef_bk,
-        bk_active:lighten($colorDef_bk, 3%),
+        bk_active:lighten($colorDef_bk, 4%),
   //上标题栏
-        bar_horizon:darken($colorDef_bk, 6%),
-        bar_horizon_active:darken($colorDef_bk, 3%),
+        bar_horizon:darken($colorDef_bk, 16%),
+        bar_horizon_active:darken($colorDef_bk, 12%),
   //侧标题栏
-        bar_vertical:darken($colorDef_bk, 3%),
-        bar_vertical_active:darken($colorDef_bk, 0%),
+        bar_vertical:darken($colorDef_bk, 12%),
+        bar_vertical_active:darken($colorDef_bk, 8%),
+  //内容标题栏
+        bar_meta:darken($colorDef_bk, 8%),
+        bar_meta_active:darken($colorDef_bk, 4%),
   //弹窗标题栏
   //弹窗背景
   //弹窗背景 高亮
-        popup_title:lighten($colorDef_bk, 6%),
-        popup:transparentize(lighten($colorDef_bk, 6%), 0.5),
-        popup_active:transparentize(lighten($colorDef_bk, 6%), 0.25),
+        popup_title:darken($colorDef_bk,12%),
+        popup:transparentize(darken($colorDef_bk,6%), 0.5),
+        popup_active:transparentize(darken($colorDef_bk,12%), 0.25),
   //按钮背景
   //按钮 选择
   //按钮 非选择
         button:$colorDef_button,
-        button_active:lighten($colorDef_button, 3%),
+        button_active:lighten($colorDef_button, 12%),
         positive:$colorDef_positive,
         negative:$colorDef_negative,
   //文字
@@ -80,8 +83,8 @@ $colors: (
         font_active:lighten($colorDef_font, 6%),
   //副文字
   //副文字 高亮
-        font_sub:darken($colorDef_font, 12%),
-        font_sub_active:darken($colorDef_font, 6%),
+        font_sub:darken($colorDef_font, 30%),
+        font_sub_active:darken($colorDef_font, 15%),
 );
 /*
  *  @see https://www.cnblogs.com/amylis_chen/p/11995324.html

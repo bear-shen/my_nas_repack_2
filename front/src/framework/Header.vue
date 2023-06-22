@@ -71,7 +71,7 @@ const user = {
   }
   .action {
     display: none;
-    background-color: map-get($colors, bk);
+    background-color: map-get($colors, bar_meta);
     position: absolute;
     width: 100%;
     text-align: right;
@@ -84,7 +84,7 @@ const user = {
 .active,
 .user li:hover,
 .navi div:hover {
-  background-color: map-get($colors, bk);
+  background-color: map-get($colors, bar_meta);
   color: map-get($colors, font);
 }
 </style>

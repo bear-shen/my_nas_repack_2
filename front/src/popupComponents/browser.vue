@@ -547,7 +547,7 @@ function setFilter(target: string) {
       flex-direction: column;
       justify-content: center;
       opacity: 0;
-      background-color: map-get($colors, bk);
+      background-color: map-get($colors, popup_active);
       &:hover {
         opacity: 1;
       }

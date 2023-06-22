@@ -279,7 +279,7 @@ async function modTag(index: number) {
 </script>
 
 <template>
-  <div class="fr_content" ref="contentDOM">
+  <div class="fr_content view_tag" ref="contentDOM">
     <div class="list_tag_group" v-if="groupList && groupList.length">
       <div :class="{
         tag_group:true,
@@ -308,12 +308,12 @@ async function modTag(index: number) {
           </div>
           <div @click="checkGroup(index)" class="description">{{ group.description }}</div>
           <div @click="checkGroup(index)" class="node">
-            <template v-if="group.node.crumb_node">
+            <template v-if="group.node && group.node.crumb_node">
           <span v-for="sub in group.node.crumb_node">
             {{ sub.title }}
           </span>
             </template>
-            <span>{{ group.node.title }}</span>
+            <span>{{ group.node?.title }}</span>
           </div>
           <!--          <div class="operator">-->
           <!--          <div class="sort">-->
@@ -393,20 +393,20 @@ async function modTag(index: number) {
   </div>
 </template>
 
-<style scoped lang="scss">
-.fr_content {
+<style lang="scss">
+.fr_content.view_tag {
   padding-bottom: 0;
   height: 100%;
   display: flex;
   justify-content: space-between;
   .list_tag_group {
     width: $fontSize*20;
-    background-color: map-get($colors, bk);
+    background-color: map-get($colors, bar_meta);
     height: 100%;
     @include smallScroll();
     overflow-y: scroll;
     .active {
-      background-color: map-get($colors, bk);
+      background-color: map-get($colors, bar_meta_active);
     }
     .tag_group_add {
       span {
@@ -418,7 +418,7 @@ async function modTag(index: number) {
     .tag_group {
       padding: $fontSize*0.5 $fontSize;
       &:hover {
-        background-color: map-get($colors, bk);
+        background-color: map-get($colors, bar_meta_active);
       }
       > div {
         font-size: $fontSize;
@@ -459,9 +459,9 @@ async function modTag(index: number) {
         .title, .description, .sort {
           padding: 0 $fontSize*0.5;
         }
-        .title, .description, .operator {
+        .title, .description, .operator, .hinter > div, .content_editor {
           display: block;
-          background-color: map-get($colors, bk);
+          background-color: map-get($colors, bar_meta_active);
         }
         .title::before {
           content: 'T: ';
@@ -480,7 +480,7 @@ async function modTag(index: number) {
       }
     }
     .hinter > div, .content_editor {
-      background-color: map-get($colors, bk);
+      background-color: map-get($colors, bk_active);
     }
   }
   .list_tag {
@@ -514,9 +514,6 @@ async function modTag(index: number) {
           min-width: $fontSize*2;
         }
       }
-      .content_editor {
-        background-color: map-get($colors, bk);
-      }
       .description {}
       .alt {}
       .operator {}
@@ -527,6 +524,10 @@ async function modTag(index: number) {
       color: map-get($colors, font_sub);
     }
     .tag.edit {
+      background-color: map-get($colors, bk_active);
+      > div,>div .content_editor {
+        background-color: map-get($colors, bk_active);
+      }
       .title .content_editor::before {
         content: 'T: ';
       }
@@ -538,7 +539,7 @@ async function modTag(index: number) {
       }
     }
     .tag:hover {
-      background-color: map-get($colors, bk);
+      background-color: map-get($colors, bk_active);
     }
   }
 }

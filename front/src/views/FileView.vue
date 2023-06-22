@@ -525,7 +525,7 @@ function triggleLazyLoad() {
 <style scoped lang="scss">
 .fr_content {
   .content_meta {
-    $metaBk: map-get($colors, bk);
+    $metaBk: map-get($colors, bar_meta);
     background-color: $metaBk;
     display: flex;
     justify-content: space-between;

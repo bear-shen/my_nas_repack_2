@@ -767,16 +767,16 @@ function keymap(e: KeyboardEvent) {
   z-index: 100;
 }
 .modal_dom.active {
-  background-color: map-get($colors, bk);
+  background-color: map-get($colors, popup_active);
   .modal_header {
-    background-color: map-get($colors, bk);
+    background-color: map-get($colors, popup_title);
   }
 }
 .modal_dom {
   pointer-events: all;
   $controllerWidth: $fontSize * 0.5;
   font-size: $fontSize;
-  background-color: map-get($colors, bk);
+  background-color: map-get($colors, popup);
   position: absolute;
   padding: $fontSize * 0.25;
   @include blurBackground();
@@ -785,7 +785,7 @@ function keymap(e: KeyboardEvent) {
     line-height: $fontSize;
     font-size: $fontSize;
     white-space: nowrap;
-    background-color: map-get($colors, bk);
+    background-color: map-get($colors, popup_title);
     width: 100%;
     display: flex;
     justify-content: space-between;
@@ -915,7 +915,7 @@ function keymap(e: KeyboardEvent) {
       > span:last-child {
         input,
         textarea {
-          border-bottom: 1px solid map-get($colors, bk);
+          border-bottom: 1px solid map-get($colors, popup_title);
         }
       }
       input,

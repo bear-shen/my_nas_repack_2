@@ -10,7 +10,7 @@ const props = defineProps<{
 const editor: Ref<HTMLElement | null> = ref(null);
 
 function inputText() {
-  console.info('input', editor.value, editor.value?.innerText);
+  // console.info('input', editor.value, editor.value?.innerText);
   // props.modelValue = editor.value?.innerHTML;
   emits('update:modelValue', editor.value?.innerText);
 }

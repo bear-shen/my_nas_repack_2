@@ -162,7 +162,7 @@ async function onConfirm(node: api_node_col) {
         }
       }
       &:hover {
-        background-color: map-get($colors, bk);
+        background-color: map-get($colors, popup_active);
         cursor: pointer;
       }
     }

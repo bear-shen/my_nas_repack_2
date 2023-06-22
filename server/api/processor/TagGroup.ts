@@ -65,6 +65,7 @@ export default class {
         }
         tagGroupLs.forEach(tagGroup => {
             tagGroup.node = nodeMap.get(tagGroup.id_node);
+            if (!tagGroup.node) return;
             tagGroup.node.crumb_node = [];
             if (tagGroup.node.list_node)
                 tagGroup.node.list_node.forEach(nodeId => {
