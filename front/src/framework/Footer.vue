@@ -40,7 +40,7 @@ const active = true;
 }
 .active,
 .paginator li:hover {
-  background-color: mkColor(map-get($colors, bk), 3);
-  color: mkColor(map-get($colors, font), 3);
+  background-color: map-get($colors, bk);
+  color: map-get($colors, font);
 }
 </style>

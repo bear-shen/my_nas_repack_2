@@ -144,7 +144,7 @@ function remove(index: number) {
       line-height: $fontSize * 1.5;
       padding: 0 $fontSize * 0.25;
       &:nth-child(2n) {
-        background-color: mkColor(map-get($colors, bk), 4);
+        background-color: map-get($colors, bk);
       }
       > span {
         display: inline-block;

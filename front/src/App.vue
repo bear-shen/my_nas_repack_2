@@ -5,6 +5,7 @@ import FrFooter from "./framework/Footer.vue";
 import FrNavi from "./framework/Navi.vue";
 import Popup from "./framework/Popup.vue";
 import dev from "../../share/dev";
+
 dev();
 const containerDef = {};
 </script>
@@ -25,7 +26,7 @@ const containerDef = {};
 }
 .fr_header,
 .fr_footer {
-  background-color: mkColor(map-get($colors, bk), 0);
+  background-color: map-get($colors, bar_horizon);
 }
 .fr_header {
   padding: 0 $fontSize;
@@ -37,7 +38,7 @@ const containerDef = {};
   // height: calc(100vh - $headerHeight - $footerHeight);
   height: calc(100vh - $headerHeight);
   display: flex;
-  background-color: mkColor(map-get($colors, bk), 2);
+  background-color: map-get($colors, bar_vertical);
 }
 .fr_navi {
   height: 100%;
@@ -46,7 +47,7 @@ const containerDef = {};
 .fr_content {
   padding: $headerPad 0 $footerPad;
   height: calc(100% - $headerPad - $footerPad);
-  background-color: mkColor(map-get($colors, bk), 6);
+  background-color: map-get($colors, bk);
   width: calc(100vw - $navWidth);
   @include smallScroll();
   overflow: auto;

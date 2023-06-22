@@ -384,8 +384,8 @@ function search() {
   if (tQuery.dir_only && crumbList.value.length) {
     tQuery.pid =
       crumbList.value[crumbList.value.length - 1].id?.toString() ?? "";
-  // } else {
-  //   delete tQuery.pid;
+    // } else {
+    //   delete tQuery.pid;
   }
   tQuery.mode = 'search';
   if (!queryData.keyword && (!queryData.node_type || queryData.node_type == 'any')) {
@@ -525,7 +525,7 @@ function triggleLazyLoad() {
 <style scoped lang="scss">
 .fr_content {
   .content_meta {
-    $metaBk: mkColor(map-get($colors, bk), 2);
+    $metaBk: map-get($colors, bk);
     background-color: $metaBk;
     display: flex;
     justify-content: space-between;
@@ -566,7 +566,7 @@ function triggleLazyLoad() {
         padding-left: $fontSize * 0.25;
       }
       .item:hover {
-        background-color: mkColor(map-get($colors, bk), 6);
+        background-color: map-get($colors, bk);
       }
       .item::after {
         content: "/";

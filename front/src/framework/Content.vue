@@ -1,11 +1,11 @@
 <script setup lang="ts">
 const navList = [
-  { name: "Nas", meta: { cur: true }, path: "/" },
-  { name: "Hyper", meta: { cur: false }, path: "" },
-  { name: "Router", meta: { cur: false }, path: "" },
-  { name: "Spider", meta: { cur: false }, path: "" },
-  { name: "Git", meta: { cur: false }, path: "" },
-  { name: "Torrent", meta: { cur: false }, path: "" },
+  {name: "Nas", meta: {cur: true}, path: "/"},
+  {name: "Hyper", meta: {cur: false}, path: ""},
+  {name: "Router", meta: {cur: false}, path: ""},
+  {name: "Spider", meta: {cur: false}, path: ""},
+  {name: "Git", meta: {cur: false}, path: ""},
+  {name: "Torrent", meta: {cur: false}, path: ""},
 ];
 const user = {
   id: 1,
@@ -61,13 +61,13 @@ const user = {
 .user {
   font-size: $fontSize;
   position: relative;
-white-space: nowrap;
+  white-space: nowrap;
   &:hover .action {
     display: block;
   }
   .action {
     display: none;
-    background-color: mkColor(map-get($colors, bk), 1);
+    background-color: map-get($colors, bar_horizon_active);
     position: absolute;
     width: 100%;
     text-align: right;
@@ -80,7 +80,7 @@ white-space: nowrap;
 .active,
 .user li:hover,
 .navi div:hover {
-  background-color: mkColor(map-get($colors, bk), 3);
-  color: mkColor(map-get($colors, font), 3);
+  background-color: map-get($colors, bar_horizon_active);
+  color: map-get($colors, font_active);
 }
 </style>

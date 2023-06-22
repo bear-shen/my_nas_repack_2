@@ -484,7 +484,7 @@ async function op_delete() {
 <style scoped lang="scss">
 .node_node {
   &:hover, .select {
-    background-color: mkColor(map-get($colors, bk), 4);
+    background-color: map-get($colors, bk_active);
   }
 }
 .node_node.mode_detail {
@@ -528,17 +528,17 @@ async function op_delete() {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        color: map-get($colors, "font");
+        color: map-get($colors, font);
         margin: 0 0 $fontSize * 0.5 0;
       }
       .editing {
         font-size: $fontSize;
-        background-color: mkColor(map-get($colors, bk), 4);
+        background-color: map-get($colors, bk_active);
       }
       .bar {
         margin: $fontSize * 0.5 0 0 0;
       }
-      color: map-get($colors, "font_sub");
+      color: map-get($colors, font_sub);
     }
     .bar {
       font-size: $fontSize * 0.75;
@@ -587,13 +587,13 @@ async function op_delete() {
     }
     dd {
       margin-left: $fontSize * 0.5;
-      color: map-get($colors, "font_sub");
+      color: map-get($colors, font_sub);
       word-break: break-word;
       max-width: 90%;
       overflow: hidden;
       text-overflow: ellipsis;
       &:hover {
-        color: map-get($colors, "font");
+        color: map-get($colors, font);
       }
     }
     dt::after {
@@ -646,7 +646,7 @@ async function op_delete() {
   p {
     margin-top: $fontSize * 0.25;
     font-size: $fontSize * 0.8;
-    color: map-get($colors, "font_sub");
+    color: map-get($colors, font_sub);
     //word-break: break-all;
     white-space: nowrap;
     overflow: hidden;
@@ -656,7 +656,7 @@ async function op_delete() {
     font-size: $fontSize;
   }
   &:hover .title {
-    color: map-get($colors, "font");
+    color: map-get($colors, font);
   }
   //margin: 0 0 $fontSize * 0.5 0;
   padding: $fontSize * 0.5;

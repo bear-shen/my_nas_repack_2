@@ -401,12 +401,12 @@ async function modTag(index: number) {
   justify-content: space-between;
   .list_tag_group {
     width: $fontSize*20;
-    background-color: mkColor(map-get($colors, bk), 4);
+    background-color: map-get($colors, bk);
     height: 100%;
     @include smallScroll();
     overflow-y: scroll;
     .active {
-      background-color: mkColor(map-get($colors, bk), 2);
+      background-color: map-get($colors, bk);
     }
     .tag_group_add {
       span {
@@ -418,7 +418,7 @@ async function modTag(index: number) {
     .tag_group {
       padding: $fontSize*0.5 $fontSize;
       &:hover {
-        background-color: mkColor(map-get($colors, bk), 2);
+        background-color: map-get($colors, bk);
       }
       > div {
         font-size: $fontSize;
@@ -435,7 +435,7 @@ async function modTag(index: number) {
           content: '/';
         }
         span:last-child {
-          color: mkColor(map-get($colors, font_sub), 4);
+          color: map-get($colors, font_sub);
           //color: map-get($colors, font_sub);
         }
         span {
@@ -461,7 +461,7 @@ async function modTag(index: number) {
         }
         .title, .description, .operator {
           display: block;
-          background-color: mkColor(map-get($colors, bk), 2);
+          background-color: map-get($colors, bk);
         }
         .title::before {
           content: 'T: ';
@@ -480,7 +480,7 @@ async function modTag(index: number) {
       }
     }
     .hinter > div, .content_editor {
-      background-color: mkColor(map-get($colors, bk), 2);
+      background-color: map-get($colors, bk);
     }
   }
   .list_tag {
@@ -515,7 +515,7 @@ async function modTag(index: number) {
         }
       }
       .content_editor {
-        background-color: mkColor(map-get($colors, bk), 2);
+        background-color: map-get($colors, bk);
       }
       .description {}
       .alt {}
@@ -523,7 +523,7 @@ async function modTag(index: number) {
       > div {
         word-break: break-all;
       }
-      //color: mkColor(map-get($colors, font_sub), 2);
+      //color: map-get($colors, font_sub);
       color: map-get($colors, font_sub);
     }
     .tag.edit {
@@ -538,7 +538,7 @@ async function modTag(index: number) {
       }
     }
     .tag:hover {
-      background-color: mkColor(map-get($colors, bk), 4);
+      background-color: map-get($colors, bk);
     }
   }
 }

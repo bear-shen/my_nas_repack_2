@@ -31,7 +31,7 @@ const rootStatement = {
     height: $fontSize*1.5;
     line-height: $fontSize*1.5;
     &:nth-child(2n), &:hover {
-      background-color: mkColor(map-get($colors, bk), 4);
+      background-color: map-get($colors, bk);
     }
   }
   td {
@@ -61,9 +61,9 @@ const rootStatement = {
     //text-align: left;
     text-align: right;
     button{
-      background-color: mkColor(map-get($colors, bk), 2);
+      background-color: map-get($colors, bk);
       &:hover{
-        background-color: mkColor(map-get($colors, bk), 6);
+        background-color: map-get($colors, bk);
       }
     }
   }

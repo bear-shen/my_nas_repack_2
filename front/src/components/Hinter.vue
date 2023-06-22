@@ -118,7 +118,7 @@ function setFocus() {
     overflow: hidden;
   }
   > div {
-    background-color: mkColor(map-get($colors, bk), 3);
+    background-color: map-get($colors, popup_active);
   }
   > ul {
     position: relative;
@@ -130,9 +130,10 @@ function setFocus() {
     > li {
       position: relative;
       //@include fillAvailable(width);
-      background-color: fade-out(mkColor(map-get($colors, bk), 3), 0.5);
+      //background-color: fade-out(map-get($colors, bk), 3), 0.5
       &:hover {
-        background-color: fade-out(mkColor(map-get($colors, bk), 8), 0.5);
+        background-color: map-get($colors, popup_active);
+        //background-color: fade-out(map-get($colors, bk), 8), 0.5
       }
     }
   }

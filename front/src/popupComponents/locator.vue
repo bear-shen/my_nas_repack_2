@@ -162,7 +162,7 @@ async function onConfirm(node: api_node_col) {
         }
       }
       &:hover {
-        background-color: mkColor(map-get($colors, bk), 6);
+        background-color: map-get($colors, bk);
         cursor: pointer;
       }
     }
@@ -185,7 +185,7 @@ async function onConfirm(node: api_node_col) {
         max-width: 50%;
       }
       &:nth-child(2n) {
-        background-color: mkColor(map-get($colors, bk), 4);
+        background-color: map-get($colors, bk), 4
       }
       > span {
         display: inline-block;

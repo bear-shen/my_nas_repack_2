@@ -33,46 +33,46 @@ textarea, .btn {
 }
 button,
 select, .btn {
-  background-color: map_get($colors, input_button_bk);
-  color: map_get($colors, input_button_font);
+  background-color: map-get($colors, button);
+  color: map-get($colors, font);
   padding: $fontSize*0.25;
   &:hover,
   &.active,
   &.disabled,
   option:checked {
-    background-color: map_get($colors, input_button_bk_active);
-    color: map_get($colors, input_button_font_active);
+    background-color: map-get($colors, button_active);
+    color: map-get($colors, font_active);
   }
   @include smallScroll();
 }
 input {
-  background-color: map_get($colors, input_bk);
-  color: map_get($colors, input_font);
+  background-color: map-get($colors, bk);
+  color: map-get($colors, font);
   padding: $fontSize*0.25;
   &:hover,
   &:focus,
   &.active,
   &.disabled {
-    background-color: map_get($colors, input_bk_active);
-    color: map_get($colors, input_font_active);
+    background-color: map-get($colors, bk_active);
+    color: map-get($colors, font_active);
   }
 }
 textarea {
-  background-color: map_get($colors, input_bk);
-  color: map_get($colors, input_font);
+  background-color: map-get($colors, bk);
+  color: map-get($colors, font);
   padding: $fontSize*0.25;
   @include smallScroll();
   &:hover,
   &:focus,
   &.active,
   &.disabled {
-    background-color: map_get($colors, input_bk_active);
-    color: map_get($colors, input_font_active);
+    background-color: map-get($colors, bk_active);
+    color: map-get($colors, font_active);
   }
 }
 ::selection {
-  background-color: map_get($colors, selection_bk);
-  color: map_get($colors, selection);
+  background-color: map-get($colors, selection_bk);
+  color: map-get($colors, selection);
 }
 input[type='checkbox'],
 input[type='radio'] {
@@ -81,7 +81,7 @@ input[type='radio'] {
     display: inline-block;
     width: max-content;
     /*background-image: linear-gradient(0deg, hsla(250, 30%, 30%, 1) 0%, rgb(25, 25, 25) 100%);*/
-    background-color: map_get($colors, negative);
+    background-color: map-get($colors, negative);
     font-size: $fontSize;
     padding: 0.25*$fontSize 0.5*$fontSize;
     line-height: $fontSize;
@@ -96,7 +96,7 @@ input[type='radio'] {
   &:checked {
     + label {
       //background-image: linear-gradient(0deg, rgba(100, 100, 100, 1) 0%, rgba(150, 150, 150, 1) 100%);
-      background-color: map_get($colors, positive);
+      background-color: map-get($colors, positive);
       &::after {
         content: '\e62c';
       }

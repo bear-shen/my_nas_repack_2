@@ -17,10 +17,10 @@ import NaviContent from "./NaviContent.vue";
 .fr_navi {
   text-align: center;
   .title.active {
-    background-color: mkColor(map-get($colors, bk), 0);
+    background-color: map-get($colors, bar_vertical);
   }
   .title:hover {
-    background-color: mkColor(map-get($colors, bk), 0);
+    background-color: map-get($colors, bar_vertical);
     .content {
       display: inline-block;
     }
@@ -35,7 +35,7 @@ import NaviContent from "./NaviContent.vue";
       font-size: $fontSize * 1.25;
     }
     .content {
-      background-color: mkColor(map-get($colors, bk), 2);
+      background-color: map-get($colors, bar_vertical);
       padding: 0 $fontSize * 0.5;
       display: none;
       position: absolute;

@@ -17,88 +17,90 @@ $indexFrame: 10;
 $indexContent: 100;
 $indexModal: 1000;
 //
-
 $layoutIndex: 500;
 $alphaIndex: 1000;
 $hinterIndex: 250;
-
-@mixin fillAvailable($type){
-      #{$type}:fill-available;
-      #{$type}:-webkit-fill-available;
-      #{$type}:-moz-available;
+@mixin fillAvailable($type) {
+  #{$type}: fill-available;
+  #{$type}: -webkit-fill-available;
+  #{$type}: -moz-available;
 }
-@mixin blurBackground{
-      &:before {
-            z-index: -1;
-            filter: blur($fontSize * 0.05);
-            backdrop-filter: blur($fontSize * 0.05);
-            content: "";
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            box-sizing: border-box;
-      }
+@mixin blurBackground {
+  &:before {
+    z-index: -1;
+    filter: blur($fontSize * 0.05);
+    backdrop-filter: blur($fontSize * 0.05);
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+  }
 }
-
 @function mkColor($color, $level) {
-      @return lighten($color, $level*3%);
+  @return lighten($color, $level*3%);
 }
-
 @mixin fontSizeWithLineHeight($fontSize: $fontSize, $rate: 1) {
-      font-size: $fontSize;
-      line-height: $fontSize*$rate;
+  font-size: $fontSize;
+  line-height: $fontSize*$rate;
 }
-
+//$colorDef_bk: rgba(25, 49, 52, 1);
+//$colorDef_font: rgb(210, 200, 165);
+$colorDef_bk: rgba(35, 39, 46, 1);
+$colorDef_font: rgb(197, 197, 197);
+$colorDef_button: rgba(25, 49, 52, 1);
+$colorDef_positive: rgba(40, 114, 70, 1);
+$colorDef_negative: rgba(150, 52, 38, 1);
 $colors: (
-      // --------- basic --------- ---------
-      bk:rgba(30, 30, 30, 1),
-      //bk_active:rgba(60, 60, 60, 1),
-      selection:rgba(50, 50, 50, 1),
-      selection_bk:rgba(200, 200, 200, 1),
-      //bk:rgba(200, 200, 200, 1),
-      font:rgba(200, 200, 200, 1),
-      font_active:rgba(220, 220, 220, 1),
-      font_sub:rgba(150, 150, 150, 1),
-      font_sub_active:rgba(230, 230, 230, 1),
-      //
-      input_font:rgba(200, 200, 200, 1),
-      input_bk:rgba(30, 30, 30, 1),
-      input_font_active:rgba(200, 200, 200, 1),
-      input_bk_active:rgba(80, 80, 80, 1),
-      //
-      input_button_font:rgba(200, 200, 200, 1),
-      input_button_bk:rgba(20, 20, 20, 1),
-      input_button_font_active:rgba(200, 200, 200, 1),
-      input_button_bk_active:rgb(100, 100, 100),
-      //
-      positive:hsla(200, 100%, 20%, 90%),
-      //half_negative:hsla(100, 90, 20, 90%),
-      negative:hsla(0, 85%, 20%, 90%),
-      checkbox_alpha:rgba(0, 0, 0, 20%),
-      checkbox_alpha_active:rgba(255, 255, 255, 20%),
+  //内容背景
+        bk:$colorDef_bk,
+        bk_active:lighten($colorDef_bk, 3%),
+  //上标题栏
+        bar_horizon:darken($colorDef_bk, 6%),
+        bar_horizon_active:darken($colorDef_bk, 3%),
+  //侧标题栏
+        bar_vertical:darken($colorDef_bk, 3%),
+        bar_vertical_active:darken($colorDef_bk, 0%),
+  //弹窗标题栏
+  //弹窗背景
+  //弹窗背景 高亮
+        popup_title:lighten($colorDef_bk, 6%),
+        popup:transparentize(lighten($colorDef_bk, 6%), 0.5),
+        popup_active:transparentize(lighten($colorDef_bk, 6%), 0.25),
+  //按钮背景
+  //按钮 选择
+  //按钮 非选择
+        button:$colorDef_button,
+        button_active:lighten($colorDef_button, 3%),
+        positive:$colorDef_positive,
+        negative:$colorDef_negative,
+  //文字
+  //文字 高亮
+        font:$colorDef_font,
+        font_active:lighten($colorDef_font, 6%),
+  //副文字
+  //副文字 高亮
+        font_sub:darken($colorDef_font, 12%),
+        font_sub_active:darken($colorDef_font, 6%),
 );
-
 /*
  *  @see https://www.cnblogs.com/amylis_chen/p/11995324.html
  *  @see https://www.cnblogs.com/ertingbo/p/7151566.html
  */
 @mixin smallScroll {
-      &::-webkit-scrollbar-track {
-            background-color: rgba(0, 0, 0, 0.5);
-      }
-
-      &::-webkit-scrollbar {
-            width: $fontSize*0.25;
-            height: $fontSize*0.25;
-            background-color: rgba(0, 0, 0, 0);
-      }
-
-      &::-webkit-scrollbar-thumb {
-            background-color: rgba(127, 127, 127, 0.5);
-            border-radius: $fontSize*0.25;
-      }
-
-      &::-webkit-scrollbar-corner {
-            background-color: rgba(0, 0, 0, 0.0);
-      }
+  &::-webkit-scrollbar-track {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  &::-webkit-scrollbar {
+    width: $fontSize*0.25;
+    height: $fontSize*0.25;
+    background-color: rgba(0, 0, 0, 0);
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(127, 127, 127, 0.5);
+    border-radius: $fontSize*0.25;
+  }
+  &::-webkit-scrollbar-corner {
+    background-color: rgba(0, 0, 0, 0.0);
+  }
 }
