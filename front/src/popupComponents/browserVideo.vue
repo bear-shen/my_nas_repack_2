@@ -397,7 +397,7 @@ function toggleSubtitle(index: number) {
       color: map_get($colors, input_button_font);
       width: 150px;
       //      padding: 0 $fontSize * 0.5;
-      border-right: $fontSize * 0.5 solid map_get($colors, input_button_bk);
+      //border-right: $fontSize * 0.5 solid map_get($colors, input_button_bk);
       height: $fontSize * 1.5;
       line-height: $fontSize * 1.5;
       position: relative;

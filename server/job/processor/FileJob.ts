@@ -11,7 +11,7 @@ import * as fs from 'fs/promises';
 
 const exec = util.promisify(require('child_process').exec);
 
-export default class {
+class FileJob {
     static async build(payload: { [key: string]: any }): Promise<any> {
         const nodeId = payload.id;
         let node: col_node;
@@ -232,6 +232,31 @@ export default class {
         });
     }
 
+    static async rebuild(payload: { [key: string]: any }): Promise<any> {
+        const nodeId = payload.id;
+        let node: col_node;
+        if (typeof nodeId === 'object')
+            node = nodeId;
+        else
+            node = await (new NodeModel()).where('id', nodeId).first();
+        //
+        for (const key in node.index_file_id) {
+            if (key === 'raw') continue;
+            const fileId = node.index_file_id[key];
+            const ifExs = await checkOrphanFile(fileId);
+            if (ifExs > 1) continue;
+            await fp.rmReal(fileId);
+        }
+        await (new NodeModel()).where('id', nodeId).update({
+            index_file_id: {raw: node.index_file_id.raw},
+        });
+        FileJob.build(payload);
+    }
+
+    static async rebuildIndex(payload: { [key: string]: any }): Promise<any> {
+        await FileJob.buildIndex(payload);
+    }
+
     static async deleteForever(payload: { [key: string]: any }): Promise<any> {
         if (!payload.id) {
             throw new Error('id not found');
@@ -290,8 +315,8 @@ async function deleteNodeForever(nodeIdList: number[]) {
     const nodeLs = await (new NodeModel()).whereIn('id', nodeIdList).select();
     for (let i1 = 0; i1 < nodeLs.length; i1++) {
         const node = nodeLs[i1];
-        for (const type in node.index_file_id) {
-            const fileId = node.index_file_id[type];
+        for (const key in node.index_file_id) {
+            const fileId = node.index_file_id[key];
             const ifExs = await checkOrphanFile(fileId);
             if (ifExs > 1) continue;
             await fp.rmReal(fileId);
@@ -327,6 +352,7 @@ async function execFFmpeg(file: col_file, type: string,): Promise<col_file | boo
             method = FFMpeg.videoStr;
             ffStr = await method(meta);
             parserConfig = Config.parser[type];
+            // console.info(ffStr);
             break;
         case 'subtitle':
             console.info(meta);
@@ -376,3 +402,5 @@ function parseFFStr(str: string, source: string, target: string) {
     // console.info(str);
     return str;
 }
+
+export default FileJob;

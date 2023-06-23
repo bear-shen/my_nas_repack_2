@@ -4,6 +4,8 @@ import ImportJob from "./processor/ImportJob";
 export default {
     'file/build': FileJob.build,
     'file/buildIndex': FileJob.buildIndex,
+    'file/rebuild': FileJob.rebuild,
+    'file/rebuildIndex': FileJob.rebuildIndex,
     'file/deleteForever': FileJob.deleteForever,
     'import/run': ImportJob.run,
 } as { [key: string]: (payload: { [key: string]: any }) => Promise<any> };

@@ -362,7 +362,7 @@ async function op_rebuild() {
   const formData = new FormData();
   formData.set('id', `${props.node.id}`);
   const res = await query<api_file_rebuild_req>('file/rebuild', formData);
-  emits('go', 'reload');
+  // emits('go', 'reload');
   return res;
 }
 

@@ -120,9 +120,9 @@ export default class {
             node.list_tag_id.forEach(tagId => {
                 tagIdSet.add(tagId);
             });
-            for (const type in node.index_file_id) {
-                if (!Object.prototype.hasOwnProperty.call(node.index_file_id, type)) continue;
-                const fileId = node.index_file_id[type];
+            for (const key in node.index_file_id) {
+                if (!Object.prototype.hasOwnProperty.call(node.index_file_id, key)) continue;
+                const fileId = node.index_file_id[key];
                 fileIdSet.add(fileId);
             }
             node.list_node.forEach(nodeId => {
@@ -356,12 +356,12 @@ export default class {
         const curNode = await new NodeModel().where('id', request.id).first();
         if (!curNode) return false;
         (new QueueModel).insert({
-            type: 'file/build',
+            type: 'file/rebuild',
             payload: {id: curNode.id},
             status: 1,
         });
         (new QueueModel).insert({
-            type: 'file/buildIndex',
+            type: 'file/rebuildIndex',
             payload: {id: curNode.id},
             status: 1,
         });
