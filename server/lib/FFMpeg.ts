@@ -193,12 +193,14 @@ async function videoStr(meta: ffMeta): Promise<string | boolean> {
         tranVCodec = false;
         break;
     }
-    for (let i1 = 0; i1 < audioConf.allow_codec.length; i1++) {
-        const kw = audioConf.allow_codec[i1];
-        const track = meta.streams[audioIndex];
-        if (track.codec_name.toLowerCase().indexOf(kw) === -1) continue;
-        tranACodec = false;
-        break;
+    if(audioIndex!==-1) {
+        for (let i1 = 0; i1 < audioConf.allow_codec.length; i1++) {
+            const kw = audioConf.allow_codec[i1];
+            const track = meta.streams[audioIndex];
+            if (track.codec_name.toLowerCase().indexOf(kw) === -1) continue;
+            tranACodec = false;
+            break;
+        }
     }
     //基础
     let rate = parseInt(meta.format.size) / parseInt(meta.format.duration);
