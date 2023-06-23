@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import { onMounted, ref, type Ref } from "vue";
-import type { ModalConstruct, ModalStruct } from "../modal";
-import { queryDemo, query } from "@/Helper";
-import type { api_node_col, api_file_list_resp } from "../../../share/Api";
+import {onMounted, ref, type Ref} from "vue";
+import type {ModalConstruct, ModalStruct} from "../modal";
+import {queryDemo, query} from "@/Helper";
+import type {api_node_col, api_file_list_resp} from "../../../share/Api";
 import smp_file_list_resp from "../../../share/sampleApi/smp_file_list_resp";
 import GenFunc from "../../../share/GenFunc";
+
 const props = defineProps<{
   data: { [key: string]: any };
   modalData: ModalStruct;
   nodeList: api_node_col[];
-  curIndex: api_node_col;
+  curIndex: number;
   curNode: api_node_col;
 }>();
 </script>

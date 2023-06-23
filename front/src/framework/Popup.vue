@@ -783,7 +783,11 @@ function keymap(e: KeyboardEvent) {
   .modal_header {
     height: $fontSize;
     line-height: $fontSize;
-    font-size: $fontSize;
+    font-size: $fontSize*0.75;
+    .sysIcon {
+      font-size: $fontSize*0.75;
+      padding: 0 $fontSize*0.25;
+    }
     white-space: nowrap;
     background-color: map-get($colors, popup_title);
     width: 100%;

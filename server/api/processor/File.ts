@@ -2,7 +2,7 @@ import {Fields} from 'formidable';
 import {PersistentFile} from 'formidable';
 import {IncomingMessage, ServerResponse} from 'http';
 import {ParsedForm} from '../types';
-import {api_file_list_resp, api_node_col, api_file_list_req, api_file_upload_resp, api_file_upload_req, api_file_mkdir_resp, api_file_mkdir_req, api_file_mov_req, api_file_mod_req, api_file_cover_req, api_file_cover_resp, api_file_delete_resp, api_file_delete_req} from '../../../share/Api';
+import {api_file_list_resp, api_node_col, api_file_list_req, api_file_upload_resp, api_file_upload_req, api_file_mkdir_resp, api_file_mkdir_req, api_file_mov_req, api_file_mod_req, api_file_cover_req, api_file_cover_resp, api_file_delete_resp, api_file_delete_req, api_file_rebuild_resp, api_file_rebuild_req} from '../../../share/Api';
 import NodeModel from '../../model/NodeModel';
 import GenFunc from '../../../share/GenFunc';
 import {col_node, col_tag} from '../../../share/Database';
@@ -351,4 +351,20 @@ export default class {
         return;
     }
 
+    async rebuild(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<false | api_file_rebuild_resp> {
+        const request = data.fields as api_file_rebuild_req;
+        const curNode = await new NodeModel().where('id', request.id).first();
+        if (!curNode) return false;
+        (new QueueModel).insert({
+            type: 'file/build',
+            payload: {id: curNode.id},
+            status: 1,
+        });
+        (new QueueModel).insert({
+            type: 'file/buildIndex',
+            payload: {id: curNode.id},
+            status: 1,
+        });
+        return curNode;
+    }
 };

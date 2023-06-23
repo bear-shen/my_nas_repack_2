@@ -405,9 +405,6 @@ async function modTag(index: number) {
     height: 100%;
     @include smallScroll();
     overflow-y: scroll;
-    .active {
-      background-color: map-get($colors, bar_meta_active);
-    }
     .tag_group_add {
       span {
         font-size: $fontSize*2;

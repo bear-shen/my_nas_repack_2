@@ -4,7 +4,7 @@ import {onMounted, type Ref, ref} from "vue";
 import type {
   api_tag_col, api_node_col, api_file_list_req, api_file_mov_req,
   api_tag_list_resp, api_tag_list_req, api_file_mov_resp, api_file_cover_req,
-  api_file_delete_req, api_file_delete_resp
+  api_file_delete_req, api_file_delete_resp, api_file_rebuild_req
 } from "../../../share/Api";
 import {useModalStore} from "@/stores/modalStore";
 import {query} from "@/Helper";
@@ -118,6 +118,16 @@ function buildBtnDef(key: string) {
               show: () => !!props.node.file?.cover?.path,
               active: false,
             },
+            {
+              cls: ['sysIcon', 'sysIcon_reload'],
+              click: op_rebuild,
+              title: 'RB',
+              show: (btn: BtnDef) => {
+                console.info(props.node.is_file)
+                return !!props.node.is_file
+              },
+              active: false,
+            },
           ],
         },
       ];
@@ -152,6 +162,15 @@ function buildBtnDef(key: string) {
           click: op_delete,
           title: 'DEL',
           show: true,
+          active: false,
+        },
+        {
+          cls: ['sysIcon', 'sysIcon_reload'],
+          click: op_rebuild,
+          title: 'RB',
+          show: (btn: BtnDef) => {
+            return !!props.node.is_file
+          },
           active: false,
         },
       ];
@@ -339,6 +358,14 @@ async function op_delete() {
   return res;
 }
 
+async function op_rebuild() {
+  const formData = new FormData();
+  formData.set('id', `${props.node.id}`);
+  const res = await query<api_file_rebuild_req>('file/rebuild', formData);
+  emits('go', 'reload');
+  return res;
+}
+
 </script>
 
 <template>
@@ -391,7 +418,9 @@ async function op_delete() {
                     <dt :class="btn.active?btn.cls.concat(['active','btn']):btn.cls.concat(['btn'])">{{ btn.title }}</dt>
                     <dd>
                       <template v-for="btn in btn.sub">
-                        <button :class="btn.active?btn.cls.concat(['active']):btn.cls" @click="btn.click?btn.click(btn):null">{{ btn.title }}</button>
+                        <template v-if="btn.show && (btn.show===true ||btn.show(btn))">
+                          <button :class="btn.active?btn.cls.concat(['active']):btn.cls" @click="btn.click?btn.click(btn):null">{{ btn.title }}</button>
+                        </template>
                       </template>
                     </dd>
                   </dl>
@@ -468,7 +497,9 @@ async function op_delete() {
           <template v-if="btn.show && (btn.show===true ||btn.show(btn))">
             <template v-if="btn.sub">
               <template v-for="btn in btn.sub">
-                <button :class="btn.active?btn.cls.concat(['active']):btn.cls" @click="btn.click?btn.click(btn):null">{{ btn.title }}</button>
+                <template v-if="btn.show && (btn.show===true ||btn.show(btn))">
+                  <button :class="btn.active?btn.cls.concat(['active']):btn.cls" @click="btn.click?btn.click(btn):null">{{ btn.title }}</button>
+                </template>
               </template>
             </template>
             <template v-else>

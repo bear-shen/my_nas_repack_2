@@ -177,6 +177,11 @@ export type api_file_delete_req = {
 }
 export type api_file_delete_resp = col_node;
 
+export type api_file_rebuild_req = {
+    id: string,
+}
+export type api_file_rebuild_resp = col_node;
+
 
 export type api_local_ls_req = {
     path: string,

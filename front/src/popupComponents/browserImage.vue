@@ -15,7 +15,7 @@ const props = defineProps<{
   };
   modalData: ModalStruct;
   nodeList: api_node_col[];
-  curIndex: api_node_col;
+  curIndex: number;
   curNode: api_node_col;
 }>();
 const orgZoomLevel = [0.1, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 2];

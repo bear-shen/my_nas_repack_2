@@ -10,7 +10,7 @@ const props = defineProps<{
   data: { [key: string]: any };
   modalData: ModalStruct;
   nodeList: api_node_col[];
-  curIndex: api_node_col;
+  curIndex: number;
   curNode: api_node_col;
 }>();
 </script>
