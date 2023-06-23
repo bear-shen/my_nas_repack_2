@@ -50,14 +50,10 @@ onUnmounted(() => {
 async function getList() {
   const res = await query<api_file_list_resp>("file/get", queryData);
   if (!res || !res.list) return;
-  if (queryData.keyword === 'root') {
+  if (queryData.keyword && 'root'.indexOf(queryData.keyword) !== -1) {
     res.list.unshift({
-      id: 0,
-      title: 'root',
-      description: '',
-      type: 'directory',
-      crumb_node: [],
-    })
+      id: 0, title: 'root', status: 1, type: 'directory', crumb_node: [],
+    });
   }
   list.value = res.list;
   if (list.value.length) {

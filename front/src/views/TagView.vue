@@ -43,8 +43,8 @@ let queryData = {
   keyword: "",
   is_del: "",
 } as api_tag_group_list_req;
-type api_tag_col_local = (api_tag_col & { alt_text?: string, edit?: boolean });
-const groupList: Ref<(api_tag_group_col & { edit?: boolean })[]> = ref([]);
+type api_tag_col_local = (api_tag_col & { alt_text?: string, edit?: boolean, ext_key?: number });
+const groupList: Ref<(api_tag_group_col & { edit?: boolean, ext_key?: number })[]> = ref([]);
 const tagList: Ref<api_tag_col_local[]> = ref([]);
 const curGroup: Ref<api_tag_group_col | null> = ref(null);
 const curGroupIndex: Ref<number> = ref(-1);
@@ -83,6 +83,8 @@ function getCurGroup() {
 }
 
 async function getGroup() {
+  // console.info('getGroup');
+  // groupList.value = [];
   if (!groupList.value || !groupList.value.length) {
     const res = await query<api_tag_group_list_resp>("tag_group/get", queryData);
     if (!res) return;
@@ -92,7 +94,7 @@ async function getGroup() {
   if (curId) {
     let hasCurGroup = false;
     for (let i1 = 0; i1 < groupList.value.length; i1++) {
-      console.info([queryData.id, groupList.value[i1].id]);
+      // console.info([queryData.id, groupList.value[i1].id]);
       if (curId && curId === groupList.value[i1].id) {
         hasCurGroup = true;
         curGroupIndex.value = i1;
@@ -103,12 +105,15 @@ async function getGroup() {
     // console.info(curGroupIndex.value)
     getTagList();
   }
+  // console.info(curGroupIndex.value);
+  // console.info(groupList.value);
   // getCurGroup();
 }
 
 async function getTagList() {
   // console.info('getTagList');
   // console.info(curGroupIndex.value);
+  tagList.value = [];
   if (curGroupIndex.value === -1) return;
   const curGroup = groupList.value[curGroupIndex.value];
   const tagQueryData = {
@@ -172,7 +177,7 @@ async function delGroup(index: number) {
 
 async function addGroup() {
   const curLs = groupList.value;
-  groupList.value = [];
+  // groupList.value = [];
   curLs.unshift({
     title: '',
     description: '',
@@ -181,11 +186,12 @@ async function addGroup() {
     status: 1,
     node: {},
     edit: true,
+    ext_key: (new Date()).valueOf(),
   });
-  setTimeout(() => {
-    groupList.value = curLs;
-    console.info(groupList.value);
-  }, 20);
+  // setTimeout(() => {
+  //   groupList.value = curLs;
+  //   console.info(groupList.value);
+  // }, 20);
 }
 
 async function node_hint(text: string): Promise<api_node_col[] | false> {
@@ -199,7 +205,12 @@ async function node_hint(text: string): Promise<api_node_col[] | false> {
   };
   const res = await query<api_file_list_resp>("file/get", queryData);
   if (!res) return false;
-  console.info(res)
+  // console.info(res)
+  if ('root'.indexOf(text) !== -1) {
+    res.list.unshift({
+      id: 0, title: 'root', status: 1, type: 'directory', crumb_node: [],
+    });
+  }
   return res.list;
 }
 
@@ -239,19 +250,20 @@ function addTag() {
   if (curGroupIndex.value == -1) return;
   const curLs = tagList.value;
   const curGroup = groupList.value[curGroupIndex.value];
-  tagList.value = [];
+  // tagList.value = [];
   curLs.unshift({
     title: '',
     description: '',
     group: {},
     id_group: curGroup.id,
     alt_text: '',
+    ext_key: (new Date()).valueOf(),
     edit: true,
   });
-  setTimeout(() => {
-    tagList.value = curLs;
-    // console.info(groupList.value);
-  }, 20);
+  // setTimeout(() => {
+  //   tagList.value = curLs;
+  //   // console.info(groupList.value);
+  // }, 0);
 }
 
 async function delTag(index: number) {
@@ -291,7 +303,7 @@ async function modTag(index: number) {
         <span class="sysIcon sysIcon_plus-square-o"></span>
       </div>
       <div v-for="(group,index) in groupList"
-           :key="`tagView_group_${index}`"
+           :key="`tagView_group_${group.ext_key?group.ext_key:group.id}`"
            :class="{
         active:curGroupIndex===index,
         tag_group:true,
@@ -360,6 +372,7 @@ async function modTag(index: number) {
         tag:true,
         edit:tag.edit
       }"
+           :key="`tag_view_${tag.ext_key?tag.ext_key:tag.id}`"
       >
         <template v-if="!tag.edit">
           <div class="title">
@@ -414,7 +427,7 @@ async function modTag(index: number) {
     }
     .tag_group {
       padding: $fontSize*0.5 $fontSize;
-      &:hover {
+      &:hover, &.active {
         background-color: map-get($colors, bar_meta_active);
       }
       > div {
@@ -522,7 +535,7 @@ async function modTag(index: number) {
     }
     .tag.edit {
       background-color: map-get($colors, bk_active);
-      > div,>div .content_editor {
+      > div, > div .content_editor {
         background-color: map-get($colors, bk_active);
       }
       .title .content_editor::before {
