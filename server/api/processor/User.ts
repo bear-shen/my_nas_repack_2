@@ -31,4 +31,5 @@ export default class {
         delete result.password;
         return result;
     };
+
 };

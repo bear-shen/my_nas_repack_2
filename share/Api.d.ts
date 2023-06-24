@@ -1,4 +1,4 @@
-import {col_file, col_file_with_path, col_node, col_tag, col_tag_group, col_user, type_file} from './Database';
+import {col_file, col_file_with_path, col_node, col_tag, col_tag_group, col_user, col_user_group, type_file} from './Database';
 
 export type api_node_col = {
     is_file?: number,
@@ -217,6 +217,35 @@ export type api_local_file_statement = {
     type: string,
     size: number,
 }
+
+
+export type api_user_group_col = ({
+    user: col_user[],
+} & col_user_group)[];
+
+export type api_user_group_list_req = {
+    keyword?: string,
+    is_del?: string,
+} & { [key: string]: any };
+
+export type api_user_group_list_resp =
+    api_user_group_col[];
+
+export type api_user_group_del_req = {
+    id?: string,
+} & { [key: string]: any };
+export type api_user_group_del_resp = {};
+
+export type api_user_group_mod_req = {
+    id?: string,
+    title?: string,
+    description?: string,
+    admin?: string,
+    status?: string,
+    auth?: string,
+} & { [key: string]: any };
+
+export type api_user_group_mod_resp = api_user_group_mod_req;
 
 
 
