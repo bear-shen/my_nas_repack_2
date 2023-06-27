@@ -219,9 +219,9 @@ export type api_local_file_statement = {
 }
 
 
-export type api_user_group_col = ({
+export type api_user_group_col = {
     user: col_user[],
-} & col_user_group)[];
+} & col_user_group;
 
 export type api_user_group_list_req = {
     keyword?: string,
@@ -246,6 +246,33 @@ export type api_user_group_mod_req = {
 } & { [key: string]: any };
 
 export type api_user_group_mod_resp = api_user_group_mod_req;
+
+
+export type api_user_col = col_user;
+
+export type api_user_list_req = {
+    keyword?: string,
+    is_del?: string,
+} & { [key: string]: any };
+
+export type api_user_list_resp =
+    api_user_col[];
+
+export type api_user_del_req = {
+    id?: string,
+} & { [key: string]: any };
+export type api_user_del_resp = {};
+
+export type api_user_mod_req = {
+    id?: string,
+    id_group?: string,
+    name?: string,
+    mail?: string,
+    password?: string,
+    status?: string,
+} & { [key: string]: any };
+
+export type api_user_mod_resp = api_user_mod_req;
 
 
 

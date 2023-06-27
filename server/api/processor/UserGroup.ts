@@ -10,6 +10,7 @@ import ORM from "../../lib/ORM";
 import {ResultSetHeader} from "mysql2";
 import type {api_user_group_del_req, api_user_group_del_resp, api_user_group_list_req, api_user_group_list_resp, api_user_group_mod_req, api_user_group_mod_resp} from "../../../share/Api";
 import UserGroupModel from "../../model/UserGroupModel";
+import UserModel from "../../model/UserModel";
 
 export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_user_group_list_req> {
@@ -36,7 +37,9 @@ export default class {
 
     async del(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_user_group_del_resp> {
         const request = data.fields as api_user_group_del_req;
-        const model = await (new UserGroupModel()).where('id', request.id).update({status: 0});
+        const curGroup = await (new UserGroupModel()).where('id', request.id).first();
+        if (!curGroup) return;
+        const model = await (new UserGroupModel()).where('id', request.id).update({status: curGroup.status * 1 ? 0 : 1});
         return null;
     };
 
