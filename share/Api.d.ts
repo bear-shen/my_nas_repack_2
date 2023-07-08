@@ -245,7 +245,7 @@ export type api_user_group_mod_req = {
     auth?: string,
 } & { [key: string]: any };
 
-export type api_user_group_mod_resp = api_user_group_mod_req;
+export type api_user_group_mod_resp = col_user_group;
 
 
 export type api_user_col = col_user;
