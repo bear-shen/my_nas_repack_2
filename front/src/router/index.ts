@@ -5,6 +5,7 @@ import {createRouter, createWebHistory, type RouteRecordRaw} from 'vue-router'
 import LocalView from '../views/LocalView.vue'
 import TagView from '../views/TagView.vue'
 import HomeView from '../views/HomeView.vue'
+import UserView from '../views/UserView.vue'
 
 const routes = [
     {
@@ -36,7 +37,7 @@ const routes = [
     {
         path: '/group',
         name: 'User',
-        component: HomeView,
+        component: UserView,
         meta: {icon: 'sysIcon_team',},
     },
     {

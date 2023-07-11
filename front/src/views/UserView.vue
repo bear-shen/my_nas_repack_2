@@ -283,29 +283,36 @@ async function modUser(index: number) {
       >
         <template v-if="!user.edit">
           <div class="title">
-            <div>{{ user.title }}</div>
+            <div>{{ user.name }}</div>
             <div>
               <span class="sysIcon sysIcon_edit" @click="modUser(index)"></span>
-              <span class="sysIcon sysIcon_delete" @click="delUser(index)"></span>
+              <!--              <span class="sysIcon sysIcon_delete" @click="delUser(index)"></span>-->
             </div>
           </div>
-          <div v-if="user.description" class="description">{{ user.description }}</div>
-          <div v-if="user.alt" class="alt">{{ user.alt_text }}</div>
+          <div class="mail">{{ user.mail }}</div>
+          <div class="status">{{ user.status ? 'activate' : 'inactivate' }}</div>
         </template>
         <template v-else>
           <div class="title">
-            <content-editable v-model="user.title"></content-editable>
+            <content-editable v-model="user.name"></content-editable>
             <div>
               <span class="sysIcon sysIcon_save" @click="modUser(index)"></span>
-              <span class="sysIcon sysIcon_delete" @click="delUser(index)"></span>
+              <!--              <span class="sysIcon sysIcon_delete" @click="delUser(index)"></span>-->
             </div>
           </div>
           <content-editable
-            v-model="user.description"
-            class="description"></content-editable>
+            v-model="user.mail"
+            class="mail"></content-editable>
           <content-editable
-            v-model="user.alt_text"
-            class="alt"></content-editable>
+            v-model="user.password"
+            class="password"></content-editable>
+          <label class="status">
+            <input type="checkbox" v-model="user.status"
+                   :id="`UV_U_CB_${user.ext_key?user.ext_key:user.id}`"
+                   true-value="1"
+                   false-value="0"
+            />
+          </label>
         </template>
 
       </div>
@@ -414,6 +421,9 @@ async function modUser(index: number) {
       //width: $fontSize*15;
       margin: $fontSize*0.5;
       padding: $fontSize*0.5;
+      display: inline-block;
+      //width: calc(100% - $fontSize);
+      @include fillAvailable(width);
       .title {
         color: map-get($colors, font);
         display: flex;
@@ -423,8 +433,8 @@ async function modUser(index: number) {
           min-width: $fontSize*2;
         }
       }
-      .description {}
-      .alt {}
+      .mail {}
+      .password {}
       .operator {}
       > div {
         word-break: break-all;
@@ -438,13 +448,13 @@ async function modUser(index: number) {
         background-color: map-get($colors, bk_active);
       }
       .title .content_editor::before {
-        content: 'T: ';
+        content: 'N: ';
       }
-      .description::before {
-        content: 'D: ';
+      .mail::before {
+        content: 'M: ';
       }
-      .alt::before {
-        content: 'A: ';
+      .password::before {
+        content: 'P: ';
       }
     }
     .user:hover {

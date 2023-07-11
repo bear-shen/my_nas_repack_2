@@ -31,6 +31,7 @@ import NaviContent from "./NaviContent.vue";
     white-space: nowrap;
     line-height: $fontSize * 2.5;
     height: $fontSize * 2.5;
+    z-index: 50;
     .icon {
       font-size: $fontSize * 1.25;
     }

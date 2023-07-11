@@ -515,6 +515,9 @@ async function modTag(index: number) {
       //width: $fontSize*15;
       margin: $fontSize*0.5;
       padding: $fontSize*0.5;
+      display: inline-block;
+      //width: calc(100% - $fontSize);
+      @include fillAvailable(width);
       .title {
         color: map-get($colors, font);
         display: flex;
