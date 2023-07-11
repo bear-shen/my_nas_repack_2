@@ -252,6 +252,7 @@ export type api_user_col = col_user;
 
 export type api_user_list_req = {
     keyword?: string,
+    id_group?: string,
     is_del?: string,
 } & { [key: string]: any };
 

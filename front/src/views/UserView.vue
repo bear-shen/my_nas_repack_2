@@ -115,7 +115,15 @@ async function modGroup(index: number) {
     groupList.value[index].edit = true;
     return;
   }
-  const res = await query<api_user_group_mod_resp>("user_group/mod", groupList.value[index]);
+  const val: api_user_group_mod_req = {
+    title: groupList.value[index].title,
+    description: groupList.value[index].description,
+    admin: groupList.value[index].admin?.toString(),
+    status: groupList.value[index].status?.toString(),
+    auth: JSON.stringify(groupList.value[index].auth),
+  };
+  if (groupList.value[index]?.id) val.id = groupList.value[index]?.id?.toString();
+  const res = await query<api_user_group_mod_resp>("user_group/mod", val);
   if (!res) return;
   groupList.value[index].edit = false;
   groupList.value[index].id = res.id ?? 0;
@@ -138,7 +146,7 @@ async function addGroup() {
     title: '',
     description: '',
     auth: [],
-    admin: 1,
+    admin: 0,
     status: 1,
     edit: true,
     ext_key: (new Date()).valueOf(),
@@ -249,16 +257,34 @@ async function modUser(index: number) {
         </template>
         <template v-else>
           <content-editable class="title" v-model="group.title"></content-editable>
+          <content-editable class="description" v-model="group.description"></content-editable>
           <div class="operator">
-            <input type="checkbox" v-model="group.admin"
-                   :id="`UV_G_CB_${group.ext_key?group.ext_key:group.id}`"
+            <input type="checkbox" v-model="group.status"
+                   :id="`UV_G_CB_S_${group.ext_key?group.ext_key:group.id}`"
                    true-value="1"
                    false-value="0"
             />
+            <label class="no_bg" :for="`UV_G_CB_S_${group.ext_key?group.ext_key:group.id}`"></label>
+            <!--            -->
+            <input type="radio" v-model="group.admin"
+                   :id="`UV_G_CB_A_${group.ext_key?group.ext_key:group.id}_1`"
+                   :name="`UV_G_CB_A_${group.ext_key?group.ext_key:group.id}`"
+                   :value="1"
+            />
+            <label class="no_bg" :for="`UV_G_CB_A_${group.ext_key?group.ext_key:group.id}_1`">
+              isAdmin
+            </label>
+            <input type="radio" v-model="group.admin"
+                   :id="`UV_G_CB_A_${group.ext_key?group.ext_key:group.id}_0`"
+                   :name="`UV_G_CB_A_${group.ext_key?group.ext_key:group.id}`"
+                   :value="0"
+            />
+            <label class="no_bg" :for="`UV_G_CB_A_${group.ext_key?group.ext_key:group.id}_0`">
+              isUser
+            </label>
             <!--          <div class="operate">-->
             <div>
               <span class="sysIcon sysIcon_save" @click="modGroup(index)"></span>
-              <span class="sysIcon sysIcon_delete" @click="delGroup(index)"></span>
             </div>
             <!--          </div>-->
           </div>
@@ -296,6 +322,12 @@ async function modUser(index: number) {
           <div class="title">
             <content-editable v-model="user.name"></content-editable>
             <div>
+              <input type="checkbox" v-model="user.status"
+                     :id="`UV_U_CB_${user.ext_key?user.ext_key:user.id}`"
+                     true-value="1"
+                     false-value="0"
+              />
+              <label class="no_bg" :for="`UV_U_CB_${user.ext_key?user.ext_key:user.id}`"></label>
               <span class="sysIcon sysIcon_save" @click="modUser(index)"></span>
               <!--              <span class="sysIcon sysIcon_delete" @click="delUser(index)"></span>-->
             </div>
@@ -307,11 +339,6 @@ async function modUser(index: number) {
             v-model="user.password"
             class="password"></content-editable>
           <label class="status">
-            <input type="checkbox" v-model="user.status"
-                   :id="`UV_U_CB_${user.ext_key?user.ext_key:user.id}`"
-                   true-value="1"
-                   false-value="0"
-            />
           </label>
         </template>
 
@@ -392,6 +419,11 @@ async function modUser(index: number) {
           display: flex;
           justify-content: space-between;
           padding-right: $fontSize*0.5;
+          input[type=radio] + label {
+            &::after {
+              content: '';
+            }
+          }
         }
       }
     }
