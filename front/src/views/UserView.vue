@@ -39,7 +39,7 @@ const contentDOM: Ref<HTMLElement | null> = ref(null);
 const router = useRouter();
 const route = useRoute();
 let queryData = {
-  // id: "",
+  id: "",
   // keyword: "",
   // is_del: "",
 } as api_user_group_list_req;
@@ -55,6 +55,10 @@ onMounted(async () => {
 
 onBeforeRouteUpdate(async (to) => {
   console.info(to);
+  queryData.id = to.query.id ?? '';
+  // queryData.keyword = to.query.keyword as string ?? '';
+  // queryData.is_del = to.query.is_del as string ?? '';
+  getGroup();
 });
 
 async function getGroup() {
@@ -80,9 +84,6 @@ async function getGroup() {
     // console.info(curGroupIndex.value)
     getUserList();
   }
-  // console.info(curGroupIndex.value);
-  // console.info(groupList.value);
-  // getCurGroup();
 }
 
 async function getUserList() {
@@ -149,23 +150,7 @@ async function addGroup() {
   // }, 20);
 }
 
-function node_submit(item: api_node_col, groupIndex: number) {
-  console.info('node_add', item, groupIndex);
-}
-
-function node_parse(item: api_node_col) {
-  console.info('node_parse');
-  if (!item) return '';
-  const treeMap = [] as string[];
-  item.crumb_node?.forEach(crumb => {
-    if (crumb.title)
-      treeMap.push(crumb.title);
-  });
-  if (item.title) treeMap.push(item.title);
-  return `/ ${treeMap.join(' / ')}`;
-}
-
-function checkGroup(groupIndex: number) {
+function goGroup(groupIndex: number) {
   let targetId = 0;
   if (groupIndex !== -1) {
     const curGroup = groupList.value[groupIndex]
@@ -243,21 +228,16 @@ async function modUser(index: number) {
         }"
       >
         <template v-if="!group.edit">
-          <div @click="checkGroup(index)" class="title">
-            <div>{{ group.title }}</div>
+          <div class="title">
+            <div @click="goGroup(index)">{{ group.title }}</div>
             <div class="operator">
               <span class="sysIcon sysIcon_edit" @click="modGroup(index)"></span>
               <span class="sysIcon sysIcon_delete" @click="delGroup(index)"></span>
             </div>
           </div>
-          <div @click="checkGroup(index)" class="description">{{ group.description }}</div>
-          <div @click="checkGroup(index)" class="node">
-            <template v-if="group.node && group.node.crumb_node">
-          <span v-for="sub in group.node.crumb_node">
-            {{ sub.title }}
-          </span>
-            </template>
-            <span>{{ group.node?.title }}</span>
+          <div @click="goGroup(index)" class="description">{{ group.description }}</div>
+          <div @click="goGroup(index)" class="meta">
+            <span>{{ group.admin ? 'admin' : 'user' }}</span>
           </div>
           <!--          <div class="operator">-->
           <!--          <div class="sort">-->
@@ -269,17 +249,12 @@ async function modUser(index: number) {
         </template>
         <template v-else>
           <content-editable class="title" v-model="group.title"></content-editable>
-          <content-editable class="description" v-model="group.description"></content-editable>
-          <hinter
-            class="node"
-            :get-list="node_hint"
-            :submit="node_submit"
-            :parse-text="node_parse"
-            v-model="group.node"
-            :meta="index"
-          ></hinter>
           <div class="operator">
-            <content-editable class="sort" v-model="group.sort"></content-editable>
+            <input type="checkbox" v-model="group.admin"
+                   :id="`UV_G_CB_${group.ext_key?group.ext_key:group.id}`"
+                   true-value="1"
+                   false-value="0"
+            />
             <!--          <div class="operate">-->
             <div>
               <span class="sysIcon sysIcon_save" @click="modGroup(index)"></span>
@@ -371,15 +346,7 @@ async function modUser(index: number) {
         display: flex;
         justify-content: space-between;
       }
-      .node {
-        span::before {
-          padding: 0 $fontSize*0.125;
-          content: '/';
-        }
-        span:last-child {
-          color: map-get($colors, font_sub);
-          //color: map-get($colors, font_sub);
-        }
+      .meta {
         span {
         }
       }

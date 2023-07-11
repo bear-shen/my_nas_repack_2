@@ -311,8 +311,8 @@ async function modTag(index: number) {
         }"
       >
         <template v-if="!group.edit">
-          <div @click="checkGroup(index)" class="title">
-            <div>{{ group.title }}</div>
+          <div class="title">
+            <div @click="checkGroup(index)">{{ group.title }}</div>
             <div class="operator">
               <span class="sysIcon sysIcon_edit" @click="modGroup(index)"></span>
               <span class="sysIcon sysIcon_delete" @click="delGroup(index)"></span>

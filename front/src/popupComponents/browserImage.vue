@@ -286,7 +286,7 @@ function setZoom(e?: WheelEvent, dir?: number) {
       <!-- {{ props.curNode.title }} -->
       <img
         :data-ref-node-id="props.curNode.id"
-        :src="props.curNode.file?.normal?.path"
+        :src="`${props.curNode.file?.normal?.path}?filename=${props.curNode.title}`"
         @mousedown="onDragging"
         @dblclick="fitImg"
         @load="loadImageRes"

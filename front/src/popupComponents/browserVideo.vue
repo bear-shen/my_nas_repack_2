@@ -355,7 +355,7 @@ function toggleSubtitle(index: number) {
           @ended="onEnd"
           @timeupdate="onTimeUpdate"
         >
-          <source :src="props.curNode.file?.normal?.path"/>
+          <source :src="`${props.curNode.file?.normal?.path}?filename=${props.curNode.title}`"/>
           <template v-for="(subtitle,index) in subtitleList">
             <track :default="subtitleIndex==index?true:false"
                    :src="subtitle.file?.normal?.path" kind="subtitles"

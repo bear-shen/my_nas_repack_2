@@ -293,7 +293,7 @@ function parseTime(t: number) {
           @ended="onEnd"
           @timeupdate="onTimeUpdate"
         >
-          <source :src="props.curNode.file?.normal?.path" />
+          <source :src="`${props.curNode.file?.normal?.path}?filename=${props.curNode.title}`" />
         </audio>
       </template>
     </div>

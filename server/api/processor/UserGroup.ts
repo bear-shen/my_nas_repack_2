@@ -49,9 +49,10 @@ export default class {
         if (request.auth)
             authArr = JSON.parse(request.auth);
         if (!authArr) authArr = [];
-        if (parseInt(request.id)) {
-            // const ifExs = await (new UserGroupModel()).where('id', request.id).first();
-            await (new UserGroupModel()).where('id', request.id).update({
+        let id = parseInt(request.id);
+        const ifExs = await (new UserGroupModel()).where('id', id).first();
+        if (ifExs) {
+            await (new UserGroupModel()).where('id', id).update({
                 title: request.title,
                 description: request.description,
                 admin: request.admin,
@@ -66,9 +67,9 @@ export default class {
                 status: request.status,
                 auth: authArr,
             });
-            request.id = `${res.insertId}`;
+            id = res.insertId;
+            // request.id = `${res.insertId}`;
         }
-
-        return request;
+        return await (new UserGroupModel()).where('id', id).first();
     };
 };

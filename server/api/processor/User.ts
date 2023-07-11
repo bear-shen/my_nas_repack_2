@@ -92,7 +92,6 @@ export default class {
             });
             request.id = `${res.insertId}`;
         }
-
         return request;
     };
 };
