@@ -197,7 +197,6 @@ async function getList() {
   // console.info(res);
   crumbList.value = res.path;
   nodeList.value = sortList(res.list);
-
   // console.info(crumbList);
 }
 
@@ -513,7 +512,9 @@ function triggleLazyLoad() {
         :key="nodeIndex"
         :node="node"
         :index="nodeIndex"
+        :selected="false"
         @go="emitGo"
+        @on-select=""
       ></FileItem>
     </div>
     <!--    @click="selectNode($event,node)"-->

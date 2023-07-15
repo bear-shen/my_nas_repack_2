@@ -20,6 +20,7 @@ export type api_node_col = {
     }
         )[],
     crumb_node?: col_node[],
+    _selected?: boolean,
 } & col_node
 
 export type api_file_list_resp = {

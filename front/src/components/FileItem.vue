@@ -20,8 +20,9 @@ const props = defineProps<{
   node: api_node_col;
   //想了一下, 感觉没有用
   index: number;
+  selected: boolean;
 }>();
-const emits = defineEmits(["go"]);
+const emits = defineEmits(["go", "onSelect"]);
 //
 const localConfigure = useLocalConfigureStore();
 let mode: Ref<string> = ref(localConfigure.get("file_view_mode") ?? "detail");
@@ -123,7 +124,7 @@ function buildBtnDef(key: string) {
               click: op_rebuild,
               title: 'RB',
               show: (btn: BtnDef) => {
-                console.info(props.node.is_file)
+                // console.info(props.node.is_file)
                 return !!props.node.is_file
               },
               active: false,
@@ -202,7 +203,7 @@ let renaming = ref(false);
 let tagging = ref(false);
 
 function go(type: string, id?: number) {
-  // console.info("go", type, id);
+  console.info("go", type, id);
   if (!id) return;
   emits("go", type, id);
 }
@@ -366,18 +367,40 @@ async function op_rebuild() {
   return res;
 }
 
+//双击会触发两次单击，按照m￥的理论只能自己做
+//https://learn.microsoft.com/en-us/dotnet/desktop/winforms/input-mouse/how-to-distinguish-between-clicks-and-double-clicks?view=netdesktop-7.0
+//但是好像。。。也没啥影响
+let lastClick = (new Date()).valueOf();
+
+async function op_dblclick(evt: MouseEvent) {
+  console.info('op_dblclick', props.node.id, evt);
+  // props.node.id
+  go('node', props.node.id);
+}
+
+async function op_click(evt: MouseEvent) {
+  console.info('op_click', props.node.id, evt);
+  // console.info(((new Date()).valueOf() - lastClick) / 1000);
+  // lastClick = (new Date()).valueOf();
+  // emits("go", 'node', props.node.id);
+}
+
 </script>
 
 <template>
-  <div :class="['node_node', `mode_${mode}`]" :data-index="index">
+  <div :class="['node_node', `mode_${mode}`,]" :data-index="index">
     <template v-if="mode === 'detail'">
       <div class="content">
         <template v-if="node.status">
-          <div v-if="node.file?.cover" class="thumb" @click="go('node', node.id)">
+          <div v-if="node.file?.cover" class="thumb"
+               @dblclick="op_dblclick"
+               @click="op_click"
+          >
             <img :src="node.file?.cover.path"/>
           </div>
           <div v-else
-               @click="go('node', node.id)"
+               @dblclick="op_dblclick"
+               @click="op_click"
                :class="['thumb', 'listIcon', `listIcon_file_${node.type}`]"
           ></div>
         </template>
@@ -392,7 +415,7 @@ async function op_rebuild() {
         <div class="meta">
           <template v-if="node.status">
             <p v-if="!renaming" class="title">{{ node.title }}</p>
-            <!--            <p v-if="!renaming" class="title" @click="go('node', node.id)">{{ node.title }}</p>-->
+            <!--            <p v-if="!renaming" class="title" @click="op_dblclick">{{ node.title }}</p>-->
             <content-editable
               v-else v-model="node.title"
               class="title editing"
@@ -458,15 +481,19 @@ async function op_rebuild() {
     </template>
     <template v-else-if="mode === 'img'">
       <template v-if="node.status">
-        <div v-if="node.file?.cover" class="thumb" @click="go('node', node.id)">
+        <div v-if="node.file?.cover" class="thumb"
+             @dblclick="op_dblclick"
+             @click="op_click"
+        >
           <img :src="node.file?.cover.path"/>
         </div>
         <div
           v-else
           :class="['thumb', 'listIcon', `listIcon_file_${node.type}`]"
-          @click="go('node', node.id)"
+          @dblclick="op_dblclick"
+          @click="op_click"
         ></div>
-        <!--        <p class="title" @click="go('node', node.id)">{{ node.title }}</p>-->
+        <!--        <p class="title" @click="op_dblclick">{{ node.title }}</p>-->
         <p class="title">{{ node.title }}</p>
         <p>{{ node.time_update }}</p>
       </template>
@@ -483,14 +510,17 @@ async function op_rebuild() {
       </template>
     </template>
     <template v-else-if="mode === 'text'">
-      <p class="type" @click="go('node', node.id)">
+      <p class="type"
+         @dblclick="op_dblclick"
+         @click="op_click"
+      >
         <span
           :class="['thumb', 'listIcon', `listIcon_file_${node.type}`]"
         ></span>
         <span>{{ node.type }}</span>
       </p>
       <p class="title">{{ node.title }}</p>
-      <!--        <p class="title" @click="go('node', node.id)">{{ node.title }}</p>-->
+      <!--        <p class="title" @click="op_dblclick">{{ node.title }}</p>-->
       <p class="time">{{ node.time_update }}</p>
       <section class="bar">
         <template v-for="btn in btnDef">
