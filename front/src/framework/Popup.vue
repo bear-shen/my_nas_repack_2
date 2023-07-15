@@ -327,6 +327,7 @@ function resetWindow(nid: string) {
   };
   t.x = (window.innerWidth - t.w) / 2;
   t.y = (window.innerHeight - t.h) / 2;
+   // console.info(t);
   //
   Object.assign(modal.layout, t);
   // setTimeout(() =>
@@ -617,7 +618,10 @@ function keymap(e: KeyboardEvent) {
       }"
       @click="toggleActive(modal.nid)"
     >
-      <div class="modal_header" @mousedown="onResizeStart(modal.nid, $event)">
+      <div class="modal_header"
+           @mousedown="onResizeStart(modal.nid, $event)"
+           @dblclick="modal.layout.fullscreen?resetWindow(modal.nid):fullscreen(modal.nid)"
+      >
         <div class="modal_title">
           {{ modal.base.title }}
         </div>

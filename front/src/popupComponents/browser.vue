@@ -59,17 +59,22 @@ const eventStore = useEventStore();
 const localConfigure = useLocalConfigureStore();
 //------------------
 let ifFullscreen = false;
+//浏览器的缩放不按照弹窗默认的设置
 let resizingEvtKey = eventStore.listen(
   `modal_resizing_${props.modalData.nid}`,
   (data) => {
     // console.info(ifFullscreen, !props.modalData.layout.fullscreen);
     if (ifFullscreen && !props.modalData.layout.fullscreen) {
+      //全屏切普通
       let w = localConfigure.get("browser_layout_w");
       let h = localConfigure.get("browser_layout_h");
       // console.info('from fs', w, h);
       props.modalData.layout.w = w;
       props.modalData.layout.h = h;
+      props.modalData.layout.x = (window.innerWidth - w) / 2;
+      props.modalData.layout.y = (window.innerHeight - h) / 2;
     } else if (!props.modalData.layout.fullscreen) {
+      //普通缩放
       // console.info('set', props.modalData.layout.w);
       localConfigure.set("browser_layout_w", props.modalData.layout.w);
       localConfigure.set("browser_layout_h", props.modalData.layout.h);
@@ -145,6 +150,7 @@ let curNode: Ref<api_node_col> = ref({});
 
 async function getParentDir(pid: number | string): Promise<api_file_list_resp> {
   const res = await query<api_file_list_resp>("file/get", {
+    node_type: 'directory',
     pid: `${pid}`,
     with: 'none',
   } as api_file_list_req);
@@ -159,7 +165,8 @@ async function getList(ext: api_file_list_req = {}) {
   if (ext)
     props.data.query = Object.assign(props.data.query, ext);
   const res = await query<api_file_list_resp>("file/get", props.data.query);
-  if (!res) return;
+  if (!res) return false;
+  if (!res.list.length) return false;
   //
   let index = 0;
   let node = null;
@@ -181,6 +188,7 @@ async function getList(ext: api_file_list_req = {}) {
   // console.info(crumbList);
   onModNav();
   checkNext();
+  return true;
 }
 
 //------------------
@@ -257,6 +265,9 @@ function isValidNav(nextIndex: number) {
 }
 
 function onModNav() {
+  // console.info(curNode.value);
+  // console.info(nodeList.value);
+  // console.info(curIndex.value);
   const changeType = curNode.value.type !== nodeList.value[curIndex.value].type;
   // curIndex.value = locateCurNode(nodeList.value, curNode.value);
   curNode.value = nodeList.value[curIndex.value];
@@ -285,7 +296,7 @@ async function keymap(e: KeyboardEvent) {
   if ((e.target as HTMLElement).tagName !== "BODY") return;
   if (!props.modalData.layout.active) return;
   // console.info(e);
-  let dirNode, parentLsQ, parentLs, len, curParentIndex, targetNode;
+  let dirNode, parentLsQ, parentLs, len, curParentIndex, targetNode, retryCount;
   switch (e.key) {
     case "ArrowLeft":
       if (["audio", "video"].indexOf(curNode.value.type ?? "") !== -1) return;
@@ -295,7 +306,14 @@ async function keymap(e: KeyboardEvent) {
       if (["audio", "video"].indexOf(curNode.value.type ?? "") !== -1) return;
       goNav(curIndex.value, +1);
       break;
+    case "PageUp":
+      goNav(curIndex.value, -1);
+      break;
+    case "PageDown":
+      goNav(curIndex.value, +1);
+      break;
     case '[':
+      //根据全局的排序方法选择下一个目录
       if (!crumbList.value.length) return;
       // const crumbLs = await getParent();
       // if (!crumbLs.path || !crumbLs.path.length) return;
@@ -309,12 +327,16 @@ async function keymap(e: KeyboardEvent) {
       parentLs.forEach((node, index) => {
         if (node.id == props.data.query.pid) curParentIndex = index;
       });
-      curParentIndex -= 1;
-      while (curParentIndex < 0) curParentIndex += len;
-      while (curParentIndex > len - 1) curParentIndex -= len;
-      targetNode = parentLs[curParentIndex];
-      props.data.query.pid = `${targetNode.id}`;
-      await getList();
+      retryCount = parentLs.length;
+      do {
+        curParentIndex -= 1;
+        while (curParentIndex < 0) curParentIndex += len;
+        while (curParentIndex > len - 1) curParentIndex -= len;
+        targetNode = parentLs[curParentIndex];
+        props.data.query.pid = `${targetNode.id}`;
+        const getNxtRst = await getList();
+        if (getNxtRst) break;
+      } while (--retryCount > 0);
       break;
     case ']':
       if (!crumbList.value.length) return;
@@ -330,12 +352,16 @@ async function keymap(e: KeyboardEvent) {
       parentLs.forEach((node, index) => {
         if (node.id == props.data.query.pid) curParentIndex = index;
       });
-      curParentIndex += 1;
-      while (curParentIndex < 0) curParentIndex += len;
-      while (curParentIndex > len - 1) curParentIndex -= len;
-      targetNode = parentLs[curParentIndex];
-      props.data.query.pid = `${targetNode.id}`;
-      await getList();
+      retryCount = parentLs.length;
+      do {
+        curParentIndex += 1;
+        while (curParentIndex < 0) curParentIndex += len;
+        while (curParentIndex > len - 1) curParentIndex -= len;
+        targetNode = parentLs[curParentIndex];
+        props.data.query.pid = `${targetNode.id}`;
+        const getNxtRst = await getList();
+        if (getNxtRst) break;
+      } while (--retryCount > 0);
       break;
     case 'Enter':
       break;
@@ -456,8 +482,8 @@ function setFilter(target: string) {
       </div>
     </template>
     <template v-slot:btnContainer>
-<!--      <div class="btnContainer">-->
-<!--      </div>-->
+      <!--      <div class="btnContainer">-->
+      <!--      </div>-->
       <div class="btnContainer">
         <select v-model="filterVal" @change="setFilter(filterVal)">
           <option v-for="(fileType, key) in def.fileType" :value="fileType">
