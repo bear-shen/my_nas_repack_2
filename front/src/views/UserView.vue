@@ -261,8 +261,8 @@ async function modUser(index: number) {
           <div class="operator">
             <input type="checkbox" v-model="group.status"
                    :id="`UV_G_CB_S_${group.ext_key?group.ext_key:group.id}`"
-                   true-value="1"
-                   false-value="0"
+                   :true-value="1"
+                   :false-value="0"
             />
             <label class="no_bg" :for="`UV_G_CB_S_${group.ext_key?group.ext_key:group.id}`"></label>
             <!--            -->
@@ -324,8 +324,8 @@ async function modUser(index: number) {
             <div>
               <input type="checkbox" v-model="user.status"
                      :id="`UV_U_CB_${user.ext_key?user.ext_key:user.id}`"
-                     true-value="1"
-                     false-value="0"
+                     :true-value="1"
+                     :false-value="0"
               />
               <label class="no_bg" :for="`UV_U_CB_${user.ext_key?user.ext_key:user.id}`"></label>
               <span class="sysIcon sysIcon_save" @click="modUser(index)"></span>
@@ -349,6 +349,9 @@ async function modUser(index: number) {
 
 <style lang="scss">
 .fr_content.view_user {
+  .sysIcon {
+    cursor: pointer;
+  }
   padding-bottom: 0;
   height: 100%;
   display: flex;

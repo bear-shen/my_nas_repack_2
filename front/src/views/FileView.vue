@@ -464,7 +464,7 @@ function triggleLazyLoad() {
         <label v-if="crumbList.length">
           <span>InDir : </span>
           <input type="checkbox" v-model="queryData.dir_only" id="FV_S_CB"
-                 true-value="1"
+                 :true-value="1"
                  false-value=""
           />
           <label for="FV_S_CB"></label>
