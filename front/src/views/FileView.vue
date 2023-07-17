@@ -338,6 +338,10 @@ function emitGo(type: string, code: number) {
   }
 }
 
+function emitSelect(event: MouseEvent, nodeId: number) {
+  console.info('emitSelect', event, nodeId);
+}
+
 function popupDetail(queryData: { [key: string]: any }, curNodeId: number) {
   let w = localConfigure.get("browser_layout_w");
   let h = localConfigure.get("browser_layout_h");
@@ -514,7 +518,7 @@ function triggleLazyLoad() {
         :index="nodeIndex"
         :selected="false"
         @go="emitGo"
-        @on-select=""
+        @on-select="emitSelect"
       ></FileItem>
     </div>
     <!--    @click="selectNode($event,node)"-->

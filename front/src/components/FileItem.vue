@@ -20,7 +20,6 @@ const props = defineProps<{
   node: api_node_col;
   //想了一下, 感觉没有用
   index: number;
-  selected: boolean;
 }>();
 const emits = defineEmits(["go", "onSelect"]);
 //
@@ -382,7 +381,7 @@ async function op_click(evt: MouseEvent) {
   console.info('op_click', props.node.id, evt);
   // console.info(((new Date()).valueOf() - lastClick) / 1000);
   // lastClick = (new Date()).valueOf();
-  // emits("go", 'node', props.node.id);
+  emits("onSelect", evt, props.node.id);
 }
 
 </script>
