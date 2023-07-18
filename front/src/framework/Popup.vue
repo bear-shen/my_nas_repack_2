@@ -89,7 +89,7 @@ function buildModal(modal: ModalConstruct): ModalStruct {
   layout.minH = modal.minH ?? 160;
   layout.resizable = modal.resizable ?? true;
   layout.movable = modal.movable ?? true;
-  layout.active = true;
+  layout.active = false;
   layout.index = diffStamp;
   layout.fullscreen = modal.fullscreen ?? false;
   Object.assign(target.layout, layout);
@@ -281,13 +281,16 @@ function toggleActive(nid: string) {
   modalList.value.forEach((node) => {
     if (node.nid === nid) {
       node.layout.index = diffStamp;
+      let newActive = !node.layout.active;
       node.layout.active = true;
-      setTimeout(() => {
-        const ifInput: null | HTMLInputElement = document.querySelector(`.modal_dom[data-ref-id="${node.nid}"] input`);
-        if (ifInput) {
-          ifInput.focus();
-        }
-      }, 100);
+      if (newActive) {
+        setTimeout(() => {
+          const ifInput: null | HTMLInputElement = document.querySelector(`.modal_dom[data-ref-id="${node.nid}"] input`);
+          if (ifInput) {
+            ifInput.focus();
+          }
+        }, 100);
+      }
     } else {
       node.layout.active = false;
     }
@@ -327,7 +330,7 @@ function resetWindow(nid: string) {
   };
   t.x = (window.innerWidth - t.w) / 2;
   t.y = (window.innerHeight - t.h) / 2;
-   // console.info(t);
+  // console.info(t);
   //
   Object.assign(modal.layout, t);
   // setTimeout(() =>

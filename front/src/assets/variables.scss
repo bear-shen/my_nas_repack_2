@@ -54,7 +54,7 @@ $colorDef_negative: rgba(150, 52, 38, 1);
 $colors: (
   //内容背景
         bk:$colorDef_bk,
-        bk_active:lighten($colorDef_bk, 4%),
+        bk_active:lighten($colorDef_bk, 8%),
   //上标题栏
         bar_horizon:darken($colorDef_bk, 16%),
         bar_horizon_active:darken($colorDef_bk, 12%),

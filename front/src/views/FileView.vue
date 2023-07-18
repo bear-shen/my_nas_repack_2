@@ -447,7 +447,7 @@ function clearSelect() {
   showSelectionOp.value = false;
 }
 
-function bathOp() {
+function bathOp(mode: string) {
 
 }
 
@@ -597,9 +597,9 @@ function triggleLazyLoad() {
       </div>
       <div class="display">
         <template v-if="showSelectionOp">
-          <a>RN</a>
-          <a>MV</a>
-          <a>DEL</a>
+          <a @click="bathOp('rename')">RN</a>
+          <a @click="bathOp('move')">MV</a>
+          <a @click="bathOp('delete')">DEL</a>
           <a class="sysIcon sysIcon_fengefu"></a>
         </template>
         <a class="sysIcon sysIcon_addfolder" @click="addFolder"></a>
