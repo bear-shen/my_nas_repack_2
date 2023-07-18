@@ -22,6 +22,7 @@ const props = defineProps<{
   index: number;
 }>();
 const emits = defineEmits(["go", "onSelect"]);
+
 //
 const localConfigure = useLocalConfigureStore();
 let mode: Ref<string> = ref(localConfigure.get("file_view_mode") ?? "detail");
@@ -196,6 +197,16 @@ function buildBtnDef(key: string) {
       break;
   }
 }
+
+const curDOM: Ref<HTMLElement | null> = ref(null);
+onMounted(() => {
+  // props.node._offsets = [
+  //   curDOM.value?.offsetLeft ?? 0,
+  //   curDOM.value?.offsetTop ?? 0,
+  //   curDOM.value?.offsetWidth ?? 0,
+  //   curDOM.value?.offsetTop ?? 0,
+  // ];
+});
 
 //
 let renaming = ref(false);
@@ -378,16 +389,18 @@ async function op_dblclick(evt: MouseEvent) {
 }
 
 async function op_click(evt: MouseEvent) {
-  console.info('op_click', props.node.id, evt);
+  // console.info('op_click', props.node.id, evt);
   // console.info(((new Date()).valueOf() - lastClick) / 1000);
   // lastClick = (new Date()).valueOf();
-  emits("onSelect", evt, props.node.id);
+  emits("onSelect", evt, props.node);
 }
 
 </script>
 
 <template>
-  <div :class="['node_node', `mode_${mode}`,]" :data-index="index">
+  <div :class="['node_node', `mode_${mode}`,{select:node._selected}]" :data-index="index" ref="curDOM"
+       @click.stop
+  >
     <template v-if="mode === 'detail'">
       <div class="content">
         <template v-if="node.status">
@@ -543,7 +556,7 @@ async function op_click(evt: MouseEvent) {
 
 <style scoped lang="scss">
 .node_node {
-  &:hover, .select {
+  &:hover, &.select {
     background-color: map-get($colors, bk_active);
   }
 }
@@ -715,7 +728,7 @@ async function op_click(evt: MouseEvent) {
   .title {
     font-size: $fontSize;
   }
-  &:hover .title {
+  &:hover .title, &.select .title {
     color: map-get($colors, font);
   }
   //margin: 0 0 $fontSize * 0.5 0;

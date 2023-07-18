@@ -338,8 +338,117 @@ function emitGo(type: string, code: number) {
   }
 }
 
-function emitSelect(event: MouseEvent, nodeId: number) {
-  console.info('emitSelect', event, nodeId);
+const showSelectionOp: Ref<boolean> = ref(false);
+const lastSelectId: Ref<number> = ref(0);
+
+function emitSelect(event: MouseEvent, node: api_node_col) {
+  console.info('emitSelect', event, node);
+  const keyMap = [];
+  if (event.ctrlKey) keyMap.push('ctrl');
+  if (event.shiftKey) keyMap.push('shift');
+  if (event.altKey) keyMap.push('alt');
+  if (event.metaKey) keyMap.push('meta');
+  const keyDef = keyMap.join('_');
+  let f: number, t: number,
+    curNodeIndex: number, prevNodeIndex: number;
+  switch (keyDef) {
+    default:
+      console.info('def');
+      nodeList.value.forEach(item => {
+        if (item.id == node.id) {
+          item._selected = true;
+          // item._selected = !item?._selected;
+          console.info(item._selected);
+        } else {
+          item._selected = false;
+        }
+      });
+      break;
+    case 'ctrl':
+      // console.info('ctrl');
+      nodeList.value.forEach(item => {
+        if (item.id == node.id) {
+          item._selected = !item?._selected;
+        }
+      });
+      break;
+    case 'shift':
+      // console.info('shift');
+      curNodeIndex = -1;
+      prevNodeIndex = -1;
+      nodeList.value.forEach((item, index) => {
+        if (lastSelectId.value && item.id == lastSelectId.value && item._selected) {
+          prevNodeIndex = index;
+        }
+        if (node.id && item.id == node.id) {
+          curNodeIndex = index;
+        }
+      });
+      // console.info(lastSelectId.value, prevNodeIndex, curNodeIndex);
+      if (prevNodeIndex == curNodeIndex) break;
+      if (prevNodeIndex == -1 || curNodeIndex == -1) break;
+      if (prevNodeIndex > curNodeIndex) {
+        f = curNodeIndex;
+        t = prevNodeIndex;
+      } else {
+        t = curNodeIndex;
+        f = prevNodeIndex;
+      }
+      nodeList.value.forEach((item, index) => {
+        if (index < f) item._selected = false;
+        else if (index > t) item._selected = false;
+        else item._selected = true;
+      });
+      break;
+    case 'ctrl_shift':
+      curNodeIndex = -1;
+      prevNodeIndex = -1;
+      nodeList.value.forEach((item, index) => {
+        if (lastSelectId.value && item.id == lastSelectId.value && item._selected) {
+          prevNodeIndex = index;
+        }
+        if (node.id && item.id == node.id) {
+          curNodeIndex = index;
+        }
+      });
+      // console.info(lastSelectId.value, prevNodeIndex, curNodeIndex);
+      if (prevNodeIndex == curNodeIndex) break;
+      if (prevNodeIndex == -1 || curNodeIndex == -1) break;
+      if (prevNodeIndex > curNodeIndex) {
+        f = curNodeIndex;
+        t = prevNodeIndex;
+      } else {
+        t = curNodeIndex;
+        f = prevNodeIndex;
+      }
+      for (let i1 = f; i1 <= t; i1++) {
+        nodeList.value[i1]._selected = true;
+      }
+      break;
+    case 'ctrl_alt':
+      break;
+    case 'shift_alt':
+      break;
+  }
+  //
+  let selectCount = 0;
+  nodeList.value.forEach(item => {
+    if (item._selected) selectCount += 1;
+  });
+  //
+  showSelectionOp.value = selectCount > 0;
+  lastSelectId.value = node.id ?? 0;
+}
+
+function clearSelect() {
+  nodeList.value.forEach(item => {
+    item._selected = false;
+  });
+  showSelectionOp.value = false;
+}
+
+function bathOp() {
+
 }
 
 function popupDetail(queryData: { [key: string]: any }, curNodeId: number) {
@@ -487,6 +596,12 @@ function triggleLazyLoad() {
         </label>
       </div>
       <div class="display">
+        <template v-if="showSelectionOp">
+          <a>RN</a>
+          <a>MV</a>
+          <a>DEL</a>
+          <a class="sysIcon sysIcon_fengefu"></a>
+        </template>
         <a class="sysIcon sysIcon_addfolder" @click="addFolder"></a>
         <a class="sysIcon sysIcon_addfile" @click="addFile"></a>
         <a class="sysIcon sysIcon_fengefu"></a>
@@ -510,7 +625,7 @@ function triggleLazyLoad() {
         ></a>
       </div>
     </div>
-    <div :class="['content_detail', `mode_${mode}`]">
+    <div :class="['content_detail', `mode_${mode}`]" @click="clearSelect">
       <FileItem
         v-for="(node, nodeIndex) in nodeList"
         :key="nodeIndex"
@@ -565,13 +680,16 @@ function triggleLazyLoad() {
       padding: 0 0.125em;
       display: inline-block;
     }
+    a:hover {
+      background-color: map-get($colors, bar_meta_active);
+    }
     .crumb {
       white-space: nowrap;
       .item {
         padding-left: $fontSize * 0.25;
       }
       .item:hover {
-        background-color: map-get($colors, bk);
+        background-color: map-get($colors, bar_meta_active);
       }
       .item::after {
         content: "/";
