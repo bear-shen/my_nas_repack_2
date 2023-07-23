@@ -169,8 +169,8 @@ function setZoom(e?: WheelEvent, dir?: number) {
   do {
     curNid = eDOM.getAttribute("data-ref-id");
     if (curNid) break;
-    if (!eDOM.parentNode) break;
-    eDOM = eDOM.parentNode as HTMLElement;
+    if (!eDOM.parentElement) break;
+    eDOM = eDOM.parentElement as HTMLElement;
     if (eDOM.tagName === "BODY") break;
   } while (true);
   if (curNid !== props.modalData.nid) return;

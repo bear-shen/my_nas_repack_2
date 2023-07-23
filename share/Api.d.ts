@@ -21,6 +21,7 @@ export type api_node_col = {
         )[],
     crumb_node?: col_node[],
     _selected?: boolean,
+    //l t r b
     _offsets?: number[],
 } & col_node
 

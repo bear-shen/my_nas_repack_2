@@ -515,14 +515,39 @@ onUnmounted(() => {
 
 function keymap(e: KeyboardEvent) {
   // console.info(e);
-  if ((e.target as HTMLElement).tagName !== "BODY") return;
   switch (e.key) {
     case 'Escape':
+      if ((e.target as HTMLElement).tagName !== "BODY") return;
       modalList.value.forEach((value, key) => {
         if (value.layout.active) {
           close(value.nid);
         }
       });
+      break;
+    case 'NumpadEnter':
+    case 'Enter':
+      if ((e.target as HTMLElement).tagName === "BODY") return;
+      if (e.isComposing) return;
+      let target: HTMLElement | null = (e.target as HTMLElement);
+      while (true) {
+        if (!target.parentElement) break;
+        target = target.parentElement;
+        const isModalDOM = target.classList.contains('modal_dom');
+        console.info(isModalDOM);
+        if (!isModalDOM) continue;
+        const nid = target.getAttribute('data-ref-id');
+        console.info(nid);
+        if (!nid) break;
+        const modal = modalList.value.get(nid);
+        console.info(modal);
+        if (!modal) break;
+        for (let i1 = 0; i1 < modal.callback.length; i1++) {
+          const key = modal.callback[i1].key;
+          return onCallback(nid, key);
+          break;
+        }
+        modal
+      }
       break;
   }
 }
@@ -645,12 +670,11 @@ function keymap(e: KeyboardEvent) {
         </div>
       </div>
       <div class="modal_content">
-        <p
+        <div
           class="modal_content_text"
           v-if="modal.content.text && modal.content.text.length"
-        >
-          {{ modal.content.text }}
-        </p>
+          v-html="modal.content.text"
+        ></div>
         <div
           class="modal_content_form"
           v-if="modal.content.form && modal.content.form.length"
@@ -763,7 +787,7 @@ function keymap(e: KeyboardEvent) {
   <div class="fr_alpha" v-if="usingAlpha"></div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss">
 .fr_popup {
   pointer-events: none;
   left: 0;
@@ -949,6 +973,18 @@ function keymap(e: KeyboardEvent) {
     justify-content: space-around;
   }
   //  .modal_content_content{}
+}
+.modal_dom table {
+  width: 100%;
+  tr td {
+    text-align: center;
+  }
+  tr td:first-child {
+    text-align: left;
+  }
+  tr td:last-child {
+    text-align: right;
+  }
 }
 .fr_alpha {
   //pointer-events: none;

@@ -27,6 +27,7 @@ import type {
   api_node_col, api_file_mkdir_req, api_file_mkdir_resp,
 } from "../../../share/Api";
 import {useModalStore} from "@/stores/modalStore";
+import type {ModalConstruct} from '@/modal';
 
 const modalStore = useModalStore();
 const contentDOM: Ref<HTMLElement | null> = ref(null);
@@ -273,6 +274,76 @@ function setSort(sortVal: string) {
   }, 50);
 }
 
+let selecting = false;
+let selectingOffset = [[0, 0,], [0, 0,],];
+const preSelectedNodeIndexSet = new Set<number>();
+let selectingKeyDef = '';
+
+function mouseDownEvt(e: MouseEvent) {
+  console.info('mouseDownEvt');
+  e.preventDefault();
+  selectingOffset[0] = [e.x, e.y,];
+  selectingOffset[1] = [e.x, e.y,];
+  preSelectedNodeIndexSet.clear();
+  nodeList.value.forEach((node, index) => {
+    if (node._selected)
+      preSelectedNodeIndexSet.add(index)
+  });
+  selecting = true;
+  //
+  const keyMap = [];
+  if (e.ctrlKey) keyMap.push('ctrl');
+  if (e.shiftKey) keyMap.push('shift');
+  if (e.altKey) keyMap.push('alt');
+  if (e.metaKey) keyMap.push('meta');
+  selectingKeyDef = keyMap.join('_');
+}
+
+function mouseMoveEvt(e: MouseEvent) {
+  console.info('mouseMoveEvt', selecting);
+  if (!selecting) return;
+  e.preventDefault();
+  selectingOffset[1] = [e.x, e.y,];
+  let retL = selectingOffset[0][0] > selectingOffset[1][0] ? selectingOffset[1][0] : selectingOffset[0][0];
+  let retT = selectingOffset[0][1] > selectingOffset[1][1] ? selectingOffset[1][1] : selectingOffset[0][1];
+  let retR = selectingOffset[0][0] < selectingOffset[1][0] ? selectingOffset[1][0] : selectingOffset[0][0];
+  let retB = selectingOffset[0][1] < selectingOffset[1][1] ? selectingOffset[1][1] : selectingOffset[0][1];
+  const selIndexLs = new Set<number>();
+  nodeList.value.forEach((node, index) => {
+    if (!node._offsets) return;
+    //有一个点，在选择的矩形内部
+    let nodeL: number = node?._offsets[0];
+    let nodeT: number = node?._offsets[1];
+    let nodeR: number = node?._offsets[2];
+    let nodeB: number = node?._offsets[3];
+    //左上在矩形中 右下在矩形中 矩形在节点中
+    let inH = (nodeL >= retL && nodeL <= retR) || (nodeR >= retL && nodeR <= retR) || (nodeL <= retR && nodeR >= retL);
+    let inV = (nodeT >= retT && nodeT <= retB) || (nodeB >= retT && nodeB <= retB) || (nodeT <= retB && nodeB >= retT);
+    // if (node.id == 3254) {
+    //   console.info(retL, retT, retR, retB, nodeL >= retL, nodeL <= retR, nodeR >= retL, nodeR <= retR);
+    //   console.info(nodeL, nodeT, nodeR, nodeB, nodeT >= retT, nodeT <= retB, nodeB >= retT, nodeB <= retB);
+    //   console.info(inH);
+    //   console.info(inV);
+    // }
+    if (!inH || !inV) return;
+    // node._selected = true;
+    selIndexLs.add(index);
+  });
+  nodeList.value.forEach((node, index) => {
+    let selected = false;
+    if (selIndexLs.has(index)) selected = true;
+    if (preSelectedNodeIndexSet.has(index)) selected = true;
+    node._selected = selected;
+  });
+}
+
+function mouseUpEvt(e: MouseEvent) {
+  console.info('mouseUpEvt');
+  selecting = false;
+  e.preventDefault();
+  selectingOffset = [[0, 0,], [0, 0,],];
+}
+
 onMounted(async () => {
   console.info('onMounted');
   localConfigure.release("file_view_mode", modeKey);
@@ -281,11 +352,17 @@ onMounted(async () => {
   if (contentDOM.value) {
     contentDOM.value.addEventListener("scroll", lazyLoad);
   }
+  addEventListener('mousedown', mouseDownEvt);
+  addEventListener('mousemove', mouseMoveEvt);
+  addEventListener('mouseup', mouseUpEvt);
 });
 onUnmounted(() => {
   if (contentDOM.value) {
     contentDOM.value.removeEventListener("scroll", lazyLoad);
   }
+  removeEventListener('mousedown', mouseDownEvt);
+  removeEventListener('mousemove', mouseMoveEvt);
+  removeEventListener('mouseup', mouseUpEvt);
 });
 
 //
@@ -448,7 +525,51 @@ function clearSelect() {
 }
 
 function bathOp(mode: string) {
-
+  const subNodeLs: api_node_col[] = [];
+  nodeList.value.forEach(item => {
+    if (item._selected) subNodeLs.push(item);
+  });
+  switch (mode) {
+    case 'rename':
+      modalStore.set({
+        title: `bath rename`,
+        alpha: false,
+        key: "",
+        single: false,
+        w: 400,
+        h: 220,
+        minW: 400,
+        minH: 220,
+        // h: 160,
+        resizable: false,
+        movable: true,
+        fullscreen: false,
+        text: `<p>rename pattern:</p>
+<table>
+<tr><td>code</td><td>description</td></tr>
+<tr><td>{filename}</td><td>file name</td></tr>
+<tr><td>{index}</td><td>index by sort</td></tr>
+<tr><td>{directory}</td><td>parent directory name</td></tr>
+`,
+        form: [
+          {
+            label: 'pattern',
+            type: 'text',
+            value: '{index}_{filename}',
+          }
+        ],
+        callback: {
+          submit: async (modal) => {
+            console.info('on submit', subNodeLs);
+          },
+        },
+      } as ModalConstruct);
+      break;
+    case 'move':
+      break;
+    case 'delete':
+      break;
+  }
 }
 
 function popupDetail(queryData: { [key: string]: any }, curNodeId: number) {

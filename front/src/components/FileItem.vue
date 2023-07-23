@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {useLocalConfigureStore} from "@/stores/localConfigure";
-import {onMounted, type Ref, ref} from "vue";
+import {onMounted, onUnmounted, type Ref, ref} from "vue";
 import type {
   api_tag_col, api_node_col, api_file_list_req, api_file_mov_req,
   api_tag_list_resp, api_tag_list_req, api_file_mov_resp, api_file_cover_req,
@@ -31,6 +31,7 @@ const modeKey = localConfigure.listen(
   (v) => {
     mode.value = v;
     buildBtnDef(mode.value + '_' + (props.node.status ? 'enabled' : 'disabled'));
+    reloadOffset();
   }
 );
 
@@ -198,16 +199,28 @@ function buildBtnDef(key: string) {
   }
 }
 
+
+function reloadOffset(e?: UIEvent) {
+  GenFunc.debounce(() => {
+    if (!curDOM.value) return;
+    // console.info(evt);
+    let l = 0, t = 0, r = 0, b = 0;
+    l = GenFunc.nodeOffsetX(curDOM.value);
+    t = GenFunc.nodeOffsetY(curDOM.value);
+    r = l + curDOM.value?.offsetWidth;
+    b = t + curDOM.value?.offsetHeight;
+    props.node._offsets = [l, t, r, b,];
+  }, 1000, `debounce_node_resize_${props.node.id}`);
+}
+
 const curDOM: Ref<HTMLElement | null> = ref(null);
 onMounted(() => {
-  // props.node._offsets = [
-  //   curDOM.value?.offsetLeft ?? 0,
-  //   curDOM.value?.offsetTop ?? 0,
-  //   curDOM.value?.offsetWidth ?? 0,
-  //   curDOM.value?.offsetTop ?? 0,
-  // ];
+  reloadOffset();
+  window.addEventListener("resize", reloadOffset);
 });
-
+onUnmounted(() => {
+  window.removeEventListener("resize", reloadOffset);
+});
 //
 let renaming = ref(false);
 let tagging = ref(false);
@@ -398,7 +411,10 @@ async function op_click(evt: MouseEvent) {
 </script>
 
 <template>
-  <div :class="['node_node', `mode_${mode}`,{select:node._selected}]" :data-index="index" ref="curDOM"
+  <div :class="['node_node', `mode_${mode}`,{select:node._selected}]"
+       :data-index="index"
+       :data-id="node.id"
+       ref="curDOM"
        @click.stop
   >
     <template v-if="mode === 'detail'">
