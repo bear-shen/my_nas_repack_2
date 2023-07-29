@@ -275,6 +275,7 @@ function setSort(sortVal: string) {
 }
 
 let selecting = false;
+let selectingMovEvtCount = 0;
 let selectingOffset = [[0, 0,], [0, 0,],];
 const preSelectedNodeIndexSet = new Set<number>();
 let selectingKeyDef = '';
@@ -290,6 +291,8 @@ function mouseDownEvt(e: MouseEvent) {
       preSelectedNodeIndexSet.add(index)
   });
   selecting = true;
+  selectingMovEvtCount = 0;
+  // setTimeout(() => selecting = true, 50);
   //
   const keyMap = [];
   if (e.ctrlKey) keyMap.push('ctrl');
@@ -297,11 +300,24 @@ function mouseDownEvt(e: MouseEvent) {
   if (e.altKey) keyMap.push('alt');
   if (e.metaKey) keyMap.push('meta');
   selectingKeyDef = keyMap.join('_');
+  switch (selectingKeyDef) {
+    case 'shift':
+    case 'ctrl_shift':
+    case 'ctrl_alt':
+    case 'shift_alt':
+    default:
+      preSelectedNodeIndexSet.clear();
+      break;
+    case 'ctrl':
+      break;
+  }
 }
 
 function mouseMoveEvt(e: MouseEvent) {
-  console.info('mouseMoveEvt', selecting);
   if (!selecting) return;
+  console.info('mouseMoveEvt', selecting, selectingMovEvtCount);
+  selectingMovEvtCount += 1;
+  if (selectingMovEvtCount < 10) return;
   e.preventDefault();
   selectingOffset[1] = [e.x, e.y,];
   let retL = selectingOffset[0][0] > selectingOffset[1][0] ? selectingOffset[1][0] : selectingOffset[0][0];
@@ -329,18 +345,25 @@ function mouseMoveEvt(e: MouseEvent) {
     // node._selected = true;
     selIndexLs.add(index);
   });
+  // console.info(selIndexLs);
   nodeList.value.forEach((node, index) => {
     let selected = false;
     if (selIndexLs.has(index)) selected = true;
     if (preSelectedNodeIndexSet.has(index)) selected = true;
     node._selected = selected;
+    // console.info(node._selected);
   });
 }
 
 function mouseUpEvt(e: MouseEvent) {
+  // return;
+  if (!selecting) return;
   console.info('mouseUpEvt');
-  selecting = false;
   e.preventDefault();
+  // e.stopPropagation();
+  selecting = false;
+  selectingMovEvtCount = 0;
+  // setTimeout(() => notSelecting = false, 200);
   selectingOffset = [[0, 0,], [0, 0,],];
 }
 
@@ -419,6 +442,7 @@ const showSelectionOp: Ref<boolean> = ref(false);
 const lastSelectId: Ref<number> = ref(0);
 
 function emitSelect(event: MouseEvent, node: api_node_col) {
+  // if (!notSelecting) return;
   console.info('emitSelect', event, node);
   const keyMap = [];
   if (event.ctrlKey) keyMap.push('ctrl');
@@ -518,6 +542,7 @@ function emitSelect(event: MouseEvent, node: api_node_col) {
 }
 
 function clearSelect() {
+  console.warn('clearSelect')
   nodeList.value.forEach(item => {
     item._selected = false;
   });
@@ -746,7 +771,9 @@ function triggleLazyLoad() {
         ></a>
       </div>
     </div>
-    <div :class="['content_detail', `mode_${mode}`]" @click="clearSelect">
+    <!--    @click="clearSelect"-->
+    <div :class="['content_detail', `mode_${mode}`]"
+    >
       <FileItem
         v-for="(node, nodeIndex) in nodeList"
         :key="nodeIndex"
