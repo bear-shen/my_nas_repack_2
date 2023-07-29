@@ -384,7 +384,7 @@ function onResizeStart(modalNid: string, e: MouseEvent) {
 
 function onResizing(e: MouseEvent) {
   e.preventDefault();
-  e.stopPropagation();
+  // e.stopPropagation();
   if (!resizing.modal) return;
   // console.info(e.type);
   const d = {x: e.clientX - resizing.x, y: e.clientY - resizing.y};

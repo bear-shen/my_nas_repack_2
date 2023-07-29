@@ -146,7 +146,7 @@ function onDragging(e: MouseEvent) {
 
 document.addEventListener("mousemove", function (e: MouseEvent) {
   e.preventDefault();
-  e.stopPropagation();
+  // e.stopPropagation();
   if (!dragData.active) return;
   const layout = imgLayout.value;
   const d = {
