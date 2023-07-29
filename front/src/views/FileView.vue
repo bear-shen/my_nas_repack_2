@@ -315,9 +315,10 @@ function mouseDownEvt(e: MouseEvent) {
 
 function mouseMoveEvt(e: MouseEvent) {
   if (!selecting) return;
-  console.info('mouseMoveEvt', selecting, selectingMovEvtCount);
+  //有时候click会触发到mousemove事件，做个防抖
   selectingMovEvtCount += 1;
   if (selectingMovEvtCount < 10) return;
+  console.info('mouseMoveEvt', selecting);
   e.preventDefault();
   selectingOffset[1] = [e.x, e.y,];
   let retL = selectingOffset[0][0] > selectingOffset[1][0] ? selectingOffset[1][0] : selectingOffset[0][0];
@@ -363,8 +364,9 @@ function mouseUpEvt(e: MouseEvent) {
   // e.stopPropagation();
   selecting = false;
   selectingMovEvtCount = 0;
-  // setTimeout(() => notSelecting = false, 200);
   selectingOffset = [[0, 0,], [0, 0,],];
+  preSelectedNodeIndexSet.clear();
+  selectingKeyDef = '';
 }
 
 onMounted(async () => {
