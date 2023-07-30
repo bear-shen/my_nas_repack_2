@@ -367,4 +367,19 @@ export default class {
         });
         return curNode;
     }
+
+    async bath_rename(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<false | any> {
+        const request = data.fields as api_file_rebuild_req;
+        const patternDef=[
+            '{filename}',
+            '{index}',
+            '{directory}',
+        ];
+    }
+
+    async bath_delete(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<false | any> {
+    }
+
+    async bath_move(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<false | any> {
+    }
 };

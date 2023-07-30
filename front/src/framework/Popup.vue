@@ -517,7 +517,8 @@ function keymap(e: KeyboardEvent) {
   // console.info(e);
   switch (e.key) {
     case 'Escape':
-      if ((e.target as HTMLElement).tagName !== "BODY") return;
+      // 这个想不起来是为啥加的了，
+      // if ((e.target as HTMLElement).tagName !== "BODY") return;
       modalList.value.forEach((value, key) => {
         if (value.layout.active) {
           close(value.nid);

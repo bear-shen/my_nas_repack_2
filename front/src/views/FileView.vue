@@ -354,6 +354,7 @@ function mouseMoveEvt(e: MouseEvent) {
     node._selected = selected;
     // console.info(node._selected);
   });
+  showSelectionOp.value = preSelectedNodeIndexSet.size + selIndexLs.size > 0;
 }
 
 function mouseUpEvt(e: MouseEvent) {
@@ -362,11 +363,13 @@ function mouseUpEvt(e: MouseEvent) {
   console.info('mouseUpEvt');
   e.preventDefault();
   // e.stopPropagation();
-  selecting = false;
-  selectingMovEvtCount = 0;
-  selectingOffset = [[0, 0,], [0, 0,],];
-  preSelectedNodeIndexSet.clear();
-  selectingKeyDef = '';
+  setTimeout(() => {
+    selecting = false;
+    selectingMovEvtCount = 0;
+    selectingOffset = [[0, 0,], [0, 0,],];
+    preSelectedNodeIndexSet.clear();
+    selectingKeyDef = '';
+  }, 50);
 }
 
 onMounted(async () => {
@@ -544,7 +547,8 @@ function emitSelect(event: MouseEvent, node: api_node_col) {
 }
 
 function clearSelect() {
-  console.warn('clearSelect')
+  console.warn('clearSelect', selecting)
+  if (selecting) return;
   nodeList.value.forEach(item => {
     item._selected = false;
   });
@@ -775,6 +779,7 @@ function triggleLazyLoad() {
     </div>
     <!--    @click="clearSelect"-->
     <div :class="['content_detail', `mode_${mode}`]"
+         @click="clearSelect"
     >
       <FileItem
         v-for="(node, nodeIndex) in nodeList"
