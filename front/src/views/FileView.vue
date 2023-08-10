@@ -70,6 +70,13 @@ let queryData = {
   with: "",
   group: "",
 } as api_file_list_req;
+let timeoutDef = {
+  sort: 50,
+  selectEvt: 50,
+  clearEvt: 100,
+  //zzz
+  lazyLoad: 200,
+};
 // let usePid = false;
 //
 // defineProps<{
@@ -271,7 +278,7 @@ function setSort(sortVal: string) {
   nodeList.value = [];
   setTimeout(() => {
     nodeList.value = sortList(preList);
-  }, 50);
+  }, timeoutDef.sort);
 }
 
 let selecting = false;
@@ -280,8 +287,29 @@ let selectingOffset = [[0, 0,], [0, 0,],];
 const preSelectedNodeIndexSet = new Set<number>();
 let selectingKeyDef = '';
 
+function inDetail(e: MouseEvent): boolean {
+  // console.info(e);
+  let inDetail = false;
+  let prop = e.target as Element;
+  while (prop) {
+    console.info(prop);
+    // console.info(prop.classList.contains('content_detail'));
+    // if(props.tagName)
+    if (prop.classList.contains('content_detail')) {
+      inDetail = true;
+      break;
+    }
+    if (!prop.parentElement) break;
+    prop = prop.parentElement;
+    // if(prop.classList)
+  }
+  return inDetail;
+}
+
 function mouseDownEvt(e: MouseEvent) {
   console.info('mouseDownEvt');
+  if (!inDetail(e)) return;
+  // e.stopPropagation();
   e.preventDefault();
   selectingOffset[0] = [e.x, e.y,];
   selectingOffset[1] = [e.x, e.y,];
@@ -369,7 +397,7 @@ function mouseUpEvt(e: MouseEvent) {
     selectingOffset = [[0, 0,], [0, 0,],];
     preSelectedNodeIndexSet.clear();
     selectingKeyDef = '';
-  }, 50);
+  }, timeoutDef.selectEvt);
 }
 
 onMounted(async () => {
@@ -546,13 +574,17 @@ function emitSelect(event: MouseEvent, node: api_node_col) {
   lastSelectId.value = node.id ?? 0;
 }
 
-function clearSelect() {
-  console.warn('clearSelect', selecting)
-  if (selecting) return;
+function clearSelect(e: MouseEvent) {
+  // console.info(e);
+  if (!(e.target as Element).classList.contains('content_detail')) return;
+  // setTimeout(() => {
+  // console.warn('clearSelect', selecting)
+  // if (selecting) return;
   nodeList.value.forEach(item => {
     item._selected = false;
   });
   showSelectionOp.value = false;
+  // }, timeoutDef.clearEvt);
 }
 
 function bathOp(mode: string) {
@@ -579,7 +611,7 @@ function bathOp(mode: string) {
 <table>
 <tr><td>code</td><td>description</td></tr>
 <tr><td>{filename}</td><td>file name</td></tr>
-<tr><td>{index}</td><td>index by sort</td></tr>
+<tr><td>{index:n}</td><td>index by sort, prefix len by [n]</td></tr>
 <tr><td>{directory}</td><td>parent directory name</td></tr>
 `,
         form: [
@@ -592,6 +624,10 @@ function bathOp(mode: string) {
         callback: {
           submit: async (modal) => {
             console.info('on submit', subNodeLs);
+            sortList(subNodeLs);
+            subNodeLs.forEach((node, index) => {
+              node.title = '';
+            })
           },
         },
       } as ModalConstruct);
@@ -683,7 +719,7 @@ let lazyLoadTimer = 0;
 
 function lazyLoad(e: Event) {
   clearTimeout(lazyLoadTimer);
-  lazyLoadTimer = setTimeout(triggleLazyLoad, 200);
+  lazyLoadTimer = setTimeout(triggleLazyLoad, timeoutDef.lazyLoad);
 }
 
 function triggleLazyLoad() {

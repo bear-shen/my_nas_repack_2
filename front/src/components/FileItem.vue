@@ -415,7 +415,6 @@ async function op_click(evt: MouseEvent) {
        :data-index="index"
        :data-id="node.id"
        ref="curDOM"
-       @click.stop
   >
     <template v-if="mode === 'detail'">
       <div class="content">
@@ -447,12 +446,14 @@ async function op_click(evt: MouseEvent) {
             <content-editable
               v-else v-model="node.title"
               class="title editing"
+              @mousedown.stop
             ></content-editable>
             <p v-if="!renaming">{{ node.time_update }}</p>
             <p v-if="!renaming && node.description">{{ node.description }}</p>
             <content-editable
               v-if="renaming" v-model="node.description"
               class="editing"
+              @mousedown.stop
             ></content-editable>
           </template>
           <template v-else>
