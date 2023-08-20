@@ -24,10 +24,11 @@ import FileItem from "@/components/FileItem.vue";
 import type {
   api_file_list_resp,
   api_file_list_req,
-  api_node_col, api_file_mkdir_req, api_file_mkdir_resp,
+  api_node_col, api_file_mkdir_req, api_file_mkdir_resp, api_file_bath_rename_resp,
 } from "../../../share/Api";
 import {useModalStore} from "@/stores/modalStore";
 import type {ModalConstruct} from '@/modal';
+import * as repl from "repl";
 
 const modalStore = useModalStore();
 const contentDOM: Ref<HTMLElement | null> = ref(null);
@@ -611,6 +612,7 @@ function bathOp(mode: string) {
 <table>
 <tr><td>code</td><td>description</td></tr>
 <tr><td>{filename}</td><td>file name</td></tr>
+<tr><td>{index}</td><td>index by sort, prefix by max len+1</td></tr>
 <tr><td>{index:n}</td><td>index by sort, prefix len by [n]</td></tr>
 <tr><td>{directory}</td><td>parent directory name</td></tr>
 `,
@@ -623,11 +625,46 @@ function bathOp(mode: string) {
         ],
         callback: {
           submit: async (modal) => {
-            console.info('on submit', subNodeLs);
+            console.info('on submit', subNodeLs, modal);
             sortList(subNodeLs);
+            let pattern = modal.content.form[0].value;
+            //
+            let defIndexPrefix = subNodeLs.length.toString().length + 1;
+            //
+            let manIndexPrefix = 0;
+            let manIndexKey = '';
+            let matchManIndex = pattern.match(/\{index:(\d+)\}/);
+            if (matchManIndex) {
+              manIndexPrefix = parseInt(matchManIndex[1]);
+              manIndexKey = matchManIndex[0];
+            }
+            //
+            const modMap = new Map<number, string>();
             subNodeLs.forEach((node, index) => {
-              node.title = '';
-            })
+              const parentNode = node.crumb_node ? node.crumb_node[node.crumb_node.length - 1] : null;
+              const parentTitle = parentNode ? parentNode.title : '';
+              //
+              let replaceKV = new Map<string, string>();
+              replaceKV.set('{filename}', node.title ?? '');
+              replaceKV.set('{index}', GenFunc.prefix(index + 1, defIndexPrefix, '0'));
+              replaceKV.set('{directory}', parentTitle ?? '');
+              replaceKV.set(manIndexKey, GenFunc.prefix(index + 1, manIndexPrefix, '0'));
+              let target = pattern;
+              replaceKV.forEach((value, key) => {
+                target.replace(key, value);
+              })
+              modMap.set(node.id ?? 0, target);
+            });
+            const modArr = [] as { id: number, title: string }[];
+            modMap.forEach((value, key) => {
+              modArr.push({id: key, title: value});
+            });
+
+            const queryData = {
+              list: JSON.stringify(modArr)
+            };
+            const res = await query<api_file_bath_rename_resp>("file/bath_rename", queryData);
+            if (!res) return;
           },
         },
       } as ModalConstruct);

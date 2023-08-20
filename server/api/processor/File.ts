@@ -2,7 +2,29 @@ import {Fields} from 'formidable';
 import {PersistentFile} from 'formidable';
 import {IncomingMessage, ServerResponse} from 'http';
 import {ParsedForm} from '../types';
-import {api_file_list_resp, api_node_col, api_file_list_req, api_file_upload_resp, api_file_upload_req, api_file_mkdir_resp, api_file_mkdir_req, api_file_mov_req, api_file_mod_req, api_file_cover_req, api_file_cover_resp, api_file_delete_resp, api_file_delete_req, api_file_rebuild_resp, api_file_rebuild_req} from '../../../share/Api';
+import {
+    api_file_list_resp,
+    api_node_col,
+    api_file_list_req,
+    api_file_upload_resp,
+    api_file_upload_req,
+    api_file_mkdir_resp,
+    api_file_mkdir_req,
+    api_file_mov_req,
+    api_file_mod_req,
+    api_file_cover_req,
+    api_file_cover_resp,
+    api_file_delete_resp,
+    api_file_delete_req,
+    api_file_rebuild_resp,
+    api_file_rebuild_req,
+    api_file_bath_rename_resp,
+    api_file_bath_delete_resp,
+    api_file_bath_delete_req,
+    api_file_bath_move_resp,
+    api_file_bath_move_req,
+    api_file_bath_rename_req
+} from '../../../share/Api';
 import NodeModel from '../../model/NodeModel';
 import GenFunc from '../../../share/GenFunc';
 import {col_node, col_tag} from '../../../share/Database';
@@ -368,18 +390,74 @@ export default class {
         return curNode;
     }
 
-    async bath_rename(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<false | any> {
-        const request = data.fields as api_file_rebuild_req;
-        const patternDef=[
-            '{filename}',
-            '{index}',
-            '{directory}',
-        ];
+    async bath_rename(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_bath_rename_resp | any> {
+        const request = data.fields as api_file_bath_rename_req;
+        const list: { id: number, title: string }[] = JSON.parse(request.list);
+        //
+        for (const item of list) {
+            await fp.mv(item.id, -1, item.title);
+            await (new QueueModel).insert({
+                type: 'file/rebuildIndex',
+                payload: {id: item.id},
+                status: 1,
+            });
+        }
     }
 
-    async bath_delete(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<false | any> {
+    async bath_delete(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_bath_delete_resp | any> {
+        const request = data.fields as api_file_bath_delete_req;
+        const list = request.id_list.split(',');
+        //
+        for (const nodeId of list) {
+            await fp.rm(parseInt(nodeId));
+        }
     }
 
-    async bath_move(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<false | any> {
+    async bath_move(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_bath_move_resp | any> {
+        const request = data.fields as api_file_bath_move_req;
+        const list = request.id_list.split(',');
+        //
+        for (const nodeId of list) {
+            await fp.mv(parseInt(nodeId), parseInt(request.id_parent));
+        }
     }
 };
+
+// sync with front/src/views/FileView.vue
+function sortList(list: col_node[], sortVal: string) {
+    let sortType: [keyof col_node, string] = ['id', 'asc'];
+    switch (sortVal) {
+        default:
+        case 'id_asc':
+            sortType = ['id', 'asc',];
+            break;
+        case 'id_desc':
+            sortType = ['id', 'desc',];
+            break;
+        case 'name_asc':
+            sortType = ['title', 'asc',];
+            break;
+        case 'name_desc':
+            sortType = ['title', 'desc',];
+            break;
+        case 'crt_asc':
+            sortType = ['time_create', 'asc',];
+            break;
+        case 'crt_desc':
+            sortType = ['time_create', 'desc',];
+            break;
+        case 'upd_asc':
+            sortType = ['time_update', 'asc',];
+            break;
+        case 'upd_desc':
+            sortType = ['time_update', 'desc',];
+            break;
+    }
+    list.sort((a, b) => {
+        const va = a[sortType[0]];
+        const vb = b[sortType[0]];
+        const rev = sortType[1] == 'desc' ? -1 : 1;
+        return (va ? va : 0) > (vb ? vb : 0) ? rev * 1 : rev * -1;
+    })
+    return list;
+}

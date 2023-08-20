@@ -283,9 +283,13 @@ async function put(fromTmpPath: string, toDir: number | col_node, name: string, 
 
 async function mv(nodeId: number | col_node, toDirId: number | col_node, name: string | false = false, description: string | false = false): Promise<boolean> {
     const node = await getNodeByIdOrNode(nodeId);
-    const toDir = await getNodeByIdOrNode(toDirId);
+    let toDir: col_node | null = null;
+    let sameDir = true;
+    if (toDirId >= 0) {
+        toDir = await getNodeByIdOrNode(toDirId);
+        sameDir = node.id_parent === toDir.id;
+    }
     //
-    const sameDir = node.id_parent === toDir.id;
     if (name) name = titleFilter(name);
     //
     console.info('mv to', toDir.title, name);

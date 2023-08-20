@@ -184,6 +184,21 @@ export type api_file_rebuild_req = {
     id: string,
 }
 export type api_file_rebuild_resp = col_node;
+export type api_file_bath_rename_req = {
+    list: string,
+    // pattern: string,
+    // sort: string,
+}
+export type api_file_bath_rename_resp = col_node[];
+export type api_file_bath_delete_req = {
+    id_list: string,
+}
+export type api_file_bath_delete_resp = col_node[];
+export type api_file_bath_move_req = {
+    id_list: string,
+    id_parent: string,
+}
+export type api_file_bath_move_resp = col_node[];
 
 
 export type api_local_ls_req = {
