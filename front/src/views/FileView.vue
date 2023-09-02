@@ -647,17 +647,21 @@ function bathOp(mode: string) {
               replaceKV.set('{filename}', node.title ?? '');
               replaceKV.set('{index}', GenFunc.prefix(index + 1, defIndexPrefix, '0'));
               replaceKV.set('{directory}', parentTitle ?? '');
-              replaceKV.set(manIndexKey, GenFunc.prefix(index + 1, manIndexPrefix, '0'));
+              replaceKV.set(`{index:${manIndexKey}}`, GenFunc.prefix(index + 1, manIndexPrefix, '0'));
               let target = pattern;
               replaceKV.forEach((value, key) => {
-                target.replace(key, value);
+                // console.info(key, value);
+                target = target.replace(key, value);
               })
+              // console.info(target);
               modMap.set(node.id ?? 0, target);
             });
             const modArr = [] as { id: number, title: string }[];
             modMap.forEach((value, key) => {
               modArr.push({id: key, title: value});
             });
+            // console.info(modArr);
+            // return;
 
             const queryData = {
               list: JSON.stringify(modArr)

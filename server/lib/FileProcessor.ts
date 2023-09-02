@@ -281,21 +281,23 @@ async function put(fromTmpPath: string, toDir: number | col_node, name: string, 
     return Object.assign(nodeInfo, {id: insRes.insertId});
 }
 
-async function mv(nodeId: number | col_node, toDirId: number | col_node, name: string | false = false, description: string | false = false): Promise<boolean> {
+async function mv(nodeId: number | col_node, toDirId: number | col_node | false, name: string | false = false, description: string | false = false): Promise<boolean> {
     const node = await getNodeByIdOrNode(nodeId);
-    let toDir: col_node | null = null;
+    let toDir: col_node | null;
     let sameDir = true;
-    if (['string', 'number', 'bigint'].indexOf(typeof toDirId) !== -1 && parseInt(toDirId as string) > 0) {
+    if (!toDirId || toDirId === -1) {
+        sameDir = true;
+    } else {
         toDir = await getNodeByIdOrNode(toDirId);
         sameDir = node.id_parent === toDir.id;
     }
     //
     if (name) name = titleFilter(name);
     //
-    console.info('mv to', toDir.title, name);
+    console.info('mv to', toDir?.title, name);
     const ifDup = await checkName(toDir.id, name === false ? node.title : name);
     if (ifDup && ifDup.id !== node.id) return false;
-    //
+    //文件夹不同的时候，需要修改文件树
     if (!sameDir) {
         const newNodeList = [...toDir.list_node, toDir.id];
         console.info('newNodeList:', newNodeList);
