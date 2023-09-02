@@ -490,3 +490,6 @@ Subtitle options:
 
 
 PS E:\t\ffmpeg\b
+
+
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i 'mob.mkv' -t 360 -c:v av1_qsv -profile:v main -preset slow -bf 4 -pix_fmt p010le 'mob.t.mp4'

@@ -253,7 +253,7 @@ export default class {
         const fromNode = await (new NodeModel()).where('id', request.node_id).first();
         await fp.mv(parseInt(request.node_id), parseInt(request.target_id));
         (new QueueModel).insert({
-            type: 'file/buildIndex',
+            type: 'file/rebuildIndex',
             payload: {id: request.node_id},
             status: 1,
         });
@@ -265,7 +265,7 @@ export default class {
         const fromNode = await (new NodeModel()).where('id', request.id).first();
         await fp.mv(fromNode.id, fromNode.id_parent, request.title, request.description);
         (new QueueModel).insert({
-            type: 'file/buildIndex',
+            type: 'file/rebuildIndex',
             payload: {id: fromNode.id},
             status: 1,
         });
@@ -274,7 +274,7 @@ export default class {
 
     async upd(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_upload_resp> {
         const request = data.fields as api_file_upload_req;
-        const files = data.files;
+        const files: any[] = data.files;
         // console.info(request);
         // console.info(files);
         // return null;
@@ -282,9 +282,9 @@ export default class {
         for (const filesKey in files) {
             const file = files[filesKey];
             const fileInfo = await fp.put(
-                (file as any).filepath,
+                file.filepath,
                 parseInt(request.pid) ?? 0,
-                (file as any).originalFilename
+                file.originalFilename
             );
             if (!fileInfo) continue;
             resultLs.push(fileInfo);

@@ -28,7 +28,6 @@ import type {
 } from "../../../share/Api";
 import {useModalStore} from "@/stores/modalStore";
 import type {ModalConstruct} from '@/modal';
-import * as repl from "repl";
 
 const modalStore = useModalStore();
 const contentDOM: Ref<HTMLElement | null> = ref(null);

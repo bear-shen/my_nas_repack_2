@@ -285,7 +285,7 @@ async function mv(nodeId: number | col_node, toDirId: number | col_node, name: s
     const node = await getNodeByIdOrNode(nodeId);
     let toDir: col_node | null = null;
     let sameDir = true;
-    if (toDirId >= 0) {
+    if (['string', 'number', 'bigint'].indexOf(typeof toDirId) !== -1 && parseInt(toDirId as string) > 0) {
         toDir = await getNodeByIdOrNode(toDirId);
         sameDir = node.id_parent === toDir.id;
     }

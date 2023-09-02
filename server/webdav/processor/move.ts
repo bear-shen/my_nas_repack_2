@@ -30,7 +30,7 @@ export default async function (req: IncomingMessage, res: ServerResponse) {
     )
     await fp.mv(sourceNode[sourceNode.length - 1], targetDir[targetDir.length - 1], targetName);
     (new QueueModel).insert({
-        type: 'file/buildIndex',
+        type: 'file/rebuildIndex',
         payload: {id: sourceNode[sourceNode.length - 1].id},
         status: 1,
     });
