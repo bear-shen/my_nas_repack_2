@@ -295,7 +295,8 @@ async function mv(nodeId: number | col_node, toDirId: number | col_node | false,
     if (name) name = titleFilter(name);
     //
     console.info('mv to', toDir?.title, name);
-    const ifDup = await checkName(toDir.id, name === false ? node.title : name);
+    let parentId = toDir?.id ?? node.id_parent;
+    const ifDup = await checkName(parentId, name === false ? node.title : name);
     if (ifDup && ifDup.id !== node.id) return false;
     //文件夹不同的时候，需要修改文件树
     if (!sameDir) {
@@ -316,7 +317,7 @@ async function mv(nodeId: number | col_node, toDirId: number | col_node | false,
             });
         }
     }
-    if (name !== false && description !== false) {
+    if (name !== false) {
         const updRes = {
             title: name,
             description: description,

@@ -548,7 +548,10 @@ async function op_click(evt: MouseEvent) {
         ></span>
         <span>{{ node.type }}</span>
       </p>
-      <p class="title">{{ node.title }}</p>
+      <p class="title"
+         @dblclick="op_dblclick"
+         @click="op_click"
+      >{{ node.title }}</p>
       <!--        <p class="title" @click="op_dblclick">{{ node.title }}</p>-->
       <p class="time">{{ node.time_update }}</p>
       <section class="bar">
@@ -717,6 +720,7 @@ async function op_click(evt: MouseEvent) {
   }
   .bar {
     text-align: right;
+    white-space: nowrap;
   }
 }
 .node_node.mode_img {

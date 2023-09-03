@@ -287,12 +287,28 @@ let selectingOffset = [[0, 0,], [0, 0,],];
 const preSelectedNodeIndexSet = new Set<number>();
 let selectingKeyDef = '';
 
+/**
+ * 在内容详情中不启用多选
+ * 事件流程大致是
+ * mouseDown
+ *  记录当前已经选中的文件
+ *  记录按键
+ *  记录起点
+ * mouseMove 单击有几率触发
+ *  计算和添加所选的文件
+ * mouseUp
+ *  清除状态
+ * click 长按情况下不会触发
+ *  实际上也就是为了mouseMove不工作的情况做个兜底
+ *    但是看了看好像没有特别的必要
+ *    日后考虑删掉
+ * */
 function inDetail(e: MouseEvent): boolean {
   // console.info(e);
   let inDetail = false;
   let prop = e.target as Element;
   while (prop) {
-    console.info(prop);
+    // console.info(prop);
     // console.info(prop.classList.contains('content_detail'));
     // if(props.tagName)
     if (prop.classList.contains('content_detail')) {
@@ -307,8 +323,8 @@ function inDetail(e: MouseEvent): boolean {
 }
 
 function mouseDownEvt(e: MouseEvent) {
-  console.info('mouseDownEvt');
   if (!inDetail(e)) return;
+  console.info('mouseDownEvt');
   // e.stopPropagation();
   e.preventDefault();
   selectingOffset[0] = [e.x, e.y,];
@@ -472,11 +488,13 @@ function emitGo(type: string, code: number) {
 }
 
 const showSelectionOp: Ref<boolean> = ref(false);
+//shift用的
 const lastSelectId: Ref<number> = ref(0);
 
 function emitSelect(event: MouseEvent, node: api_node_col) {
   // if (!notSelecting) return;
   console.info('emitSelect', event, node);
+  // return;
   const keyMap = [];
   if (event.ctrlKey) keyMap.push('ctrl');
   if (event.shiftKey) keyMap.push('shift');
@@ -600,9 +618,9 @@ function bathOp(mode: string) {
         key: "",
         single: false,
         w: 400,
-        h: 220,
+        h: 250,
         minW: 400,
-        minH: 220,
+        minH: 250,
         // h: 160,
         resizable: false,
         movable: true,
@@ -667,6 +685,8 @@ function bathOp(mode: string) {
               list: JSON.stringify(modArr)
             };
             const res = await query<api_file_bath_rename_resp>("file/bath_rename", queryData);
+            //同步回列表
+            getList();
             if (!res) return;
           },
         },
