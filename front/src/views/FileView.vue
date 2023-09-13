@@ -24,7 +24,9 @@ import FileItem from "@/components/FileItem.vue";
 import type {
   api_file_list_resp,
   api_file_list_req,
-  api_node_col, api_file_mkdir_req, api_file_mkdir_resp, api_file_bath_rename_resp,
+  api_node_col, api_file_mkdir_req,
+  api_file_mkdir_resp, api_file_bath_rename_resp, api_file_bath_delete_resp,
+  api_file_mov_req,
 } from "../../../share/Api";
 import {useModalStore} from "@/stores/modalStore";
 import type {ModalConstruct} from '@/modal';
@@ -302,6 +304,7 @@ let selectingKeyDef = '';
  *  实际上也就是为了mouseMove不工作的情况做个兜底
  *    但是看了看好像没有特别的必要
  *    日后考虑删掉
+ * @todo click是先写的所以才会有这种问题，后期考虑一下合并
  * */
 function inDetail(e: MouseEvent): boolean {
   // console.info(e);
@@ -605,10 +608,13 @@ function clearSelect(e: MouseEvent) {
   // }, timeoutDef.clearEvt);
 }
 
-function bathOp(mode: string) {
+async function bathOp(mode: string) {
   const subNodeLs: api_node_col[] = [];
+  const subNodeIdLs: Set<number> = new Set<number>();
   nodeList.value.forEach(item => {
-    if (item._selected) subNodeLs.push(item);
+    if (!item._selected) return;
+    subNodeLs.push(item);
+    subNodeIdLs.add(item?.id ?? 0);
   });
   switch (mode) {
     case 'rename':
@@ -693,8 +699,52 @@ function bathOp(mode: string) {
       } as ModalConstruct);
       break;
     case 'move':
+      modalStore.set({
+        title: `locator | move files to:`,
+        alpha: false,
+        key: "",
+        single: false,
+        w: 400,
+        h: 60,
+        minW: 400,
+        minH: 60,
+        // h: 160,
+        resizable: true,
+        movable: false,
+        fullscreen: false,
+        // text: "this is text",
+        component: [
+          {
+            componentName: "locator",
+            data: {
+              query: {
+                type: 'directory',
+              } as api_file_list_req,
+              call: async (targetNode: api_node_col) => {
+                console.info(targetNode);
+                const queryData = {
+                  list: JSON.stringify(Array.from(subNodeIdLs)),
+                  target: targetNode.id
+                };
+                const res = await query<api_file_bath_rename_resp>("file/bath_delete", queryData);
+                //同步回列表
+                getList();
+                if (!res) return;
+                return;
+              }
+            },
+          },
+        ],
+      } as ModalConstruct);
       break;
     case 'delete':
+      const queryData = {
+        list: JSON.stringify(Array.from(subNodeIdLs))
+      };
+      const res = await query<api_file_bath_delete_resp>("file/bath_delete", queryData);
+      //同步回列表
+      getList();
+      if (!res) return;
       break;
   }
 }
