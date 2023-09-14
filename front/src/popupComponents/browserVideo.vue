@@ -1,13 +1,9 @@
 <script setup lang="ts">
 import {onMounted, onUnmounted, ref, type Ref, watch} from "vue";
-import type {ModalConstruct, ModalStruct} from "../modal";
-import {queryDemo, query} from "@/Helper";
-import type {api_node_col, api_file_list_resp} from "../../../share/Api";
-import smp_file_list_resp from "../../../share/sampleApi/smp_file_list_resp";
+import type {ModalStruct} from "../modal";
+import type {api_node_col} from "../../../share/Api";
 import GenFunc from "../../../share/GenFunc";
-import {useEventStore} from "@/stores/event";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
-import type {col_node} from "../../../share/Database";
 
 const localConfigure = useLocalConfigureStore();
 const props = defineProps<{
@@ -159,7 +155,7 @@ function onDragging(e: MouseEvent) {
   if (!timeline) return;
   document.addEventListener("mousemove", mouseMoveListener);
   document.addEventListener("mouseup", mouseUpListener);
-  // console.info(e);
+  // console.info(e, timelineDOM, dom);
   // const layout = imgLayout.value;
   const t = {
     active: true,
@@ -167,8 +163,11 @@ function onDragging(e: MouseEvent) {
     w: timeline.clientWidth,
     orgX: GenFunc.nodeOffsetX(timeline),
   };
+  // console.info(t);
   Object.assign(dragData, t);
   const delta = (t.x - t.orgX) / t.w;
+  // console.info(delta);
+  // return;
   dom.currentTime = dom.duration * delta;
   // console.info("onDragging");
   // console.info(e);

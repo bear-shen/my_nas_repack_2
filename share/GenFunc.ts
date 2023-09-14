@@ -413,6 +413,8 @@ const GenFunc = {
     },
     // dom////////////////////////////////////////////////////////////////////////////////////////
     nodeOffsetX: function (ele: HTMLElement): number {
+        //注意offsetLeft这类方法和transform不兼容
+        //需要引入 ele.getBoundingClientRect().left
         // console.debug(ele, ele.offsetLeft);
         let t = ele.offsetLeft ? ele.offsetLeft : 0;
         if (ele.offsetParent) {

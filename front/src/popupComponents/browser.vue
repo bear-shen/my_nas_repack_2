@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import {onMounted, ref, watch, onUnmounted} from "vue";
 import type {Ref} from "vue";
-import type {ModalConstruct, ModalStruct} from "../modal";
-import {queryDemo, query} from "@/Helper";
-import type {api_node_col, api_file_list_resp, api_file_list_req} from "../../../share/Api";
-import smp_file_list_resp from "../../../share/sampleApi/smp_file_list_resp";
+import {onMounted, onUnmounted, ref} from "vue";
+import type {ModalStruct} from "../modal";
+import {query} from "@/Helper";
+import type {api_file_list_req, api_file_list_resp, api_node_col} from "../../../share/Api";
 import GenFunc from "../../../share/GenFunc";
 import browserBaseVue from "./browserBase.vue";
 import browserImageVue from "./browserImage.vue";
@@ -13,7 +12,7 @@ import browserVideoVue from "./browserVideo.vue";
 import browserPDFVue from "./browserPDF.vue";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {useEventStore} from "@/stores/event";
-import type {type_file, col_node,} from "../../../share/Database";
+import type {col_node, type_file,} from "../../../share/Database";
 //------------------
 const props = defineProps<{
   data: {
@@ -530,6 +529,7 @@ function setFilter(target: string) {
   width: 100%;
   height: 100%;
   position: relative;
+  overflow: hidden;
   //background-color: aqua;
   > div {
     position: absolute;

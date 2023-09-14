@@ -1,34 +1,11 @@
 <script setup lang="ts">
 import {useModalStore} from "@/stores/modalStore";
 import {useEventStore} from "@/stores/event";
-import {
-  defineAsyncComponent,
-  defineComponent,
-  ref,
-  shallowRef,
-  createApp, onMounted, onUnmounted,
-} from "vue";
-import type {
-  ModalFormConstruct,
-  ModalCallbackConstruct,
-  ModalComponentConstruct,
-  ModalLayout,
-  ModalContent,
-  ModalBase,
-  ModalConstruct,
-  ModalStruct,
-} from "@/modal";
-import {isArray} from "@vue/shared";
-import App from "@/App.vue";
+import {onMounted, onUnmounted, ref,} from "vue";
+import type {ModalCallbackConstruct, ModalConstruct, ModalLayout, ModalStruct,} from "@/modal";
 import HelloWorldVue from "@/components/HelloWorld.vue";
 import Browser from "@/popupComponents/browser.vue";
 import Locator from "@/popupComponents/locator.vue";
-import {query} from "@/Helper";
-import type {
-  api_file_list_req, api_node_col,
-  api_user_login_req,
-  api_user_login_resp,
-} from "../../../share/Api";
 import Uploader from "@/popupComponents/uploader.vue";
 
 const componentDefs = {
@@ -633,6 +610,7 @@ function keymap(e: KeyboardEvent) {
 
 <template>
   <div class="fr_popup">
+    <!--    transform:`translate(${modal.layout.x??0}px,${modal.layout.y??0}px)`,-->
     <div
       v-for="[modalIndex, modal] in modalList"
       :key="`_modal_${modalIndex}`"
@@ -647,6 +625,7 @@ function keymap(e: KeyboardEvent) {
       }"
       @click="toggleActive(modal.nid)"
     >
+
       <div class="modal_header"
            @mousedown="onResizeStart(modal.nid, $event)"
            @dblclick="modal.layout.fullscreen?resetWindow(modal.nid):fullscreen(modal.nid)"

@@ -1,9 +1,7 @@
 import {IncomingMessage, ServerResponse} from "http";
-import {Element, ElementCompact} from "xml-js";
+import * as convert from "xml-js";
+import {ElementCompact} from "xml-js";
 import * as fp from "../../lib/FileProcessor";
-
-import * as convert from 'xml-js';
-import {ReadStream} from "fs";
 
 /**
  * header
@@ -15,8 +13,6 @@ import {ReadStream} from "fs";
  * 日期不用utcstring/gmtstring winscp无法识别目录
  * 总结winscp吔屎
  * */
-
-import {Buffer} from "buffer";
 import Config from "../../ServerConfig";
 import {getRelPath, getRequestBuffer, respCode} from "../Lib";
 

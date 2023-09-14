@@ -1,6 +1,10 @@
 import FileJob from "./processor/FileJob";
 import ImportJob from "./processor/ImportJob";
 
+/**
+ * @notice 考虑到现在队列是用worker跑
+ * 可能需要处理线程安全问题
+ * */
 export default {
     'file/build': FileJob.build,
     'file/buildIndex': FileJob.buildIndex,
