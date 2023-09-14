@@ -1,38 +1,33 @@
-import {IncomingMessage, ServerResponse} from "http";
 // import fs from "fs";
-import QueueModel from "../model/QueueModel";
-import FileJob from "./processor/FileJob";
-import jobs from "./jobs";
-import fs from "fs";
+import {Worker} from "worker_threads";
 
 console.info('job watcher init');
 
+const workerThreads = 16;
+const failSleep = 5 * 1000;
+const workerMap: Map<number, Worker> = new Map();
 
-async function run() {
-    while (true) {
-        const ifExs = await (new QueueModel).where('status', 1).order('id').first();
-        if (!ifExs) break;
-        await setStatus(ifExs.id, 2);
-        console.info([ifExs.type, ifExs.payload])
-        if (!jobs[ifExs.type]) {
-            await setStatus(ifExs.id, -2);
-            break;
-        }
-        try {
-            const job = jobs[ifExs.type];
-            await job(ifExs.payload);
-            await setStatus(ifExs.id, 0);
-        } catch (error) {
-            console.info(error);
-            await setStatus(ifExs.id, -1);
-        }
-    }
-    setTimeout(run, 1000);
+for (let i1 = 0; i1 < workerThreads; i1++) {
+    buildThread(i1);
 }
 
-//-2 unknown -1 failed 0 success 1 new
-async function setStatus(queueId: number, status: number) {
-    await (new QueueModel).where('id', queueId).update({status: status});
+function buildThread(index: number) {
+    const worker = new Worker(__dirname + '/worker.js', {
+        workerData: [workerThreads, index,],
+    });
+    console.info('build thread index:', index, ' , id:', worker.threadId);
+    worker.on('online', () => {
+        console.info('main:online:', index, ' , id:', worker.threadId);
+    });
+    worker.on('error', (value) => {
+        console.info('main:error:', index, ' , id:', worker.threadId, value);
+        setTimeout(buildThread.bind(this, index), failSleep);
+    });
+    worker.on('exit', () => {
+        console.info('main:exit', index);
+        //exit之后已经取不到threadId了，不清楚有没有例外情况
+        // if (worker.threadId)
+        workerMap.delete(index);
+    });
+    workerMap.set(index, worker);
 }
-
-run();

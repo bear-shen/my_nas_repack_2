@@ -1,21 +1,19 @@
+import {IncomingMessage, ServerResponse} from "http";
+// import fs from "fs";
 import QueueModel from "../model/QueueModel";
+import FileJob from "./processor/FileJob";
 import jobs from "./jobs";
+import fs from "fs";
 
-const {workerData, threadId} = require('node:worker_threads');
+console.info('job watcher init');
 
-console.info('=================')
-// console.info('worker:', workerData);
-console.info('worker:', threadId);
-
-const threads = workerData[0];
-const threadIndex = workerData[1];
 
 async function run() {
     while (true) {
-        const ifExs = await (new QueueModel).where('status', 1).where(`id%${parseInt(threads)}`, parseInt(threadIndex)).order('id').first();
+        const ifExs = await (new QueueModel).where('status', 1).order('id').first();
         if (!ifExs) break;
         await setStatus(ifExs.id, 2);
-        console.info(threadIndex, [ifExs.type, ifExs.payload])
+        console.info([ifExs.type, ifExs.payload])
         if (!jobs[ifExs.type]) {
             await setStatus(ifExs.id, -2);
             break;
