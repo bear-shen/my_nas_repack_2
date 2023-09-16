@@ -1,11 +1,7 @@
 <script setup lang="ts">
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {onMounted, onUnmounted, type Ref, ref} from "vue";
-import type {
-  api_tag_col, api_node_col, api_file_list_req, api_file_mov_req,
-  api_tag_list_resp, api_tag_list_req, api_file_mov_resp, api_file_cover_req,
-  api_file_delete_req, api_file_delete_resp, api_file_rebuild_req
-} from "../../../share/Api";
+import type {api_file_cover_req, api_file_delete_req, api_file_list_req, api_file_mov_req, api_file_mov_resp, api_file_rebuild_req, api_node_col, api_tag_col, api_tag_list_resp} from "../../../share/Api";
 import {useModalStore} from "@/stores/modalStore";
 import {query} from "@/Helper";
 import ContentEditable from "@/components/ContentEditable.vue";
@@ -591,6 +587,7 @@ async function op_click(evt: MouseEvent) {
   display: block;
   $contentHeight: $fontSize * 5;
   .content {
+    position: relative;
     display: flex;
     min-height: $contentHeight;
     .thumb {
@@ -647,6 +644,8 @@ async function op_click(evt: MouseEvent) {
       }
       dl {
         display: inline-block;
+        //position: relative;
+        //z-index: 1;
         &:hover {
           dd {
             display: block;
@@ -658,10 +657,12 @@ async function op_click(evt: MouseEvent) {
         dd {
           //display: block;
           display: none;
-          position: fixed;
+          position: absolute;
           z-index: 10;
           button {
             display: block;
+            text-align: left;
+            width: max-content;
           }
         }
       }
