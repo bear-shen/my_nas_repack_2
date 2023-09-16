@@ -89,6 +89,54 @@ zzz
 录屏的
 .\ffmpeg.exe -y -f gdigrab -t 30 -framerate 30 -offset_x 0 -offset_y 0 -video_size 1920x1080 -i desktop -c:v hevc_nvenc -pix_fmt p010le -b:v 5000k -maxrate:v 25000k -minrate:v 1000k -bufsize:v 40000k -c:a aac -q:a 1.5 -f flv rtmp://127.0.0.1:12306/myapp/test1
 
+
+.\ffmpeg.exe -y -hwaccel auto -i .\103172653_p1.png -c:v webp -quality 65 -s 640x640 d.webp
+
+.\ffmpeg.exe -y -hwaccel auto -i .\012.png -c:v webp -quality 75 -s 1440x2560 dpre.webp
+
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i 'u305.mp4' -c:v hevc_nvenc -profile:v main10 -preset slow -tune hq -pix_fmt p010le  'u305.exp.mp4'
+
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main10 -preset slow -pix_fmt yuv420p u305.main10.yuv420p.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main10 -preset slow -pix_fmt yuvj420p u305.main10.yuvj420p.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main10 -preset slow -pix_fmt yuv422p u305.main10.yuv422p.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main10 -preset slow -pix_fmt yuvj422p u305.main10.yuvj422p.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main10 -preset slow -pix_fmt yuv444p u305.main10.yuv444p.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main10 -preset slow -pix_fmt yuvj444p u305.main10.yuvj444p.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main10 -preset slow -pix_fmt gbrp u305.main10.gbrp.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main10 -preset slow -pix_fmt yuv420p10le u305.main10.yuv420p10le.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main10 -preset slow -pix_fmt yuv422p10le u305.main10.yuv422p10le.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main10 -preset slow -pix_fmt yuv444p10le u305.main10.yuv444p10le.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main10 -preset slow -pix_fmt gbrp10le u305.main10.gbrp10le.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main10 -preset slow -pix_fmt yuv420p12le u305.main10.yuv420p12le.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main10 -preset slow -pix_fmt yuv422p12le u305.main10.yuv422p12le.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main10 -preset slow -pix_fmt yuv444p12le u305.main10.yuv444p12le.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main10 -preset slow -pix_fmt gbrp12le u305.main10.gbrp12le.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main10 -preset slow -pix_fmt gray u305.main10.gray.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main10 -preset slow -pix_fmt gray10le u305.main10.gray10le.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main10 -preset slow -pix_fmt gray12le u305.main10.gray12le.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main -preset slow -pix_fmt yuv420p u305.main.yuv420p.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main -preset slow -pix_fmt yuvj420p u305.main.yuvj420p.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main -preset slow -pix_fmt yuv422p u305.main.yuv422p.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main -preset slow -pix_fmt yuvj422p u305.main.yuvj422p.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main -preset slow -pix_fmt yuv444p u305.main.yuv444p.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main -preset slow -pix_fmt yuvj444p u305.main.yuvj444p.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main -preset slow -pix_fmt gbrp u305.main.gbrp.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main -preset slow -pix_fmt yuv420p10le u305.main.yuv420p10le.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main -preset slow -pix_fmt yuv422p10le u305.main.yuv422p10le.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main -preset slow -pix_fmt yuv444p10le u305.main.yuv444p10le.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main -preset slow -pix_fmt gbrp10le u305.main.gbrp10le.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main -preset slow -pix_fmt yuv420p12le u305.main.yuv420p12le.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main -preset slow -pix_fmt yuv422p12le u305.main.yuv422p12le.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main -preset slow -pix_fmt yuv444p12le u305.main.yuv444p12le.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main -preset slow -pix_fmt gbrp12le u305.main.gbrp12le.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main -preset slow -pix_fmt gray u305.main.gray.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main -preset slow -pix_fmt gray10le u305.main.gray10le.mp4
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main -preset slow -pix_fmt gray12le u305.main.gray12le.mp4
+
+profile=Main pix_fmt=yuv420p
+profile=Main 10 pix_fmt=yuv420p10le
+
+
 需要rtmp模块才行
 https://github.com/arut/nginx-rtmp-module#example-nginxconf
 rtmp {

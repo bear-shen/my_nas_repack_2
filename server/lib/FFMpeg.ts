@@ -1,6 +1,4 @@
 import Config from "../ServerConfig";
-import * as fs from "fs/promises";
-import {isArray} from "util";
 
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
@@ -22,6 +20,7 @@ type ffMeta = {
         codec_long_name: string;
         profile: string;
         codec_type: string;
+        pix_fmt: string;
         width: number;
         height: number;
         level: number;
@@ -190,10 +189,24 @@ async function videoStr(meta: ffMeta): Promise<string | boolean> {
         const kw = videoConf.allow_codec[i1];
         const track = meta.streams[videoIndex];
         if (track.codec_name.toLowerCase().indexOf(kw) === -1) continue;
-        tranVCodec = false;
+        //hevc部分格式不能播放，这块需要单独判断
+        if (kw !== 'hevc') {
+            tranVCodec = false;
+            break;
+        }
+        switch (track.profile) {
+            case 'Main':
+                if (['yuv420p', 'yuvj420p',].indexOf(track.pix_fmt) !== -1)
+                    tranVCodec = false;
+                break;
+            case 'Main 10':
+                if (['yuv420p10le',].indexOf(track.pix_fmt) !== -1)
+                    tranVCodec = false;
+                break;
+        }
         break;
     }
-    if(audioIndex!==-1) {
+    if (audioIndex !== -1) {
         for (let i1 = 0; i1 < audioConf.allow_codec.length; i1++) {
             const kw = audioConf.allow_codec[i1];
             const track = meta.streams[audioIndex];
