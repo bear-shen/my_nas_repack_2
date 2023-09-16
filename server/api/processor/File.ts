@@ -32,6 +32,7 @@ import FileModel from '../../model/FileModel';
 import * as fp from "../../lib/FileProcessor";
 import Config from "../../ServerConfig";
 import QueueModel from "../../model/QueueModel";
+import ORM from "../../lib/ORM";
 
 export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_list_resp> {
@@ -84,11 +85,11 @@ export default class {
         switch (request.mode) {
             default:
             case 'directory':
-                const pid = parseInt(request.pid);
-                // console.info(pid);
-                // console.info(request);
-                if ((!pid || isNaN(pid)) && request.group == 'deleted') break;
-                model.where('id_parent', pid ?? 0);
+                let pid = parseInt(request.pid);
+                pid = isNaN(pid) ? 0 : pid;
+                if (!pid && request.group == 'deleted') break;
+                //不加toString不出数据，绑定是有值的，不清楚为什么
+                model.where('id_parent', pid.toString());
                 break;
             case 'search':
                 model.where(
