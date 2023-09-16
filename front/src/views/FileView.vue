@@ -1,33 +1,14 @@
 <script setup lang="ts">
-import {watch, ref, onUnmounted} from "vue";
 import type {Ref} from "vue";
-import {
-  useRouter,
-  useRoute,
-  type RouteRecordRaw,
-  type RouteLocationNormalizedLoaded,
-  onBeforeRouteUpdate,
-} from "vue-router";
 // import {routes} from "@/router/index";
-import {onMounted} from "vue";
+import {onMounted, onUnmounted, ref} from "vue";
+import {onBeforeRouteUpdate, useRoute, useRouter,} from "vue-router";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
-import type {
-  col_node,
-  col_file,
-  col_tag_group,
-  col_tag,
-} from "../../../share/Database";
-import {query, queryDemo} from "@/Helper";
-import smp_file_list_resp from "../../../share/sampleApi/smp_file_list_resp";
+import type {col_node,} from "../../../share/Database";
+import {query} from "@/Helper";
 import GenFunc from "../../../share/GenFunc";
 import FileItem from "@/components/FileItem.vue";
-import type {
-  api_file_list_resp,
-  api_file_list_req,
-  api_node_col, api_file_mkdir_req,
-  api_file_mkdir_resp, api_file_bath_rename_resp, api_file_bath_delete_resp,
-  api_file_mov_req,
-} from "../../../share/Api";
+import type {api_file_bath_delete_resp, api_file_bath_move_resp, api_file_bath_rename_resp, api_file_list_req, api_file_list_resp, api_file_mkdir_req, api_file_mkdir_resp, api_node_col,} from "../../../share/Api";
 import {useModalStore} from "@/stores/modalStore";
 import type {ModalConstruct} from '@/modal';
 
@@ -700,7 +681,7 @@ async function bathOp(mode: string) {
       break;
     case 'move':
       modalStore.set({
-        title: `locator | move files to:`,
+        title: `locator | move ${subNodeIdLs.size} files to:`,
         alpha: false,
         key: "",
         single: false,
@@ -723,10 +704,10 @@ async function bathOp(mode: string) {
               call: async (targetNode: api_node_col) => {
                 console.info(targetNode);
                 const queryData = {
-                  list: JSON.stringify(Array.from(subNodeIdLs)),
-                  target: targetNode.id
+                  id_list: Array.from(subNodeIdLs).join(','),
+                  id_parent: targetNode.id
                 };
-                const res = await query<api_file_bath_rename_resp>("file/bath_delete", queryData);
+                const res = await query<api_file_bath_move_resp>("file/bath_move", queryData);
                 //同步回列表
                 getList();
                 if (!res) return;
@@ -739,7 +720,7 @@ async function bathOp(mode: string) {
       break;
     case 'delete':
       const queryData = {
-        list: JSON.stringify(Array.from(subNodeIdLs))
+        id_list: Array.from(subNodeIdLs).join(',')
       };
       const res = await query<api_file_bath_delete_resp>("file/bath_delete", queryData);
       //同步回列表

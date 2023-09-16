@@ -1,29 +1,27 @@
-import {Fields} from 'formidable';
-import {PersistentFile} from 'formidable';
 import {IncomingMessage, ServerResponse} from 'http';
 import {ParsedForm} from '../types';
 import {
-    api_file_list_resp,
-    api_node_col,
-    api_file_list_req,
-    api_file_upload_resp,
-    api_file_upload_req,
-    api_file_mkdir_resp,
-    api_file_mkdir_req,
-    api_file_mov_req,
-    api_file_mod_req,
+    api_file_bath_delete_req,
+    api_file_bath_delete_resp,
+    api_file_bath_move_req,
+    api_file_bath_move_resp,
+    api_file_bath_rename_req,
+    api_file_bath_rename_resp,
     api_file_cover_req,
     api_file_cover_resp,
-    api_file_delete_resp,
     api_file_delete_req,
-    api_file_rebuild_resp,
+    api_file_delete_resp,
+    api_file_list_req,
+    api_file_list_resp,
+    api_file_mkdir_req,
+    api_file_mkdir_resp,
+    api_file_mod_req,
+    api_file_mov_req,
     api_file_rebuild_req,
-    api_file_bath_rename_resp,
-    api_file_bath_delete_resp,
-    api_file_bath_delete_req,
-    api_file_bath_move_resp,
-    api_file_bath_move_req,
-    api_file_bath_rename_req
+    api_file_rebuild_resp,
+    api_file_upload_req,
+    api_file_upload_resp,
+    api_node_col
 } from '../../../share/Api';
 import NodeModel from '../../model/NodeModel';
 import GenFunc from '../../../share/GenFunc';
@@ -34,7 +32,6 @@ import FileModel from '../../model/FileModel';
 import * as fp from "../../lib/FileProcessor";
 import Config from "../../ServerConfig";
 import QueueModel from "../../model/QueueModel";
-import ORM from "../../lib/ORM";
 
 export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_list_resp> {
@@ -87,7 +84,11 @@ export default class {
         switch (request.mode) {
             default:
             case 'directory':
-                model.where('id_parent', request.pid);
+                const pid = parseInt(request.pid);
+                // console.info(pid);
+                // console.info(request);
+                if ((!pid || isNaN(pid)) && request.group == 'deleted') break;
+                model.where('id_parent', pid ?? 0);
                 break;
             case 'search':
                 model.where(
@@ -132,7 +133,10 @@ export default class {
         if (request.limit) {
             model.limit(parseInt(request.limit));
         }
+        // console.info(model.l)
+        // ORM.dumpSql = true;
         const nodeLs: api_node_col[] = await model.select();
+        // ORM.dumpSql=false;
         // console.info(nodeLs);
         //
         const tagIdSet = new Set<number>();
@@ -418,7 +422,13 @@ export default class {
         const list = request.id_list.split(',');
         //
         for (const nodeId of list) {
-            await fp.mv(parseInt(nodeId), parseInt(request.id_parent));
+            const id = parseInt(nodeId);
+            await fp.mv(id, parseInt(request.id_parent));
+            (new QueueModel).insert({
+                type: 'file/rebuildIndex',
+                payload: {id: id},
+                status: 1,
+            });
         }
     }
 };
