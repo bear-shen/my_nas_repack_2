@@ -5,7 +5,6 @@ import * as fs from 'fs/promises';
 import * as fp from "../../lib/FileProcessor";
 import * as lfp from "../../lib/LocalFileProcessor";
 import * as FFMpeg from '../../lib/FFMpeg';
-import Config from "../../ServerConfig";
 import util from "util";
 import TagModel from "../../model/TagModel";
 import TagGroupModel from "../../model/TagGroupModel";

@@ -18,7 +18,6 @@ import TagGroupModel from '../../model/TagGroupModel';
 import FileModel from '../../model/FileModel';
 import * as fp from "../../lib/FileProcessor";
 import * as lfp from "../../lib/LocalFileProcessor";
-import Config from "../../ServerConfig";
 import QueueModel from "../../model/QueueModel";
 
 export default class {

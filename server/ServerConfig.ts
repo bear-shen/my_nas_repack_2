@@ -1,8 +1,9 @@
 import os from 'os';
 import {type_file} from '../share/Database';
 import fs from "fs";
+import SettingModel from "./model/SettingModel";
 
-const ServerConfig = {
+const BaseConfig = {
     // pathPrefix: '/api',
     port: {
         api: 8090,
@@ -198,8 +199,38 @@ const ServerConfig = {
 };
 
 fs.mkdirSync(
-    ServerConfig.path.temp,
+    BaseConfig.path.temp,
     {recursive: true, mode: 0o777}
 );
 
-export default ServerConfig;
+export let loaded = false;
+let serverConfig = {};
+
+async function buildConfig() {
+    const settingArr = await new SettingModel().select();
+
+}
+
+export async function get(key: string = '') {
+    if (!loaded) await buildConfig();
+    if (!key.length) return serverConfig;
+    const keyArr = key.split('.');
+    let target: any = serverConfig;
+    for (let i1 = 0; i1 < keyArr.length; i1++) {
+        target = target[keyArr[i1]];
+    }
+    return target;
+}
+
+//这么搞肯定有问题...但是没想到什么好办法
+export function get_sync(key: string = '') {
+    if (!loaded) buildConfig();
+    if (!key.length) return serverConfig;
+    const keyArr = key.split('.');
+    let target: any = serverConfig;
+    for (let i1 = 0; i1 < keyArr.length; i1++) {
+        target = target[keyArr[i1]];
+    }
+    return target;
+}
+

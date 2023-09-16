@@ -1,7 +1,6 @@
 import {ReadStream, WriteStream} from "fs";
 import {IncomingMessage, ServerResponse} from "http";
-import Util from "../lib/Util";
-import Config from "../ServerConfig";
+import {get as getConfig,get_sync as getConfigSync} from "../ServerConfig";
 import * as fs from 'fs/promises';
 import ErrorCode from "../lib/ErrorCode";
 import * as fsNP from 'fs';
@@ -37,7 +36,7 @@ export function getRequestFile(req: IncomingMessage, res: ServerResponse): Promi
         if (!length) resolve(null);
         //
         let wrote = 0;
-        const reqTmpFilePath = `${Config.path.temp}/${(new Date()).valueOf()}_${Math.random()}`;
+        const reqTmpFilePath = `${getConfigSync().path.temp}/${(new Date()).valueOf()}_${Math.random()}`;
         // const ws = fs.createWriteStream(reqTmpFilePath, { encoding: "binary", highWaterMark: 32 * 1024 * 1024, });
         const ws = fsNP.createWriteStream(reqTmpFilePath, {
             encoding: "binary",
@@ -91,12 +90,12 @@ export function getRelPath(url: string, host: string, res: ServerResponse): stri
     // console.info(url);
     const urlInfo = new URL(url, 'http://' + host);
     const reqPath = decodeURIComponent(urlInfo.pathname);
-    const davRootPos = reqPath.indexOf(Config.path.webdav);
+    const davRootPos = reqPath.indexOf(getConfigSync().path.webdav);
     //
     if (davRootPos === -1) return respCode(404, res);
     if (davRootPos !== 0) return respCode(403, res);
     //
-    let relPath = reqPath.slice(Config.path.webdav.length);
+    let relPath = reqPath.slice(getConfigSync().path.webdav.length);
     if (!relPath.length) relPath = '/';
     if (relPath.indexOf('/') !== 0) {
         return respCode(404, res);

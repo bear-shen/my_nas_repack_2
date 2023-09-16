@@ -1,6 +1,6 @@
 import {Stream} from "stream";
 import crypto from 'node:crypto';
-import Config from "../ServerConfig";
+import {get as getConfig,get_sync as getConfigSync} from "../ServerConfig";
 import * as fs from 'fs/promises';
 import {ReadStream, Stats} from 'fs';
 import * as fsNP from 'fs';
@@ -93,8 +93,9 @@ function getSuffix(fileName: string): string {
 function getType(suffix: string): type_file {
     let ifHit = -1;
     // console.info(suffix);
-    for (const key in Config.suffix) {
-        ifHit = Config.suffix[key].indexOf(suffix);
+    const config=getConfigSync();
+    for (const key in config.suffix) {
+        ifHit = config.suffix[key].indexOf(suffix);
         if (ifHit === -1) continue;
         return key as type_file;
     }
@@ -174,7 +175,7 @@ async function get(nodeId: number | col_node, from: number, to: number): Promise
     const node = await getNodeByIdOrNode(nodeId);
     const file = await (new FileModel).where('id', node.index_file_id.raw).first();
     const relPath = getRelPathByFile(file);
-    const fullPath = Config.path.local + relPath;
+    const fullPath = (await getConfig()).path.local + relPath;
     //
     console.info(fullPath, from, to);
     return fsNP.createReadStream(fullPath, {
@@ -204,7 +205,7 @@ async function putFile(fromTmpPath: string, suffix: string): Promise<col_file> {
     //---------------------------------------
     //先落地
     // console.info('FileProcessor put: node cmp');
-    const targetPath = Config.path.local + getRelPathByFile(fileInfo);
+    const targetPath = (await getConfig()).path.local + getRelPathByFile(fileInfo);
     try {
         await fs.stat(getDir(targetPath));
     } catch (e) {
@@ -241,7 +242,7 @@ async function put(fromTmpPath: string, toDir: number | col_node, name: string, 
     //---------------------------------------
     //先落地
     // console.info('FileProcessor put: node cmp');
-    const targetPath = Config.path.local + getRelPathByFile(fileInfo);
+    const targetPath = (await getConfig()).path.local + getRelPathByFile(fileInfo);
     try {
         await fs.stat(getDir(targetPath));
     } catch (e) {
@@ -354,7 +355,7 @@ async function rmReal(fileId: number | col_file) {
         fileInfo = fileId as col_file;
     // if (!fileInfo) throw new Error('file not found');
     if (!fileInfo) return false;
-    const targetPath = Config.path.local + getRelPathByFile(fileInfo);
+    const targetPath = (await getConfig()).path.local + getRelPathByFile(fileInfo);
     try {
         await fs.stat(getDir(targetPath));
     } catch (e: any) {

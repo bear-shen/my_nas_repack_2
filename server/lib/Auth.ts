@@ -1,6 +1,5 @@
 import { IncomingHttpHeaders, IncomingMessage } from "http";
 import { PersistentFile } from "formidable";
-import Config from "../ServerConfig";
 import AuthModel from "../model/AuthModel";
 const md5 = require('md5');
 

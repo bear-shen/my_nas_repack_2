@@ -2,6 +2,8 @@ import {IncomingMessage, ServerResponse} from "http";
 import * as convert from "xml-js";
 import {ElementCompact} from "xml-js";
 import * as fp from "../../lib/FileProcessor";
+import {get_sync as getConfigSync} from "../../ServerConfig";
+import {getRelPath, getRequestBuffer, respCode} from "../Lib";
 
 /**
  * header
@@ -12,9 +14,8 @@ import * as fp from "../../lib/FileProcessor";
  * path不加斜杠winscp无法识别目录
  * 日期不用utcstring/gmtstring winscp无法识别目录
  * 总结winscp吔屎
+
  * */
-import Config from "../../ServerConfig";
-import {getRelPath, getRequestBuffer, respCode} from "../Lib";
 
 export default async function (req: IncomingMessage, res: ServerResponse) {
     const relPath = getRelPath(req.url, req.headers.host, res);
@@ -155,7 +156,7 @@ function buildRespNode(xmlLs: string[], node: (fp.FileStat & { relPath: string }
         },
         'D:href': {
             _text:
-                Config.path.webdav
+                getConfigSync().path.webdav
                 + encodeURI(node.relPath)
                 //winscp不加这个无法识别为目录，这货不判断prop
                 + (node.type === 'directory' ? '/' : '')

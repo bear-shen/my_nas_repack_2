@@ -107,7 +107,7 @@ const Util = {
                     if (headerEqual === -1) continue;
                     newData[
                         input.header[i1].slice(0, headerEqual).trim()
-                    ] = input.header[i1].slice(headerEqual + 1).trim();
+                        ] = input.header[i1].slice(headerEqual + 1).trim();
                 }
                 input.header = newData;
             }
@@ -297,7 +297,7 @@ const Util = {
             if (!Object.prototype.hasOwnProperty.call(object, k)) continue;
             result.push(k + '=' + object[k]);
         }
-        return Util.implode(result, '&');
+        return result.join('&');
     },
     // string////////////////////////////////////////////////////////////////////////////////////////
     /**

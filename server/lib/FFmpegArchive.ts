@@ -1,4 +1,3 @@
-import Config from "../ServerConfig";
 import * as fs from "fs/promises";
 
 const util = require('util');

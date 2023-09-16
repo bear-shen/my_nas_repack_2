@@ -1,9 +1,7 @@
-import {IncomingMessage, ServerResponse} from "http";
-import fs from "fs";
-import Config from "../ServerConfig";
-import http from "http";
+import http, {IncomingMessage, ServerResponse} from "http";
+import {get as getConfig} from "../ServerConfig";
 import Authorize from "./Authorize";
-import formidable, {Fields, Files, PersistentFile} from "formidable";
+import formidable, {Fields, Files} from "formidable";
 import Router from "./Router";
 import {ParsedForm} from "./types";
 
@@ -64,9 +62,10 @@ const server = http.createServer(async function (req: IncomingMessage, res: Serv
         res.end();
     }
 });
-server.listen(Config.port.api);
-console.info('server now listen on:', Config.port.api);
-
+getConfig().then(config => {
+    server.listen(config.port.api);
+    console.info('server now listen on:', config.port.api);
+});
 
 function parseForm(req: IncomingMessage): Promise<ParsedForm> {
     return new Promise((resolve: any) => {

@@ -1,9 +1,9 @@
-import Config from "../ServerConfig";
+import {get_sync as getConfigSync} from "../ServerConfig";
 
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
-const conf = Config.parser;
+const conf = getConfigSync().parser;
 
 type ffMeta = {
     format: {
@@ -68,7 +68,7 @@ async function subtitleStr(meta: ffMeta): Promise<boolean | Map<string, string>>
     for (let i1 = 0; i1 < meta.streams.length; i1++) {
         if (meta.streams[i1].codec_type != 'subtitle') continue;
         let validCode = false;
-        subConf.allow_codec.forEach(name => {
+        subConf.allow_codec.forEach((name: string) => {
             if (name == meta.streams[i1].codec_name) validCode = true;
         });
         if (!validCode) continue;
@@ -393,7 +393,7 @@ async function imageStr(meta: ffMeta, level: 'cover' | 'preview' | 'image'): Pro
     }
     //
     let noTranType = false;
-    imgConf.allow_container.forEach((type) => {
+    imgConf.allow_container.forEach((type: string) => {
         if (meta.format.format_name.indexOf(type) !== -1) {
             noTranType = true;
         }

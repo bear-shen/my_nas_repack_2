@@ -1,6 +1,6 @@
 import {IncomingMessage, ServerResponse} from "http";
 import * as fp from "../../lib/FileProcessor";
-import Config from "../../ServerConfig";
+import {get as getConfig,get_sync as getConfigSync} from "../../ServerConfig";
 import {getRelPath, getRequestFile, respCode, setResponseFile} from '../Lib';
 import {col_node} from '../../../share/Database';
 
@@ -56,7 +56,7 @@ async function printDir(relPath: col_node, nodePathLs: col_node[], res: ServerRe
     if (pathArr.length) {
         const parPathArr = pathArr.slice(0, pathArr.length - 1);
         tbLs.push(`<tr>
-        <td><a href="${Config.path.webdav}${encodeURI(parPathArr.join(''))}">../</a></td>
+        <td><a href="${getConfigSync().path.webdav}${encodeURI(parPathArr.join(''))}">../</a></td>
         <td>0</td><td>directory</td><td>${relPath.time_create}</td><td>${relPath.time_update}</td>
         </tr>`);
     }
@@ -64,7 +64,7 @@ async function printDir(relPath: col_node, nodePathLs: col_node[], res: ServerRe
     fLs.forEach(f => {
         //        <td><a href="${Config.path.webdav + encodeURI(f.path)}">${f.name}</a></td>
         tbLs.push(`<tr>
-        <td><a href="${Config.path.webdav}${encodeURI(pathArr.join(''))}/${encodeURI(f.title)}">${f.title}</a></td>
+        <td><a href="${getConfigSync().path.webdav}${encodeURI(pathArr.join(''))}/${encodeURI(f.title)}">${f.title}</a></td>
         <td>${f?.file?.raw?.size ?? 0}</td><td>${f.type}</td><td>${f.time_create}</td><td>${f.time_update}</td>
         </tr>`);
     })
