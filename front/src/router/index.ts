@@ -1,11 +1,10 @@
 import FileView_N from '@/views/FileView_N.vue';
-import FileView_F from '@/views/FileView_F.vue';
 import FileView_R from '@/views/FileView_R.vue';
 import {createRouter, createWebHistory, type RouteRecordRaw} from 'vue-router'
 import LocalView from '../views/LocalView.vue'
 import TagView from '../views/TagView.vue'
-import HomeView from '../views/HomeView.vue'
 import UserView from '../views/UserView.vue'
+import SettingView from "@/views/SettingView.vue";
 
 const routes = [
     {
@@ -49,7 +48,7 @@ const routes = [
     {
         path: '/setting',
         name: 'Setting',
-        component: HomeView,
+        component: SettingView,
         meta: {icon: 'sysIcon_setting',},
     },
 ] as RouteRecordRaw[];

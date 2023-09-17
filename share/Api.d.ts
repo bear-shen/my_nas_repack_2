@@ -1,4 +1,4 @@
-import {col_file, col_file_with_path, col_node, col_tag, col_tag_group, col_user, col_user_group, type_file} from './Database';
+import {col_file_with_path, col_node, col_tag, col_tag_group, col_user, col_user_group, type_file} from './Database';
 
 export type api_node_col = {
     is_file?: number,
@@ -292,6 +292,34 @@ export type api_user_mod_req = {
 } & { [key: string]: any };
 
 export type api_user_mod_resp = api_user_mod_req;
+
+export type api_setting_col = {
+    id?: number,
+    name?: string,
+    //接口不转码
+    value?: string,
+    time_create?: string,
+    time_update?: string,
+};
+
+export type api_setting_list_req = {} & { [key: string]: any };
+
+export type api_setting_list_resp =
+    api_setting_col[];
+
+export type api_setting_del_req = {
+    id?: string,
+} & { [key: string]: any };
+export type api_setting_del_resp = {};
+
+export type api_setting_mod_req = {
+    id?: string,
+    name?: string,
+    value?: string,
+    // status?: string,
+} & { [key: string]: any };
+
+export type api_setting_mod_resp = api_setting_mod_req;
 
 
 

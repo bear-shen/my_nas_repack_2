@@ -119,6 +119,7 @@ export type col_setting = {
     id?: number,
     name?: string,
     value?: { [key: string]: any },
+    status?: number,
     time_create?: string,
     time_update?: string,
 }

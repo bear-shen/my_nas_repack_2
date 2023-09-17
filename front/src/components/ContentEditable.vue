@@ -1,8 +1,12 @@
 <script setup lang="ts">
 //https://www.jb51.net/article/246976.htm
-import {onMounted, ref, type Ref, watch} from "vue";
+import {onMounted, ref, type Ref} from "vue";
 
-const emits = defineEmits(["update:modelValue"]);
+const emits = defineEmits([
+  "update:modelValue",
+  "focus",
+  "blur",
+]);
 const props = defineProps<{
   modelValue: any
 }>();
@@ -36,10 +40,12 @@ let blur = false;
 
 function setBlur() {
   blur = true;
+  emits("blur", editor.value);
 }
 
 function setFocus() {
   blur = false;
+  emits("focus", editor.value);
 }
 </script>
 

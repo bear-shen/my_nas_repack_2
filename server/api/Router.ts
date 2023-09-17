@@ -1,5 +1,4 @@
 import {IncomingMessage, ServerResponse} from "http";
-import {Fields, PersistentFile} from "formidable";
 // import ORM from "./lib/ORM";
 // import { conn } from "./lib/SQL";
 import {type RowDataPacket} from "mysql2";
@@ -18,6 +17,7 @@ import Tag from "./processor/Tag";
 import TagGroup from "./processor/TagGroup";
 import Local from "./processor/Local";
 import UserGroup from "./processor/UserGroup";
+import Setting from "./processor/Setting";
 
 type t = RowDataPacket;
 const controllers = {
@@ -27,7 +27,7 @@ const controllers = {
     tag_group: TagGroup,
     user_group: UserGroup,
     local: Local,
-    config: 0,
+    setting: Setting,
     dev: 0,
 }
 
