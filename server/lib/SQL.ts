@@ -1,4 +1,4 @@
-import {get_sync as getConfigSync} from "../ServerConfig";
+import {get as getConfig} from "../ServerConfig";
 import {Pool, PoolOptions} from "mysql2";
 import {Pool as PromisePool} from "mysql2/promise";
 
@@ -7,7 +7,7 @@ let pool: Pool;
 let promisePool: PromisePool;
 
 function init() {
-    const config = getConfigSync();
+    const config = getConfig();
     // console.info('init sql');
     pool = mysql.createPool({
         host: config.db.host,

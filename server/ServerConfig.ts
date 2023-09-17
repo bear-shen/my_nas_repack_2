@@ -204,15 +204,31 @@ fs.mkdirSync(
 );
 
 export let loaded = false;
-let serverConfig = {};
+export let serverConfig = {};
 
-async function buildConfig() {
+export async function loadConfig() {
+    loaded = false;
+    serverConfig = BaseConfig;
     const settingArr = await new SettingModel().select();
-
+    for (let i1 = 0; i1 < settingArr.length; i1++) {
+        const row = settingArr[i1];
+        const keyArr = row.name.split('.');
+        const lastKey = keyArr.pop();
+        let target: any = serverConfig;
+        for (let i1 = 0; i1 < keyArr.length; i1++) {
+            if (!target[keyArr[i1]]) target[keyArr[i1]] = {};
+            target = target[keyArr[i1]];
+        }
+        target[lastKey] = row.value;
+    }
+    // console.info('==========');
+    // console.info(serverConfig);
+    loaded = true;
+    // serverConfig;
 }
 
-export async function get(key: string = '') {
-    if (!loaded) await buildConfig();
+export function get(key: string = '') {
+    // if (!loaded) loadConfig();
     if (!key.length) return serverConfig;
     const keyArr = key.split('.');
     let target: any = serverConfig;
@@ -223,8 +239,8 @@ export async function get(key: string = '') {
 }
 
 //这么搞肯定有问题...但是没想到什么好办法
-export function get_sync(key: string = '') {
-    if (!loaded) buildConfig();
+/*export function get(key: string = '') {
+    // if (!loaded) loadConfig();
     if (!key.length) return serverConfig;
     const keyArr = key.split('.');
     let target: any = serverConfig;
@@ -232,5 +248,5 @@ export function get_sync(key: string = '') {
         target = target[keyArr[i1]];
     }
     return target;
-}
+}*/
 

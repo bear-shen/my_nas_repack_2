@@ -1,9 +1,9 @@
-import {get_sync as getConfigSync} from "../ServerConfig";
+import {get as getConfig} from "../ServerConfig";
 
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
-const conf = getConfigSync().parser;
+const conf = getConfig().parser;
 
 type ffMeta = {
     format: {

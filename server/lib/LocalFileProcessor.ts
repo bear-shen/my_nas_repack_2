@@ -1,6 +1,6 @@
 import {Stream} from "stream";
 import crypto from 'node:crypto';
-import {get as getConfig,get_sync as getConfigSync} from "../ServerConfig";
+import {get as getConfig} from "../ServerConfig";
 import * as fs from 'fs/promises';
 import {ReadStream, Stats} from 'fs';
 import * as fsNP from 'fs';
@@ -40,8 +40,8 @@ function getSuffix(fileName: string): string {
 function getType(suffix: string): string {
     let ifHit = -1;
     // console.info(suffix);
-    for (const key in getConfigSync().suffix) {
-        ifHit = getConfigSync().suffix[key].indexOf(suffix);
+    for (const key in getConfig().suffix) {
+        ifHit = getConfig().suffix[key].indexOf(suffix);
         if (ifHit === -1) continue;
         return key;
     }
@@ -49,7 +49,7 @@ function getType(suffix: string): string {
 }
 
 async function statFromStat(relPath: string, isFullPath?: boolean): Promise<api_local_file_statement> {
-    const localPath = isFullPath ? relPath : (await getConfig()).path.root_local + relPath;
+    const localPath = isFullPath ? relPath : getConfig().path.root_local + relPath;
     // console.info(localPath);
     try {
         const stat = await fs.stat(localPath);
@@ -77,7 +77,7 @@ async function statFromStat(relPath: string, isFullPath?: boolean): Promise<api_
 //dir
 async function ls(path: string): Promise<api_local_file_statement[]> {
     const nPath = path.replace(/\/$/, '');
-    const fList = await fs.readdir((await getConfig()).path.root_local + path);
+    const fList = await fs.readdir(getConfig().path.root_local + path);
     // console.info(fList);
     const targetF = [] as string[];
     fList.forEach(i => {
@@ -94,7 +94,7 @@ async function ls(path: string): Promise<api_local_file_statement[]> {
 }
 
 async function mkdir(relPath: string): Promise<boolean> {
-    const fullPath = (await getConfig()).path.root_local + relPath;
+    const fullPath = getConfig().path.root_local + relPath;
     const nPath = fullPath.replace(/\/$/, '');
     const ifExs = await stat(nPath);
     // console.info(ifExs);
@@ -109,7 +109,7 @@ async function mkdir(relPath: string): Promise<boolean> {
 
 //file
 function get(path: string, from: number, to: number): ReadStream {
-    const fullPath = getConfigSync().path.root_local + path;
+    const fullPath = getConfig().path.root_local + path;
     console.info(fullPath, from, to);
     return fsNP.createReadStream(fullPath, {
         autoClose: true,
@@ -119,13 +119,13 @@ function get(path: string, from: number, to: number): ReadStream {
 }
 
 async function touch(path: string): Promise<boolean> {
-    const fullPath = (await getConfig()).path.root_local + path;
+    const fullPath = getConfig().path.root_local + path;
     await fs.writeFile(fullPath, '');
     return;
 }
 
 async function put(fromTmpPath: string, toPath: string): Promise<boolean> {
-    const targetPath = (await getConfig()).path.root_local + toPath;
+    const targetPath = getConfig().path.root_local + toPath;
     const targetDir = getDir(targetPath);
     if (!statFromStat(targetDir, true)) {
         await fs.mkdir(targetDir, {mode: 0o777, recursive: true})
@@ -135,17 +135,17 @@ async function put(fromTmpPath: string, toPath: string): Promise<boolean> {
 }
 
 async function mv(fromPath: string, toPath: string): Promise<boolean> {
-    await fs.rename((await getConfig()).path.root_local + fromPath, (await getConfig()).path.root_local + toPath);
+    await fs.rename(getConfig().path.root_local + fromPath, getConfig().path.root_local + toPath);
     return;
 }
 
 async function rm(relPath: string): Promise<boolean> {
-    await fs.rm((await getConfig()).path.root_local + relPath, {recursive: true});
+    await fs.rm(getConfig().path.root_local + relPath, {recursive: true});
     return;
 }
 
 async function cp(fromPath: string, toPath: string): Promise<boolean> {
-    await fs.copyFile((await getConfig()).path.root_local + fromPath, (await getConfig()).path.root_local + toPath);
+    await fs.copyFile(getConfig().path.root_local + fromPath, getConfig().path.root_local + toPath);
     return;
 }
 

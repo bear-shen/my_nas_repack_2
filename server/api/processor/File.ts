@@ -30,7 +30,7 @@ import TagModel from '../../model/TagModel';
 import TagGroupModel from '../../model/TagGroupModel';
 import FileModel from '../../model/FileModel';
 import * as fp from "../../lib/FileProcessor";
-import {get as getConfig,get_sync as getConfigSync} from "../../ServerConfig";
+import {get as getConfig} from "../../ServerConfig";
 import QueueModel from "../../model/QueueModel";
 import ORM from "../../lib/ORM";
 
@@ -204,7 +204,7 @@ export default class {
                     const file = fileMap.get(fileId);
                     if (!file) continue;
                     node.file[key] = file;
-                    node.file[key].path = (getConfigSync()).path.api + fp.getRelPathByFile(file);
+                    node.file[key].path = (getConfig()).path.api + fp.getRelPathByFile(file);
                 }
             });
         }

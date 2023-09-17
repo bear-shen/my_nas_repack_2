@@ -1,5 +1,5 @@
 import http, {IncomingMessage, ServerResponse} from "http";
-import {get as getConfig} from "../ServerConfig";
+import {get as getConfig, loadConfig} from "../ServerConfig";
 import Authorize from "./Authorize";
 import formidable, {Fields, Files} from "formidable";
 import Router from "./Router";
@@ -62,7 +62,8 @@ const server = http.createServer(async function (req: IncomingMessage, res: Serv
         res.end();
     }
 });
-getConfig().then(config => {
+loadConfig().then(() => {
+    const config = getConfig();
     server.listen(config.port.api);
     console.info('server now listen on:', config.port.api);
 });

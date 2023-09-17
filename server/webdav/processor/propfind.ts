@@ -2,7 +2,7 @@ import {IncomingMessage, ServerResponse} from "http";
 import * as convert from "xml-js";
 import {ElementCompact} from "xml-js";
 import * as fp from "../../lib/FileProcessor";
-import {get_sync as getConfigSync} from "../../ServerConfig";
+import {get as getConfig} from "../../ServerConfig";
 import {getRelPath, getRequestBuffer, respCode} from "../Lib";
 
 /**
@@ -156,7 +156,7 @@ function buildRespNode(xmlLs: string[], node: (fp.FileStat & { relPath: string }
         },
         'D:href': {
             _text:
-                getConfigSync().path.webdav
+                getConfig().path.webdav
                 + encodeURI(node.relPath)
                 //winscp不加这个无法识别为目录，这货不判断prop
                 + (node.type === 'directory' ? '/' : '')

@@ -1,13 +1,12 @@
 import NodeModel from '../../model/NodeModel';
-import {col_file, col_node, col_tag, col_tag_group} from '../../../share/Database';
+import {col_file, col_node, col_tag_group} from '../../../share/Database';
 import FileModel from '../../model/FileModel';
 import * as fp from "../../lib/FileProcessor";
 import * as FFMpeg from '../../lib/FFMpeg';
-import {get as getConfig,get_sync as getConfigSync} from "../../ServerConfig";
+import {get as getConfig} from "../../ServerConfig";
 import util from "util";
 import TagModel from "../../model/TagModel";
 import TagGroupModel from "../../model/TagGroupModel";
-import * as fs from 'fs/promises';
 
 const exec = util.promisify(require('child_process').exec);
 
@@ -90,13 +89,13 @@ class FileJob {
                     index_file_id: node.index_file_id,
                 });
                 //subtitle
-                const filePath = (await getConfig()).path.local + fp.getRelPathByFile(rawFile);
+                const filePath = getConfig().path.local + fp.getRelPathByFile(rawFile);
                 const meta = await FFMpeg.loadMeta(filePath);
                 console.info(meta);
                 const subMap = await FFMpeg.videoExtractSub(meta);
                 console.info(subMap);
                 if (subMap.size) {
-                    const parserConfig = (await getConfig()).parser.subtitle;
+                    const parserConfig = getConfig().parser.subtitle;
                     const subArr = Array.from(subMap, ([subTitle, ffStr]) => ({
                         subTitle, ffStr
                     }));
@@ -334,7 +333,7 @@ async function checkOrphanFile(fileId: number) {
 
 
 async function execFFmpeg(file: col_file, type: string,): Promise<col_file | boolean> {
-    const filePath = (await getConfig()).path.local + fp.getRelPathByFile(file);
+    const filePath = getConfig().path.local + fp.getRelPathByFile(file);
     const meta = await FFMpeg.loadMeta(filePath);
     // console.info('===============================');
     // console.info(meta);
@@ -346,12 +345,12 @@ async function execFFmpeg(file: col_file, type: string,): Promise<col_file | boo
         case 'audio':
             method = FFMpeg.audioStr;
             ffStr = await method(meta);
-            parserConfig = (await getConfig()).parser[type];
+            parserConfig = getConfig().parser[type];
             break;
         case 'video':
             method = FFMpeg.videoStr;
             ffStr = await method(meta);
-            parserConfig = (await getConfig()).parser[type];
+            parserConfig = getConfig().parser[type];
             // console.info(ffStr);
             break;
         case 'subtitle':
@@ -360,7 +359,7 @@ async function execFFmpeg(file: col_file, type: string,): Promise<col_file | boo
             const ffMap = await method(meta) as Map<string, string>;
             ffStr = ffMap.get('default');
             if (!ffStr) ffStr = false;
-            parserConfig = (await getConfig()).parser[type];
+            parserConfig = getConfig().parser[type];
             break;
         case 'image':
         case 'preview':
@@ -368,7 +367,7 @@ async function execFFmpeg(file: col_file, type: string,): Promise<col_file | boo
             method = FFMpeg.imageStr;
             imgLevel = type;
             ffStr = await method(meta, imgLevel);
-            parserConfig = (await getConfig()).parser[type];
+            parserConfig = getConfig().parser[type];
             break;
     }
     if (typeof ffStr === 'boolean') return ffStr;
@@ -390,12 +389,12 @@ async function execFFmpeg(file: col_file, type: string,): Promise<col_file | boo
 
 async function genTmpPath(suffix: string) {
     const uuid = await fp.getUUID();
-    return (await getConfig()).path.temp + '/t_' + uuid + '.' + suffix;
+    return getConfig().path.temp + '/t_' + uuid + '.' + suffix;
 }
 
 
 function parseFFStr(str: string, source: string, target: string) {
-    str = str.replace('[execMask.program]', (getConfigSync()).parser.ffProgram);
+    str = str.replace('[execMask.program]', (getConfig()).parser.ffProgram);
     str = str.replace('[execMask.resource]', source);
     str = str.replace('[execMask.target]', target);
     // console.info('===============================');

@@ -1,5 +1,6 @@
 import QueueModel from "../model/QueueModel";
 import jobs from "./jobs";
+import {loadConfig} from "../ServerConfig";
 
 const {workerData, threadId} = require('node:worker_threads');
 
@@ -37,4 +38,6 @@ async function setStatus(queueId: number, status: number) {
     await (new QueueModel).where('id', queueId).update({status: status});
 }
 
-run();
+loadConfig().then(() => {
+    run();
+});
