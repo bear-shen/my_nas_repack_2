@@ -31,7 +31,7 @@ export default class {
 
         const modReq = {
             name: request.name,
-            //这样会导致直接赋值为null或者false的报错
+            //这样会导致直接赋值为null或者false的报错，但是eval直接写值容易出问题
             value: JSON.parse(request.value) ?? {},
             // value: eval(request.value),
         } as api_setting_mod_req;

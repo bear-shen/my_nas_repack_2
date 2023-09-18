@@ -1,7 +1,8 @@
 import os from 'os';
 import {type_file} from '../share/Database';
 import fs from "fs";
-import SettingModel from "./model/SettingModel";
+import {conn} from "./lib/SQL";
+// import SettingModel from "./model/SettingModel";
 
 const BaseConfig = {
     // pathPrefix: '/api',
@@ -209,9 +210,13 @@ export let serverConfig = {};
 export async function loadConfig() {
     loaded = false;
     serverConfig = BaseConfig;
-    const settingArr = await new SettingModel().select();
-    for (let i1 = 0; i1 < settingArr.length; i1++) {
-        const row = settingArr[i1];
+    //这边如果用SettingModel的话在worker中会提示  Class extends value undefined is not a constructor or null
+    //但是主进程里面不会，原因不明
+    //stackoverflow讲可能是循环引用，那为何主进程就行
+    const [settingArr, fields] = await conn().execute('select * from settings');
+    // console.info(settingArr);
+    for (let i1 = 0; i1 < (settingArr as { [key: string]: any }[]).length; i1++) {
+        const row = (settingArr as { [key: string]: any }[]) [i1];
         const keyArr = row.name.split('.');
         const lastKey = keyArr.pop();
         let target: any = serverConfig;
@@ -219,7 +224,7 @@ export async function loadConfig() {
             if (!target[keyArr[i1]]) target[keyArr[i1]] = {};
             target = target[keyArr[i1]];
         }
-        target[lastKey] = row.value;
+        target[lastKey] = JSON.parse(row.value);
     }
     // console.info('==========');
     // console.info(serverConfig);
