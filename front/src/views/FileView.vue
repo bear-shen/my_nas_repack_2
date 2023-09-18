@@ -242,7 +242,6 @@ function setMode(mode: string) {
 }
 
 //
-
 let sortVal: Ref<string> = ref(localConfigure.get("file_view_sort") ?? "name_asc");
 // const sortKey = localConfigure.listen(
 //   "file_view_sort",
@@ -411,6 +410,7 @@ onMounted(async () => {
   addEventListener('mousedown', mouseDownEvt);
   addEventListener('mousemove', mouseMoveEvt);
   addEventListener('mouseup', mouseUpEvt);
+  addEventListener('keydown', keymap);
 });
 onUnmounted(() => {
   if (contentDOM.value) {
@@ -419,6 +419,7 @@ onUnmounted(() => {
   removeEventListener('mousedown', mouseDownEvt);
   removeEventListener('mousemove', mouseMoveEvt);
   removeEventListener('mouseup', mouseUpEvt);
+  removeEventListener('keydown', keymap);
 });
 
 //
@@ -828,6 +829,42 @@ function triggleLazyLoad() {
 
 /*function toGo() {
 }*/
+
+async function keymap(e: KeyboardEvent) {
+  // console.info(e);
+  switch (e.key) {
+    case 'F2':
+      let selCount = 0;
+      let selInd = -1;
+      nodeList.value.forEach((node, index) => {
+        if (!node._selected) return;
+        selCount += 1;
+        selInd = index;
+        // console.info(node._selected);
+      });
+      if (selCount > 1) {
+        bathOp('rename');
+      }
+      if (selCount == 1) {
+        nodeList.value[selInd]._renaming = true;
+      }
+      break;
+    case 'Delete':
+      /*const subNodeIdLs = new Set<number>();
+      nodeList.value.forEach((node, index) => {
+        if (!node._selected) return;
+        subNodeIdLs.add(node.id ?? 0);
+        // console.info(node._selected);
+      });
+      const queryData = {
+        id_list: Array.from(subNodeIdLs).join(',')
+      };
+      const res = await query<api_file_bath_delete_resp>("file/bath_delete", queryData);
+      //同步回列表
+      getList();*/
+      break;
+  }
+}
 </script>
 
 <template>

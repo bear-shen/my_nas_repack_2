@@ -76,16 +76,16 @@ function buildBtnDef(key: string) {
           active: false,
         },
         {
-          cls: ['sysIcon', 'sysIcon_star-o'],
-          click: op_set_favourite,
-          title: 'FAV',
-          show: true,
-          active: !!props.node.is_fav,
-        },
-        {
           cls: ['sysIcon', 'sysIcon_delete'],
           click: op_delete,
           title: 'DEL',
+          show: true,
+          active: false,
+        },
+        {
+          cls: ['sysIcon', 'sysIcon_tag-o'],
+          click: op_tag,
+          title: 'TAG',
           show: true,
           active: false,
         },
@@ -96,11 +96,11 @@ function buildBtnDef(key: string) {
           active: false,
           sub: [
             {
-              cls: ['sysIcon', 'sysIcon_tag-o'],
-              click: op_tag,
-              title: 'TAG',
+              cls: ['sysIcon', 'sysIcon_star-o'],
+              click: op_set_favourite,
+              title: 'FAV',
               show: true,
-              active: false,
+              active: !!props.node.is_fav,
             },
             {
               cls: ['sysIcon', 'sysIcon_tag-o'],
@@ -218,8 +218,8 @@ onUnmounted(() => {
   window.removeEventListener("resize", reloadOffset);
 });
 //
-let renaming = ref(false);
-let tagging = ref(false);
+// let renaming = ref(false);
+// let tagging = ref(false);
 
 function go(type: string, id?: number) {
   console.info("go", type, id);
@@ -282,7 +282,7 @@ async function op_rename(btn: BtnDef) {
     emits("go", 'reload');
   }
   btn.active = !btn.active;
-  renaming.value = btn.active;
+  props.node._renaming = btn.active;
 }
 
 async function op_tag(btn: BtnDef) {
@@ -303,7 +303,7 @@ async function op_tag(btn: BtnDef) {
   }
   //
   btn.active = !btn.active;
-  tagging.value = btn.active;
+  props.node._tagging = btn.active;
 }
 
 function tag_del(tagId: number) {
@@ -437,17 +437,17 @@ async function op_click(evt: MouseEvent) {
         </template>
         <div class="meta">
           <template v-if="node.status">
-            <p v-if="!renaming" class="title">{{ node.title }}</p>
+            <p v-if="!node._renaming" class="title">{{ node.title }}</p>
             <!--            <p v-if="!renaming" class="title" @click="op_dblclick">{{ node.title }}</p>-->
             <content-editable
               v-else v-model="node.title"
               class="title editing"
               @mousedown.stop
             ></content-editable>
-            <p v-if="!renaming">{{ node.time_update }}</p>
-            <p v-if="!renaming && node.description">{{ node.description }}</p>
+            <p v-if="!node._renaming">{{ node.time_update }}</p>
+            <p v-if="!node._renaming && node.description">{{ node.description }}</p>
             <content-editable
-              v-if="renaming" v-model="node.description"
+              v-if="node._renaming" v-model="node.description"
               class="editing"
               @mousedown.stop
             ></content-editable>
@@ -481,7 +481,7 @@ async function op_click(evt: MouseEvent) {
           </section>
         </div>
       </div>
-      <div v-if="!tagging && node.tag" class="tag_list">
+      <div v-if="!node._tagging && node.tag" class="tag_list">
         <dl v-for="group in node.tag">
           <dt>{{ group.title }}</dt>
           <dd v-for="tag in group.sub" @click="go('tag', tag.id)">
@@ -489,10 +489,10 @@ async function op_click(evt: MouseEvent) {
           </dd>
         </dl>
       </div>
-      <div v-if="tagging" class="tag_list editing">
+      <div v-if="node._tagging" class="tag_list editing">
         <dl v-for="group in node.tag">
           <dt>{{ group.title }}</dt>
-          <dd v-for="tag in group.sub" @click="tag_del(tag.id)">
+          <dd v-for="tag in group.sub" @click="tag_del(tag?.id)">
             <span>{{ tag.title }}</span>
             <span class="sysIcon sysIcon_delete"></span>
           </dd>

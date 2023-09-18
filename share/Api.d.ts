@@ -23,6 +23,8 @@ export type api_node_col = {
     _selected?: boolean,
     //l t r b
     _offsets?: number[],
+    _renaming?: boolean,
+    _tagging?: boolean,
 } & col_node
 
 export type api_file_list_resp = {
