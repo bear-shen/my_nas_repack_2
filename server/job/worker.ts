@@ -1,6 +1,7 @@
 import QueueModel from "../model/QueueModel";
 import jobs from "./jobs";
 import {loadConfig} from "../ServerConfig";
+import CacheModel from "../model/CacheModel";
 
 const {workerData, threadId} = require('node:worker_threads');
 
@@ -11,8 +12,19 @@ console.info('worker:', threadId);
 const threads = workerData[0];
 const threadIndex = workerData[1];
 
+let configStamp: string | boolean = false;
+
 async function run() {
     while (true) {
+        const cachedConfig = await (new CacheModel).where('code', 'config_stamp').first();
+        if (cachedConfig) {
+            if (!configStamp) {
+                configStamp = cachedConfig.val;
+            } else if (cachedConfig.val != configStamp) {
+                process.exit();
+            }
+        }
+        // console.info(cachedConfig);
         const ifExs = await (new QueueModel).where('status', 1).where(`id%${parseInt(threads)}`, parseInt(threadIndex)).order('id').first();
         if (!ifExs) break;
         await setStatus(ifExs.id, 2);
@@ -30,6 +42,7 @@ async function run() {
             await setStatus(ifExs.id, -1);
         }
     }
+    // console.info(getConfig()?.new_key);
     setTimeout(run, 1000);
 }
 

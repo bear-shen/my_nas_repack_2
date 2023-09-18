@@ -123,3 +123,8 @@ export type col_setting = {
     time_create?: string,
     time_update?: string,
 }
+
+export type col_cache = {
+    code?: string,
+    val?: string,
+}

@@ -13,7 +13,9 @@ import ContentEditable from "@/components/ContentEditable.vue";
 type settingType = api_setting_col & {
   edit_key?: boolean,
   edit_val?: boolean,
-  ext_key?: string
+  ext_key?: string,
+  pre_name?: string,
+  pre_value?: string,
 };
 //
 const localConfigure = useLocalConfigureStore();
@@ -55,6 +57,8 @@ async function getList() {
       edit_key: false,
       edit_val: false,
       ext_key: `${(new Date().valueOf())}_${Math.random()}`,
+      pre_name: res[i1].name,
+      pre_value: res[i1].value,
     }));
   }
   list.value = target;
@@ -64,6 +68,8 @@ function add() {
   list.value.unshift({
     name: "new_key",
     value: '"json format value"',
+    pre_name: '',
+    pre_value: '',
     edit_key: false,
     edit_val: false,
     ext_key: `${(new Date().valueOf())}_${Math.random()}`,
@@ -80,21 +86,28 @@ async function del(index: number) {
 
 async function mod(key: string) {
   let target: settingType | null = null;
-  list.value.forEach(row => {
+  for (let i1 = 0; i1 < list.value.length; i1++) {
+    const row = list.value[i1];
     if (row.ext_key !== key) return;
     target = row;
-  });
+  }
   // console.info(target);
   if (!target) return;
+  if (target?.pre_name == target?.name)
+    if (target?.pre_value == target?.value) {
+      return;
+    }
   const res = await query<api_setting_mod_resp>("setting/mod", target);
   if (!res) return;
-  (target as settingType).id = parseInt(res.id ?? '');
+  target.id = parseInt(res.id ?? '');
+  target.pre_name = target.name;
+  target.pre_value = target.value;
 }
 
 function onFocus(dom: HTMLElement) {
   const key = dom.getAttribute('data-key');
   const type = dom.getAttribute('data-type');
-  console.info(type, key);
+  // console.info(type, key);
   list.value.forEach(row => {
     if (row.ext_key !== key) return;
     switch (type) {
@@ -111,7 +124,7 @@ function onFocus(dom: HTMLElement) {
 function onBlur(dom: HTMLElement) {
   const key = dom.getAttribute('data-key');
   const type = dom.getAttribute('data-type');
-  console.info(type, key);
+  // console.info(type, key);
   list.value.forEach(row => {
     if (row.ext_key !== key) return;
     switch (type) {
@@ -122,7 +135,7 @@ function onBlur(dom: HTMLElement) {
         row.edit_val = false;
         break;
     }
-    console.info(row);
+    // console.info(row);
     mod(row.ext_key);
   });
 }

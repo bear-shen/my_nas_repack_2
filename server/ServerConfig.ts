@@ -228,6 +228,11 @@ export async function loadConfig() {
     }
     // console.info('==========');
     // console.info(serverConfig);
+    //setting里update，加载不update
+    // const curTimeStamp = Math.round((new Date().valueOf()) / 60 * 1000).toString();
+    const curTimeStamp = new Date().valueOf().toString();
+    await conn().execute(`insert ignore into \`cache\`(code, val)
+                              value ('config_stamp', '${curTimeStamp}');`);
     loaded = true;
     // serverConfig;
 }

@@ -3,8 +3,8 @@ import {Worker} from "worker_threads";
 
 console.info('job watcher init');
 
-const workerThreads = 16;
-const failSleep = 5 * 1000;
+const workerThreads = 1;
+const exitSleep = 5 * 1000;
 const workerMap: Map<number, Worker> = new Map();
 
 for (let i1 = 0; i1 < workerThreads; i1++) {
@@ -21,13 +21,13 @@ function buildThread(index: number) {
     });
     worker.on('error', (value) => {
         console.info('main:error:', index, ' , id:', worker.threadId, value);
-        setTimeout(buildThread.bind(this, index), failSleep);
     });
     worker.on('exit', () => {
         console.info('main:exit', index);
         //exit之后已经取不到threadId了，不清楚有没有例外情况
         // if (worker.threadId)
         workerMap.delete(index);
+        setTimeout(buildThread.bind(this, index), exitSleep);
     });
     workerMap.set(index, worker);
 }
