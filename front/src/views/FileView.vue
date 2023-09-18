@@ -270,7 +270,7 @@ const preSelectedNodeIndexSet = new Set<number>();
 let selectingKeyDef = '';
 
 /**
- * 在内容详情中不启用多选
+ * 仅仅在内容页面中启用多选
  * 事件流程大致是
  * mouseDown
  *  记录当前已经选中的文件
@@ -286,12 +286,13 @@ let selectingKeyDef = '';
  *    日后考虑删掉
  * @todo click是先写的所以才会有这种问题，后期考虑一下合并
  * */
-function inDetail(e: MouseEvent): boolean {
+function inDetailView(e: MouseEvent): boolean {
   // console.info(e);
   let inDetail = false;
   let prop = e.target as Element;
   while (prop) {
     // console.info(prop);
+    // console.info(prop.classList);
     // console.info(prop.classList.contains('content_detail'));
     // if(props.tagName)
     if (prop.classList.contains('content_detail')) {
@@ -305,9 +306,28 @@ function inDetail(e: MouseEvent): boolean {
   return inDetail;
 }
 
+function inTaggingDOM(e: MouseEvent): boolean {
+  // console.info(e);
+  let inDetail = false;
+  let prop = e.target as Element;
+  while (prop) {
+    if (prop.classList.contains('content_detail')) return false;
+    if (prop.classList.contains('tag_list')) {
+      inDetail = true;
+      break;
+    }
+    if (!prop.parentElement) break;
+    prop = prop.parentElement;
+  }
+  return inDetail;
+}
+
 function mouseDownEvt(e: MouseEvent) {
-  if (!inDetail(e)) return;
-  console.info('mouseDownEvt');
+  if (!inDetailView(e)) return;
+  if (inTaggingDOM(e)) return;
+  console.info(e);
+  // console.info(inDetail(e));
+  // console.info('mouseDownEvt');
   // e.stopPropagation();
   e.preventDefault();
   selectingOffset[0] = [e.x, e.y,];

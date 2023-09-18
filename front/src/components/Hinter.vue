@@ -7,14 +7,14 @@ type valType = any;
 
 // const emits = defineEmits(["update:modelValue"]);
 const props = defineProps<{
-  modelValue: valType,
+  modelValue?: valType,
   // preValue: string,
   getList: Function,
   submit: Function,
   //处理项目的方法
   parseText: Function,
   //提交时候额外回传的数据
-  meta: any,
+  meta?: any,
 }>();
 
 const editor: Ref<HTMLElement | null> = ref(null);
