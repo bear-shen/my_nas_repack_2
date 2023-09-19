@@ -398,10 +398,11 @@ async function op_dblclick(evt: MouseEvent) {
 }
 
 async function op_click(evt: MouseEvent) {
+  // click事件放到fileView做，这边不处理了
   // console.info('op_click', props.node.id, evt);
   // console.info(((new Date()).valueOf() - lastClick) / 1000);
   // lastClick = (new Date()).valueOf();
-  emits("onSelect", evt, props.node);
+  // emits("onSelect", evt, props.node);
 }
 
 </script>
@@ -501,6 +502,7 @@ async function op_click(evt: MouseEvent) {
           :get-list="tag_hint"
           :submit="tag_add"
           :parse-text="tag_parse"
+          @mousedown.stop
         ></hinter>
       </div>
     </template>

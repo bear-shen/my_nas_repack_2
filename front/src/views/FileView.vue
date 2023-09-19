@@ -269,6 +269,10 @@ let selectingOffset = [[0, 0,], [0, 0,],];
 const preSelectedNodeIndexSet = new Set<number>();
 let selectingKeyDef = '';
 
+const showSelectionOp: Ref<boolean> = ref(false);
+//shift用的
+const lastSelectId: Ref<number> = ref(0);
+
 /**
  * 仅仅在内容页面中启用多选
  * 事件流程大致是
@@ -295,7 +299,7 @@ function inDetailView(e: MouseEvent): boolean {
     // console.info(prop.classList);
     // console.info(prop.classList.contains('content_detail'));
     // if(props.tagName)
-    if (prop.classList.contains('content_detail')) {
+    if (prop.classList.contains('fr_content')) {
       inDetail = true;
       break;
     }
@@ -324,7 +328,7 @@ function inTaggingDOM(e: MouseEvent): boolean {
 
 function mouseDownEvt(e: MouseEvent) {
   if (!inDetailView(e)) return;
-  if (inTaggingDOM(e)) return;
+  // if (inTaggingDOM(e)) return;
   console.info(e);
   // console.info(inDetail(e));
   // console.info('mouseDownEvt');
@@ -358,6 +362,7 @@ function mouseDownEvt(e: MouseEvent) {
     case 'ctrl':
       break;
   }
+  getSelection();
 }
 
 function mouseMoveEvt(e: MouseEvent) {
@@ -368,6 +373,26 @@ function mouseMoveEvt(e: MouseEvent) {
   console.info('mouseMoveEvt', selecting);
   e.preventDefault();
   selectingOffset[1] = [e.x, e.y,];
+  // console.info(selIndexLs);
+  getSelection();
+}
+
+function mouseUpEvt(e: MouseEvent) {
+  // return;
+  if (!selecting) return;
+  console.info('mouseUpEvt');
+  e.preventDefault();
+  // e.stopPropagation();
+  setTimeout(() => {
+    selecting = false;
+    selectingMovEvtCount = 0;
+    selectingOffset = [[0, 0,], [0, 0,],];
+    preSelectedNodeIndexSet.clear();
+    selectingKeyDef = '';
+  }, timeoutDef.selectEvt);
+}
+
+function getSelection(): Set<number> {
   let retL = selectingOffset[0][0] > selectingOffset[1][0] ? selectingOffset[1][0] : selectingOffset[0][0];
   let retT = selectingOffset[0][1] > selectingOffset[1][1] ? selectingOffset[1][1] : selectingOffset[0][1];
   let retR = selectingOffset[0][0] < selectingOffset[1][0] ? selectingOffset[1][0] : selectingOffset[0][0];
@@ -393,7 +418,6 @@ function mouseMoveEvt(e: MouseEvent) {
     // node._selected = true;
     selIndexLs.add(index);
   });
-  // console.info(selIndexLs);
   nodeList.value.forEach((node, index) => {
     let selected = false;
     if (selIndexLs.has(index)) selected = true;
@@ -401,22 +425,9 @@ function mouseMoveEvt(e: MouseEvent) {
     node._selected = selected;
     // console.info(node._selected);
   });
+  //只要选中就显示吧
   showSelectionOp.value = preSelectedNodeIndexSet.size + selIndexLs.size > 0;
-}
-
-function mouseUpEvt(e: MouseEvent) {
-  // return;
-  if (!selecting) return;
-  console.info('mouseUpEvt');
-  e.preventDefault();
-  // e.stopPropagation();
-  setTimeout(() => {
-    selecting = false;
-    selectingMovEvtCount = 0;
-    selectingOffset = [[0, 0,], [0, 0,],];
-    preSelectedNodeIndexSet.clear();
-    selectingKeyDef = '';
-  }, timeoutDef.selectEvt);
+  return selIndexLs;
 }
 
 onMounted(async () => {
@@ -424,18 +435,18 @@ onMounted(async () => {
   localConfigure.release("file_view_mode", modeKey);
   Object.assign(queryData, GenFunc.copyObject(route.query));
   await getList();
-  if (contentDOM.value) {
-    contentDOM.value.addEventListener("scroll", lazyLoad);
-  }
+  // if (contentDOM.value) {
+  //   contentDOM.value.addEventListener("scroll", lazyLoad);
+  // }
   addEventListener('mousedown', mouseDownEvt);
   addEventListener('mousemove', mouseMoveEvt);
   addEventListener('mouseup', mouseUpEvt);
   addEventListener('keydown', keymap);
 });
 onUnmounted(() => {
-  if (contentDOM.value) {
-    contentDOM.value.removeEventListener("scroll", lazyLoad);
-  }
+  // if (contentDOM.value) {
+  //   contentDOM.value.removeEventListener("scroll", lazyLoad);
+  // }
   removeEventListener('mousedown', mouseDownEvt);
   removeEventListener('mousemove', mouseMoveEvt);
   removeEventListener('mouseup', mouseUpEvt);
@@ -492,10 +503,9 @@ function emitGo(type: string, code: number) {
   }
 }
 
-const showSelectionOp: Ref<boolean> = ref(false);
-//shift用的
-const lastSelectId: Ref<number> = ref(0);
-
+/***
+ * @deprecated
+ * */
 function emitSelect(event: MouseEvent, node: api_node_col) {
   // if (!notSelecting) return;
   console.info('emitSelect', event, node);
@@ -962,9 +972,7 @@ async function keymap(e: KeyboardEvent) {
       </div>
     </div>
     <!--    @click="clearSelect"-->
-    <div :class="['content_detail', `mode_${mode}`]"
-         @click="clearSelect"
-    >
+    <div :class="['content_detail', `mode_${mode}`]">
       <FileItem
         v-for="(node, nodeIndex) in nodeList"
         :key="nodeIndex"
