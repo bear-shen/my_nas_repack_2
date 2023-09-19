@@ -393,7 +393,7 @@ let selectingKeyDef = '';
 
 const showSelectionOp: Ref<boolean> = ref(false);
 //shift用的
-const lastSelectId: Ref<number> = ref(0);
+let lastSelectIndex = -1;
 
 /**
  * 仅仅在内容页面中启用多选
@@ -456,8 +456,8 @@ function mouseDownEvt(e: MouseEvent) {
   // console.info('mouseDownEvt');
   // e.stopPropagation();
   e.preventDefault();
-  selectingOffset[0] = [e.x, e.y,];
-  selectingOffset[1] = [e.x, e.y,];
+  selectingOffset[0] = [e.x + (contentDOM.value?.scrollLeft ?? 0), e.y + (contentDOM.value?.scrollTop ?? 0),];
+  selectingOffset[1] = [e.x + (contentDOM.value?.scrollLeft ?? 0), e.y + (contentDOM.value?.scrollTop ?? 0),];
   preSelectedNodeIndexSet.clear();
   nodeList.value.forEach((node, index) => {
     if (node._selected)
@@ -467,24 +467,46 @@ function mouseDownEvt(e: MouseEvent) {
   selectingMovEvtCount = 0;
   // setTimeout(() => selecting = true, 50);
   //
+  const selIndexLs = getSelection(selectingOffset);
+  //
   const keyMap = [];
   if (e.ctrlKey) keyMap.push('ctrl');
   if (e.shiftKey) keyMap.push('shift');
-  if (e.altKey) keyMap.push('alt');
-  if (e.metaKey) keyMap.push('meta');
+  // if (e.altKey) keyMap.push('alt');
+  // if (e.metaKey) keyMap.push('meta');
   selectingKeyDef = keyMap.join('_');
+  let newSelectIndex = -1;
+  const selIndexArr = Array.from(selIndexLs);
+  if (selIndexArr.length)
+    newSelectIndex = selIndexArr.pop() ?? -1;
+  console.info(lastSelectIndex, newSelectIndex);
   switch (selectingKeyDef) {
     case 'shift':
+      preSelectedNodeIndexSet.clear();
     case 'ctrl_shift':
-    case 'ctrl_alt':
-    case 'shift_alt':
+      if (newSelectIndex == -1) break;
+      if (lastSelectIndex == -1) break;
+      let from = Math.min(newSelectIndex, lastSelectIndex);
+      let to = Math.max(newSelectIndex, lastSelectIndex);
+      for (let i1 = from; i1 <= to; i1++) {
+        preSelectedNodeIndexSet.add(i1);
+      }
+      break;
     default:
       preSelectedNodeIndexSet.clear();
       break;
     case 'ctrl':
       break;
   }
-  getSelection();
+  nodeList.value.forEach((node, index) => {
+    let selected = false;
+    if (selIndexLs.has(index)) selected = true;
+    if (preSelectedNodeIndexSet.has(index)) selected = true;
+    node._selected = selected;
+  });
+  lastSelectIndex = newSelectIndex;
+  //只要选中就显示吧
+  showSelectionOp.value = preSelectedNodeIndexSet.size + selIndexLs.size > 0;
 }
 
 function mouseMoveEvt(e: MouseEvent) {
@@ -494,9 +516,23 @@ function mouseMoveEvt(e: MouseEvent) {
   if (selectingMovEvtCount < 10) return;
   // console.info('mouseMoveEvt', selecting);
   e.preventDefault();
-  selectingOffset[1] = [e.x, e.y,];
+  selectingOffset[1] = [e.x + (contentDOM.value?.scrollLeft ?? 0), e.y + (contentDOM.value?.scrollTop ?? 0),];
   // console.info(selIndexLs);
-  getSelection();
+  const selIndexLs = getSelection(selectingOffset);
+  nodeList.value.forEach((node, index) => {
+    let selected = false;
+    if (selIndexLs.has(index)) selected = true;
+    if (preSelectedNodeIndexSet.has(index)) selected = true;
+    node._selected = selected;
+    // console.info(node._selected);
+  });
+  //lastSelectIndex计算
+  const subSelIndexLs = getSelection([selectingOffset[1], selectingOffset[1]]);
+  // console.info(subSelIndexLs);
+  if (subSelIndexLs.size)
+    lastSelectIndex = Array.from(subSelIndexLs).pop() ?? -1;
+  //只要选中就显示吧
+  showSelectionOp.value = preSelectedNodeIndexSet.size + selIndexLs.size > 0;
 }
 
 function mouseUpEvt(e: MouseEvent) {
@@ -514,7 +550,7 @@ function mouseUpEvt(e: MouseEvent) {
   }, timeoutDef.selectEvt);
 }
 
-function getSelection(): Set<number> {
+function getSelection(selectingOffset: number[][]): Set<number> {
   let retL = selectingOffset[0][0] > selectingOffset[1][0] ? selectingOffset[1][0] : selectingOffset[0][0];
   let retT = selectingOffset[0][1] > selectingOffset[1][1] ? selectingOffset[1][1] : selectingOffset[0][1];
   let retR = selectingOffset[0][0] < selectingOffset[1][0] ? selectingOffset[1][0] : selectingOffset[0][0];
@@ -540,15 +576,6 @@ function getSelection(): Set<number> {
     // node._selected = true;
     selIndexLs.add(index);
   });
-  nodeList.value.forEach((node, index) => {
-    let selected = false;
-    if (selIndexLs.has(index)) selected = true;
-    if (preSelectedNodeIndexSet.has(index)) selected = true;
-    node._selected = selected;
-    // console.info(node._selected);
-  });
-  //只要选中就显示吧
-  showSelectionOp.value = preSelectedNodeIndexSet.size + selIndexLs.size > 0;
   return selIndexLs;
 }
 
