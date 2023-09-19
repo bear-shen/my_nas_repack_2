@@ -77,7 +77,47 @@ watch(route, async (to: RouteLocationNormalizedLoaded) => {
     console.info(curContainer.name);
   });
 }); */
-function getCurRoute() {
+onBeforeRouteUpdate(async (to) => {
+  console.info('onBeforeRouteUpdate', to);
+  queryData = Object.assign({
+    mode: "",
+    pid: "",
+    keyword: "",
+    tag_id: "",
+    node_type: "",
+    dir_only: "",
+    with: "",
+    group: "",
+  }, GenFunc.copyObject(to.query));
+  await getList();
+});
+
+//
+let crumbList: Ref<api_node_col[]> = ref([]);
+let nodeList: Ref<api_node_col[]> = ref([]);
+// onMounted(async () => {
+// getList();
+// });
+async function getList() {
+  console.info('getList', route.name);
+  crumbList.value = [];
+  nodeList.value = [];
+  switch (route.name) {
+    default:
+      break;
+    case 'Recycle':
+      queryData.group = 'deleted';
+      break;
+    case 'Favourite':
+      queryData.group = 'favourite';
+      break;
+  }
+  const res = await query<api_file_list_resp>("file/get", queryData);
+  if (!res) return;
+  // console.info(res);
+  crumbList.value = res.path;
+  nodeList.value = sortList(res.list);
+  // console.info(crumbList);
 }
 
 function addFolder() {
@@ -164,31 +204,37 @@ function addFile() {
 }
 
 //
-let crumbList: Ref<api_node_col[]> = ref([]);
-let nodeList: Ref<api_node_col[]> = ref([]);
-// onMounted(async () => {
-// getList();
-// });
-async function getList() {
-  console.info('getList', route.name);
-  crumbList.value = [];
+const localConfigure = useLocalConfigureStore();
+let mode: Ref<string> = ref(localConfigure.get("file_view_mode") ?? "detail");
+const modeKey = localConfigure.listen(
+  "file_view_mode",
+  (v) => (mode.value = v)
+);
+
+function setMode(mode: string) {
+  localConfigure.set("file_view_mode", mode);
+}
+
+//
+let sortVal: Ref<string> = ref(localConfigure.get("file_view_sort") ?? "name_asc");
+// const sortKey = localConfigure.listen(
+//   "file_view_sort",
+//   (v) => {
+//     sortVal.value = v;
+//     const preVal = nodeList.value;
+//     nodeList.value = [];
+//     nodeList.value = sortList(preVal);
+//   }
+// );
+
+function setSort(sortVal: string) {
+  console.info('setSort', sortVal);
+  localConfigure.set("file_view_sort", sortVal);
+  const preList = nodeList.value;
   nodeList.value = [];
-  switch (route.name) {
-    default:
-      break;
-    case 'Recycle':
-      queryData.group = 'deleted';
-      break;
-    case 'Favourite':
-      queryData.group = 'favourite';
-      break;
-  }
-  const res = await query<api_file_list_resp>("file/get", queryData);
-  if (!res) return;
-  // console.info(res);
-  crumbList.value = res.path;
-  nodeList.value = sortList(res.list);
-  // console.info(crumbList);
+  setTimeout(() => {
+    nodeList.value = sortList(preList);
+  }, timeoutDef.sort);
 }
 
 function sortList(list: col_node[]) {
@@ -230,38 +276,114 @@ function sortList(list: col_node[]) {
 }
 
 //
-const localConfigure = useLocalConfigureStore();
-let mode: Ref<string> = ref(localConfigure.get("file_view_mode") ?? "detail");
-const modeKey = localConfigure.listen(
-  "file_view_mode",
-  (v) => (mode.value = v)
-);
-
-function setMode(mode: string) {
-  localConfigure.set("file_view_mode", mode);
+function search() {
+  const tQuery = GenFunc.copyObject(queryData);
+  if (tQuery.dir_only && crumbList.value.length) {
+    tQuery.pid =
+      crumbList.value[crumbList.value.length - 1].id?.toString() ?? "";
+    // } else {
+    //   delete tQuery.pid;
+  }
+  tQuery.mode = 'search';
+  if (!queryData.keyword && (!queryData.node_type || queryData.node_type == 'any')) {
+    return go({pid: queryData.pid, mode: 'directory',});
+  }
+  console.info(tQuery);
+  router.push({
+    path: route.path,
+    query: tQuery,
+  });
 }
 
 //
-let sortVal: Ref<string> = ref(localConfigure.get("file_view_sort") ?? "name_asc");
-// const sortKey = localConfigure.listen(
-//   "file_view_sort",
-//   (v) => {
-//     sortVal.value = v;
-//     const preVal = nodeList.value;
-//     nodeList.value = [];
-//     nodeList.value = sortList(preVal);
-//   }
-// );
-
-function setSort(sortVal: string) {
-  console.info('setSort', sortVal);
-  localConfigure.set("file_view_sort", sortVal);
-  const preList = nodeList.value;
-  nodeList.value = [];
-  setTimeout(() => {
-    nodeList.value = sortList(preList);
-  }, timeoutDef.sort);
+function go(ext: api_file_list_req) {
+  if (!ext.tag_id) ext.tag_id = "";
+  if (!ext.keyword) ext.keyword = "";
+  if (!ext.node_type) ext.node_type = "";
+  const tQuery = Object.assign({
+    mode: "",
+    pid: "",
+    keyword: "",
+    tag_id: "",
+    node_type: "",
+    dir_only: "",
+    with: "",
+    group: "",
+  }, ext);
+  router.push({
+    path: route.path,
+    query: tQuery,
+  });
 }
+
+function emitGo(type: string, code: number) {
+  // console.info("emitGo", type, code);
+  switch (type) {
+    case "reload":
+      getList();
+      break;
+    case "tag":
+      go({tag_id: `${code}`, mode: 'tag'});
+      break;
+    case "node":
+      let node;
+      for (let i1 = 0; i1 < nodeList.value.length; i1++) {
+        if (nodeList.value[i1].id !== code) continue;
+        node = nodeList.value[i1];
+        break;
+      }
+      if (!node) break;
+      switch (node.type) {
+        case "directory":
+          go({pid: `${node.id}`, mode: 'directory'});
+          break;
+        default:
+          popupDetail(GenFunc.copyObject(queryData), node.id ?? 0);
+          break;
+      }
+      break;
+  }
+}
+
+function popupDetail(queryData: { [key: string]: any }, curNodeId: number) {
+  let w = localConfigure.get("browser_layout_w");
+  let h = localConfigure.get("browser_layout_h");
+  // console.info(w, h);
+  const iw = window.innerWidth;
+  const ih = window.innerHeight;
+  if (iw < w) w = 0;
+  if (ih < h) h = 0;
+  // console.info(w, h);
+  modalStore.set({
+    title: "file browser",
+    alpha: false,
+    key: "",
+    single: false,
+    w: w ? w : 400,
+    h: h ? h : 400,
+    minW: 400,
+    minH: 400,
+    // h: 160,
+    resizable: true,
+    movable: false,
+    fullscreen: false,
+    component: [
+      {
+        componentName: "fileBrowser",
+        data: {
+          query: GenFunc.copyObject(queryData),
+          curId: curNodeId,
+        },
+      },
+    ],
+    /* callback: {
+      close: function (modal) {
+        console.info(modal);
+      },
+    }, */
+  });
+}
+
 
 let selecting = false;
 let selectingMovEvtCount = 0;
@@ -329,7 +451,7 @@ function inTaggingDOM(e: MouseEvent): boolean {
 function mouseDownEvt(e: MouseEvent) {
   if (!inDetailView(e)) return;
   // if (inTaggingDOM(e)) return;
-  console.info(e);
+  // console.info(e);
   // console.info(inDetail(e));
   // console.info('mouseDownEvt');
   // e.stopPropagation();
@@ -370,7 +492,7 @@ function mouseMoveEvt(e: MouseEvent) {
   //有时候click会触发到mousemove事件，做个防抖
   selectingMovEvtCount += 1;
   if (selectingMovEvtCount < 10) return;
-  console.info('mouseMoveEvt', selecting);
+  // console.info('mouseMoveEvt', selecting);
   e.preventDefault();
   selectingOffset[1] = [e.x, e.y,];
   // console.info(selIndexLs);
@@ -380,7 +502,7 @@ function mouseMoveEvt(e: MouseEvent) {
 function mouseUpEvt(e: MouseEvent) {
   // return;
   if (!selecting) return;
-  console.info('mouseUpEvt');
+  // console.info('mouseUpEvt');
   e.preventDefault();
   // e.stopPropagation();
   setTimeout(() => {
@@ -430,83 +552,10 @@ function getSelection(): Set<number> {
   return selIndexLs;
 }
 
-onMounted(async () => {
-  console.info('onMounted');
-  localConfigure.release("file_view_mode", modeKey);
-  Object.assign(queryData, GenFunc.copyObject(route.query));
-  await getList();
-  // if (contentDOM.value) {
-  //   contentDOM.value.addEventListener("scroll", lazyLoad);
-  // }
-  addEventListener('mousedown', mouseDownEvt);
-  addEventListener('mousemove', mouseMoveEvt);
-  addEventListener('mouseup', mouseUpEvt);
-  addEventListener('keydown', keymap);
-});
-onUnmounted(() => {
-  // if (contentDOM.value) {
-  //   contentDOM.value.removeEventListener("scroll", lazyLoad);
-  // }
-  removeEventListener('mousedown', mouseDownEvt);
-  removeEventListener('mousemove', mouseMoveEvt);
-  removeEventListener('mouseup', mouseUpEvt);
-  removeEventListener('keydown', keymap);
-});
-
-//
-function go(ext: api_file_list_req) {
-  if (!ext.tag_id) ext.tag_id = "";
-  if (!ext.keyword) ext.keyword = "";
-  if (!ext.node_type) ext.node_type = "";
-  const tQuery = Object.assign({
-    mode: "",
-    pid: "",
-    keyword: "",
-    tag_id: "",
-    node_type: "",
-    dir_only: "",
-    with: "",
-    group: "",
-  }, ext);
-  router.push({
-    path: route.path,
-    query: tQuery,
-  });
-}
-
-function emitGo(type: string, code: number) {
-  // console.info("emitGo", type, code);
-  switch (type) {
-    case "reload":
-      getList();
-      break;
-    case "tag":
-      go({tag_id: `${code}`, mode: 'tag'});
-      break;
-    case "node":
-      let node;
-      for (let i1 = 0; i1 < nodeList.value.length; i1++) {
-        if (nodeList.value[i1].id !== code) continue;
-        node = nodeList.value[i1];
-        break;
-      }
-      if (!node) break;
-      switch (node.type) {
-        case "directory":
-          go({pid: `${node.id}`, mode: 'directory'});
-          break;
-        default:
-          popupDetail(GenFunc.copyObject(queryData), node.id ?? 0);
-          break;
-      }
-      break;
-  }
-}
-
 /***
  * @deprecated
  * */
-function emitSelect(event: MouseEvent, node: api_node_col) {
+/*function emitSelect(event: MouseEvent, node: api_node_col) {
   // if (!notSelecting) return;
   console.info('emitSelect', event, node);
   // return;
@@ -605,7 +654,7 @@ function emitSelect(event: MouseEvent, node: api_node_col) {
   //
   showSelectionOp.value = selectCount > 0;
   lastSelectId.value = node.id ?? 0;
-}
+}*/
 
 function clearSelect(e: MouseEvent) {
   // console.info(e);
@@ -761,104 +810,6 @@ async function bathOp(mode: string) {
   }
 }
 
-function popupDetail(queryData: { [key: string]: any }, curNodeId: number) {
-  let w = localConfigure.get("browser_layout_w");
-  let h = localConfigure.get("browser_layout_h");
-  // console.info(w, h);
-  const iw = window.innerWidth;
-  const ih = window.innerHeight;
-  if (iw < w) w = 0;
-  if (ih < h) h = 0;
-  // console.info(w, h);
-  modalStore.set({
-    title: "file browser",
-    alpha: false,
-    key: "",
-    single: false,
-    w: w ? w : 400,
-    h: h ? h : 400,
-    minW: 400,
-    minH: 400,
-    // h: 160,
-    resizable: true,
-    movable: false,
-    fullscreen: false,
-    component: [
-      {
-        componentName: "fileBrowser",
-        data: {
-          query: GenFunc.copyObject(queryData),
-          curId: curNodeId,
-        },
-      },
-    ],
-    /* callback: {
-      close: function (modal) {
-        console.info(modal);
-      },
-    }, */
-  });
-}
-
-//
-function search() {
-  const tQuery = GenFunc.copyObject(queryData);
-  if (tQuery.dir_only && crumbList.value.length) {
-    tQuery.pid =
-      crumbList.value[crumbList.value.length - 1].id?.toString() ?? "";
-    // } else {
-    //   delete tQuery.pid;
-  }
-  tQuery.mode = 'search';
-  if (!queryData.keyword && (!queryData.node_type || queryData.node_type == 'any')) {
-    return go({pid: queryData.pid, mode: 'directory',});
-  }
-  console.info(tQuery);
-  router.push({
-    path: route.path,
-    query: tQuery,
-  });
-}
-
-// console.info('here');
-
-onBeforeRouteUpdate(async (to) => {
-  console.info('onBeforeRouteUpdate', to);
-  queryData = Object.assign({
-    mode: "",
-    pid: "",
-    keyword: "",
-    tag_id: "",
-    node_type: "",
-    dir_only: "",
-    with: "",
-    group: "",
-  }, GenFunc.copyObject(to.query));
-  await getList();
-});
-//
-let lazyLoadTimer = 0;
-
-function lazyLoad(e: Event) {
-  clearTimeout(lazyLoadTimer);
-  lazyLoadTimer = setTimeout(triggleLazyLoad, timeoutDef.lazyLoad);
-}
-
-function triggleLazyLoad() {
-  // @todo 这边主要传值不好做, 看看到时候效果怎么样再说吧...
-  return;
-  // console.info("triggleLazyLoad");
-  // if (!contentDOM.value) return;
-  // const top = contentDOM.value.scrollTop;
-  // console.info(top);
-}
-
-/*function selectNode(e: MouseEvent, node: api_node_col) {
-  console.info(e, node);
-}*/
-
-/*function toGo() {
-}*/
 
 async function keymap(e: KeyboardEvent) {
   // console.info(e);
@@ -895,6 +846,56 @@ async function keymap(e: KeyboardEvent) {
       break;
   }
 }
+
+// console.info('here');
+
+//
+/*let lazyLoadTimer = 0;
+
+function lazyLoad(e: Event) {
+  clearTimeout(lazyLoadTimer);
+  lazyLoadTimer = setTimeout(triggleLazyLoad, timeoutDef.lazyLoad);
+}
+
+function triggleLazyLoad() {
+  // @todo 这边主要传值不好做, 看看到时候效果怎么样再说吧...
+  return;
+  // console.info("triggleLazyLoad");
+  // if (!contentDOM.value) return;
+  // const top = contentDOM.value.scrollTop;
+  // console.info(top);
+}*/
+
+/*function selectNode(e: MouseEvent, node: api_node_col) {
+  console.info(e, node);
+}*/
+
+/*function toGo() {
+}*/
+
+
+onMounted(async () => {
+  console.info('onMounted');
+  localConfigure.release("file_view_mode", modeKey);
+  Object.assign(queryData, GenFunc.copyObject(route.query));
+  await getList();
+  // if (contentDOM.value) {
+  //   contentDOM.value.addEventListener("scroll", lazyLoad);
+  // }
+  addEventListener('mousedown', mouseDownEvt);
+  addEventListener('mousemove', mouseMoveEvt);
+  addEventListener('mouseup', mouseUpEvt);
+  addEventListener('keydown', keymap);
+});
+onUnmounted(() => {
+  // if (contentDOM.value) {
+  //   contentDOM.value.removeEventListener("scroll", lazyLoad);
+  // }
+  removeEventListener('mousedown', mouseDownEvt);
+  removeEventListener('mousemove', mouseMoveEvt);
+  removeEventListener('mouseup', mouseUpEvt);
+  removeEventListener('keydown', keymap);
+});
 </script>
 
 <template>
@@ -980,8 +981,8 @@ async function keymap(e: KeyboardEvent) {
         :index="nodeIndex"
         :selected="false"
         @go="emitGo"
-        @on-select="emitSelect"
       ></FileItem>
+      <!--      @on-select="emitSelect"-->
     </div>
     <!--    @click="selectNode($event,node)"-->
     <!--    @dblclick="toGo"-->
