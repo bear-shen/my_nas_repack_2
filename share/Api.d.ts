@@ -25,6 +25,7 @@ export type api_node_col = {
     _offsets?: number[],
     _renaming?: boolean,
     _tagging?: boolean,
+    _dom?: HTMLElement,
 } & col_node
 
 export type api_file_list_resp = {

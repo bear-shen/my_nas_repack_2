@@ -213,6 +213,7 @@ const modeKey = localConfigure.listen(
 
 function setMode(mode: string) {
   localConfigure.set("file_view_mode", mode);
+  reloadOffset();
 }
 
 //
@@ -234,6 +235,7 @@ function setSort(sortVal: string) {
   nodeList.value = [];
   setTimeout(() => {
     nodeList.value = sortList(preList);
+    reloadOffset();
   }, timeoutDef.sort);
 }
 
@@ -421,7 +423,7 @@ function inDetailView(e: MouseEvent): boolean {
     // console.info(prop.classList);
     // console.info(prop.classList.contains('content_detail'));
     // if(props.tagName)
-    if (prop.classList.contains('fr_content')) {
+    if (prop.classList.contains('content_detail')) {
       inDetail = true;
       break;
     }
@@ -901,6 +903,30 @@ function triggleLazyLoad() {
 }*/
 
 
+function reloadOffset(e?: UIEvent) {
+  GenFunc.debounce(() => {
+    // 这边因为布局的关系offsetParent直接就是body，不需要过度优化
+    // console.info('resize');
+    // const baseDOM = document.querySelector('.content_detail') as HTMLElement;
+    // if (!baseDOM) return;
+    // const baseX = GenFunc.nodeOffsetX(baseDOM);
+    // const baseY = GenFunc.nodeOffsetY(baseDOM);
+    //
+    nodeList.value.forEach(node => {
+      if (!node._dom) return;
+      const dom = node._dom;
+      // console.info(evt);
+      let l = 0, t = 0, r = 0, b = 0;
+      l = GenFunc.nodeOffsetX(dom);
+      t = GenFunc.nodeOffsetY(dom);
+      r = l + dom.offsetWidth;
+      b = t + dom.offsetHeight;
+      node._offsets = [l, t, r, b,];
+      // console.info(node.id, node._dom, node._offsets);
+    });
+  }, 1000, `debounce_node_resize`);
+}
+
 onMounted(async () => {
   console.info('onMounted');
   localConfigure.release("file_view_mode", modeKey);
@@ -909,10 +935,12 @@ onMounted(async () => {
   // if (contentDOM.value) {
   //   contentDOM.value.addEventListener("scroll", lazyLoad);
   // }
+  reloadOffset();
   addEventListener('mousedown', mouseDownEvt);
   addEventListener('mousemove', mouseMoveEvt);
   addEventListener('mouseup', mouseUpEvt);
   addEventListener('keydown', keymap);
+  addEventListener("resize", reloadOffset);
 });
 onUnmounted(() => {
   // if (contentDOM.value) {
@@ -922,6 +950,7 @@ onUnmounted(() => {
   removeEventListener('mousemove', mouseMoveEvt);
   removeEventListener('mouseup', mouseUpEvt);
   removeEventListener('keydown', keymap);
+  removeEventListener("resize", reloadOffset);
 });
 </script>
 
@@ -1076,6 +1105,9 @@ onUnmounted(() => {
     .display a {
       cursor: pointer;
     }
+  }
+  .content_detail {
+    //min-height: 90vh;
   }
   .content_detail.mode_detail {
     //columns: $fontSize * 20 6;

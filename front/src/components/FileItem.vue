@@ -6,7 +6,6 @@ import {useModalStore} from "@/stores/modalStore";
 import {query} from "@/Helper";
 import ContentEditable from "@/components/ContentEditable.vue";
 import Hinter from "@/components/Hinter.vue";
-import GenFunc from "../../../share/GenFunc";
 import type {col_tag, col_tag_group} from "../../../share/Database";
 // import type {col_tag} from "../../../share/Database";
 // import {api_tag_col} from "../../../share/Api";
@@ -27,7 +26,7 @@ const modeKey = localConfigure.listen(
   (v) => {
     mode.value = v;
     buildBtnDef(mode.value + '_' + (props.node.status ? 'enabled' : 'disabled'));
-    reloadOffset();
+    // reloadOffset();
   }
 );
 
@@ -196,26 +195,15 @@ function buildBtnDef(key: string) {
 }
 
 
-function reloadOffset(e?: UIEvent) {
-  GenFunc.debounce(() => {
-    if (!curDOM.value) return;
-    // console.info(evt);
-    let l = 0, t = 0, r = 0, b = 0;
-    l = GenFunc.nodeOffsetX(curDOM.value);
-    t = GenFunc.nodeOffsetY(curDOM.value);
-    r = l + curDOM.value?.offsetWidth;
-    b = t + curDOM.value?.offsetHeight;
-    props.node._offsets = [l, t, r, b,];
-  }, 1000, `debounce_node_resize_${props.node.id}`);
-}
-
 const curDOM: Ref<HTMLElement | null> = ref(null);
 onMounted(() => {
-  reloadOffset();
-  window.addEventListener("resize", reloadOffset);
+  if (curDOM.value)
+    props.node._dom = curDOM.value;
+  // reloadOffset();
+  // window.addEventListener("resize", reloadOffset);
 });
 onUnmounted(() => {
-  window.removeEventListener("resize", reloadOffset);
+  // window.removeEventListener("resize", reloadOffset);
 });
 //
 // let renaming = ref(false);
@@ -306,7 +294,8 @@ async function op_tag(btn: BtnDef) {
   props.node._tagging = btn.active;
 }
 
-function tag_del(tagId: number) {
+function tag_del(tagId?: number) {
+  if (!tagId) return;
   if (!props.node.tag) return;
   for (let i1 = 0; i1 < props.node.tag.length; i1++) {
     for (let i2 = 0; i2 < props.node.tag[i1].sub.length; i2++) {
@@ -485,7 +474,7 @@ async function op_click(evt: MouseEvent) {
       <div v-if="!node._tagging && node.tag" class="tag_list">
         <dl v-for="group in node.tag">
           <dt>{{ group.title }}</dt>
-          <dd v-for="tag in group.sub" @click="go('tag', tag.id)">
+          <dd v-for="tag in group.sub" @click="go('tag', tag?.id)">
             {{ tag.title }}
           </dd>
         </dl>
