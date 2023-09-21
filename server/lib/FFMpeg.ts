@@ -3,7 +3,9 @@ import {get as getConfig} from "../ServerConfig";
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
-const conf = getConfig().parser;
+// const conf = getConfig().parser;
+// console.info(conf);
+// process.exit();
 
 type ffMeta = {
     format: {
@@ -51,7 +53,7 @@ async function loadMeta(path: string): Promise<ffMeta> {
  * subTitle=>subParseStr
  * */
 async function subtitleStr(meta: ffMeta): Promise<boolean | Map<string, string>> {
-    const subConf = conf["subtitle"];
+    const subConf = getConfig('parser.subtitle');
     //字幕仅支持vtt容器其他都要转，所以判断container就行
     let tranContainer = true;
     for (let i1 = 0; i1 < subConf.allow_container.length; i1++) {
@@ -95,8 +97,8 @@ ${multiCount ? `-map 0:${i1}` : ''}
  * subtitle需要提取并转换成vtt
  * */
 async function videoStr(meta: ffMeta): Promise<string | boolean> {
-    const videoConf = conf["video"];
-    const audioConf = conf["audio"];
+    const videoConf = getConfig('parser.video');
+    const audioConf = getConfig('parser.audio');
     // const subConf = conf["subtitle"];
     //
     let tranContainer = true;
@@ -264,7 +266,7 @@ ${(audioIndex !== -1) && (tranRate || tranACodec) ? audioConf.ff_encoder : '-c:a
 }
 
 async function videoExtractSub(meta: ffMeta): Promise<Map<string, string>> {
-    const subConf = conf["subtitle"];
+    const subConf = getConfig('parser.subtitle');
     // let subMap = new Map<string, string>();
     let hasSub = false;
     let subCount = 0;
@@ -285,7 +287,7 @@ async function videoExtractSub(meta: ffMeta): Promise<Map<string, string>> {
 }
 
 async function audioStr(meta: ffMeta): Promise<string | boolean> {
-    const audioConf = conf["audio"];
+    const audioConf = getConfig('parser.audio');
     //
     let tranContainer = true;
     let tranACodec = true;
@@ -373,7 +375,8 @@ async function imageStr(meta: ffMeta, level: 'cover' | 'preview' | 'image'): Pro
      *      else
      *          video
      * */
-    const imgConf = conf[level];
+        // console.info(conf, level);
+    const imgConf = getConfig(`parser.${level}`);
     let tranType = false;
     let tranSize = false;
     let tranLength = false;

@@ -1,14 +1,10 @@
 import NodeModel from '../../model/NodeModel';
-import {col_file, col_node, col_tag, col_tag_group} from '../../../share/Database';
-import FileModel from '../../model/FileModel';
-import * as fs from 'fs/promises';
+import {col_node} from '../../../share/Database';
 import * as fp from "../../lib/FileProcessor";
 import * as lfp from "../../lib/LocalFileProcessor";
-import * as FFMpeg from '../../lib/FFMpeg';
 import util from "util";
-import TagModel from "../../model/TagModel";
-import TagGroupModel from "../../model/TagGroupModel";
 import {api_local_file_statement} from "../../../share/Api";
+import QueueModel from "../../model/QueueModel";
 
 const exec = util.promisify(require('child_process').exec);
 
@@ -24,6 +20,7 @@ export default class {
         const fileList = await scanLoop(src);
         nodeMap = new Map<string, col_node>;
         //导入的时候连根目录一起创建
+        //先创建目录再创建文件
         for (let i1 = 0; i1 < fileList.length; i1++) {
             const item = fileList[i1];
             if (!item.isDir) continue;
@@ -34,7 +31,13 @@ export default class {
             // console.info([item.path, relPath]);
             const parentDirname = dirname.substring(0, dirname.lastIndexOf('/'));
             const parentNode = await mkParentNode(parentDirname, importRoot);
-            fp.mkdir(parentNode.id, item.name);
+            const targetNode = await fp.mkdir(parentNode.id, item.name);
+            if (!targetNode) continue;
+            (new QueueModel).insert({
+                type: 'file/buildIndex',
+                payload: {id: targetNode.id},
+                status: 1,
+            });
         }
         for (let i1 = 0; i1 < fileList.length; i1++) {
             const item = fileList[i1];
@@ -46,7 +49,18 @@ export default class {
             // console.info([item.path, relPath]);
             const parentDirname = dirname.substring(0, dirname.lastIndexOf('/'));
             const parentNode = await mkParentNode(parentDirname, importRoot);
-            await fp.put(item.path, parentNode, item.name, true);
+            const targetNode = await fp.put(item.path, parentNode, item.name, true);
+            if (!targetNode) continue;
+            (new QueueModel).insert({
+                type: 'file/build',
+                payload: {id: targetNode.id},
+                status: 1,
+            });
+            (new QueueModel).insert({
+                type: 'file/buildIndex',
+                payload: {id: targetNode.id},
+                status: 1,
+            });
         }
     }
 }

@@ -208,6 +208,7 @@ export let loaded = false;
 export let serverConfig = {};
 
 export async function loadConfig() {
+    console.info('loadConfig');
     loaded = false;
     serverConfig = BaseConfig;
     //这边如果用SettingModel的话在worker中会提示  Class extends value undefined is not a constructor or null

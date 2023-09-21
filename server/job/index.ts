@@ -3,7 +3,7 @@ import {Worker} from "worker_threads";
 
 console.info('job watcher init');
 
-const workerThreads = 1;
+const workerThreads = 16;
 const exitSleep = 5 * 1000;
 const workerMap: Map<number, Worker> = new Map();
 

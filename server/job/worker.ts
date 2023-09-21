@@ -1,11 +1,11 @@
 import QueueModel from "../model/QueueModel";
-import jobs from "./jobs";
 import {loadConfig} from "../ServerConfig";
+import jobs from "./jobs";
 import CacheModel from "../model/CacheModel";
 
 const {workerData, threadId} = require('node:worker_threads');
 
-console.info('=================')
+console.info('=================');
 // console.info('worker:', workerData);
 console.info('worker:', threadId);
 
@@ -16,6 +16,7 @@ let configStamp: string | boolean = false;
 
 async function run() {
     while (true) {
+        // ORM.dumpSql = true;
         const cachedConfig = await (new CacheModel).where('code', 'config_stamp').first();
         if (cachedConfig) {
             if (!configStamp) {
@@ -52,5 +53,12 @@ async function setStatus(queueId: number, status: number) {
 }
 
 loadConfig().then(() => {
+    // console.info('======================================');
+    // console.info(!!getConfig());
+    // if (!getConfig()) {
+    //     // console.info(getConfig());
+    //     return;
+    // }
+    // console.info(getConfig('parser.image'));
     run();
 });

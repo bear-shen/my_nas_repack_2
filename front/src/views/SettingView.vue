@@ -88,7 +88,7 @@ async function mod(key: string) {
   let target: settingType | null = null;
   for (let i1 = 0; i1 < list.value.length; i1++) {
     const row = list.value[i1];
-    if (row.ext_key !== key) return;
+    if (row.ext_key !== key) continue;
     target = row;
   }
   // console.info(target);

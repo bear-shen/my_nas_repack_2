@@ -1,14 +1,11 @@
-import {Stream} from "stream";
 import crypto from 'node:crypto';
 import {get as getConfig} from "../ServerConfig";
 import * as fs from 'fs/promises';
-import {ReadStream, Stats} from 'fs';
 import * as fsNP from 'fs';
-import {type_file, col_node, col_file, col_tag_group} from '../../share/Database';
-import ORM from './ORM';
+import {ReadStream} from 'fs';
+import {col_file, col_node, col_tag_group, type_file} from '../../share/Database';
 import NodeModel from "../model/NodeModel";
 import FileModel from '../model/FileModel';
-import {dir} from "console";
 import TagModel from "../model/TagModel";
 import TagGroupModel from "../model/TagGroupModel";
 
@@ -93,7 +90,7 @@ function getSuffix(fileName: string): string {
 function getType(suffix: string): type_file {
     let ifHit = -1;
     // console.info(suffix);
-    const config=getConfig();
+    const config = getConfig();
     for (const key in config.suffix) {
         ifHit = config.suffix[key].indexOf(suffix);
         if (ifHit === -1) continue;
@@ -141,16 +138,17 @@ async function ls(dirId: number): Promise<FileStat[]> {
 async function mkdir(dirId: number, name: string): Promise<false | col_node> {
     let parentInfo = rootNode;
     name = titleFilter(name);
+    if (dirId) {
+        parentInfo = await (new NodeModel).where('id', dirId).first();
+        if (!parentInfo) return false;
+    }
+    //
     const ifDup = await (new NodeModel)
         .where('id_parent', dirId)
         .where('title', name)
         .first();
     if (ifDup) {
         return false;
-    }
-    if (dirId) {
-        parentInfo = await (new NodeModel).where('id', dirId).first();
-        if (!parentInfo) return false;
     }
     //
     const nodeInfo = {

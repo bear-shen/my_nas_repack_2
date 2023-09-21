@@ -28,7 +28,9 @@ class FileJob {
         // }
         //
         const rawFileId = node.index_file_id.raw;
+        if (!rawFileId) return;
         const rawFile = await (new FileModel()).where('id', rawFileId).first();
+        if (!rawFile) return;
         // const rawFilePath = Config.path.local + fp.getRelPathByFile(rawFile);
         // const conf = Config.parser;
         //
