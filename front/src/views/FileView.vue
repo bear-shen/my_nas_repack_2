@@ -235,7 +235,6 @@ function setSort(sortVal: string) {
   nodeList.value = [];
   setTimeout(() => {
     nodeList.value = sortList(preList);
-    reloadOffset();
   }, timeoutDef.sort);
 }
 
@@ -273,7 +272,8 @@ function sortList(list: col_node[]) {
     const vb = b[sortType[0]];
     const rev = sortType[1] == 'desc' ? -1 : 1;
     return (va ? va : 0) > (vb ? vb : 0) ? rev * 1 : rev * -1;
-  })
+  });
+  reloadOffset();
   return list;
 }
 
