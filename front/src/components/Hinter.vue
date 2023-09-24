@@ -3,7 +3,7 @@
 import {onMounted, ref, type Ref, watch} from "vue";
 import GenFunc from "../../../share/GenFunc";
 
-type valType = any;
+type valType = any & { _sel?: boolean };
 
 // const emits = defineEmits(["update:modelValue"]);
 const props = defineProps<{
@@ -29,13 +29,73 @@ onMounted(() => {
 
 // const value: Ref<valType> = ref(null);
 
-async function inputText() {
+async function inputText(e: InputEvent) {
+  // console.info(e);
+  if (e.isComposing) return;
   GenFunc.debounce(async () => {
     // console.info('input', editor.value, editor.value?.innerText);
     list.value = await props.getList(editor.value?.innerHTML);
+    if (list.value.length)
+      list.value[0]._sel = true;
   }, 200, 'hinterDebounce');
   // props.modelValue = editor.value?.innerHTML;
   // emits('update:modelValue', editor.value?.innerText);
+}
+
+async function keydownEvt(e: KeyboardEvent) {
+  let curIndex: number, targetIndex: number;
+  switch (e.code) {
+    case 'ArrowDown':
+      e.stopPropagation();
+      e.preventDefault();
+      if (!list.value.length) break;
+      curIndex = -1;
+      list.value.forEach((item, index) => {
+        if (item._sel) curIndex = index;
+      });
+      targetIndex = curIndex + 1;
+      while (targetIndex < 0) {
+        targetIndex += list.value.length;
+      }
+      while (targetIndex >= list.value.length) {
+        targetIndex -= list.value.length;
+      }
+      list.value.forEach((item, index) => {
+        item._sel = index == targetIndex;
+      });
+      break;
+    case 'ArrowUp':
+      e.stopPropagation();
+      e.preventDefault();
+      if (!list.value.length) break;
+      curIndex = 0;
+      list.value.forEach((item, index) => {
+        if (item._sel) curIndex = index;
+      });
+      targetIndex = curIndex - 1;
+      while (targetIndex < 0) {
+        targetIndex += list.value.length;
+      }
+      while (targetIndex >= list.value.length) {
+        targetIndex -= list.value.length;
+      }
+      list.value.forEach((item, index) => {
+        item._sel = index == targetIndex;
+      });
+      break;
+    case 'Enter':
+      e.stopPropagation();
+      e.preventDefault();
+      if (!list.value.length) break;
+      curIndex = -1;
+      list.value.forEach((item, index) => {
+        if (item._sel) curIndex = index;
+      });
+      if (curIndex == -1) break;
+      const curItem = list.value[curIndex];
+      setItem(curItem);
+      break;
+  }
 }
 
 //https://stackoverflow.com/questions/59125857/how-to-watch-props-change-with-vue-composition-api-vue-3
@@ -49,13 +109,14 @@ watch(() => props.modelValue, async (to) => {
 
 // const curVal: Ref<valType> = ref(props.modelValue);
 const curVal: Ref<valType> = ref(null);
-// onMounted(() => {
+onMounted(() => {
 //   if (props.modelValue)
 //     curVal.value = props.modelValue;
 
 // if (editor.value)
 //   editor.value.innerText = value.value;
-// });
+  editor.value?.focus();
+});
 
 const list: Ref<valType[]> = ref([]);
 
@@ -93,6 +154,7 @@ function setFocus() {
     <div
       contenteditable="true"
       @input="inputText"
+      @keydown="keydownEvt"
       @focus="setFocus"
       @blur="setBlur"
       ref="editor"></div>
@@ -100,6 +162,7 @@ function setFocus() {
       <li v-for="item in list"
           v-html="parseText(item)"
           @click="setItem(item)"
+          :class="{active:item._sel}"
       ></li>
     </ul>
   </div>
@@ -131,7 +194,7 @@ function setFocus() {
       position: relative;
       //@include fillAvailable(width);
       //background-color: fade-out(map-get($colors, bk), 3), 0.5
-      &:hover {
+      &:hover, &.active {
         background-color: map-get($colors, popup_active);
         //background-color: fade-out(map-get($colors, bk), 8), 0.5
       }
