@@ -32,7 +32,6 @@ import FileModel from '../../model/FileModel';
 import * as fp from "../../lib/FileProcessor";
 import {get as getConfig} from "../../ServerConfig";
 import QueueModel from "../../model/QueueModel";
-import ORM from "../../lib/ORM";
 
 export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_list_resp> {
@@ -415,6 +414,20 @@ export default class {
         //
         for (const nodeId of list) {
             await fp.rm(parseInt(nodeId));
+        }
+    }
+
+    async bath_delete_forever(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_bath_delete_resp | any> {
+        const request = data.fields as api_file_bath_delete_req;
+        const list = request.id_list.split(',');
+        //
+        for (const nodeId of list) {
+            await new NodeModel().where('id', nodeId).update({status: -1});
+            (new QueueModel).insert({
+                type: 'file/deleteForever',
+                payload: {id: nodeId},
+                status: 1,
+            });
         }
     }
 

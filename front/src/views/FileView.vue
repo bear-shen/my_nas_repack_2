@@ -706,6 +706,8 @@ async function bathOp(mode: string) {
     subNodeLs.push(item);
     subNodeIdLs.add(item?.id ?? 0);
   });
+  let queryData: { [key: string]: any };
+  let res: any;
   switch (mode) {
     case 'rename':
       modalStore.set({
@@ -828,10 +830,19 @@ async function bathOp(mode: string) {
       } as ModalConstruct);
       break;
     case 'delete':
-      const queryData = {
+      queryData = {
         id_list: Array.from(subNodeIdLs).join(',')
       };
-      const res = await query<api_file_bath_delete_resp>("file/bath_delete", queryData);
+      res = await query<api_file_bath_delete_resp>("file/bath_delete", queryData);
+      //同步回列表
+      getList();
+      if (!res) return;
+      break;
+    case 'delete_forever':
+      queryData = {
+        id_list: Array.from(subNodeIdLs).join(',')
+      };
+      res = await query<api_file_bath_delete_resp>("file/bath_delete_forever", queryData);
       //同步回列表
       getList();
       if (!res) return;
@@ -1002,7 +1013,8 @@ onUnmounted(() => {
         <template v-if="showSelectionOp">
           <a @click="bathOp('rename')">RN</a>
           <a @click="bathOp('move')">MV</a>
-          <a @click="bathOp('delete')">DEL</a>
+          <a v-if="route.name!=='Recycle'" @click="bathOp('delete')">DEL</a>
+          <a v-if="route.name==='Recycle'" @click="bathOp('delete_forever')">rDEL</a>
           <a class="sysIcon sysIcon_fengefu"></a>
         </template>
         <a class="sysIcon sysIcon_addfolder" @click="addFolder"></a>
