@@ -38,8 +38,9 @@ export type col_file = {
     uuid?: string,
     suffix?: string,
     size?: number,
-    meta?: { [key: string]: any },
+    // meta?: { [key: string]: any },
     status?: 0 | 1,
+    checksum?: string,
     time_create?: string,
     time_update?: string,
 }

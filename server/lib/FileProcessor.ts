@@ -9,6 +9,9 @@ import FileModel from '../model/FileModel';
 import TagModel from "../model/TagModel";
 import TagGroupModel from "../model/TagGroupModel";
 
+const util = require('util');
+const exec = util.promisify(require('child_process').exec);
+
 function isId(inVal: col_node | number | bigint): boolean {
     switch (typeof inVal) {
         case 'bigint':
@@ -54,6 +57,31 @@ async function getUUID(): Promise<string> {
         uuid = crypto.randomBytes(12).toString("base64url").toLowerCase()
     } while (await (new FileModel).where('uuid', uuid).first(['id']))
     return uuid;
+}
+
+async function checksum(file: col_file): Promise<string> {
+    const config = getConfig();
+    //
+    const relPath = getRelPathByFile(file);
+    const fullPath = config.path.local + relPath;
+    //
+    let hashArr = [];
+    for (let i1 = 0; i1 < config.checksum.length; i1++) {
+        let hash = ''
+        try {
+            const cmd = `${config.checksum[i1]} ${fullPath}`;
+            const {stdout, stderr} = await exec(cmd);
+            hash = stdout.substring(0, stdout.indexOf(' '));
+            // console.info(stdout);
+            // console.info(stdout.split(/\s/));
+            // console.info(stdout.indexOf(' '));
+            // console.info(stdout.indexOf('\t'));
+        } catch (e) {
+            console.info(e);
+        }
+        hashArr.push(hash);
+    }
+    return hashArr.join(',');
 }
 
 function getRelPathByFile(file: col_file) {
@@ -188,8 +216,8 @@ async function touch(path: string): Promise<false> {
 }
 
 /**
- * 添加文件不添加节点
- * suffix其实可以内部处理的，不过前面反正会用到
+ * 仅添加文件不添加节点
+ * 文件预处理一类的功能用
  * */
 async function putFile(fromTmpPath: string, suffix: string): Promise<col_file> {
     const stat = await fs.stat(fromTmpPath);
@@ -197,7 +225,7 @@ async function putFile(fromTmpPath: string, suffix: string): Promise<col_file> {
         uuid: await getUUID(),
         suffix: suffix,
         size: stat.size,
-        meta: {},
+        // meta: {},
         status: 1,
     } as col_file;
     //---------------------------------------
@@ -219,6 +247,11 @@ async function putFile(fromTmpPath: string, suffix: string): Promise<col_file> {
     return fileInfo;
 }
 
+/**
+ * 创建文件并创建对应的节点
+ * web的文件写入是formidable提供的临时文件
+ * webdav的是手写的
+ * */
 async function put(fromTmpPath: string, toDir: number | col_node, name: string, isCopy: boolean = false): Promise<false | col_node> {
     // console.info('FileProcessor put: init');
     const parentNode = await getNodeByIdOrNode(toDir);
@@ -234,7 +267,7 @@ async function put(fromTmpPath: string, toDir: number | col_node, name: string, 
         uuid: await getUUID(),
         suffix: suffix,
         size: stat.size,
-        meta: {},
+        // meta: {},
         status: 1,
     } as col_file;
     //---------------------------------------
@@ -482,6 +515,7 @@ export {
     relPath2node,
     getRelPathByFile,
     getUUID,
+    checksum,
     getDir,
     getName,
     getSuffix,

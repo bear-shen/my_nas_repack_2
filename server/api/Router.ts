@@ -2,14 +2,6 @@ import {IncomingMessage, ServerResponse} from "http";
 // import ORM from "./lib/ORM";
 // import { conn } from "./lib/SQL";
 import {type RowDataPacket} from "mysql2";
-// import UserController from "./controller/UserController";
-// import DevController from "./controller/DevController";
-// import FileController from "./controller/FileController";
-// import TagController from "./controller/TagController";
-// import TagGroupController from "./controller/TagGroupController";
-// import UserGroupController from "./controller/UserGroupController";
-// import LocalController from "./controller/LocalController";
-// import ConfigController from "./controller/ConfigController";
 import {ParsedForm} from './types';
 import File from "./processor/File";
 import User from "./processor/User";
@@ -18,6 +10,7 @@ import TagGroup from "./processor/TagGroup";
 import Local from "./processor/Local";
 import UserGroup from "./processor/UserGroup";
 import Setting from "./processor/Setting";
+import Log from "./processor/Log";
 
 type t = RowDataPacket;
 const controllers = {
@@ -27,6 +20,7 @@ const controllers = {
     tag_group: TagGroup,
     user_group: UserGroup,
     local: Local,
+    log: Log,
     setting: Setting,
     dev: 0,
 }

@@ -5,6 +5,7 @@ import LocalView from '../views/LocalView.vue'
 import TagView from '../views/TagView.vue'
 import UserView from '../views/UserView.vue'
 import SettingView from "@/views/SettingView.vue";
+import LogView from "@/views/LogView.vue";
 
 const routes = [
     {
@@ -44,6 +45,12 @@ const routes = [
         name: 'Local',
         component: LocalView,
         meta: {icon: 'sysIcon_yingpan1',},
+    },
+    {
+        path: '/log',
+        name: 'ProcessLog',
+        component: LogView,
+        meta: {icon: 'sysIcon_filetext',},
     },
     {
         path: '/setting',

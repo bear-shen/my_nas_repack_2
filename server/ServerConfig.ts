@@ -46,6 +46,11 @@ const BaseConfig = {
         // root_local: '/',
     },
     //hashFunction: process.cwd() + '/binary/b3sum_linux_x64_bin --no-names {fileName}',
+    checksum: [
+        'xxh128sum',
+        'b3sum',
+        // 'openssl md5 -r',
+    ],
     /*parser: {
         //@see https://slhck.info/video/2017/02/24/vbr-settings.html
         i_cover: {

@@ -7,6 +7,7 @@ import ImportJob from "./processor/ImportJob";
  * */
 export default {
     'file/build': FileJob.build,
+    'file/checksum': FileJob.checksum,
     'file/buildIndex': FileJob.buildIndex,
     'file/rebuild': FileJob.rebuild,
     'file/rebuildIndex': FileJob.rebuildIndex,

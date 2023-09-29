@@ -7,6 +7,7 @@ import {get as getConfig} from "../../ServerConfig";
 import util from "util";
 import TagModel from "../../model/TagModel";
 import TagGroupModel from "../../model/TagGroupModel";
+import QueueModel from "../../model/QueueModel";
 
 const exec = util.promisify(require('child_process').exec);
 
@@ -190,11 +191,34 @@ class FileJob {
         if (ifErr) {
             //
         }
-        //
         await (new NodeModel()).where('id', node.id).update({
             building: ifErr ? -1 : 0,
         });
         await cascadeCover(node.id);
+        for (const fileKey in node.index_file_id) {
+            (new QueueModel).insert({
+                type: 'file/checksum',
+                payload: {id: node.index_file_id[fileKey]},
+                status: 1,
+            });
+        }
+    }
+
+    /**
+     * @notice 注意是fileID
+     * */
+    static async checksum(payload: { [key: string]: any }): Promise<any> {
+        const fileId = payload.id;
+        let file: col_file;
+        if (typeof fileId === 'object')
+            file = fileId;
+        else
+            file = await (new FileModel()).where('id', fileId).first();
+        //
+        const checksum = await fp.checksum(file);
+        await (new FileModel()).where('id', fileId).update({
+            checksum: checksum,
+        });
     }
 
     static async buildIndex(payload: { [key: string]: any }): Promise<any> {

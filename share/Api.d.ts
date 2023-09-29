@@ -1,4 +1,4 @@
-import {col_file_with_path, col_node, col_tag, col_tag_group, col_user, col_user_group, type_file} from './Database';
+import {col_file_with_path, col_node, col_queue, col_tag, col_tag_group, col_user, col_user_group, type_file} from './Database';
 
 export type api_node_col = {
     is_file?: number,
@@ -323,6 +323,18 @@ export type api_setting_mod_req = {
 } & { [key: string]: any };
 
 export type api_setting_mod_resp = api_setting_mod_req;
+
+
+export type api_queue_col = col_queue;
+
+export type api_queue_list_req = {
+    page: string,
+    status: string,
+    type: string,
+} & { [key: string]: any };
+
+export type api_queue_list_resp =
+    api_queue_col[];
 
 
 
