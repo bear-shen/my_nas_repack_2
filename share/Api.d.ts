@@ -329,6 +329,7 @@ export type api_queue_col = col_queue;
 
 export type api_queue_list_req = {
     page: string,
+    id: string,
     status: string,
     type: string,
 } & { [key: string]: any };

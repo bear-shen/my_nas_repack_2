@@ -19,14 +19,23 @@ const contentDOM: Ref<HTMLElement | null> = ref(null);
 const router = useRouter();
 const route = useRoute();
 let queryData = {
-  // id: "",
-  // keyword: "",
-  // is_del: "",
+  id: '',
+  status: '',
+  type: '',
 } as api_queue_list_req;
+let statusMap = [
+  [-2, 'unknown'],
+  [-1, 'failed'],
+  [0, 'success'],
+  [1, 'new'],
+  [2, 'working'],
+];
 const list: Ref<settingType[]> = ref([]);
 onMounted(async () => {
   Object.assign(queryData, GenFunc.copyObject(route.query));
   getList();
+  if (contentDOM.value)
+    contentDOM.value.addEventListener('scroll', scrollEvt);
 });
 
 onBeforeRouteUpdate(async (to) => {
@@ -39,14 +48,43 @@ onBeforeRouteUpdate(async (to) => {
 
 //
 onUnmounted(() => {
+  if (contentDOM.value)
+    contentDOM.value?.removeEventListener('scroll', scrollEvt);
 });
 
-async function getList() {
+async function scrollEvt(a: any) {
+  console.info(a);
+  if (!contentDOM.value) return;
+  let dom = contentDOM.value;
+  let curH = dom?.scrollTop + dom?.clientHeight
+    //差一屏时开始预加载
+    + dom?.clientHeight
+  ;
+  if (dom?.scrollHeight < curH) {
+    GenFunc.debounce(async () => {
+      await getList();
+    }, 500, 'logViewDebounce');
+  }
+}
+
+let curPage = 1;
+let loading = false;
+async function getList(clear: boolean = false) {
+  if (loading) return;
+  loading = true;
   // console.info('getGroup');
   // groupList.value = [];
-  const res = await query<api_queue_list_resp>("log/get", queryData);
+  const res = await query<api_queue_list_resp>("log/get",
+    Object.assign(
+      {page: curPage++}, queryData
+    ));
+  loading = false;
   if (!res) return;
-  const target: settingType[] = [];
+  if (!res.length) {
+    curPage--;
+    return;
+  }
+  const target: settingType[] = clear ? [] : list.value;
   for (let i1 = 0; i1 < res.length; i1++) {
     target.push(Object.assign(res[i1], {
       ext_key: `${(new Date().valueOf())}_${Math.random()}`,
@@ -60,6 +98,25 @@ async function getList() {
 
 <template>
   <div class="fr_content view_log" ref="contentDOM">
+    <div class="form">
+      <label>
+        <span>ID : </span><input type="text" v-model="queryData.id"/>
+      </label>
+      <label>
+        <span>status : </span>
+        <select v-model="queryData.status">
+          <option v-for="(statusDef, key) in statusMap" :value="statusDef[0]">
+            {{ statusDef[1] }}
+          </option>
+        </select>
+      </label>
+      <label>
+        <span>type : </span><input type="text" v-model="queryData.type"/>
+      </label>
+      <label>
+        <button type="button" @click="getList(true)">query</button>
+      </label>
+    </div>
     <table>
       <tr>
         <th>id</th>
@@ -93,7 +150,32 @@ async function getList() {
 
 <style lang="scss">
 .fr_content.view_log {
+  .form {
+    $metaBk: map-get($colors, bar_meta);
+    background-color: $metaBk;
+    padding: 0 $fontSize * 0.5;
+    //line-height: $fontSize * 1.5;
+    label {
+      margin-right: $fontSize;
+      //height: $fontSize * 1.5;
+      //line-height: $fontSize * 1.5;
+      display: inline-block;
+    }
+    label * {
+      font-size: $fontSize;
+      height: $fontSize * 1.5;
+      line-height: $fontSize * 1.5;
+      vertical-align: unset;
+    }
+    input,
+    button,
+    select {
+      background-color: $metaBk;
+      padding: 0;
+    }
+  }
   table {
+    width: 100%;
     th, td {
       font-size: $fontSize;
       padding: $fontSize*0.5;
