@@ -59,6 +59,8 @@ let timeoutDef = {
   clearEvt: 100,
   //zzz
   lazyLoad: 200,
+  offsetDebounce: 100,
+  offsetUIDebounce: 500,
 };
 // let usePid = false;
 //
@@ -213,7 +215,7 @@ const modeKey = localConfigure.listen(
 
 function setMode(mode: string) {
   localConfigure.set("file_view_mode", mode);
-  reloadOffset();
+  reloadOffset(undefined, timeoutDef.offsetDebounce);
 }
 
 //
@@ -273,7 +275,7 @@ function sortList(list: col_node[]) {
     const rev = sortType[1] == 'desc' ? -1 : 1;
     return (va ? va : 0) > (vb ? vb : 0) ? rev * 1 : rev * -1;
   });
-  reloadOffset();
+  reloadOffset(undefined, timeoutDef.offsetDebounce);
   return list;
 }
 
@@ -451,7 +453,9 @@ function inTaggingDOM(e: MouseEvent): boolean {
 }
 
 function mouseDownEvt(e: MouseEvent) {
+  // console.info('here');
   if (!inDetailView(e)) return;
+  // console.info('here');
   // if (inTaggingDOM(e)) return;
   // console.info(e);
   // console.info(inDetail(e));
@@ -868,6 +872,10 @@ async function keymap(e: KeyboardEvent) {
       }
       if (selCount == 1) {
         nodeList.value[selInd]._renaming = true;
+        setTimeout(() => {
+          let tDOM = nodeList.value[selInd]._dom?.querySelector('[contenteditable="true"]') as HTMLElement;
+          tDOM.focus();
+        }, 50)
       }
       break;
     case 'Delete':
@@ -914,7 +922,9 @@ function triggleLazyLoad() {
 }*/
 
 
-function reloadOffset(e?: UIEvent) {
+function reloadOffset(e?: UIEvent, debounceDelay?: number) {
+  if (!debounceDelay) debounceDelay = timeoutDef.offsetUIDebounce;
+  console.info(arguments);
   GenFunc.debounce(() => {
     // 这边因为布局的关系offsetParent直接就是body，不需要过度优化
     // console.info('resize');
@@ -935,7 +945,7 @@ function reloadOffset(e?: UIEvent) {
       node._offsets = [l, t, r, b,];
       // console.info(node.id, node._dom, node._offsets);
     });
-  }, 1000, `debounce_node_resize`);
+  }, debounceDelay, `debounce_node_resize`);
 }
 
 onMounted(async () => {
@@ -946,7 +956,7 @@ onMounted(async () => {
   // if (contentDOM.value) {
   //   contentDOM.value.addEventListener("scroll", lazyLoad);
   // }
-  reloadOffset();
+  reloadOffset(undefined, timeoutDef.offsetDebounce);
   addEventListener('mousedown', mouseDownEvt);
   addEventListener('mousemove', mouseMoveEvt);
   addEventListener('mouseup', mouseUpEvt);

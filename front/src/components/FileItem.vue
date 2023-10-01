@@ -271,6 +271,10 @@ async function op_rename(btn: BtnDef) {
   }
   btn.active = !btn.active;
   props.node._renaming = btn.active;
+  setTimeout(() => {
+    let tDOM = curDOM.value?.querySelector('[contenteditable="true"]') as HTMLElement;
+    tDOM.focus();
+  }, 50)
 }
 
 async function op_tag(btn: BtnDef) {
@@ -474,7 +478,7 @@ async function op_click(evt: MouseEvent) {
       <div v-if="!node._tagging && node.tag" class="tag_list">
         <dl v-for="group in node.tag">
           <dt>{{ group.title }}</dt>
-          <dd v-for="tag in group.sub" @click="go('tag', tag?.id)">
+          <dd v-for="tag in group.sub" @click="go('tag', tag?.id??0)">
             {{ tag.title }}
           </dd>
         </dl>
@@ -482,7 +486,7 @@ async function op_click(evt: MouseEvent) {
       <div v-if="node._tagging" class="tag_list editing">
         <dl v-for="group in node.tag">
           <dt>{{ group.title }}</dt>
-          <dd v-for="tag in group.sub" @click="tag_del(tag?.id)">
+          <dd v-for="tag in group.sub" @click="tag_del(tag?.id??0)">
             <span>{{ tag.title }}</span>
             <span class="sysIcon sysIcon_delete"></span>
           </dd>
@@ -615,6 +619,7 @@ async function op_click(evt: MouseEvent) {
       .editing {
         font-size: $fontSize;
         background-color: map-get($colors, bk_active);
+        white-space: normal;
       }
       .bar {
         margin: $fontSize * 0.5 0 0 0;
