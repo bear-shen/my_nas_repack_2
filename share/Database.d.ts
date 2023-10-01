@@ -112,6 +112,7 @@ export type col_queue = {
     payload?: { [key: string]: any },
     //-2 unknown -1 failed 0 success 1 new 2 working
     status?: 0 | 1 | -2 | -1 | 2,
+    result?: string,
     time_create?: string,
     time_update?: string,
 }

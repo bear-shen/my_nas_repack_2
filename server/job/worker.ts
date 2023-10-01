@@ -37,10 +37,11 @@ async function run() {
         try {
             const job = jobs[ifExs.type];
             await job(ifExs.payload);
-            await setStatus(ifExs.id, 0);
+            await setStatus(ifExs.id, 0, 'success');
         } catch (error) {
             console.info(error);
-            await setStatus(ifExs.id, -1);
+            let errMsg = error && error.name && error.message ? `${error.name}:${error.message}` : JSON.parse(error);
+            await setStatus(ifExs.id, -1, errMsg);
         }
     }
     // console.info(getConfig()?.new_key);
@@ -48,8 +49,11 @@ async function run() {
 }
 
 //-2 unknown -1 failed 0 success 1 new
-async function setStatus(queueId: number, status: number) {
-    await (new QueueModel).where('id', queueId).update({status: status});
+async function setStatus(queueId: number, status: number, result?: string) {
+    if (result)
+        await (new QueueModel).where('id', queueId).update({status: status, result: result});
+    else
+        await (new QueueModel).where('id', queueId).update({status: status});
 }
 
 loadConfig().then(() => {

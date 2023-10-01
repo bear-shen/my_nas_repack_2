@@ -1,20 +1,14 @@
 <script setup lang="ts">
-import {onMounted, ref, watch, onUnmounted} from "vue";
 import type {Ref} from "vue";
-import type {ModalConstruct, ModalStruct} from "@/modal";
-import {queryDemo, query} from "@/Helper";
-import type {api_node_col, api_file_list_resp, api_file_upload_resp} from "../../../share/Api";
-import smp_file_list_resp from "../../../share/sampleApi/smp_file_list_resp";
+import {onMounted, onUnmounted, ref} from "vue";
+import type {ModalStruct} from "@/modal";
+import {query} from "@/Helper";
+import type {api_file_list_req, api_file_list_resp, api_node_col} from "../../../share/Api";
 import GenFunc from "../../../share/GenFunc";
-import browserBaseVue from "./browserBase.vue";
-import browserImageVue from "./browserImage.vue";
-import browserAudioVue from "./browserAudio.vue";
-import browserVideoVue from "./browserVideo.vue";
-import {useLocalConfigureStore} from "@/stores/localConfigure";
-import {useEventStore} from "@/stores/event";
-import type {col_node, type_file} from "../../../share/Database";
-import type {api_file_list_req} from "../../../share/Api";
 import {useModalStore} from "@/stores/modalStore";
+
+
+type valType = api_node_col & { _sel?: boolean };
 //------------------
 const locatorInput: Ref<HTMLInputElement | null> = ref(null);
 
@@ -33,13 +27,13 @@ let queryData: api_file_list_req = {
 const props = defineProps<{
   data: {
     query: api_file_list_req;
-    call: (node: api_node_col) => any;
+    call: (node: valType) => any;
     [key: string]: any;
   };
   modalData: ModalStruct;
 }>();
 // const list = ref(new Map() as Map<string, uploadFile>);
-const list = ref([] as api_node_col[]);
+const list: Ref<valType[]> = ref([] as valType[]);
 onMounted(() => {
   Object.assign(queryData, JSON.parse(JSON.stringify(props.data.query)));
   locatorInput.value?.focus();
@@ -57,6 +51,7 @@ async function getList() {
   }
   list.value = res.list;
   if (list.value.length) {
+    list.value[0]._sel = true;
     if (props.modalData.layout.h < 220) {
       props.modalData.layout.h = 220;
     }
@@ -66,6 +61,8 @@ async function getList() {
 
 async function onChange(e: KeyboardEvent) {
   console.info(e);
+  const useHotkey = await keydownEvt(e);
+  if (useHotkey) return;
   GenFunc.debounce(() => {
     let val = locatorInput.value?.value;
     if (!val || !val.length) {
@@ -79,7 +76,7 @@ async function onChange(e: KeyboardEvent) {
   }, 200, 'locator');
 }
 
-async function onConfirm(node: api_node_col) {
+async function onConfirm(node: valType) {
   console.info(node);
   const modalStore = useModalStore();
   const res = await props.data.call(node);
@@ -89,6 +86,68 @@ async function onConfirm(node: api_node_col) {
 
 // async function onSwitch() {
 // }
+
+
+async function keydownEvt(e: KeyboardEvent): Promise<boolean> {
+  let curIndex: number, targetIndex: number;
+  let hasHotkey = false;
+  switch (e.code) {
+    case 'ArrowDown':
+      hasHotkey = true;
+      e.stopPropagation();
+      e.preventDefault();
+      if (!list.value.length) break;
+      curIndex = -1;
+      list.value.forEach((item, index) => {
+        if (item._sel) curIndex = index;
+      });
+      targetIndex = curIndex + 1;
+      while (targetIndex < 0) {
+        targetIndex += list.value.length;
+      }
+      while (targetIndex >= list.value.length) {
+        targetIndex -= list.value.length;
+      }
+      list.value.forEach((item, index) => {
+        item._sel = index == targetIndex;
+      });
+      break;
+    case 'ArrowUp':
+      hasHotkey = true;
+      e.stopPropagation();
+      e.preventDefault();
+      if (!list.value.length) break;
+      curIndex = 0;
+      list.value.forEach((item, index) => {
+        if (item._sel) curIndex = index;
+      });
+      targetIndex = curIndex - 1;
+      while (targetIndex < 0) {
+        targetIndex += list.value.length;
+      }
+      while (targetIndex >= list.value.length) {
+        targetIndex -= list.value.length;
+      }
+      list.value.forEach((item, index) => {
+        item._sel = index == targetIndex;
+      });
+      break;
+    case 'Enter':
+      hasHotkey = true;
+      e.stopPropagation();
+      e.preventDefault();
+      if (!list.value.length) break;
+      curIndex = -1;
+      list.value.forEach((item, index) => {
+        if (item._sel) curIndex = index;
+      });
+      if (curIndex == -1) break;
+      const curItem = list.value[curIndex];
+      onConfirm(curItem);
+      break;
+  }
+  return hasHotkey;
+}
 </script>
 
 <template>
@@ -100,13 +159,15 @@ async function onConfirm(node: api_node_col) {
            @keydown="onChange"
     >
     <div class="locator_list">
-      <div v-for="node in list" @click="onConfirm(node)">
+      <div v-for="node in list" @click="onConfirm(node)"
+           :class="{active:node._sel}"
+      >
         <p class="type">
           {{ node.type }}
         </p>
         <p class="tree">
           <span class="title">{{ node.title }}</span>
-          <span v-if="node.crumb_node" v-for="dir in node.crumb_node.reverse()">
+          <span v-if="node.crumb_node" v-for="dir in node.crumb_node">
             {{ dir.title }}
           </span>
         </p>
@@ -157,8 +218,8 @@ async function onConfirm(node: api_node_col) {
           }
         }
       }
-      &:hover {
-        background-color: map-get($colors, popup_active);
+      &:hover, &.active {
+        background-color: map-get($colors, bk_active);
         cursor: pointer;
       }
     }
