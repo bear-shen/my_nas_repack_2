@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {onMounted, onUnmounted, type Ref, ref} from "vue";
-import type {api_file_cover_req, api_file_delete_req, api_file_list_req, api_file_mov_req, api_file_mov_resp, api_file_rebuild_req, api_node_col, api_tag_col, api_tag_list_resp} from "../../../share/Api";
+import type {api_file_checksum_resp, api_file_cover_resp, api_file_delete_resp, api_file_list_req, api_file_mov_req, api_file_mov_resp, api_file_rebuild_resp, api_node_col, api_tag_col, api_tag_list_resp} from "../../../share/Api";
 import {useModalStore} from "@/stores/modalStore";
 import {query} from "@/Helper";
 import ContentEditable from "@/components/ContentEditable.vue";
@@ -125,6 +125,16 @@ function buildBtnDef(key: string) {
               },
               active: false,
             },
+            {
+              cls: ['sysIcon', 'sysIcon_reload'],
+              click: op_recheck,
+              title: 'CHK',
+              show: (btn: BtnDef) => {
+                // console.info(props.node.is_file)
+                return !!props.node.is_file
+              },
+              active: false,
+            },
           ],
         },
       ];
@@ -166,6 +176,16 @@ function buildBtnDef(key: string) {
           click: op_rebuild,
           title: 'RB',
           show: (btn: BtnDef) => {
+            return !!props.node.is_file
+          },
+          active: false,
+        },
+        {
+          cls: ['sysIcon', 'sysIcon_reload'],
+          click: op_recheck,
+          title: 'CHK',
+          show: (btn: BtnDef) => {
+            // console.info(props.node.is_file)
             return !!props.node.is_file
           },
           active: false,
@@ -348,7 +368,7 @@ function op_imp_tag_eh() {
 async function op_set_cover(btn: BtnDef) {
   const formData = new FormData();
   formData.set('id', `${props.node.id}`);
-  const res = await query<api_file_cover_req>('file/cover', formData);
+  const res = await query<api_file_cover_resp>('file/cover', formData);
   return res;
 }
 
@@ -358,7 +378,7 @@ function op_set_favourite(btn: BtnDef) {
 async function op_delete_forever() {
   const formData = new FormData();
   formData.set('id', `${props.node.id}`);
-  const res = await query<api_file_delete_req>('file/delete_forever', formData);
+  const res = await query<api_file_delete_resp>('file/delete_forever', formData);
   emits('go', 'reload');
   return res;
 }
@@ -366,7 +386,7 @@ async function op_delete_forever() {
 async function op_delete() {
   const formData = new FormData();
   formData.set('id', `${props.node.id}`);
-  const res = await query<api_file_delete_req>('file/delete', formData);
+  const res = await query<api_file_delete_resp>('file/delete', formData);
   emits('go', 'reload');
   return res;
 }
@@ -374,7 +394,21 @@ async function op_delete() {
 async function op_rebuild() {
   const formData = new FormData();
   formData.set('id', `${props.node.id}`);
-  const res = await query<api_file_rebuild_req>('file/rebuild', formData);
+  const res = await query<api_file_rebuild_resp>('file/rebuild', formData);
+  // emits('go', 'reload');
+  return res;
+}
+
+
+async function op_recheck() {
+  const formData = new FormData();
+  const idList = new Set<number>();
+  for (const key in props.node.index_file_id) {
+    idList.add(props.node.index_file_id[key] ?? 0);
+  }
+  if (!idList.size) return;
+  formData.set('id_list', Array.from(idList).join(','));
+  const res = await query<api_file_checksum_resp>('file/rehash', formData);
   // emits('go', 'reload');
   return res;
 }

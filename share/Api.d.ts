@@ -337,5 +337,12 @@ export type api_queue_list_req = {
 export type api_queue_list_resp =
     api_queue_col[];
 
+export type api_file_checksum_resp =
+    api_queue_col[];
+
+export type api_file_checksum_req = {
+    id_list: string,
+} & { [key: string]: any };
+
 
 

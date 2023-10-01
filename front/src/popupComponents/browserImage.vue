@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import {onMounted, onUnmounted, ref, type Ref, watch} from "vue";
-import type {ModalConstruct, ModalStruct} from "../modal";
-import {queryDemo, query} from "@/Helper";
-import type {api_node_col, api_file_list_resp} from "../../../share/Api";
-import smp_file_list_resp from "../../../share/sampleApi/smp_file_list_resp";
+import type {ModalStruct} from "../modal";
+import type {api_node_col} from "../../../share/Api";
 import GenFunc from "../../../share/GenFunc";
 import {useEventStore} from "@/stores/event";
 
@@ -94,9 +92,12 @@ async function fitImg() {
   // const domLayout = contentDOM.value;
   // const domW = domLayout?.clientWidth ?? 0;
   // const domH = domLayout?.clientHeight ?? 0;
+  // console.info(props.modalData);
   const modalLayout = props.modalData.layout;
   const domW = modalLayout.w ?? 0;
-  const domH = modalLayout.h ?? 0;
+  let domH = modalLayout.h ?? 0;
+  //因为上面用的layout所以会导致一个偏差，没想到有什么好办法，直接减掉算了
+  domH -= 16;
   const layout = imgLayout.value;
   const wRatio = domW / layout.orgW;
   const hRatio = domH / layout.orgH;

@@ -7,6 +7,8 @@ import {
     api_file_bath_move_resp,
     api_file_bath_rename_req,
     api_file_bath_rename_resp,
+    api_file_checksum_req,
+    api_file_checksum_resp,
     api_file_cover_req,
     api_file_cover_resp,
     api_file_delete_req,
@@ -440,6 +442,20 @@ export default class {
             await fp.mv(id, parseInt(request.id_parent));
             (new QueueModel).insert({
                 type: 'file/rebuildIndex',
+                payload: {id: id},
+                status: 1,
+            });
+        }
+    }
+
+    async rehash(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_checksum_resp | any> {
+        const request = data.fields as api_file_checksum_req;
+        const list = request.id_list.split(',');
+        //
+        for (const fileId of list) {
+            const id = parseInt(fileId);
+            (new QueueModel).insert({
+                type: 'file/checksum',
                 payload: {id: id},
                 status: 1,
             });

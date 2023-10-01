@@ -215,10 +215,20 @@ class FileJob {
         else
             file = await (new FileModel()).where('id', fileId).first();
         //
+        if (!file || !file.uuid)
+            throw new Error(`invalid file id, ${fileId}`);
         const checksum = await fp.checksum(file);
-        await (new FileModel()).where('id', fileId).update({
-            checksum: checksum,
-        });
+        if (file.checksum && file.checksum.length) {
+            if (file.checksum != checksum) {
+                throw new Error(`invalid hash code, ${checksum}`)
+            } else {
+                return;
+            }
+        } else {
+            await (new FileModel()).where('id', fileId).update({
+                checksum: checksum,
+            });
+        }
     }
 
     static async buildIndex(payload: { [key: string]: any }): Promise<any> {
