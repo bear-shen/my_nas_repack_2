@@ -1,7 +1,61 @@
-import type {api_user_login_req, api_user_login_resp} from "../../share/Api";
-import FrontConfig from "./FrontConfig";
+import type {api_node_col, api_user_login_req, api_user_login_resp} from "../../share/Api";
+import Config from "./Config";
 
 import {useModalStore} from "@/stores/modalStore";
+
+export function manualSort(list: api_node_col[], sort: string) {
+    let sortType: [keyof api_node_col, string] = ['id', 'asc'];
+    switch (sort) {
+        default:
+        case 'id_asc':
+            sortType = ['id', 'asc',];
+            break;
+        case 'id_desc':
+            sortType = ['id', 'desc',];
+            break;
+        case 'name_asc':
+            sortType = ['title', 'asc',];
+            break;
+        case 'name_desc':
+            sortType = ['title', 'desc',];
+            break;
+        case 'crt_asc':
+            sortType = ['time_create', 'asc',];
+            break;
+        case 'crt_desc':
+            sortType = ['time_create', 'desc',];
+            break;
+        case 'upd_asc':
+            sortType = ['time_update', 'asc',];
+            break;
+        case 'upd_desc':
+            sortType = ['time_update', 'desc',];
+            break;
+    }
+    list.sort((a, b) => {
+        let va: any = '';
+        let vb: any = '';
+        let ca = [];
+        let cb = [];
+        switch (sortType[0]) {
+            default:
+                va = a[sortType[0]];
+                vb = b[sortType[0]];
+                break;
+            case 'title':
+                a?.crumb_node?.forEach(node => ca.push(node.title));
+                b?.crumb_node?.forEach(node => cb.push(node.title));
+                ca.push(a.title);
+                cb.push(b.title);
+                va = ca.join(' ');
+                vb = cb.join(' ');
+                break;
+        }
+        const rev = sortType[1] == 'desc' ? -1 : 1;
+        return (va ? va : 0) > (vb ? vb : 0) ? rev * 1 : rev * -1;
+    });
+    return list;
+}
 
 export function queryDemo<K>(
     path: string, data: { [key: string]: any } | FormData,
@@ -56,7 +110,7 @@ export function query<K>(
             }
         };
         if (extra && extra.upload) xhr.upload.onprogress = extra.upload;
-        xhr.open('POST', FrontConfig.apiPath + path);
+        xhr.open('POST', Config.apiPath + path);
         const ifAuthed = localStorage.getItem('toshokan_auth_token');
         if (ifAuthed) xhr.setRequestHeader('Auth-Token', ifAuthed);
         xhr.send(formData);

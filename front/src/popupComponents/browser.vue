@@ -2,7 +2,7 @@
 import type {Ref} from "vue";
 import {onMounted, onUnmounted, ref} from "vue";
 import type {ModalStruct} from "../modal";
-import {query} from "@/Helper";
+import {manualSort, query} from "@/Helper";
 import type {api_file_list_req, api_file_list_resp, api_node_col} from "../../../share/Api";
 import GenFunc from "../../../share/GenFunc";
 import browserBaseVue from "./browserBase.vue";
@@ -176,7 +176,7 @@ async function getList(ext: api_file_list_req = {}) {
     break;
   }
   crumbList.value = res.path;
-  nodeList.value = sortList(res.list);
+  nodeList.value = sortList(res.list, sortVal.value);
   // console.info(res);
   if (!node) node = nodeList.value[0];
   // console.warn(node.title);
@@ -319,7 +319,7 @@ async function keymap(e: KeyboardEvent) {
       // console.info(crumbLs);
       dirNode = crumbList.value[crumbList.value.length - 1];
       parentLsQ = await getParentDir(dirNode.id_parent ?? '');
-      parentLs = sortList(parentLsQ.list);
+      parentLs = sortList(parentLsQ.list, sortVal.value);
       len = parentLs.length;
       if (len < 2) return;
       curParentIndex = 0;
@@ -344,7 +344,7 @@ async function keymap(e: KeyboardEvent) {
       // console.info(crumbLs);
       dirNode = crumbList.value[crumbList.value.length - 1];
       parentLsQ = await getParentDir(dirNode.id_parent ?? '');
-      parentLs = sortList(parentLsQ.list);
+      parentLs = sortList(parentLsQ.list, sortVal.value);
       len = parentLs.length;
       if (len < 2) return;
       curParentIndex = 0;
@@ -400,48 +400,15 @@ function setSort(val: string) {
   sortVal.value = val;
   const orgLs = nodeList.value;
   nodeList.value = [];
-  sortList(orgLs);
+  sortList(orgLs, sortVal.value);
   nodeList.value = orgLs;
   curIndex.value = locateCurNode(orgLs, curNode.value);
   modTitle();
   // localConfigure.set("file_view_sort", sortVal);
 }
 
-function sortList(list: col_node[]) {
-  let sortType: [keyof col_node, string] = ['id', 'asc'];
-  switch (sortVal.value) {
-    default:
-    case 'id_asc':
-      sortType = ['id', 'asc',];
-      break;
-    case 'id_desc':
-      sortType = ['id', 'desc',];
-      break;
-    case 'name_asc':
-      sortType = ['title', 'asc',];
-      break;
-    case 'name_desc':
-      sortType = ['title', 'desc',];
-      break;
-    case 'crt_asc':
-      sortType = ['time_create', 'asc',];
-      break;
-    case 'crt_desc':
-      sortType = ['time_create', 'desc',];
-      break;
-    case 'upd_asc':
-      sortType = ['time_update', 'asc',];
-      break;
-    case 'upd_desc':
-      sortType = ['time_update', 'desc',];
-      break;
-  }
-  list.sort((a, b) => {
-    const va = a[sortType[0]];
-    const vb = b[sortType[0]];
-    const rev = sortType[1] == 'desc' ? -1 : 1;
-    return (va ? va : 0) > (vb ? vb : 0) ? rev * 1 : rev * -1;
-  })
+function sortList(list: col_node[], sort: string) {
+  list = manualSort(list, sort);
   curIndex.value = locateCurNode(nodeList.value, curNode.value);
   localConfigure.set("browser_list_sort", sortVal)
   return list;

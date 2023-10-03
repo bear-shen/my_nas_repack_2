@@ -34,6 +34,7 @@ import FileModel from '../../model/FileModel';
 import * as fp from "../../lib/FileProcessor";
 import {get as getConfig} from "../../ServerConfig";
 import QueueModel from "../../model/QueueModel";
+import ORM from "../../lib/ORM";
 
 export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_list_resp> {
@@ -44,7 +45,7 @@ export default class {
             path: [] as col_node[],
             list: [] as api_node_col[],
         };
-        // ORM.dumpSql = true;
+        ORM.dumpSql = true;
         if (parseInt(request.pid)) {
             const model = new NodeModel();
             const curNode = await model.where('id', request.pid).first();
@@ -114,6 +115,19 @@ export default class {
                     else
                         model.whereRaw('find_in_set(?,list_node)', request.pid);
                 }
+                break;
+            case 'id_iterate':
+                let idList = request.keyword.split(',');
+                model.where((model) => {
+                    model.whereIn('id', idList);
+                    model.or().whereIn('id_parent', idList);
+                    //参考 HoneyView 的话应该只看 parent
+                    //但是参考 PotPlayer 就是用 find_in_set
+                    //这样有性能问题，但是没想到什么好办法
+                    idList.forEach(id =>
+                        model.or().whereRaw('find_in_set(?,list_node)', id)
+                    );
+                });
                 break;
         }
         if (request.node_type) {

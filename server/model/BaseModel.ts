@@ -1,5 +1,5 @@
 import ORM from "../lib/ORM";
-import { ResultSetHeader } from "mysql2";
+import {ResultSetHeader} from "mysql2";
 
 interface field {
     [key: string]: any;
@@ -78,7 +78,7 @@ class BaseModel<field> extends ORM {
         return await super.delete();
     }
 
-    where(...arg: (keyof field)[] | any[]): this {
+    where(...arg: (keyof field)[] | any[] | ((orm: this) => any)[]): this {
         return super.where(...arg);
     }
 

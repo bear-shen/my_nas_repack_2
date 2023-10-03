@@ -4,8 +4,7 @@ import type {Ref} from "vue";
 import {onMounted, onUnmounted, ref} from "vue";
 import {onBeforeRouteUpdate, useRoute, useRouter,} from "vue-router";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
-import type {col_node,} from "../../../share/Database";
-import {query} from "@/Helper";
+import {manualSort, query} from "@/Helper";
 import GenFunc from "../../../share/GenFunc";
 import FileItem from "@/components/FileItem.vue";
 import type {api_file_bath_delete_resp, api_file_bath_move_resp, api_file_bath_rename_resp, api_file_list_req, api_file_list_resp, api_file_mkdir_req, api_file_mkdir_resp, api_node_col,} from "../../../share/Api";
@@ -118,7 +117,7 @@ async function getList() {
   if (!res) return;
   // console.info(res);
   crumbList.value = res.path;
-  nodeList.value = sortList(res.list);
+  nodeList.value = sortList(res.list, sortVal.value);
   // console.info(crumbList);
 }
 
@@ -230,51 +229,18 @@ let sortVal: Ref<string> = ref(localConfigure.get("file_view_sort") ?? "name_asc
 //   }
 // );
 
-function setSort(sortVal: string) {
-  console.info('setSort', sortVal);
-  localConfigure.set("file_view_sort", sortVal);
+function setSort(sort: string) {
+  console.info('setSort', sort);
+  localConfigure.set("file_view_sort", sort);
   const preList = nodeList.value;
   nodeList.value = [];
   setTimeout(() => {
-    nodeList.value = sortList(preList);
+    nodeList.value = sortList(preList, sortVal.value);
   }, timeoutDef.sort);
 }
 
-function sortList(list: col_node[]) {
-  let sortType: [keyof col_node, string] = ['id', 'asc'];
-  switch (sortVal.value) {
-    default:
-    case 'id_asc':
-      sortType = ['id', 'asc',];
-      break;
-    case 'id_desc':
-      sortType = ['id', 'desc',];
-      break;
-    case 'name_asc':
-      sortType = ['title', 'asc',];
-      break;
-    case 'name_desc':
-      sortType = ['title', 'desc',];
-      break;
-    case 'crt_asc':
-      sortType = ['time_create', 'asc',];
-      break;
-    case 'crt_desc':
-      sortType = ['time_create', 'desc',];
-      break;
-    case 'upd_asc':
-      sortType = ['time_update', 'asc',];
-      break;
-    case 'upd_desc':
-      sortType = ['time_update', 'desc',];
-      break;
-  }
-  list.sort((a, b) => {
-    const va = a[sortType[0]];
-    const vb = b[sortType[0]];
-    const rev = sortType[1] == 'desc' ? -1 : 1;
-    return (va ? va : 0) > (vb ? vb : 0) ? rev * 1 : rev * -1;
-  });
+function sortList(list: api_node_col[], sort: string) {
+  list = manualSort(list, sort);
   reloadOffset(undefined, timeoutDef.offsetDebounce);
   return list;
 }
@@ -350,6 +316,8 @@ function emitGo(type: string, code: number) {
 }
 
 function popupDetail(queryData: { [key: string]: any }, curNodeId: number) {
+  //双击从 emitGo 进入
+  //打开是手动打开
   let w = localConfigure.get("browser_layout_w");
   let h = localConfigure.get("browser_layout_h");
   // console.info(w, h);
@@ -585,110 +553,6 @@ function getSelection(selectingOffset: number[][]): Set<number> {
   return selIndexLs;
 }
 
-/***
- * @deprecated
- * */
-/*function emitSelect(event: MouseEvent, node: api_node_col) {
-  // if (!notSelecting) return;
-  console.info('emitSelect', event, node);
-  // return;
-  const keyMap = [];
-  if (event.ctrlKey) keyMap.push('ctrl');
-  if (event.shiftKey) keyMap.push('shift');
-  if (event.altKey) keyMap.push('alt');
-  if (event.metaKey) keyMap.push('meta');
-  const keyDef = keyMap.join('_');
-  let f: number, t: number,
-    curNodeIndex: number, prevNodeIndex: number;
-  switch (keyDef) {
-    default:
-      console.info('def');
-      nodeList.value.forEach(item => {
-        if (item.id == node.id) {
-          item._selected = true;
-          // item._selected = !item?._selected;
-          console.info(item._selected);
-        } else {
-          item._selected = false;
-        }
-      });
-      break;
-    case 'ctrl':
-      // console.info('ctrl');
-      nodeList.value.forEach(item => {
-        if (item.id == node.id) {
-          item._selected = !item?._selected;
-        }
-      });
-      break;
-    case 'shift':
-      // console.info('shift');
-      curNodeIndex = -1;
-      prevNodeIndex = -1;
-      nodeList.value.forEach((item, index) => {
-        if (lastSelectId.value && item.id == lastSelectId.value && item._selected) {
-          prevNodeIndex = index;
-        }
-        if (node.id && item.id == node.id) {
-          curNodeIndex = index;
-        }
-      });
-      // console.info(lastSelectId.value, prevNodeIndex, curNodeIndex);
-      if (prevNodeIndex == curNodeIndex) break;
-      if (prevNodeIndex == -1 || curNodeIndex == -1) break;
-      if (prevNodeIndex > curNodeIndex) {
-        f = curNodeIndex;
-        t = prevNodeIndex;
-      } else {
-        t = curNodeIndex;
-        f = prevNodeIndex;
-      }
-      nodeList.value.forEach((item, index) => {
-        if (index < f) item._selected = false;
-        else if (index > t) item._selected = false;
-        else item._selected = true;
-      });
-      break;
-    case 'ctrl_shift':
-      curNodeIndex = -1;
-      prevNodeIndex = -1;
-      nodeList.value.forEach((item, index) => {
-        if (lastSelectId.value && item.id == lastSelectId.value && item._selected) {
-          prevNodeIndex = index;
-        }
-        if (node.id && item.id == node.id) {
-          curNodeIndex = index;
-        }
-      });
-      // console.info(lastSelectId.value, prevNodeIndex, curNodeIndex);
-      if (prevNodeIndex == curNodeIndex) break;
-      if (prevNodeIndex == -1 || curNodeIndex == -1) break;
-      if (prevNodeIndex > curNodeIndex) {
-        f = curNodeIndex;
-        t = prevNodeIndex;
-      } else {
-        t = curNodeIndex;
-        f = prevNodeIndex;
-      }
-      for (let i1 = f; i1 <= t; i1++) {
-        nodeList.value[i1]._selected = true;
-      }
-      break;
-    case 'ctrl_alt':
-      break;
-    case 'shift_alt':
-      break;
-  }
-  //
-  let selectCount = 0;
-  nodeList.value.forEach(item => {
-    if (item._selected) selectCount += 1;
-  });
-  //
-  showSelectionOp.value = selectCount > 0;
-  lastSelectId.value = node.id ?? 0;
-}*/
-
 function clearSelect(e: MouseEvent) {
   // console.info(e);
   if (!(e.target as Element).classList.contains('content_detail')) return;
@@ -745,7 +609,7 @@ async function bathOp(mode: string) {
         callback: {
           submit: async (modal) => {
             console.info('on submit', subNodeLs, modal);
-            sortList(subNodeLs);
+            sortList(subNodeLs, sortVal.value);
             let pattern = modal.content.form[0].value;
             //
             let defIndexPrefix = subNodeLs.length.toString().length + 1;
@@ -854,13 +718,16 @@ async function bathOp(mode: string) {
   }
 }
 
-
 async function keymap(e: KeyboardEvent) {
   // console.info(e);
+  let selCount: number;
+  let selInd: number;
+  let selArr: number[];
+  let query: api_file_list_req;
   switch (e.key) {
     case 'F2':
-      let selCount = 0;
-      let selInd = -1;
+      selCount = 0;
+      selInd = -1;
       nodeList.value.forEach((node, index) => {
         if (!node._selected) return;
         selCount += 1;
@@ -891,6 +758,22 @@ async function keymap(e: KeyboardEvent) {
       const res = await query<api_file_bath_delete_resp>("file/bath_delete", queryData);
       //同步回列表
       getList();*/
+      break;
+    case 'Enter':
+      selArr = [];
+      nodeList.value.forEach((node, index) => {
+        if (!node._selected) return;
+        selArr.push(node.id ?? 0);
+      });
+      if (selArr.length > 1) {
+        query = GenFunc.copyObject(queryData);
+        query.mode = 'id_iterate';
+        query.keyword = selArr.join(',');
+        popupDetail(query, selArr[0] ?? 0);
+      }
+      if (selArr.length == 1) {
+        popupDetail(GenFunc.copyObject(queryData), selArr[0] ?? 0);
+      }
       break;
   }
 }
@@ -1021,6 +904,7 @@ onUnmounted(() => {
       </div>
       <div class="display">
         <template v-if="showSelectionOp">
+          <a @click="bathOp('browser')">OP</a>
           <a @click="bathOp('rename')">RN</a>
           <a @click="bathOp('move')">MV</a>
           <a v-if="route.name!=='Recycle'" @click="bathOp('delete')">DEL</a>
