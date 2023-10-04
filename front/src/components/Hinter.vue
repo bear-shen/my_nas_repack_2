@@ -83,6 +83,7 @@ async function keydownEvt(e: KeyboardEvent) {
         item._sel = index == targetIndex;
       });
       break;
+    case 'NumpadEnter':
     case 'Enter':
       e.stopPropagation();
       e.preventDefault();

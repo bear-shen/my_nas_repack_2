@@ -835,6 +835,7 @@ async function keymap(e: KeyboardEvent) {
         bath_delete(selRes.idSet, selRes.nodeLs);
       }
       break;
+    case 'NumpadEnter':
     case 'Enter':
       if ((e.target as HTMLElement).tagName !== "BODY") return;
       selRes = getSelected();

@@ -132,6 +132,7 @@ async function keydownEvt(e: KeyboardEvent): Promise<boolean> {
         item._sel = index == targetIndex;
       });
       break;
+    case 'NumpadEnter':
     case 'Enter':
       hasHotkey = true;
       e.stopPropagation();

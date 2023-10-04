@@ -377,6 +377,7 @@ async function keymap(e: KeyboardEvent) {
         if (getNxtRst) break;
       } while (--retryCount > 0);
       break;
+    case 'NumpadEnter':
     case 'Enter':
       break;
   }
