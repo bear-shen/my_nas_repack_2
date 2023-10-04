@@ -53,8 +53,8 @@ async function imp() {
     minW: 400,
     minH: 60,
     // h: 160,
-    resizable: true,
-    movable: false,
+    allow_resize: true,
+    allow_move: true,
     fullscreen: false,
     component: [
       {

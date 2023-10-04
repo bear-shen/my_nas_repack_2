@@ -141,8 +141,8 @@ function addFolder() {
     minW: 400,
     minH: 100,
     // h: 160,
-    resizable: true,
-    movable: false,
+    allow_resize: false,
+    allow_move: true,
     fullscreen: false,
     form: [
       {
@@ -188,8 +188,8 @@ function addFile() {
     minW: 400,
     minH: 200,
     // h: 160,
-    resizable: true,
-    movable: false,
+    allow_resize: true,
+    allow_move: true,
     fullscreen: false,
     // text: "this is text",
     component: [
@@ -336,8 +336,8 @@ function popupDetail(queryData: { [key: string]: any }, curNodeId: number) {
     minW: 400,
     minH: 400,
     // h: 160,
-    resizable: true,
-    movable: false,
+    allow_resize: true,
+    allow_move: true,
     fullscreen: false,
     component: [
       {
@@ -620,8 +620,8 @@ async function bath_rename(idSet: Set<number>, nodeLs: api_node_col[]) {
       minW: 400,
       minH: 250,
       // h: 160,
-      resizable: false,
-      movable: true,
+      allow_resize: true,
+      allow_move: true,
       fullscreen: false,
       text: `<p>rename pattern:</p>
 <table>
@@ -710,8 +710,8 @@ async function bath_move(idSet: Set<number>, nodeLs?: api_node_col[]) {
     minW: 400,
     minH: 60,
     // h: 160,
-    resizable: true,
-    movable: false,
+    allow_resize: true,
+    allow_move: true,
     fullscreen: false,
     // text: "this is text",
     component: [
@@ -750,8 +750,8 @@ async function bath_delete(idSet: Set<number>, nodeLs?: api_node_col[]) {
     minW: 400,
     minH: 100,
     // h: 160,
-    resizable: true,
-    movable: false,
+    allow_resize: false,
+    allow_move: true,
     fullscreen: false,
     text: "conform to delete",
     callback: {
@@ -781,8 +781,8 @@ async function bath_delete_forever(idSet: Set<number>, nodeLs?: api_node_col[]) 
     minW: 400,
     minH: 100,
     // h: 160,
-    resizable: true,
-    movable: false,
+    allow_resize: false,
+    allow_move: true,
     fullscreen: false,
     text: "conform to delete forever",
     callback: {

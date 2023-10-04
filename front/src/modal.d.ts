@@ -30,8 +30,9 @@ export type ModalLayout = {
     minW: number;
     minH: number;
     //
-    resizable: boolean;
-    movable: boolean;
+    allow_resize: boolean;
+    allow_move: boolean;
+    allow_escape: boolean;
     //
     active: boolean;
     index: number;
@@ -76,8 +77,11 @@ export type ModalConstruct = {
     // minY: number;
     minW?: number | 320;
     minH?: number | 160;
-    resizable?: boolean | true;
-    movable?: boolean | true;
+    //default true
+    allow_resize?: boolean;
+    allow_move?: boolean;
+    allow_escape?: boolean;
+    //
     fullscreen?: boolean | false;
     // content
     text?: string;

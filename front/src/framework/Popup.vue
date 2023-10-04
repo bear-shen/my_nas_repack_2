@@ -40,8 +40,9 @@ function buildModal(modal: ModalConstruct): ModalStruct {
       y: 0,
       minW: 0,
       minH: 0,
-      resizable: false,
-      movable: false,
+      allow_resize: false,
+      allow_move: false,
+      allow_escape: false,
       active: false,
       index: 0,
       fullscreen: false,
@@ -64,8 +65,9 @@ function buildModal(modal: ModalConstruct): ModalStruct {
   layout.y = (ih - layout.h) / 2;
   layout.minW = modal.minW ?? 400;
   layout.minH = modal.minH ?? 160;
-  layout.resizable = modal.resizable ?? true;
-  layout.movable = modal.movable ?? true;
+  layout.allow_resize = modal.allow_resize ?? true;
+  layout.allow_move = modal.allow_move ?? true;
+  layout.allow_escape = modal.allow_escape ?? true;
   layout.active = false;
   layout.index = diffStamp;
   layout.fullscreen = modal.fullscreen ?? false;
@@ -502,6 +504,7 @@ function keymap(e: KeyboardEvent) {
       // if ((e.target as HTMLElement).tagName !== "BODY") return;
       modalList.value.forEach((value, key) => {
         if (value.layout.active) {
+          if (!value.layout.allow_escape) return;
           close(value.nid);
         }
       });
@@ -638,7 +641,7 @@ function keymap(e: KeyboardEvent) {
           {{ modal.base.title }}
         </div>
         <div class="modal_menu">
-          <template v-if="modal.layout.resizable">
+          <template v-if="modal.layout.allow_move">
             <span
               class="sysIcon sysIcon_maximize"
               v-if="!modal.layout.fullscreen"
@@ -756,7 +759,9 @@ function keymap(e: KeyboardEvent) {
         <!-- <HelloWorld msg="123" /> -->
         <!-- </div> -->
       </div>
-      <div class="modal_border" @mousedown="onResizeStart(modal.nid, $event)">
+      <div class="modal_border"
+           v-if="modal.layout.allow_resize"
+           @mousedown="onResizeStart(modal.nid, $event)">
         <div class="c_l"></div>
         <div class="c_r"></div>
         <div class="c_t"></div>
