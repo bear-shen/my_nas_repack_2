@@ -829,7 +829,11 @@ async function keymap(e: KeyboardEvent) {
     case 'Delete':
       if ((e.target as HTMLElement).tagName !== "BODY") return;
       selRes = getSelected();
-      bath_delete(selRes.idSet, selRes.nodeLs);
+      if (route.name === 'Recycle') {
+        bath_delete_forever(selRes.idSet, selRes.nodeLs);
+      } else {
+        bath_delete(selRes.idSet, selRes.nodeLs);
+      }
       break;
     case 'Enter':
       if ((e.target as HTMLElement).tagName !== "BODY") return;
