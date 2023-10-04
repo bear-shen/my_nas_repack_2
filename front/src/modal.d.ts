@@ -1,6 +1,6 @@
 import type {DefineComponent} from "vue";
 
-//callback use return true to keep;
+//return true to keep
 export type ModalCallbackFunc = (modal: ModalStruct) => Promise<true | any> | void;
 
 export type ModalFormConstruct<K> = {

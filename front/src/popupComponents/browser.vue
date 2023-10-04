@@ -166,6 +166,19 @@ async function getList(ext: api_file_list_req = {}) {
   const res = await query<api_file_list_resp>("file/get", props.data.query);
   if (!res) return false;
   if (!res.list.length) return false;
+  //先过滤掉文件夹
+  let dirCount = 0;
+  res.list.forEach(node => {
+    if (!node.is_file) dirCount++;
+  });
+  //有文件的时候才清理
+  if (dirCount != res.list.length) {
+    const tList: api_node_col[] = [];
+    res.list.forEach(node => {
+      if (node.is_file) tList.push(node);
+    });
+    res.list = tList;
+  }
   //
   let index = 0;
   let node = null;
@@ -175,12 +188,14 @@ async function getList(ext: api_file_list_req = {}) {
     node = res.list[i1];
     break;
   }
+  console.info(index, node);
   crumbList.value = res.path;
   nodeList.value = sortList(res.list, sortVal.value);
   // console.info(res);
   if (!node) node = nodeList.value[0];
   // console.warn(node.title);
   curIndex.value = locateCurNode(nodeList.value, node);
+  console.info(curIndex.value);
   // console.info(curIndex.value);
   // nodeList.value = sortList(res.list);
   // curNode.value = node;
@@ -376,6 +391,8 @@ function goDownload() {
 function locateCurNode(list: col_node[], node: col_node) {
   let index = 0;
   list.forEach((item, ind) => {
+    // console.info(item);
+    // if (item.type == 'directory') return;
     if (item.id === node.id)
       index = ind;
   });

@@ -393,7 +393,11 @@ function inDetailView(e: MouseEvent): boolean {
     // console.info(prop.classList);
     // console.info(prop.classList.contains('content_detail'));
     // if(props.tagName)
-    if (prop.classList.contains('content_detail')) {
+    if (prop.classList.contains('content_meta')) {
+      inDetail = false;
+      break;
+    }
+    if (prop.classList.contains('fr_content')) {
       inDetail = true;
       break;
     }
@@ -567,31 +571,59 @@ function clearSelect(e: MouseEvent) {
 }
 
 async function bathOp(mode: string) {
-  const subNodeLs: api_node_col[] = [];
-  const subNodeIdLs: Set<number> = new Set<number>();
-  nodeList.value.forEach(item => {
-    if (!item._selected) return;
-    subNodeLs.push(item);
-    subNodeIdLs.add(item?.id ?? 0);
-  });
+  let {idSet, nodeLs} = getSelected();
   let queryData: { [key: string]: any };
   let res: any;
   switch (mode) {
     case 'rename':
-      modalStore.set({
-        title: `bath rename`,
-        alpha: false,
-        key: "",
-        single: false,
-        w: 400,
-        h: 250,
-        minW: 400,
-        minH: 250,
-        // h: 160,
-        resizable: false,
-        movable: true,
-        fullscreen: false,
-        text: `<p>rename pattern:</p>
+      bath_rename(idSet, nodeLs);
+      break;
+    case 'move':
+      bath_move(idSet, nodeLs);
+      break;
+    case 'delete':
+      bath_delete(idSet, nodeLs);
+      break;
+    case 'delete_forever':
+      bath_delete_forever(idSet, nodeLs);
+      break;
+    case 'browser':
+      bath_browser(idSet, nodeLs);
+      break;
+  }
+}
+
+function getSelected() {
+  const subNodeLs: api_node_col[] = [];
+  const subNodeIdSet: Set<number> = new Set<number>();
+  nodeList.value.forEach(item => {
+    if (!item._selected) return;
+    subNodeLs.push(item);
+    subNodeIdSet.add(item?.id ?? 0);
+  });
+  return {
+    nodeLs: subNodeLs,
+    idSet: subNodeIdSet,
+  }
+}
+
+async function bath_rename(idSet: Set<number>, nodeLs: api_node_col[]) {
+  let lastNode = nodeLs[nodeLs.length - 1];
+  if (idSet.size > 1) {
+    modalStore.set({
+      title: `bath rename`,
+      alpha: false,
+      key: "",
+      single: false,
+      w: 400,
+      h: 250,
+      minW: 400,
+      minH: 250,
+      // h: 160,
+      resizable: false,
+      movable: true,
+      fullscreen: false,
+      text: `<p>rename pattern:</p>
 <table>
 <tr><td>code</td><td>description</td></tr>
 <tr><td>{filename}</td><td>file name</td></tr>
@@ -599,181 +631,210 @@ async function bathOp(mode: string) {
 <tr><td>{index:n}</td><td>index by sort, prefix len by [n]</td></tr>
 <tr><td>{directory}</td><td>parent directory name</td></tr>
 `,
-        form: [
-          {
-            label: 'pattern',
-            type: 'text',
-            value: '{index}_{filename}',
+      form: [
+        {
+          label: 'pattern',
+          type: 'text',
+          value: '{index}_{filename}',
+        }
+      ],
+      callback: {
+        submit: async (modal) => {
+          console.info('on submit', nodeLs, modal);
+          sortList(nodeLs, sortVal.value);
+          let pattern = modal.content.form[0].value;
+          //
+          let defIndexPrefix = nodeLs.length.toString().length + 1;
+          //
+          let manIndexPrefix = 0;
+          let manIndexKey = '';
+          let matchManIndex = pattern.match(/\{index:(\d+)}/);
+          if (matchManIndex) {
+            manIndexPrefix = parseInt(matchManIndex[1]);
+            manIndexKey = matchManIndex[0];
           }
-        ],
-        callback: {
-          submit: async (modal) => {
-            console.info('on submit', subNodeLs, modal);
-            sortList(subNodeLs, sortVal.value);
-            let pattern = modal.content.form[0].value;
+          //
+          const modMap = new Map<number, string>();
+          nodeLs.forEach((node, index) => {
+            const parentNode = node.crumb_node ? node.crumb_node[node.crumb_node.length - 1] : null;
+            const parentTitle = parentNode ? parentNode.title : '';
             //
-            let defIndexPrefix = subNodeLs.length.toString().length + 1;
-            //
-            let manIndexPrefix = 0;
-            let manIndexKey = '';
-            let matchManIndex = pattern.match(/\{index:(\d+)\}/);
-            if (matchManIndex) {
-              manIndexPrefix = parseInt(matchManIndex[1]);
-              manIndexKey = matchManIndex[0];
-            }
-            //
-            const modMap = new Map<number, string>();
-            subNodeLs.forEach((node, index) => {
-              const parentNode = node.crumb_node ? node.crumb_node[node.crumb_node.length - 1] : null;
-              const parentTitle = parentNode ? parentNode.title : '';
-              //
-              let replaceKV = new Map<string, string>();
-              replaceKV.set('{filename}', node.title ?? '');
-              replaceKV.set('{index}', GenFunc.prefix(index + 1, defIndexPrefix, '0'));
-              replaceKV.set('{directory}', parentTitle ?? '');
-              replaceKV.set(`{index:${manIndexKey}}`, GenFunc.prefix(index + 1, manIndexPrefix, '0'));
-              let target = pattern;
-              replaceKV.forEach((value, key) => {
-                // console.info(key, value);
-                target = target.replace(key, value);
-              })
-              // console.info(target);
-              modMap.set(node.id ?? 0, target);
-            });
-            const modArr = [] as { id: number, title: string }[];
-            modMap.forEach((value, key) => {
-              modArr.push({id: key, title: value});
-            });
-            // console.info(modArr);
-            // return;
+            let replaceKV = new Map<string, string>();
+            replaceKV.set('{filename}', node.title ?? '');
+            replaceKV.set('{index}', GenFunc.prefix(index + 1, defIndexPrefix, '0'));
+            replaceKV.set('{directory}', parentTitle ?? '');
+            replaceKV.set(`{index:${manIndexKey}}`, GenFunc.prefix(index + 1, manIndexPrefix, '0'));
+            let target = pattern;
+            replaceKV.forEach((value, key) => {
+              // console.info(key, value);
+              target = target.replace(key, value);
+            })
+            // console.info(target);
+            modMap.set(node.id ?? 0, target);
+          });
+          const modArr = [] as { id: number, title: string }[];
+          modMap.forEach((value, key) => {
+            modArr.push({id: key, title: value});
+          });
+          // console.info(modArr);
+          // return;
 
+          const queryData = {
+            list: JSON.stringify(modArr)
+          };
+          const res = await query<api_file_bath_rename_resp>("file/bath_rename", queryData);
+          //同步回列表
+          getList();
+          if (!res) return;
+        },
+      },
+    } as ModalConstruct);
+  }
+  if (idSet.size == 1) {
+    lastNode._renaming = true;
+    setTimeout(() => {
+      let tDOM = lastNode._dom?.querySelector('[contenteditable="true"]') as HTMLElement;
+      tDOM.focus();
+    }, 50)
+  }
+}
+
+async function bath_move(idSet: Set<number>, nodeLs?: api_node_col[]) {
+  modalStore.set({
+    title: `locator | move ${idSet.size} files to:`,
+    alpha: false,
+    key: "",
+    single: false,
+    w: 400,
+    h: 60,
+    minW: 400,
+    minH: 60,
+    // h: 160,
+    resizable: true,
+    movable: false,
+    fullscreen: false,
+    // text: "this is text",
+    component: [
+      {
+        componentName: "locator",
+        data: {
+          query: {
+            type: 'directory',
+          } as api_file_list_req,
+          call: async (targetNode: api_node_col) => {
+            console.info(targetNode);
             const queryData = {
-              list: JSON.stringify(modArr)
+              id_list: Array.from(idSet).join(','),
+              id_parent: targetNode.id
             };
-            const res = await query<api_file_bath_rename_resp>("file/bath_rename", queryData);
+            const res = await query<api_file_bath_move_resp>("file/bath_move", queryData);
             //同步回列表
             getList();
             if (!res) return;
-          },
+            return;
+          }
         },
-      } as ModalConstruct);
-      break;
-    case 'move':
-      modalStore.set({
-        title: `locator | move ${subNodeIdLs.size} files to:`,
-        alpha: false,
-        key: "",
-        single: false,
-        w: 400,
-        h: 60,
-        minW: 400,
-        minH: 60,
-        // h: 160,
-        resizable: true,
-        movable: false,
-        fullscreen: false,
-        // text: "this is text",
-        component: [
-          {
-            componentName: "locator",
-            data: {
-              query: {
-                type: 'directory',
-              } as api_file_list_req,
-              call: async (targetNode: api_node_col) => {
-                console.info(targetNode);
-                const queryData = {
-                  id_list: Array.from(subNodeIdLs).join(','),
-                  id_parent: targetNode.id
-                };
-                const res = await query<api_file_bath_move_resp>("file/bath_move", queryData);
-                //同步回列表
-                getList();
-                if (!res) return;
-                return;
-              }
-            },
-          },
-        ],
-      } as ModalConstruct);
-      break;
-    case 'delete':
-      queryData = {
-        id_list: Array.from(subNodeIdLs).join(',')
-      };
-      res = await query<api_file_bath_delete_resp>("file/bath_delete", queryData);
-      //同步回列表
-      getList();
-      if (!res) return;
-      break;
-    case 'delete_forever':
-      queryData = {
-        id_list: Array.from(subNodeIdLs).join(',')
-      };
-      res = await query<api_file_bath_delete_resp>("file/bath_delete_forever", queryData);
-      //同步回列表
-      getList();
-      if (!res) return;
-      break;
+      },
+    ],
+  } as ModalConstruct);
+}
+
+async function bath_delete(idSet: Set<number>, nodeLs?: api_node_col[]) {
+  modalStore.set({
+    title: `confirm to delete ${idSet.size} files`,
+    alpha: false,
+    key: "",
+    single: false,
+    w: 400,
+    h: 100,
+    minW: 400,
+    minH: 100,
+    // h: 160,
+    resizable: true,
+    movable: false,
+    fullscreen: false,
+    text: "conform to delete",
+    callback: {
+      confirm: async function (modal) {
+        // console.info(modal);
+        // return;
+        const queryData = {
+          id_list: Array.from(idSet).join(',')
+        };
+        const res = await query<api_file_bath_delete_resp>("file/bath_delete", queryData);
+        //同步回列表
+        getList();
+        if (!res) return;
+      },
+    },
+  } as ModalConstruct);
+}
+
+async function bath_delete_forever(idSet: Set<number>, nodeLs?: api_node_col[]) {
+  modalStore.set({
+    title: `confirm to delete ${idSet.size} files forever`,
+    alpha: false,
+    key: "",
+    single: false,
+    w: 400,
+    h: 100,
+    minW: 400,
+    minH: 100,
+    // h: 160,
+    resizable: true,
+    movable: false,
+    fullscreen: false,
+    text: "conform to delete forever",
+    callback: {
+      confirm: async function (modal) {
+        const queryData = {
+          id_list: Array.from(idSet).join(',')
+        };
+        const res = await query<api_file_bath_delete_resp>("file/bath_delete_forever", queryData);
+        //同步回列表
+        getList();
+        if (!res) return;
+      },
+    },
+  } as ModalConstruct);
+}
+
+async function bath_browser(idSet: Set<number>, nodeLs: api_node_col[]) {
+  let idArr = Array.from(idSet);
+  if (idSet.size > 1) {
+    let query = GenFunc.copyObject(queryData);
+    query.mode = 'id_iterate';
+    query.keyword = idArr.join(',');
+    popupDetail(query, idArr[0]);
+  }
+  if (idSet.size == 1) {
+    popupDetail(GenFunc.copyObject(queryData), idArr[0]);
   }
 }
 
 async function keymap(e: KeyboardEvent) {
   // console.info(e);
-  let selCount: number;
-  let selInd: number;
-  let selArr: number[];
-  let query: api_file_list_req;
+  // let selCount: number;
+  // let selInd: number;
+  // let selArr: number[];
+  // let query: api_file_list_req;
+  // let nodeLs: api_node_col[], idSet: Set<number>;
+  let selRes: { nodeLs: api_node_col[], idSet: Set<number> };
   switch (e.key) {
     case 'F2':
-      selCount = 0;
-      selInd = -1;
-      nodeList.value.forEach((node, index) => {
-        if (!node._selected) return;
-        selCount += 1;
-        selInd = index;
-        // console.info(node._selected);
-      });
-      if (selCount > 1) {
-        bathOp('rename');
-      }
-      if (selCount == 1) {
-        nodeList.value[selInd]._renaming = true;
-        setTimeout(() => {
-          let tDOM = nodeList.value[selInd]._dom?.querySelector('[contenteditable="true"]') as HTMLElement;
-          tDOM.focus();
-        }, 50)
-      }
+      if ((e.target as HTMLElement).tagName !== "BODY") return;
+      selRes = getSelected();
+      bath_rename(selRes.idSet, selRes.nodeLs);
       break;
     case 'Delete':
-      /*const subNodeIdLs = new Set<number>();
-      nodeList.value.forEach((node, index) => {
-        if (!node._selected) return;
-        subNodeIdLs.add(node.id ?? 0);
-        // console.info(node._selected);
-      });
-      const queryData = {
-        id_list: Array.from(subNodeIdLs).join(',')
-      };
-      const res = await query<api_file_bath_delete_resp>("file/bath_delete", queryData);
-      //同步回列表
-      getList();*/
+      if ((e.target as HTMLElement).tagName !== "BODY") return;
+      selRes = getSelected();
+      bath_delete(selRes.idSet, selRes.nodeLs);
       break;
     case 'Enter':
-      selArr = [];
-      nodeList.value.forEach((node, index) => {
-        if (!node._selected) return;
-        selArr.push(node.id ?? 0);
-      });
-      if (selArr.length > 1) {
-        query = GenFunc.copyObject(queryData);
-        query.mode = 'id_iterate';
-        query.keyword = selArr.join(',');
-        popupDetail(query, selArr[0] ?? 0);
-      }
-      if (selArr.length == 1) {
-        popupDetail(GenFunc.copyObject(queryData), selArr[0] ?? 0);
-      }
+      if ((e.target as HTMLElement).tagName !== "BODY") return;
+      selRes = getSelected();
+      bath_browser(selRes.idSet, selRes.nodeLs);
       break;
   }
 }
@@ -807,7 +868,7 @@ function triggleLazyLoad() {
 
 function reloadOffset(e?: UIEvent, debounceDelay?: number) {
   if (!debounceDelay) debounceDelay = timeoutDef.offsetUIDebounce;
-  console.info(arguments);
+  // console.info(arguments);
   GenFunc.debounce(() => {
     // 这边因为布局的关系offsetParent直接就是body，不需要过度优化
     // console.info('resize');

@@ -262,7 +262,10 @@ function toggleActive(nid: string) {
       node.layout.active = true;
       if (newActive) {
         setTimeout(() => {
-          const ifInput: null | HTMLInputElement = document.querySelector(`.modal_dom[data-ref-id="${node.nid}"] input`);
+          const ifInput: null | HTMLInputElement = document.querySelector(
+            `.modal_dom[data-ref-id="${node.nid}"] input,.modal_dom[data-ref-id="${node.nid}"] button,.modal_dom[data-ref-id="${node.nid}"] textarea`
+          );
+          // console.warn(ifInput);
           if (ifInput) {
             ifInput.focus();
           }
@@ -455,6 +458,7 @@ function onResizeEnd(e: MouseEvent) {
   document.removeEventListener("mousemove", onResizing);
 }
 
+//return true to keep
 function onCallback(nid: string, key: string) {
   const modal = modalList.value.get(nid);
   if (!modal) return;
