@@ -321,6 +321,9 @@ function resetWindow(nid: string) {
 }
 
 function close(nid: string) {
+  const modal = modalList.value.get(nid);
+  if (!modal) return;
+  if (!modal.layout.allow_escape) return;
   modalList.value.delete(nid);
   checkAlpha();
 }

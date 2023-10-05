@@ -75,6 +75,7 @@ export type api_user_login_req = {
 }
 export type api_user_login_resp = {
     token: string,
+    group: col_user_group,
 } & col_user
 
 

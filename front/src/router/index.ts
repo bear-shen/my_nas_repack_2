@@ -1,18 +1,15 @@
-import FileView_N from '@/views/FileView_N.vue';
-import FileView_R from '@/views/FileView_R.vue';
 import {createRouter, createWebHistory, type RouteRecordRaw} from 'vue-router'
-import LocalView from '../views/LocalView.vue'
-import TagView from '../views/TagView.vue'
-import UserView from '../views/UserView.vue'
-import SettingView from "@/views/SettingView.vue";
-import LogView from "@/views/LogView.vue";
 
 const routes = [
     {
         path: '/',
         name: 'Directory',
-        component: FileView_N,
-        meta: {icon: 'sysIcon_folderopen',},
+        component: () => import('@/views/FileView_N.vue'),
+        meta: {
+            icon: 'sysIcon_folderopen',
+            deny_user: false,
+            deny_guest: false,
+        },
         // children: [
         // ],
     },
@@ -25,38 +22,62 @@ const routes = [
     {
         path: '/recycle',
         name: 'Recycle',
-        component: FileView_R,
-        meta: {icon: 'sysIcon_delete',},
+        component: () => import('@/views/FileView_R.vue'),
+        meta: {
+            icon: 'sysIcon_delete',
+            deny_user: false,
+            deny_guest: true,
+        },
     },
     {
         path: '/tag',
         name: 'Tag',
-        component: TagView,
-        meta: {icon: 'sysIcon_tagso',},
+        component: () => import('@/views/TagView.vue'),
+        meta: {
+            icon: 'sysIcon_tagso',
+            deny_user: false,
+            deny_guest: true,
+        },
     },
     {
         path: '/group',
         name: 'User',
-        component: UserView,
-        meta: {icon: 'sysIcon_team',},
+        component: () => import('@/views/UserView.vue'),
+        meta: {
+            icon: 'sysIcon_team',
+            deny_user: true,
+            deny_guest: true,
+        },
     },
     {
         path: '/local',
         name: 'Local',
-        component: LocalView,
-        meta: {icon: 'sysIcon_yingpan1',},
+        component: () => import('@/views/LocalView.vue'),
+        meta: {
+            icon: 'sysIcon_yingpan1',
+            deny_user: true,
+            deny_guest: true,
+        },
     },
     {
         path: '/log',
         name: 'ProcessLog',
-        component: LogView,
-        meta: {icon: 'sysIcon_filetext',},
+        component: () => import('@/views/LogView.vue'),
+        meta: {
+            icon: 'sysIcon_filetext',
+            deny_user: true,
+            deny_guest: true,
+        },
     },
     {
         path: '/setting',
         name: 'Setting',
-        component: SettingView,
-        meta: {icon: 'sysIcon_setting',},
+        component: () => import('@/views/SettingView.vue'),
+        meta: {
+            icon: 'sysIcon_setting',
+            deny_user: true,
+            deny_guest: true,
+        },
     },
 ] as RouteRecordRaw[];
 //

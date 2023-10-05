@@ -33,6 +33,7 @@ export type ModalLayout = {
     allow_resize: boolean;
     allow_move: boolean;
     allow_escape: boolean;
+    // allow_fullscreen: boolean;
     //
     active: boolean;
     index: number;

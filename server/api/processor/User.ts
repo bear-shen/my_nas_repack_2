@@ -5,6 +5,7 @@ import {makePass} from '../../lib/Auth';
 import UserModel from '../../model/UserModel';
 import crypto from 'node:crypto';
 import AuthModel from '../../model/AuthModel';
+import UserGroupModel from "../../model/UserGroupModel";
 
 export default class {
     async login(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_user_login_resp> {
@@ -15,6 +16,8 @@ export default class {
             .where('password', pass).first();
         if (!ifUser) throw new Error('invalid username or password');
         const result = ifUser as api_user_login_resp;
+        const group = await (new UserGroupModel).where('id', result.id_group).first();
+        result.group = group;
         const token = crypto.randomBytes(32).toString("hex").toLowerCase();
         (new AuthModel).insert({
             token: token,

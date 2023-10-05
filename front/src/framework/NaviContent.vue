@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // import { defineProps } from "vue";
-import {useRouter, useRoute, type RouteRecordRaw} from "vue-router";
-import {type routes} from "../router";
+import {type RouteRecordRaw, useRoute, useRouter} from "vue-router";
+import {useUserStore} from "@/stores/userStore";
 // const props = defineProps(["depth", "records"]);
 const props = defineProps({
   depth: Number,
@@ -17,11 +17,21 @@ async function go(route: RouteRecordRaw) {
   const res = await router.push(route.path);
   console.info(res);
 }
+
+const userStore = useUserStore();
+
+const user = userStore.get();
 </script>
 
 <template>
   <template v-for="(record, index) in records" :key="index">
-    <template v-if="!record.meta?.hide">
+    <template v-if="record.meta?.hide">
+    </template>
+    <template v-else-if="record.meta?.deny_guest && user?.group.title=='guest'">
+    </template>
+    <template v-else-if="record.meta?.deny_user && !user?.group.admin">
+    </template>
+    <template v-else>
       <p
         @click="go(record)"
         :class="{ title: true, active: record.path === route.path }"

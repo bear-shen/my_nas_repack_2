@@ -2,6 +2,7 @@ import type {api_node_col, api_user_login_req, api_user_login_resp} from "../../
 import Config from "./Config";
 
 import {useModalStore} from "@/stores/modalStore";
+import {useUserStore} from "@/stores/userStore";
 
 export function manualSort(list: api_node_col[], sort: string) {
     let sortType: [keyof api_node_col, string] = ['id', 'asc'];
@@ -111,8 +112,10 @@ export function query<K>(
         };
         if (extra && extra.upload) xhr.upload.onprogress = extra.upload;
         xhr.open('POST', Config.apiPath + path);
-        const ifAuthed = localStorage.getItem('toshokan_auth_token');
-        if (ifAuthed) xhr.setRequestHeader('Auth-Token', ifAuthed);
+        const userStore = useUserStore();
+        const user = userStore.get();
+        // const ifAuthed = localStorage.getItem('toshokan_auth_token');
+        if (user && user.token) xhr.setRequestHeader('Auth-Token', user.token);
         xhr.send(formData);
     })
 };
@@ -153,7 +156,11 @@ export function throwLogin() {
                     password: modal.content.form[1].value,
                 } as api_user_login_req);
                 if (!res) return true;
-                localStorage.setItem("toshokan_auth_token", res.token);
+
+                const userStore = useUserStore();
+                userStore.set(res);
+                // localStorage.setItem("toshokan_auth_token", res.token);
+                // localStorage.setItem("toshokan_user", res.token);
                 location.reload();
             },
         },
