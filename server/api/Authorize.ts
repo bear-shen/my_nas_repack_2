@@ -1,9 +1,8 @@
-import { IncomingMessage } from "http";
-import { fromByteArray, toByteArray } from "base64-js";
-import { makePass } from '../lib/Auth';
-import UserModel from '../model/UserModel';
-import { URL } from "url";
+import {IncomingMessage} from "http";
+import {URL} from "url";
 import AuthModel from '../model/AuthModel';
+import UserModel from "../model/UserModel";
+import UserGroupModel from "../model/UserGroupModel";
 
 const md5 = require('md5');
 
@@ -21,6 +20,24 @@ async function check(url: URL, req: IncomingMessage): Promise<number | true | fa
     if (!ifExs) return false;
     //
     return ifExs.uid;
+}
+
+async function checkRole(uid: number, role: 'admin' | 'user' | 'guest') {
+    const user = await (new UserModel()).where('id', uid).first();
+    if (!user.status) throw new Error('prohibited user');
+    const group = await (new UserGroupModel()).where('id', user.id_group).first();
+    if (!group.status) throw new Error('prohibited user group');
+    switch (role) {
+        case "admin":
+            if (!group.admin) throw new Error('no privilege');
+            break;
+        case "user":
+            if (group.title == 'guest') throw new Error('no privilege');
+            break;
+        case "guest":
+            // if (!group.admin) throw new Error('no privilege');
+            break;
+    }
 }
 
 export default {

@@ -548,7 +548,7 @@ async function op_click(evt: MouseEvent) {
           @click="op_click"
         ></div>
         <!--        <p class="title" @click="op_dblclick">{{ node.title }}</p>-->
-        <p class="title">{{ node.title }}</p>
+        <p class="title" :title="node.title">{{ node.title }}</p>
         <p>{{ node.time_update }}</p>
       </template>
       <template v-else>
@@ -559,7 +559,7 @@ async function op_click(evt: MouseEvent) {
           v-else
           :class="['thumb', 'listIcon', `listIcon_file_${node.type}`]"
         ></div>
-        <p class="title">{{ node.title }}</p>
+        <p class="title" :title="node.title">{{ node.title }}</p>
         <p>{{ node.time_update }}</p>
       </template>
     </template>
@@ -576,6 +576,7 @@ async function op_click(evt: MouseEvent) {
       <p class="title"
          @dblclick="op_dblclick"
          @click="op_click"
+         :title="node.title"
       >{{ node.title }}</p>
       <!--        <p class="title" @click="op_dblclick">{{ node.title }}</p>-->
       <p class="time">{{ node.time_update }}</p>

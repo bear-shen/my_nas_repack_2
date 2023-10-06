@@ -118,6 +118,7 @@ async function getList() {
   // console.info(res);
   crumbList.value = res.path;
   nodeList.value = sortList(res.list, sortVal.value);
+  reloadOffset(undefined, timeoutDef.offsetDebounce);
   // console.info(crumbList);
 }
 
@@ -572,6 +573,7 @@ function clearSelect(e: MouseEvent) {
 
 async function bathOp(mode: string) {
   let {idSet, nodeLs} = getSelected();
+  if (!idSet.size) return;
   let queryData: { [key: string]: any };
   let res: any;
   switch (mode) {
@@ -771,6 +773,7 @@ async function bath_delete(idSet: Set<number>, nodeLs?: api_node_col[]) {
 }
 
 async function bath_delete_forever(idSet: Set<number>, nodeLs?: api_node_col[]) {
+  // console.warn('bath_delete_forever');
   modalStore.set({
     title: `confirm to delete ${idSet.size} files forever`,
     alpha: false,
@@ -787,6 +790,7 @@ async function bath_delete_forever(idSet: Set<number>, nodeLs?: api_node_col[]) 
     text: "conform to delete forever",
     callback: {
       confirm: async function (modal) {
+        // console.warn('bath_delete_forever confirm');
         const queryData = {
           id_list: Array.from(idSet).join(',')
         };
@@ -905,7 +909,7 @@ onMounted(async () => {
   // if (contentDOM.value) {
   //   contentDOM.value.addEventListener("scroll", lazyLoad);
   // }
-  reloadOffset(undefined, timeoutDef.offsetDebounce);
+  // reloadOffset(undefined, timeoutDef.offsetDebounce);
   addEventListener('mousedown', mouseDownEvt);
   addEventListener('mousemove', mouseMoveEvt);
   addEventListener('mouseup', mouseUpEvt);

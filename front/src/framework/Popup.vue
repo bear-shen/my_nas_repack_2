@@ -515,6 +515,8 @@ function keymap(e: KeyboardEvent) {
     case 'NumpadEnter':
     case 'Enter':
       if ((e.target as HTMLElement).tagName === "BODY") return;
+      //自动focus到提交按钮的情况下，这边做热键会产生两次提交
+      if ((e.target as HTMLElement).tagName === "BUTTON") return;
       if (e.isComposing) return;
       let target: HTMLElement | null = (e.target as HTMLElement);
       while (true) {

@@ -45,7 +45,7 @@ export default class {
             path: [] as col_node[],
             list: [] as api_node_col[],
         };
-        ORM.dumpSql = true;
+        // ORM.dumpSql = true;
         if (parseInt(request.pid)) {
             const model = new NodeModel();
             const curNode = await model.where('id', request.pid).first();

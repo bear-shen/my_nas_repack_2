@@ -348,10 +348,14 @@ async function cascadeCover(nodeId: number) {
 
 async function deleteNodeForever(nodeIdList: number[]) {
     const nodeLs = await (new NodeModel()).whereIn('id', nodeIdList).select();
+    const fileIdSet = new Set<number>;
     for (let i1 = 0; i1 < nodeLs.length; i1++) {
         const node = nodeLs[i1];
+        // console.info(node);
         for (const key in node.index_file_id) {
             const fileId = node.index_file_id[key];
+            if (fileIdSet.has(fileId)) continue;
+            fileIdSet.add(fileId);
             const ifExs = await checkOrphanFile(fileId);
             if (ifExs > 1) continue;
             await fp.rmReal(fileId);

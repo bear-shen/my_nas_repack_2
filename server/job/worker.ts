@@ -28,6 +28,8 @@ async function run() {
         // console.info(cachedConfig);
         const ifExs = await (new QueueModel).where('status', 1).where(`id%${parseInt(threads)}`, parseInt(threadIndex)).order('id').first();
         if (!ifExs) break;
+        // console.info('get queue, id', ifExs.id, threads, threadIndex);
+        // break;
         await setStatus(ifExs.id, 2);
         console.info(threadIndex, [ifExs.type, ifExs.payload])
         if (!jobs[ifExs.type]) {

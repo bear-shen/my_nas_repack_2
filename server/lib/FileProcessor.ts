@@ -11,6 +11,7 @@ import TagGroupModel from "../model/TagGroupModel";
 
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
+const {workerData, threadId} = require('node:worker_threads');
 
 function isId(inVal: col_node | number | bigint): boolean {
     switch (typeof inVal) {
@@ -384,19 +385,25 @@ async function rmReal(fileId: number | col_file) {
         fileInfo = await (new FileModel()).where('id', fileId).first();
     else
         fileInfo = fileId as col_file;
+    // console.info(fileInfo);
     // if (!fileInfo) throw new Error('file not found');
     if (!fileInfo) return false;
     const targetPath = getConfig().path.local + getRelPathByFile(fileInfo);
     try {
-        await fs.stat(getDir(targetPath));
+        await fs.access(getDir(targetPath));
     } catch (e: any) {
-        console.info(e);
+        // console.info(e);
+        console.info(`dir not exists ${targetPath}`);
         return;
     }
+    // console.info(threadId, targetPath);
+    // return;
     await fs.rm(targetPath);
     let dirPath = getDir(targetPath);
     for (let i1 = 0; i1 < 2; i1++) {
+        // console.info(dirPath);
         let dirLs = await fs.readdir(dirPath);
+        // if (!dirLs) continue;
         if (!dirLs.length) {
             await fs.rmdir(dirPath)
         }
