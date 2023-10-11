@@ -7,12 +7,14 @@ import HelloWorldVue from "@/components/HelloWorld.vue";
 import Browser from "@/popupComponents/browser.vue";
 import Locator from "@/popupComponents/locator.vue";
 import Uploader from "@/popupComponents/uploader.vue";
+import RenameUtil from "@/popupComponents/renameUtil.vue";
 
 const componentDefs = {
   helloWorld: HelloWorldVue,
   fileBrowser: Browser,
   uploader: Uploader,
   locator: Locator,
+  renameUtil: RenameUtil,
 } as { [key: string]: any };
 //
 const initTimestamp = new Date().valueOf();

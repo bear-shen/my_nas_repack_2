@@ -610,95 +610,31 @@ function getSelected() {
 }
 
 async function bath_rename(idSet: Set<number>, nodeLs: api_node_col[]) {
-  let lastNode = nodeLs[nodeLs.length - 1];
-  if (idSet.size > 1) {
-    modalStore.set({
-      title: `bath rename`,
-      alpha: false,
-      key: "",
-      single: false,
-      w: 400,
-      h: 250,
-      minW: 400,
-      minH: 250,
-      // h: 160,
-      allow_resize: true,
-      allow_move: true,
-      fullscreen: false,
-      text: `<p>rename pattern:</p>
-<table>
-<tr><td>code</td><td>description</td></tr>
-<tr><td>{filename}</td><td>file name</td></tr>
-<tr><td>{index}</td><td>index by sort, prefix by max len+1</td></tr>
-<tr><td>{index:n}</td><td>index by sort, prefix len by [n]</td></tr>
-<tr><td>{directory}</td><td>parent directory name</td></tr>
-`,
-      form: [
-        {
-          label: 'pattern',
-          type: 'text',
-          value: '{index}_{filename}',
-        }
-      ],
-      callback: {
-        submit: async (modal) => {
-          console.info('on submit', nodeLs, modal);
-          sortList(nodeLs, sortVal.value);
-          let pattern = modal.content.form[0].value;
-          //
-          let defIndexPrefix = nodeLs.length.toString().length + 1;
-          //
-          let manIndexPrefix = 0;
-          let manIndexKey = '';
-          let matchManIndex = pattern.match(/\{index:(\d+)}/);
-          if (matchManIndex) {
-            manIndexPrefix = parseInt(matchManIndex[1]);
-            manIndexKey = matchManIndex[0];
+  modalStore.set({
+    title: `bath rename`,
+    alpha: false,
+    key: "",
+    single: false,
+    w: 400,
+    h: 275,
+    minW: 400,
+    minH: 275,
+    // h: 160,
+    allow_resize: true,
+    allow_move: true,
+    fullscreen: false,
+    component: [
+      {
+        componentName: "renameUtil",
+        data: {
+          node_list: nodeLs,
+          callback: () => {          //同步回列表
+            getList();
           }
-          //
-          const modMap = new Map<number, string>();
-          nodeLs.forEach((node, index) => {
-            const parentNode = node.crumb_node ? node.crumb_node[node.crumb_node.length - 1] : null;
-            const parentTitle = parentNode ? parentNode.title : '';
-            //
-            let replaceKV = new Map<string, string>();
-            replaceKV.set('{filename}', node.title ?? '');
-            replaceKV.set('{index}', GenFunc.prefix(index + 1, defIndexPrefix, '0'));
-            replaceKV.set('{directory}', parentTitle ?? '');
-            replaceKV.set(`{index:${manIndexKey}}`, GenFunc.prefix(index + 1, manIndexPrefix, '0'));
-            let target = pattern;
-            replaceKV.forEach((value, key) => {
-              // console.info(key, value);
-              target = target.replace(key, value);
-            })
-            // console.info(target);
-            modMap.set(node.id ?? 0, target);
-          });
-          const modArr = [] as { id: number, title: string }[];
-          modMap.forEach((value, key) => {
-            modArr.push({id: key, title: value});
-          });
-          // console.info(modArr);
-          // return;
-
-          const queryData = {
-            list: JSON.stringify(modArr)
-          };
-          const res = await query<api_file_bath_rename_resp>("file/bath_rename", queryData);
-          //同步回列表
-          getList();
-          if (!res) return;
-        },
-      },
-    } as ModalConstruct);
-  }
-  if (idSet.size == 1) {
-    lastNode._renaming = true;
-    setTimeout(() => {
-      let tDOM = lastNode._dom?.querySelector('[contenteditable="true"]') as HTMLElement;
-      tDOM.focus();
-    }, 50)
-  }
+        }
+      },],
+  } as ModalConstruct);
+  return;
 }
 
 async function bath_move(idSet: Set<number>, nodeLs?: api_node_col[]) {
