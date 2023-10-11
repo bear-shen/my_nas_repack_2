@@ -1,5 +1,3 @@
-import type {DefineComponent} from "vue";
-
 //return true to keep
 export type ModalCallbackFunc = (modal: ModalStruct) => Promise<true | any> | void;
 
@@ -33,7 +31,8 @@ export type ModalLayout = {
     allow_resize: boolean;
     allow_move: boolean;
     allow_escape: boolean;
-    // allow_fullscreen: boolean;
+    allow_fullscreen: boolean;
+    auto_focus: boolean;
     //
     active: boolean;
     index: number;
@@ -79,9 +78,11 @@ export type ModalConstruct = {
     minW?: number | 320;
     minH?: number | 160;
     //default true
-    allow_resize?: boolean;
-    allow_move?: boolean;
-    allow_escape?: boolean;
+    allow_resize?: boolean | true;
+    allow_move?: boolean | true;
+    allow_escape?: boolean | true;
+    allow_fullscreen?: boolean | false;
+    auto_focus?: boolean | true;
     //
     fullscreen?: boolean | false;
     // content

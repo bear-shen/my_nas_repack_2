@@ -1,11 +1,7 @@
 <script setup lang="ts">
-import {onMounted, type Ref, ref} from "vue";
+import {type Ref, ref} from "vue";
 import {query} from "@/Helper";
-import type {
-  api_node_col, api_local_file_statement,
-  api_local_ls_resp, api_tag_list_resp, api_local_import_resp
-} from "../../../share/Api";
-import GenFunc from "../../../share/GenFunc";
+import type {api_local_file_statement, api_local_import_resp, api_local_ls_resp, api_node_col} from "../../../share/Api";
 import {useModalStore} from "@/stores/modalStore";
 
 const props = defineProps<{
@@ -55,7 +51,8 @@ async function imp() {
     // h: 160,
     allow_resize: true,
     allow_move: true,
-    fullscreen: false,
+    allow_fullscreen: false,
+    auto_focus: true,
     component: [
       {
         componentName: "locator",

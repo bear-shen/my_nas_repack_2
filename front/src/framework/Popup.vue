@@ -45,6 +45,8 @@ function buildModal(modal: ModalConstruct): ModalStruct {
       allow_resize: false,
       allow_move: false,
       allow_escape: false,
+      allow_fullscreen: false,
+      auto_focus: false,
       active: false,
       index: 0,
       fullscreen: false,
@@ -70,6 +72,8 @@ function buildModal(modal: ModalConstruct): ModalStruct {
   layout.allow_resize = modal.allow_resize ?? true;
   layout.allow_move = modal.allow_move ?? true;
   layout.allow_escape = modal.allow_escape ?? true;
+  layout.allow_fullscreen = modal.allow_fullscreen ?? false;
+  layout.auto_focus = modal.auto_focus ?? true;
   layout.active = false;
   layout.index = diffStamp;
   layout.fullscreen = modal.fullscreen ?? false;
@@ -264,7 +268,7 @@ function toggleActive(nid: string) {
       node.layout.index = diffStamp;
       let newActive = !node.layout.active;
       node.layout.active = true;
-      if (newActive) {
+      if (node.layout.auto_focus && newActive) {
         setTimeout(() => {
           const ifInput: null | HTMLInputElement = document.querySelector(
             `.modal_dom[data-ref-id="${node.nid}"] input,.modal_dom[data-ref-id="${node.nid}"] button,.modal_dom[data-ref-id="${node.nid}"] textarea`
@@ -648,7 +652,7 @@ function keymap(e: KeyboardEvent) {
           {{ modal.base.title }}
         </div>
         <div class="modal_menu">
-          <template v-if="modal.layout.allow_move">
+          <template v-if="modal.layout.allow_move &&modal.layout.allow_fullscreen">
             <span
               class="sysIcon sysIcon_maximize"
               v-if="!modal.layout.fullscreen"

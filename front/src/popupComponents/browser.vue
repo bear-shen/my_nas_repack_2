@@ -116,6 +116,12 @@ function toggleDetail() {
 onMounted(() => {
   // console.info("mounted");
   document.addEventListener("keydown", keymap);
+  //popup会自动focus，这边取消focus
+  //已经加了auto_focus:false，但是以备万一
+  setTimeout(() => {
+    if (document.activeElement)
+      (document.activeElement as HTMLElement).blur();
+  }, 100);
 });
 onUnmounted(() => {
   // console.info("unmounted");
@@ -248,7 +254,6 @@ function checkNext() {
 function goNav(curNavIndex: number, offset: number, counter: number = 0): any {
   // console.info('goNav', [curNavIndex, offset, counter,]);
   let listLen = nodeList.value.length;
-
   if (playMode.value === "shuffle") {
     offset = Math.round(Math.random() * listLen);
   }
@@ -258,7 +263,7 @@ function goNav(curNavIndex: number, offset: number, counter: number = 0): any {
   if (!counter) counter = 0;
   counter += 1;
   if (counter > listLen) return;
-  // console.info(isValidNav(nextIndex));
+  console.info(isValidNav(nextIndex));
   if (!isValidNav(nextIndex)) return goNav(nextIndex, offset, counter);
   curIndex.value = nextIndex;
   onModNav();
@@ -271,11 +276,16 @@ function emitNav(index: number) {
 
 function isValidNav(nextIndex: number) {
   const node = nodeList.value[nextIndex];
-  // console.info([node.type, filterVal.value, ignoreFileType.indexOf(node.type ?? 'directory')]);
-  if (filterVal.value != 'any') {
-    return filterVal.value == node.type;
+  console.info([node.type, filterVal.value, ignoreFileType.indexOf(node.type ?? 'directory')]);
+  switch (filterVal.value) {
+    case 'any':
+    case 'file':
+      return ignoreFileType.indexOf(node.type ?? 'directory') === -1;
+      break;
+    default:
+      return filterVal.value == node.type;
+      break;
   }
-  return ignoreFileType.indexOf(node.type ?? 'directory') === -1;
 }
 
 function onModNav() {
@@ -307,6 +317,7 @@ function modTitle() {
 //------------------
 
 async function keymap(e: KeyboardEvent) {
+  // console.info(e);
   if ((e.target as HTMLElement).tagName !== "BODY") return;
   if (!props.modalData.layout.active) return;
   // console.info(e);

@@ -135,7 +135,8 @@ export function throwLogin() {
         allow_resize: false,
         allow_move: true,
         allow_escape: false,
-        fullscreen: false,
+        allow_fullscreen: false,
+        auto_focus: true,
         form: [
             {
                 type: "text",
@@ -183,7 +184,8 @@ export function throwError(msg: string) {
         allow_resize: false,
         allow_move: true,
         allow_escape: true,
-        fullscreen: false,
+        allow_fullscreen: false,
+        auto_focus: true,
         text: msg,
         callback: {
             close: (modal) => {

@@ -226,7 +226,8 @@ function op_move() {
     // h: 160,
     allow_resize: true,
     allow_move: true,
-    fullscreen: false,
+    allow_fullscreen: false,
+    auto_focus: true,
     // text: "this is text",
     component: [
       {

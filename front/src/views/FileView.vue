@@ -7,7 +7,7 @@ import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {manualSort, query} from "@/Helper";
 import GenFunc from "../../../share/GenFunc";
 import FileItem from "@/components/FileItem.vue";
-import type {api_file_bath_delete_resp, api_file_bath_move_resp, api_file_bath_rename_resp, api_file_list_req, api_file_list_resp, api_file_mkdir_req, api_file_mkdir_resp, api_node_col,} from "../../../share/Api";
+import type {api_file_bath_delete_resp, api_file_bath_move_resp, api_file_list_req, api_file_list_resp, api_file_mkdir_req, api_file_mkdir_resp, api_node_col,} from "../../../share/Api";
 import {useModalStore} from "@/stores/modalStore";
 import type {ModalConstruct} from '@/modal';
 
@@ -144,7 +144,8 @@ function addFolder() {
     // h: 160,
     allow_resize: false,
     allow_move: true,
-    fullscreen: false,
+    allow_fullscreen: false,
+    auto_focus: true,
     form: [
       {
         label: 'title',
@@ -191,7 +192,8 @@ function addFile() {
     // h: 160,
     allow_resize: true,
     allow_move: true,
-    fullscreen: false,
+    allow_fullscreen: true,
+    auto_focus: true,
     // text: "this is text",
     component: [
       {
@@ -339,7 +341,8 @@ function popupDetail(queryData: { [key: string]: any }, curNodeId: number) {
     // h: 160,
     allow_resize: true,
     allow_move: true,
-    fullscreen: false,
+    allow_fullscreen: true,
+    auto_focus: false,
     component: [
       {
         componentName: "fileBrowser",
@@ -622,7 +625,8 @@ async function bath_rename(idSet: Set<number>, nodeLs: api_node_col[]) {
     // h: 160,
     allow_resize: true,
     allow_move: true,
-    fullscreen: false,
+    allow_fullscreen: false,
+    auto_focus: true,
     component: [
       {
         componentName: "renameUtil",
@@ -650,7 +654,8 @@ async function bath_move(idSet: Set<number>, nodeLs?: api_node_col[]) {
     // h: 160,
     allow_resize: true,
     allow_move: true,
-    fullscreen: false,
+    allow_fullscreen: false,
+    auto_focus: true,
     // text: "this is text",
     component: [
       {
@@ -690,7 +695,8 @@ async function bath_delete(idSet: Set<number>, nodeLs?: api_node_col[]) {
     // h: 160,
     allow_resize: false,
     allow_move: true,
-    fullscreen: false,
+    allow_fullscreen: false,
+    auto_focus: true,
     text: "conform to delete",
     callback: {
       confirm: async function (modal) {
@@ -722,7 +728,8 @@ async function bath_delete_forever(idSet: Set<number>, nodeLs?: api_node_col[]) 
     // h: 160,
     allow_resize: false,
     allow_move: true,
-    fullscreen: false,
+    allow_fullscreen: false,
+    auto_focus: true,
     text: "conform to delete forever",
     callback: {
       confirm: async function (modal) {
