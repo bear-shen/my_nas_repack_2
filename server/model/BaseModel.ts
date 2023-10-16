@@ -41,7 +41,7 @@ class BaseModel<field> extends ORM {
         return res;
     }
 
-    async update(kv: field | { [p: string]: any }): Promise<any> {
+    async update(kv: field | { [p: string]: any }): Promise<ResultSetHeader> {
         kv = JSON.parse(JSON.stringify(kv)) as { [p: string]: any };
         for (const key in kv) {
             if (!Object.prototype.hasOwnProperty.call(kv, key)) continue;
@@ -74,7 +74,7 @@ class BaseModel<field> extends ORM {
         return await super.insertAll(pkvs);
     }
 
-    async delete(): Promise<any> {
+    async delete(): Promise<ResultSetHeader> {
         return await super.delete();
     }
 
