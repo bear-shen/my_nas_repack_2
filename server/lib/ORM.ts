@@ -420,8 +420,8 @@ ${sqlPart.limit}`.trim();
         }
         sqlPart.sort = sortArr.join(' , ');
         //
-        if (this._dataset.offset || this._dataset.limit) {
-            sqlPart.limit = `${this._dataset.limit} offset ${this._dataset.offset}`;
+        if (this._dataset.limit) {
+            sqlPart.limit = `${this._dataset.limit}`;
         }
         //
         sqlPart.where = sqlPart.where.length ? `where ${sqlPart.where}` : '';
@@ -534,8 +534,8 @@ values ${sqlPart.value}`.trim();
         sqlPart.sort = sortArr.join(' , ');
         this._dataset.binds.full = [];
         //
-        if (this._dataset.offset || this._dataset.limit) {
-            sqlPart.limit = `${this._dataset.limit} offset ${this._dataset.offset}`;
+        if (this._dataset.limit) {
+            sqlPart.limit = `${this._dataset.limit}`;
         }
         //
         sqlPart.where = sqlPart.where.length ? `where ${sqlPart.where}` : '';
