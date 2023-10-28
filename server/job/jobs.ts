@@ -1,5 +1,6 @@
 import FileJob from "./processor/FileJob";
 import ImportJob from "./processor/ImportJob";
+import SysJob from "./processor/SysJob";
 
 /**
  * @notice 考虑到现在队列是用worker跑
@@ -13,4 +14,5 @@ export default {
     'file/rebuildIndex': FileJob.rebuildIndex,
     'file/deleteForever': FileJob.deleteForever,
     'import/run': ImportJob.run,
+    'sys/scanOrphanFile': SysJob.scanOrphanFile,
 } as { [key: string]: (payload: { [key: string]: any }) => Promise<any> };
