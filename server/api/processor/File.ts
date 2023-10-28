@@ -1,6 +1,6 @@
 import {IncomingMessage, ServerResponse} from 'http';
 import {ParsedForm} from '../types';
-import {
+import type {
     api_file_bath_delete_req,
     api_file_bath_delete_resp,
     api_file_bath_move_req,

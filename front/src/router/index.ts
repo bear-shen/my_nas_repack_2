@@ -13,12 +13,16 @@ const routes = [
         // children: [
         // ],
     },
-    // {
-    //     path: '/favourite',
-    //     name: 'Favourite',
-    //     component: FileView_F,
-    //     meta: {icon: 'sysIcon_star-o',},
-    // },
+    {
+        path: '/favourite',
+        name: 'Favourite',
+        component: () => import('@/views/FileView_F.vue'),
+        meta: {
+            icon: 'sysIcon_star-o',
+            deny_user: false,
+            deny_guest: true,
+        },
+    },
     {
         path: '/recycle',
         name: 'Recycle',

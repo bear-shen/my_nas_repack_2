@@ -4,6 +4,7 @@ import {api_setting_del_req, api_setting_del_resp, api_setting_list_req, api_set
 import SettingModel from "../../model/SettingModel";
 import {loadConfig} from "../../ServerConfig";
 import {conn} from "../../lib/SQL";
+import QueueModel from "../../model/QueueModel";
 
 export default class {
 
@@ -54,4 +55,12 @@ export default class {
         //@todo 后端队列的数据到时候要记得更新，重启或者重新加载
         return request;
     };
+
+    async scanOrphanFiles(){
+        (new QueueModel).insert({
+            type: 'sys/scanOrphanFile',
+            payload: {},
+            status: 1,
+        });
+    }
 };

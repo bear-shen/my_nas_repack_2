@@ -8,6 +8,8 @@ import {query} from "@/Helper";
 import GenFunc from "../../../share/GenFunc";
 import type {api_setting_col, api_setting_del_resp, api_setting_list_req, api_setting_list_resp, api_setting_mod_resp,} from "../../../share/Api";
 import ContentEditable from "@/components/ContentEditable.vue";
+import type {ModalConstruct} from "@/modal";
+import {useModalStore} from "@/stores/modalStore";
 // import {useModalStore} from "@/stores/modalStore";
 
 type settingType = api_setting_col & {
@@ -140,11 +142,46 @@ function onBlur(dom: HTMLElement) {
   });
 }
 
+type widget = {
+  type: string,
+  title: string,
+  method: () => any,
+};
+const widgetLs: widget[] = [
+  {type: 'button', title: 'scanOrphanFiles', method: btn_scanOrphanFiles},
+];
+
+async function btn_scanOrphanFiles() {
+  const res = await query("setting/scanOrphanFiles", {});
+  const modalStore = useModalStore();
+  modalStore.set({
+    title: "success",
+    text: "queued",
+    w: 320,
+    h: 100,
+    minW: 320,
+    minH: 100,
+    allow_resize: false,
+    callback: {
+      confirm: async function (modal) {
+      },
+    },
+  } as ModalConstruct);
+}
 
 </script>
 
 <template>
   <div class="fr_content view_setting" ref="contentDOM">
+    <div class="widget_ls">
+      <template v-for="widget in widgetLs">
+        <template v-if="widget.type">
+          <div :class="['widget',widget.type]">
+            <button @click="widget.method">{{ widget.title }}</button>
+          </div>
+        </template>
+      </template>
+    </div>
     <table>
       <tr>
         <th>key</th>
@@ -188,20 +225,33 @@ function onBlur(dom: HTMLElement) {
   table {
     th, td {
       font-size: $fontSize;
-      padding: $fontSize*0.5;
+      padding: $fontSize*0.25 $fontSize*0.5;
       text-align: left;
     }
     th {
-      font-size: $fontSize*1.5;
+      font-size: $fontSize;
     }
     td.editing, td:hover {
       background-color: map-get($colors, bk_active);
     }
     td.add {
-      font-size: $fontSize*1.5;
+      font-size: $fontSize;
+      line-height: 1.25em;
       span {
         font-size: 1.25em;
       }
+    }
+  }
+  .widget_ls {
+    width: 100%;
+    columns: 5;
+  }
+  .widget {
+    &.button button {
+      font-size: $fontSize*1.25;
+      line-height: 1.25em;
+      width: 100%;
+      display: inline-block;
     }
   }
 }
