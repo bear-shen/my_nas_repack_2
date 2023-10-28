@@ -152,7 +152,7 @@ const widgetLs: widget[] = [
 ];
 
 async function btn_scanOrphanFiles() {
-  const res = await query("setting/scanOrphanFiles", {});
+  const res = await query("setting/scan_orphan_files", {});
   const modalStore = useModalStore();
   modalStore.set({
     title: "success",
