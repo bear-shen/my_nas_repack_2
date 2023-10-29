@@ -130,3 +130,22 @@ export type col_cache = {
     code?: string,
     val?: string,
 }
+
+export type col_favourite_group = {
+    id?: number,
+    id_user?: number,
+    id_group?: number,
+    id_node?: number,
+    status?: 0 | 1,
+    time_create?: string,
+    time_update?: string,
+}
+
+export type col_favourite = {
+    id?: number,
+    id_user?: number,
+    title?: string,
+    status?: 0 | 1,
+    time_create?: string,
+    time_update?: string,
+}
