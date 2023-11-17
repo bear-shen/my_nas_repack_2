@@ -17,10 +17,10 @@ import NaviContent from "./NaviContent.vue";
 .fr_navi {
   text-align: center;
   .title.active {
-    background-color: map-get($colors, bar_vertical);
+    background-color: map-get($colors, bar_vertical_active);
   }
   .title:hover {
-    background-color: map-get($colors, bar_vertical);
+    background-color: map-get($colors, bar_vertical_active);
     .content {
       display: inline-block;
     }

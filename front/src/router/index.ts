@@ -16,7 +16,7 @@ const routes = [
     {
         path: '/favourite',
         name: 'Favourite',
-        component: () => import('@/views/FileView_F.vue'),
+        component: () => import('@/views/Favourite.vue'),
         meta: {
             icon: 'sysIcon_star-o',
             deny_user: false,

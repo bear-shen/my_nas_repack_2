@@ -533,3 +533,30 @@ Subtitle options:
 
 
 PS E:\t\ffmpeg\b
+
+
+ffmpeg.exe -y -i konosuba.mkv -c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 16 -rc-lookahead 5 -bf 4 -pix_fmt p010le konosuba.av1.slow.hq.qp16.rc5.bf4.mp4
+ffmpeg.exe -y -i konosuba.mkv -c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 16 -rc-lookahead 10 -bf 4 -pix_fmt p010le konosuba.av1.slow.hq.qp16.rc10.bf4.mp4
+ffmpeg.exe -y -i konosuba.mkv -c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 16 -rc-lookahead 20 -bf 4 -pix_fmt p010le konosuba.av1.slow.hq.qp16.rc20.bf4.mp4
+ffmpeg.exe -y -i konosuba.mkv -c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 16 -rc-lookahead 40 -bf 4 -pix_fmt p010le konosuba.av1.slow.hq.qp16.rc40.bf4.mp4
+
+
+ffmpeg.exe -y -i konosuba.mkv -c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 16 -rc-lookahead 20 -bf 2 -pix_fmt p010le konosuba.av1.slow.hq.qp16.rc20.bf2.mp4
+ffmpeg.exe -y -i konosuba.mkv -c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 16 -rc-lookahead 20 -bf 4 -pix_fmt p010le konosuba.av1.slow.hq.qp16.rc20.bf4.mp4
+ffmpeg.exe -y -i konosuba.mkv -c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 16 -rc-lookahead 20 -bf 3 -pix_fmt p010le konosuba.av1.slow.hq.qp16.rc20.bf3.mp4
+ffmpeg.exe -y -i konosuba.mkv -c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 16 -rc-lookahead 20 -bf 1 -pix_fmt p010le konosuba.av1.slow.hq.qp16.rc20.bf1.mp4
+
+
+ffmpeg.exe -y -i konosuba.mkv -c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 16 -rc-lookahead 20 -bf 3 -pix_fmt p010le -b:v 8000 konosuba.av1.slow.hq.qp16.rc20.bf3.8000.mp4
+ffmpeg.exe -y -i konosuba.mkv -c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 16 -rc-lookahead 20 -bf 3 -pix_fmt p010le -b:v 6000 konosuba.av1.slow.hq.qp16.rc20.bf3.6000.mp4
+ffmpeg.exe -y -i konosuba.mkv -c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 16 -rc-lookahead 20 -bf 3 -pix_fmt p010le -b:v 5000 konosuba.av1.slow.hq.qp16.rc20.bf3.5000.mp4
+ffmpeg.exe -y -i konosuba.mkv -c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 16 -rc-lookahead 20 -bf 3 -pix_fmt p010le -b:v 4000 konosuba.av1.slow.hq.qp16.rc20.bf3.4000.mp4
+
+
+ffmpeg.exe -y -i konosuba.mkv -c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 16 -bf 3 -pix_fmt p010le konosuba.av1.slow.hq.qp16.bf3.mp4
+ffmpeg.exe -y -i konosuba.mkv -c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 20 -bf 3 -pix_fmt p010le konosuba.av1.slow.hq.qp20.bf3.mp4
+ffmpeg.exe -y -i konosuba.mkv -c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 24 -bf 3 -pix_fmt p010le konosuba.av1.slow.hq.qp24.bf3.mp4
+ffmpeg.exe -y -i konosuba.mkv -c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 28 -bf 3 -pix_fmt p010le konosuba.av1.slow.hq.qp28.bf3.mp4
+ffmpeg.exe -y -i konosuba.mkv -c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 32 -bf 3 -pix_fmt p010le konosuba.av1.slow.hq.qp32.bf3.mp4
+ffmpeg.exe -y -i konosuba.mkv -c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 36 -bf 3 -pix_fmt p010le konosuba.av1.slow.hq.qp36.bf3.mp4
+ffmpeg.exe -y -i konosuba.mkv -c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 40 -bf 3 -pix_fmt p010le konosuba.av1.slow.hq.qp40.bf3.mp4

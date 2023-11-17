@@ -1,4 +1,4 @@
-import {col_file_with_path, col_node, col_queue, col_tag, col_tag_group, col_user, col_user_group, type_file} from './Database';
+import {col_favourite, col_favourite_group, col_file_with_path, col_node, col_queue, col_tag, col_tag_group, col_user, col_user_group, type_file} from './Database';
 
 export type api_node_col = {
     is_file?: number,
@@ -346,5 +346,38 @@ export type api_file_checksum_req = {
     id_list: string,
 } & { [key: string]: any };
 
+
+export type api_favourite_del_req = {
+    id?: string,
+} & { [key: string]: any };
+export type api_favourite_del_resp = {};
+
+export type api_favourite_attach_req = {
+    id_node?: string,
+    id_group?: string,
+} & { [key: string]: any };
+
+export type api_favourite_attach_resp = col_favourite;
+
+export type api_favourite_group_list_req = {
+    keyword?: string,
+    is_del?: string,
+} & { [key: string]: any };
+
+export type api_favourite_group_list_resp =
+    col_favourite_group[];
+
+export type api_favourite_group_del_req = {
+    id?: string,
+} & { [key: string]: any };
+export type api_favourite_group_del_resp = {};
+
+export type api_favourite_group_mod_req = {
+    id?: string,
+    title?: string,
+    status?: string,
+} & { [key: string]: any };
+
+export type api_favourite_group_mod_resp = api_favourite_group_mod_req;
 
 
