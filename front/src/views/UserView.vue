@@ -256,7 +256,7 @@ async function modUser(index: number) {
           <!--          </div>-->
         </template>
         <template v-else>
-          <content-editable class="title" v-model="group.title"></content-editable>
+          <content-editable class="title" v-model="group.title" :auto-focus="true"></content-editable>
           <content-editable class="description" v-model="group.description"></content-editable>
           <div class="operator">
             <input type="checkbox" v-model="group.status"
@@ -320,7 +320,7 @@ async function modUser(index: number) {
         </template>
         <template v-else>
           <div class="title">
-            <content-editable v-model="user.name"></content-editable>
+            <content-editable v-model="user.name" :auto-focus="true"></content-editable>
             <div>
               <input type="checkbox" v-model="user.status"
                      :id="`UV_U_CB_${user.ext_key?user.ext_key:user.id}`"

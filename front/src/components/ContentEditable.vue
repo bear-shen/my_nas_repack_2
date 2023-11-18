@@ -9,6 +9,7 @@ const emits = defineEmits([
 ]);
 const props = defineProps<{
   modelValue: any
+  autoFocus?: boolean
 }>();
 
 const editor: Ref<HTMLElement | null> = ref(null);
@@ -34,6 +35,9 @@ onMounted(() => {
   value.value = props.modelValue;
   if (editor.value)
     editor.value.innerText = value.value;
+  if (props.autoFocus) {
+    editor.value?.focus();
+  }
 });
 
 let blur = false;

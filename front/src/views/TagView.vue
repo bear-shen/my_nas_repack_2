@@ -336,7 +336,7 @@ async function modTag(index: number) {
           <!--          </div>-->
         </template>
         <template v-else>
-          <content-editable class="title" v-model="group.title"></content-editable>
+          <content-editable class="title" v-model="group.title" :auto-focus="true"></content-editable>
           <content-editable class="description" v-model="group.description"></content-editable>
           <hinter
             class="node"
@@ -387,7 +387,7 @@ async function modTag(index: number) {
         </template>
         <template v-else>
           <div class="title">
-            <content-editable v-model="tag.title"></content-editable>
+            <content-editable v-model="tag.title" :auto-focus="true"></content-editable>
             <div>
               <span class="sysIcon sysIcon_save" @click="modTag(index)"></span>
               <span class="sysIcon sysIcon_delete" @click="delTag(index)"></span>

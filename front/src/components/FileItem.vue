@@ -471,6 +471,7 @@ async function op_click(evt: MouseEvent) {
             <content-editable
               v-else v-model="node.title"
               class="title editing"
+              :auto-focus="true"
               @mousedown.stop
             ></content-editable>
             <p v-if="!node._renaming">{{ node.time_update }}</p>

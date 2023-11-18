@@ -8,6 +8,9 @@ export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_favourite_group_list_resp> {
         const request = data.fields as api_favourite_group_list_req;
         const model = new FavouriteGroupModel();
+        if (request.id) {
+            model.where('id', request.id);
+        }
         if (request.keyword) {
             model.where(
                 // 'index_node',

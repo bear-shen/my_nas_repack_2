@@ -11,13 +11,17 @@ import Local from "./processor/Local";
 import UserGroup from "./processor/UserGroup";
 import Setting from "./processor/Setting";
 import Log from "./processor/Log";
+import Favourite from "./processor/Favourite";
+import FavouriteGroup from "./processor/FavouriteGroup";
 
 type t = RowDataPacket;
 const controllers: { [key: string]: any } = {
     file: File,
-    user: User,
     tag: Tag,
     tag_group: TagGroup,
+    favourite: Favourite,
+    favourite_group: FavouriteGroup,
+    user: User,
     user_group: UserGroup,
     local: Local,
     log: Log,

@@ -360,6 +360,7 @@ export type api_favourite_attach_req = {
 export type api_favourite_attach_resp = col_favourite;
 
 export type api_favourite_group_list_req = {
+    id_group?: string,
     keyword?: string,
     is_del?: string,
 } & { [key: string]: any };
