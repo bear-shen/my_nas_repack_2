@@ -8,7 +8,7 @@ import GenFunc from "../../../share/GenFunc";
 import {useModalStore} from "@/stores/modalStore";
 import ContentEditable from "@/components/ContentEditable.vue";
 import type {col_favourite_group} from "../../../share/Database";
-import type {api_favourite_group_list_req, api_favourite_group_list_resp, api_node_col, api_tag_group_col} from "../../../share/Api";
+import type {api_favourite_group_list_req, api_favourite_group_list_resp, api_favourite_group_mod_resp, api_file_list_req, api_file_list_resp, api_node_col} from "../../../share/Api";
 import {query} from "@/Helper";
 
 //
@@ -24,18 +24,26 @@ let queryData = {
 type api_favourite_group_col_local = (col_favourite_group & { edit?: boolean, ext_key?: number });
 const groupList: Ref<(api_favourite_group_col_local)[]> = ref([]);
 const nodeList: Ref<api_node_col[]> = ref([]);
-const curGroup: Ref<api_tag_group_col | null> = ref(null);
+const curGroup: Ref<api_favourite_group_col_local | null> = ref(null);
 const curGroupIndex: Ref<number> = ref(-1);
 onMounted(async () => {
   Object.assign(queryData, GenFunc.copyObject(route.query));
-  getGroup();
+  await getGroup();
+  if (queryData.id) {
+    locateGroup();
+    getList(curGroupIndex.value);
+  }
 });
 
 onBeforeRouteUpdate(async (to) => {
   console.info(to);
   queryData.id = (to.query.id as string) ?? '';
   queryData.keyword = to.query.keyword as string ?? '';
-  getGroup();
+  // await getGroup();
+  if (queryData.id) {
+    locateGroup();
+    getList(curGroupIndex.value);
+  }
 });
 
 async function getGroup() {
@@ -50,19 +58,24 @@ async function getGroup() {
 }
 
 async function delGroup(index: number) {
+  const target = groupList.value[index];
+  const res = await query<api_favourite_group_mod_resp>("favourite_group/del", target);
 }
 
 async function modGroup(index: number) {
   const target = groupList.value[index];
   if (target.edit) {
     target.edit = false;
+    const res = await query<api_favourite_group_mod_resp>("favourite_group/mod", target);
+    if (!res) return;
+    groupList.value[index].id = parseInt(res.id ?? '');
   } else {
     target.edit = true;
   }
 }
 
 function addGroup() {
-  groupList.value.push({
+  groupList.value.unshift({
     title: '',
     status: 1,
     edit: true,
@@ -70,7 +83,35 @@ function addGroup() {
   });
 }
 
-function checkGroup(index: number) {
+function locateGroup() {
+  if (!queryData.id) return;
+  let groupId = parseInt(queryData.id);
+  groupList.value.forEach((item, index) => {
+    if (groupId !== item.id) return;
+    curGroupIndex.value = index;
+    curGroup.value = item;
+  });
+}
+
+async function goGroup(index: number) {
+  const target = groupList.value[index];
+  // curGroupIndex.value = index;
+  // curGroup.value = target;
+  router.push({
+    path: route.path,
+    query: {
+      id: target.id,
+    },
+  });
+}
+
+async function getList(index: number) {
+  const group = groupList.value[index];
+  const list = await query<api_file_list_resp>("file/get", {
+    mode: 'favourite',
+    pid: queryData.id,
+    with: 'file,tag',
+  } as api_file_list_req);
 }
 
 async function detach() {
@@ -103,9 +144,9 @@ async function attach() {
         }"
       >
         <template v-if="!group.edit">
-          <div>
-            <div class="title" @click="checkGroup(index)">{{ group.title }}</div>
-            <div class="operator">
+          <div :class="{active:curGroupIndex==index}" @click="goGroup(index)">
+            <div class="title">{{ group.title }}</div>
+            <div class="operator" @click.stop>
               <span class="sysIcon sysIcon_edit" @click="modGroup(index)"></span>
               <span class="sysIcon sysIcon_delete" @click="delGroup(index)"></span>
             </div>
@@ -164,6 +205,9 @@ async function attach() {
         color: map-get($colors, font);
         padding: 0 $fontSize*0.5;
         background-color: transparent;
+        min-width: $fontSize*10;
+        overflow: hidden;
+        word-break: break-all;
         //display: flex;
         //justify-content: space-between;
       }
@@ -173,9 +217,6 @@ async function attach() {
           cursor: pointer;
         }
       }
-    }
-    .hinter > div, .content_editor {
-      background-color: map-get($colors, bk_active);
     }
   }
   .list_tag {

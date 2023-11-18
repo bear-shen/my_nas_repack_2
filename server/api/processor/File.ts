@@ -34,7 +34,6 @@ import FileModel from '../../model/FileModel';
 import * as fp from "../../lib/FileProcessor";
 import {get as getConfig} from "../../ServerConfig";
 import QueueModel from "../../model/QueueModel";
-import ORM from "../../lib/ORM";
 
 export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_list_resp> {
@@ -45,50 +44,18 @@ export default class {
             path: [] as col_node[],
             list: [] as api_node_col[],
         };
-        // ORM.dumpSql = true;
-        if (parseInt(request.pid)) {
-            const model = new NodeModel();
-            const curNode = await model.where('id', request.pid).first();
-            //tree这个是.path下面的，with_crumb是单独节点的
-            const treeNodeIdLs = curNode.list_node;
-            const treeNodeLs = await (new NodeModel).whereIn('id', treeNodeIdLs).select();
-            const treeNodeMap = GenFunc.toMap(treeNodeLs, 'id');
-            treeNodeIdLs.forEach(id => {
-                if (id === 0) {
-                    target.path.push({
-                        id: 0,
-                        title: 'root',
-                        id_parent: -1,
-                        type: 'directory',
-                        status: 1,
-                        list_node: [],
-                    });
-                } else {
-                    const node = treeNodeMap.get(id);
-                    if (node) {
-                        target.path.push(node);
-                    }
-                }
-            });
-            target.path.push(curNode);
-        }
-        /*switch (request.mode) {
-            default:
-            case 'directory':
-                break;
-            case 'search':
-                break;
-            case 'tag':
-                break;
-        }*/
 
         const model = new NodeModel();
 
         switch (request.mode) {
             default:
             case 'directory':
+                //pid可能为0因此单独做判断
+                //但是按照道理讲为什么不直接判断一下request.pid.length呢？
+                //之前考虑过这一点但是忘记为什么了
                 let pid = parseInt(request.pid);
                 pid = isNaN(pid) ? 0 : pid;
+                target.path = await buildCrumb(pid);
                 if (!pid && request.group == 'deleted') break;
                 //不加toString不出数据，绑定是有值的，不清楚为什么
                 model.where('id_parent', pid.toString());
@@ -101,6 +68,7 @@ export default class {
                     `%${request.keyword.trim()}%`
                 );
                 if (request.pid) {
+                    target.path = await buildCrumb(parseInt(request.pid));
                     if (request.dir_only)
                         model.where('id_parent', request.pid);
                     else
@@ -110,6 +78,7 @@ export default class {
             case 'tag':
                 model.whereRaw('find_in_set(?,list_tag_id)', request.tag_id);
                 if (request.pid) {
+                    target.path = await buildCrumb(parseInt(request.pid));
                     if (request.dir_only)
                         model.where('id_parent', request.pid);
                     else
@@ -129,6 +98,13 @@ export default class {
                     );
                 });
                 break;
+            case 'favourite':
+                model.whereRaw(
+                    'id in (select id_node from favourite where id_group = ? and id_user = ?)'
+                    , request.pid, data.uid
+                ).where('status', 1)
+                ;
+                break;
         }
         if (request.node_type) {
             if (request.node_type !== 'any')
@@ -141,9 +117,6 @@ export default class {
                 break;
             case 'deleted':
                 model.where('status', 0);
-                break;
-            case 'favourite':
-                model.where('status', 1);
                 break;
         }
         if (request.limit) {
@@ -173,7 +146,7 @@ export default class {
             node.is_file = node.type === 'directory' ? 0 : 1;
         });
         let withConf = ['file', 'tag', 'crumb']
-        if (request.with || request.with.length) {
+        if (request.with && request.with.length) {
             withConf = request.with.split(',');
             if (withConf.indexOf('none') !== -1) {
                 withConf = [];
@@ -476,6 +449,35 @@ export default class {
         }
     }
 };
+
+async function buildCrumb(pid: number): Promise<col_node[]> {
+    const model = new NodeModel();
+    const curNode = await model.where('id', pid).first();
+    //tree这个是.path下面的，with_crumb是单独节点的
+    const treeNodeIdLs = curNode.list_node;
+    const treeNodeLs = await (new NodeModel).whereIn('id', treeNodeIdLs).select();
+    const treeNodeMap = GenFunc.toMap(treeNodeLs, 'id');
+    const targetLs: col_node[] = [];
+    treeNodeIdLs.forEach(id => {
+        if (id === 0) {
+            targetLs.push({
+                id: 0,
+                title: 'root',
+                id_parent: -1,
+                type: 'directory',
+                status: 1,
+                list_node: [],
+            });
+        } else {
+            const node = treeNodeMap.get(id);
+            if (node) {
+                targetLs.push(node);
+            }
+        }
+    });
+    targetLs.push(curNode);
+    return targetLs;
+}
 
 // sync with front/src/views/FileView.vue
 function sortList(list: col_node[], sortVal: string) {

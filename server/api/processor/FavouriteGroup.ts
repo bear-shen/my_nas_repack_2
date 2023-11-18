@@ -8,9 +8,10 @@ export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_favourite_group_list_resp> {
         const request = data.fields as api_favourite_group_list_req;
         const model = new FavouriteGroupModel();
-        if (request.id) {
-            model.where('id', request.id);
-        }
+        //id在前端做
+        // if (request.id) {
+        //     model.where('id', request.id);
+        // }
         if (request.keyword) {
             model.where(
                 // 'index_node',
@@ -24,6 +25,7 @@ export default class {
         } else {
             model.where('status', 1);
         }
+        model.where('id_user', data.uid);
         model.order('id', 'desc');
         const favGroupLs = await model.select();
         //
@@ -32,22 +34,28 @@ export default class {
 
     async del(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_favourite_group_del_resp> {
         const request = data.fields as api_favourite_group_del_req;
-        const model = await (new FavouriteGroupModel()).where('id', request.id).update({status: 0});
+        const model = await (new FavouriteGroupModel())
+            .where('id', request.id)
+            .where('id_user', data.uid)
+            .update({status: 0});
         return null;
     };
 
     async mod(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_favourite_group_mod_resp> {
         const request = data.fields as api_favourite_group_mod_req;
+
         if (parseInt(request.id)) {
             // const ifExs = await (new TagGroupModel()).where('id', request.id).first();
             await (new FavouriteGroupModel()).where('id', request.id).update({
                 title: request.title,
                 status: request.status,
+                // id_user: data.uid,
             });
         } else {
             const res = await (new FavouriteGroupModel()).insert({
                 title: request.title,
                 status: request.status,
+                id_user: data.uid,
             });
             request.id = `${res.insertId}`;
         }

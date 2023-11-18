@@ -49,7 +49,11 @@ export type api_file_list_resp = {
 } & { [key: string]: any }*/
 
 export type api_file_list_req = {
-    mode?: 'directory' | 'search' | 'tag' | 'id_iterate' | string,
+    mode?:
+        'directory' | 'search' | 'tag'
+        | 'favourite'
+        | 'id_iterate'
+        | string,
     pid?: string,
     keyword?: string,
     tag_id?: string,
@@ -360,7 +364,7 @@ export type api_favourite_attach_req = {
 export type api_favourite_attach_resp = col_favourite;
 
 export type api_favourite_group_list_req = {
-    id_group?: string,
+    id?: string,
     keyword?: string,
     is_del?: string,
 } & { [key: string]: any };
