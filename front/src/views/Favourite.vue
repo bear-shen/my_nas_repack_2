@@ -10,6 +10,7 @@ import ContentEditable from "@/components/ContentEditable.vue";
 import type {col_favourite_group} from "../../../share/Database";
 import type {api_favourite_group_list_req, api_favourite_group_list_resp, api_favourite_group_mod_resp, api_file_list_req, api_file_list_resp, api_node_col} from "../../../share/Api";
 import {query} from "@/Helper";
+import FileItem from "@/components/FileItem.vue";
 
 //
 const localConfigure = useLocalConfigureStore();
@@ -107,11 +108,13 @@ async function goGroup(index: number) {
 
 async function getList(index: number) {
   const group = groupList.value[index];
-  const list = await query<api_file_list_resp>("file/get", {
+  const res = await query<api_file_list_resp>("file/get", {
     mode: 'favourite',
     pid: queryData.id,
     with: 'file,tag',
   } as api_file_list_req);
+  if(!res)return;
+  nodeList.value = res.list;
 }
 
 async function detach() {
@@ -164,8 +167,14 @@ async function attach() {
       </div>
     </div>
     <div class="list_fav">
-      <div v-for="(node,index) in nodeList"
-           :class="{node:true,}"></div>
+      <FileItem
+        v-for="(node, nodeIndex) in nodeList"
+        :key="nodeIndex"
+        :node="node"
+        :index="nodeIndex"
+        :selected="false"
+      ></FileItem>
+      <!--      @go="emitGo"-->
     </div>
   </div>
 </template>
