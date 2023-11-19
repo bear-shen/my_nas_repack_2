@@ -3,10 +3,10 @@
 import {type RouteRecordRaw, useRoute, useRouter} from "vue-router";
 import {useUserStore} from "@/stores/userStore";
 // const props = defineProps(["depth", "records"]);
-const props = defineProps({
+const props = defineProps<{
   depth: Number,
   records: Object,
-});
+}>();
 const depth = props.depth ? props.depth : 1;
 const records = props.records as RouteRecordRaw[];
 const router = useRouter();
