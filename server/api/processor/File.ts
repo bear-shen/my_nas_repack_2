@@ -454,6 +454,7 @@ async function buildCrumb(pid: number): Promise<col_node[]> {
     const model = new NodeModel();
     const curNode = await model.where('id', pid).first();
     //tree这个是.path下面的，with_crumb是单独节点的
+    if(!curNode) return [];
     const treeNodeIdLs = curNode.list_node;
     const treeNodeLs = await (new NodeModel).whereIn('id', treeNodeIdLs).select();
     const treeNodeMap = GenFunc.toMap(treeNodeLs, 'id');

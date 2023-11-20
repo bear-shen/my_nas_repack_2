@@ -6,10 +6,11 @@ import {onBeforeRouteUpdate, useRoute, useRouter,} from "vue-router";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {manualSort, query} from "@/Helper";
 import GenFunc from "../../../share/GenFunc";
-import FileItem from "@/components/FileItem.vue";
-import type {api_file_bath_delete_resp, api_file_bath_move_resp, api_file_list_req, api_file_list_resp, api_file_mkdir_req, api_file_mkdir_resp, api_node_col,} from "../../../share/Api";
+import type {api_file_list_req, api_file_list_resp, api_file_mkdir_req, api_file_mkdir_resp, api_node_col,} from "../../../share/Api";
 import {useModalStore} from "@/stores/modalStore";
-import type {ModalConstruct} from '@/modal';
+import * as fHelper from "@/FileViewHelper";
+import {opModule as opModuleClass} from "@/FileViewHelper";
+import FileItem from "@/components/FileItem.vue";
 
 const modalStore = useModalStore();
 const contentDOM: Ref<HTMLElement | null> = ref(null);
@@ -52,15 +53,6 @@ let queryData = {
   with: "",
   group: "",
 } as api_file_list_req;
-let timeoutDef = {
-  sort: 50,
-  selectEvt: 50,
-  clearEvt: 100,
-  //zzz
-  lazyLoad: 200,
-  offsetDebounce: 100,
-  offsetUIDebounce: 500,
-};
 // let usePid = false;
 //
 // defineProps<{
@@ -96,6 +88,7 @@ onBeforeRouteUpdate(async (to) => {
 //
 let crumbList: Ref<api_node_col[]> = ref([]);
 let nodeList: Ref<api_node_col[]> = ref([]);
+let opModule: opModuleClass;
 // onMounted(async () => {
 // getList();
 // });
@@ -118,8 +111,10 @@ async function getList() {
   // console.info(res);
   crumbList.value = res.path;
   nodeList.value = sortList(res.list, sortVal.value);
-  reloadOffset(undefined, timeoutDef.offsetDebounce);
+  if (opModule)
+    opModule.reloadOffset(undefined, fHelper.timeoutDef.offsetDebounce);
   // console.info(crumbList);
+  return {crumb: crumbList.value, node: nodeList.value};
 }
 
 function addFolder() {
@@ -217,7 +212,8 @@ const modeKey = localConfigure.listen(
 
 function setMode(mode: string) {
   localConfigure.set("file_view_mode", mode);
-  reloadOffset(undefined, timeoutDef.offsetDebounce);
+  if (opModule)
+    opModule.reloadOffset(undefined, fHelper.timeoutDef.offsetDebounce);
 }
 
 //
@@ -239,12 +235,13 @@ function setSort(sort: string) {
   nodeList.value = [];
   setTimeout(() => {
     nodeList.value = sortList(preList, sortVal.value);
-  }, timeoutDef.sort);
+  }, fHelper.timeoutDef.sort);
 }
 
 function sortList(list: api_node_col[], sort: string) {
   list = manualSort(list, sort);
-  reloadOffset(undefined, timeoutDef.offsetDebounce);
+  if (opModule)
+    opModule.reloadOffset(undefined, fHelper.timeoutDef.offsetDebounce);
   return list;
 }
 
@@ -311,482 +308,9 @@ function emitGo(type: string, code: number) {
           go({pid: `${node.id}`, mode: 'directory'});
           break;
         default:
-          popupDetail(GenFunc.copyObject(queryData), node.id ?? 0);
+          fHelper.popupDetail(GenFunc.copyObject(queryData), node.id ?? 0);
           break;
       }
-      break;
-  }
-}
-
-function popupDetail(queryData: { [key: string]: any }, curNodeId: number) {
-  //双击从 emitGo 进入
-  //打开是手动打开
-  let w = localConfigure.get("browser_layout_w");
-  let h = localConfigure.get("browser_layout_h");
-  // console.info(w, h);
-  const iw = window.innerWidth;
-  const ih = window.innerHeight;
-  if (iw < w) w = 0;
-  if (ih < h) h = 0;
-  // console.info(w, h);
-  modalStore.set({
-    title: "file browser",
-    alpha: false,
-    key: "",
-    single: false,
-    w: w ? w : 400,
-    h: h ? h : 400,
-    minW: 400,
-    minH: 400,
-    // h: 160,
-    allow_resize: true,
-    allow_move: true,
-    allow_fullscreen: true,
-    auto_focus: false,
-    component: [
-      {
-        componentName: "fileBrowser",
-        data: {
-          query: GenFunc.copyObject(queryData),
-          curId: curNodeId,
-        },
-      },
-    ],
-    /* callback: {
-      close: function (modal) {
-        console.info(modal);
-      },
-    }, */
-  });
-}
-
-
-let selecting = false;
-let selectingMovEvtCount = 0;
-let selectingOffset = [[0, 0,], [0, 0,],];
-const preSelectedNodeIndexSet = new Set<number>();
-let selectingKeyDef = '';
-
-const showSelectionOp: Ref<boolean> = ref(false);
-//shift用的
-let lastSelectIndex = -1;
-
-/**
- * 仅仅在内容页面中启用多选
- * 事件流程大致是
- * mouseDown
- *  记录当前已经选中的文件
- *  记录按键
- *  记录起点
- * mouseMove 单击有几率触发
- *  计算和添加所选的文件
- * mouseUp
- *  清除状态
- * click 长按情况下不会触发
- *  实际上也就是为了mouseMove不工作的情况做个兜底
- *    但是看了看好像没有特别的必要
- *    日后考虑删掉
- * @todo click是先写的所以才会有这种问题，后期考虑一下合并
- * */
-function inDetailView(e: MouseEvent): boolean {
-  // console.info(e);
-  let inDetail = false;
-  let prop = e.target as Element;
-  while (prop) {
-    // console.info(prop);
-    // console.info(prop.classList);
-    // console.info(prop.classList.contains('content_detail'));
-    // if(props.tagName)
-    if (prop.classList.contains('content_meta')) {
-      inDetail = false;
-      break;
-    }
-    if (prop.classList.contains('fr_content')) {
-      inDetail = true;
-      break;
-    }
-    if (!prop.parentElement) break;
-    prop = prop.parentElement;
-    // if(prop.classList)
-  }
-  return inDetail;
-}
-
-function inTaggingDOM(e: MouseEvent): boolean {
-  // console.info(e);
-  let inDetail = false;
-  let prop = e.target as Element;
-  while (prop) {
-    if (prop.classList.contains('content_detail')) return false;
-    if (prop.classList.contains('tag_list')) {
-      inDetail = true;
-      break;
-    }
-    if (!prop.parentElement) break;
-    prop = prop.parentElement;
-  }
-  return inDetail;
-}
-
-function mouseDownEvt(e: MouseEvent) {
-  // console.info('here');
-  if (!inDetailView(e)) return;
-  // console.info('here');
-  // if (inTaggingDOM(e)) return;
-  // console.info(e);
-  // console.info(inDetail(e));
-  // console.info('mouseDownEvt');
-  // e.stopPropagation();
-  e.preventDefault();
-  selectingOffset[0] = [e.x + (contentDOM.value?.scrollLeft ?? 0), e.y + (contentDOM.value?.scrollTop ?? 0),];
-  selectingOffset[1] = [e.x + (contentDOM.value?.scrollLeft ?? 0), e.y + (contentDOM.value?.scrollTop ?? 0),];
-  preSelectedNodeIndexSet.clear();
-  nodeList.value.forEach((node, index) => {
-    if (node._selected)
-      preSelectedNodeIndexSet.add(index)
-  });
-  selecting = true;
-  selectingMovEvtCount = 0;
-  // setTimeout(() => selecting = true, 50);
-  //
-  const selIndexLs = getSelection(selectingOffset);
-  //
-  const keyMap = [];
-  if (e.ctrlKey) keyMap.push('ctrl');
-  if (e.shiftKey) keyMap.push('shift');
-  // if (e.altKey) keyMap.push('alt');
-  // if (e.metaKey) keyMap.push('meta');
-  selectingKeyDef = keyMap.join('_');
-  let newSelectIndex = -1;
-  const selIndexArr = Array.from(selIndexLs);
-  if (selIndexArr.length)
-    newSelectIndex = selIndexArr.pop() ?? -1;
-  console.info(lastSelectIndex, newSelectIndex);
-  switch (selectingKeyDef) {
-    case 'shift':
-      preSelectedNodeIndexSet.clear();
-    case 'ctrl_shift':
-      if (newSelectIndex == -1) break;
-      if (lastSelectIndex == -1) break;
-      let from = Math.min(newSelectIndex, lastSelectIndex);
-      let to = Math.max(newSelectIndex, lastSelectIndex);
-      for (let i1 = from; i1 <= to; i1++) {
-        preSelectedNodeIndexSet.add(i1);
-      }
-      break;
-    default:
-      preSelectedNodeIndexSet.clear();
-      break;
-    case 'ctrl':
-      break;
-  }
-  nodeList.value.forEach((node, index) => {
-    let selected = false;
-    if (selIndexLs.has(index)) selected = true;
-    if (preSelectedNodeIndexSet.has(index)) selected = true;
-    node._selected = selected;
-  });
-  lastSelectIndex = newSelectIndex;
-  //只要选中就显示吧
-  showSelectionOp.value = preSelectedNodeIndexSet.size + selIndexLs.size > 0;
-}
-
-function mouseMoveEvt(e: MouseEvent) {
-  if (!selecting) return;
-  //有时候click会触发到mousemove事件，做个防抖
-  selectingMovEvtCount += 1;
-  if (selectingMovEvtCount < 10) return;
-  // console.info('mouseMoveEvt', selecting);
-  e.preventDefault();
-  selectingOffset[1] = [e.x + (contentDOM.value?.scrollLeft ?? 0), e.y + (contentDOM.value?.scrollTop ?? 0),];
-  // console.info(selIndexLs);
-  const selIndexLs = getSelection(selectingOffset);
-  nodeList.value.forEach((node, index) => {
-    let selected = false;
-    if (selIndexLs.has(index)) selected = true;
-    if (preSelectedNodeIndexSet.has(index)) selected = true;
-    node._selected = selected;
-    // console.info(node._selected);
-  });
-  //lastSelectIndex计算
-  const subSelIndexLs = getSelection([selectingOffset[1], selectingOffset[1]]);
-  // console.info(subSelIndexLs);
-  if (subSelIndexLs.size)
-    lastSelectIndex = Array.from(subSelIndexLs).pop() ?? -1;
-  //只要选中就显示吧
-  showSelectionOp.value = preSelectedNodeIndexSet.size + selIndexLs.size > 0;
-}
-
-function mouseUpEvt(e: MouseEvent) {
-  // return;
-  if (!selecting) return;
-  // console.info('mouseUpEvt');
-  e.preventDefault();
-  // e.stopPropagation();
-  setTimeout(() => {
-    selecting = false;
-    selectingMovEvtCount = 0;
-    selectingOffset = [[0, 0,], [0, 0,],];
-    preSelectedNodeIndexSet.clear();
-    selectingKeyDef = '';
-  }, timeoutDef.selectEvt);
-}
-
-function getSelection(selectingOffset: number[][]): Set<number> {
-  let retL = selectingOffset[0][0] > selectingOffset[1][0] ? selectingOffset[1][0] : selectingOffset[0][0];
-  let retT = selectingOffset[0][1] > selectingOffset[1][1] ? selectingOffset[1][1] : selectingOffset[0][1];
-  let retR = selectingOffset[0][0] < selectingOffset[1][0] ? selectingOffset[1][0] : selectingOffset[0][0];
-  let retB = selectingOffset[0][1] < selectingOffset[1][1] ? selectingOffset[1][1] : selectingOffset[0][1];
-  const selIndexLs = new Set<number>();
-  nodeList.value.forEach((node, index) => {
-    if (!node._offsets) return;
-    //有一个点，在选择的矩形内部
-    let nodeL: number = node?._offsets[0];
-    let nodeT: number = node?._offsets[1];
-    let nodeR: number = node?._offsets[2];
-    let nodeB: number = node?._offsets[3];
-    //左上在矩形中 右下在矩形中 矩形在节点中
-    let inH = (nodeL >= retL && nodeL <= retR) || (nodeR >= retL && nodeR <= retR) || (nodeL <= retR && nodeR >= retL);
-    let inV = (nodeT >= retT && nodeT <= retB) || (nodeB >= retT && nodeB <= retB) || (nodeT <= retB && nodeB >= retT);
-    // if (node.id == 3254) {
-    //   console.info(retL, retT, retR, retB, nodeL >= retL, nodeL <= retR, nodeR >= retL, nodeR <= retR);
-    //   console.info(nodeL, nodeT, nodeR, nodeB, nodeT >= retT, nodeT <= retB, nodeB >= retT, nodeB <= retB);
-    //   console.info(inH);
-    //   console.info(inV);
-    // }
-    if (!inH || !inV) return;
-    // node._selected = true;
-    selIndexLs.add(index);
-  });
-  return selIndexLs;
-}
-
-function clearSelect(e: MouseEvent) {
-  // console.info(e);
-  if (!(e.target as Element).classList.contains('content_detail')) return;
-  // setTimeout(() => {
-  // console.warn('clearSelect', selecting)
-  // if (selecting) return;
-  nodeList.value.forEach(item => {
-    item._selected = false;
-  });
-  showSelectionOp.value = false;
-  // }, timeoutDef.clearEvt);
-}
-
-async function bathOp(mode: string) {
-  let {idSet, nodeLs} = getSelected();
-  if (!idSet.size) return;
-  let queryData: { [key: string]: any };
-  let res: any;
-  switch (mode) {
-    case 'rename':
-      bath_rename(idSet, nodeLs);
-      break;
-    case 'move':
-      bath_move(idSet, nodeLs);
-      break;
-    case 'delete':
-      bath_delete(idSet, nodeLs);
-      break;
-    case 'delete_forever':
-      bath_delete_forever(idSet, nodeLs);
-      break;
-    case 'browser':
-      bath_browser(idSet, nodeLs);
-      break;
-  }
-}
-
-function getSelected() {
-  const subNodeLs: api_node_col[] = [];
-  const subNodeIdSet: Set<number> = new Set<number>();
-  nodeList.value.forEach(item => {
-    if (!item._selected) return;
-    subNodeLs.push(item);
-    subNodeIdSet.add(item?.id ?? 0);
-  });
-  return {
-    nodeLs: subNodeLs,
-    idSet: subNodeIdSet,
-  }
-}
-
-async function bath_rename(idSet: Set<number>, nodeLs: api_node_col[]) {
-  modalStore.set({
-    title: `bath rename`,
-    alpha: false,
-    key: "",
-    single: false,
-    w: 400,
-    h: 275,
-    minW: 400,
-    minH: 275,
-    // h: 160,
-    allow_resize: true,
-    allow_move: true,
-    allow_fullscreen: false,
-    auto_focus: true,
-    component: [
-      {
-        componentName: "renameUtil",
-        data: {
-          node_list: nodeLs,
-          callback: () => {          //同步回列表
-            getList();
-          }
-        }
-      },],
-  } as ModalConstruct);
-  return;
-}
-
-async function bath_move(idSet: Set<number>, nodeLs?: api_node_col[]) {
-  modalStore.set({
-    title: `locator | move ${idSet.size} files to:`,
-    alpha: false,
-    key: "",
-    single: false,
-    w: 400,
-    h: 60,
-    minW: 400,
-    minH: 60,
-    // h: 160,
-    allow_resize: true,
-    allow_move: true,
-    allow_fullscreen: false,
-    auto_focus: true,
-    // text: "this is text",
-    component: [
-      {
-        componentName: "locator",
-        data: {
-          query: {
-            type: 'directory',
-          } as api_file_list_req,
-          call: async (targetNode: api_node_col) => {
-            console.info(targetNode);
-            const queryData = {
-              id_list: Array.from(idSet).join(','),
-              id_parent: targetNode.id
-            };
-            const res = await query<api_file_bath_move_resp>("file/bath_move", queryData);
-            //同步回列表
-            getList();
-            if (!res) return;
-            return;
-          }
-        },
-      },
-    ],
-  } as ModalConstruct);
-}
-
-async function bath_delete(idSet: Set<number>, nodeLs?: api_node_col[]) {
-  modalStore.set({
-    title: `confirm to delete ${idSet.size} files`,
-    alpha: false,
-    key: "",
-    single: false,
-    w: 400,
-    h: 100,
-    minW: 400,
-    minH: 100,
-    // h: 160,
-    allow_resize: false,
-    allow_move: true,
-    allow_fullscreen: false,
-    auto_focus: true,
-    text: "conform to delete",
-    callback: {
-      confirm: async function (modal) {
-        // console.info(modal);
-        // return;
-        const queryData = {
-          id_list: Array.from(idSet).join(',')
-        };
-        const res = await query<api_file_bath_delete_resp>("file/bath_delete", queryData);
-        //同步回列表
-        getList();
-        if (!res) return;
-      },
-    },
-  } as ModalConstruct);
-}
-
-async function bath_delete_forever(idSet: Set<number>, nodeLs?: api_node_col[]) {
-  // console.warn('bath_delete_forever');
-  modalStore.set({
-    title: `confirm to delete ${idSet.size} files forever`,
-    alpha: false,
-    key: "",
-    single: false,
-    w: 400,
-    h: 100,
-    minW: 400,
-    minH: 100,
-    // h: 160,
-    allow_resize: false,
-    allow_move: true,
-    allow_fullscreen: false,
-    auto_focus: true,
-    text: "conform to delete forever",
-    callback: {
-      confirm: async function (modal) {
-        // console.warn('bath_delete_forever confirm');
-        const queryData = {
-          id_list: Array.from(idSet).join(',')
-        };
-        const res = await query<api_file_bath_delete_resp>("file/bath_delete_forever", queryData);
-        //同步回列表
-        getList();
-        if (!res) return;
-      },
-    },
-  } as ModalConstruct);
-}
-
-async function bath_browser(idSet: Set<number>, nodeLs: api_node_col[]) {
-  let idArr = Array.from(idSet);
-  if (idSet.size > 1) {
-    let query = GenFunc.copyObject(queryData);
-    query.mode = 'id_iterate';
-    query.keyword = idArr.join(',');
-    popupDetail(query, idArr[0]);
-  }
-  if (idSet.size == 1) {
-    popupDetail(GenFunc.copyObject(queryData), idArr[0]);
-  }
-}
-
-async function keymap(e: KeyboardEvent) {
-  // console.info(e);
-  // let selCount: number;
-  // let selInd: number;
-  // let selArr: number[];
-  // let query: api_file_list_req;
-  // let nodeLs: api_node_col[], idSet: Set<number>;
-  let selRes: { nodeLs: api_node_col[], idSet: Set<number> };
-  switch (e.key) {
-    case 'F2':
-      if ((e.target as HTMLElement).tagName !== "BODY") return;
-      selRes = getSelected();
-      bath_rename(selRes.idSet, selRes.nodeLs);
-      break;
-    case 'Delete':
-      if ((e.target as HTMLElement).tagName !== "BODY") return;
-      selRes = getSelected();
-      if (route.name === 'Recycle') {
-        bath_delete_forever(selRes.idSet, selRes.nodeLs);
-      } else {
-        bath_delete(selRes.idSet, selRes.nodeLs);
-      }
-      break;
-    case 'NumpadEnter':
-    case 'Enter':
-      if ((e.target as HTMLElement).tagName !== "BODY") return;
-      selRes = getSelected();
-      bath_browser(selRes.idSet, selRes.nodeLs);
       break;
   }
 }
@@ -798,7 +322,7 @@ async function keymap(e: KeyboardEvent) {
 
 function lazyLoad(e: Event) {
   clearTimeout(lazyLoadTimer);
-  lazyLoadTimer = setTimeout(triggleLazyLoad, timeoutDef.lazyLoad);
+  lazyLoadTimer = setTimeout(triggleLazyLoad, fHelper.timeoutDef.lazyLoad);
 }
 
 function triggleLazyLoad() {
@@ -818,56 +342,28 @@ function triggleLazyLoad() {
 }*/
 
 
-function reloadOffset(e?: UIEvent, debounceDelay?: number) {
-  if (!debounceDelay) debounceDelay = timeoutDef.offsetUIDebounce;
-  // console.info(arguments);
-  GenFunc.debounce(() => {
-    // 这边因为布局的关系offsetParent直接就是body，不需要过度优化
-    // console.info('resize');
-    // const baseDOM = document.querySelector('.content_detail') as HTMLElement;
-    // if (!baseDOM) return;
-    // const baseX = GenFunc.nodeOffsetX(baseDOM);
-    // const baseY = GenFunc.nodeOffsetY(baseDOM);
-    //
-    nodeList.value.forEach(node => {
-      if (!node._dom) return;
-      const dom = node._dom;
-      // console.info(evt);
-      let l = 0, t = 0, r = 0, b = 0;
-      l = GenFunc.nodeOffsetX(dom);
-      t = GenFunc.nodeOffsetY(dom);
-      r = l + dom.offsetWidth;
-      b = t + dom.offsetHeight;
-      node._offsets = [l, t, r, b,];
-      // console.info(node.id, node._dom, node._offsets);
-    });
-  }, debounceDelay, `debounce_node_resize`);
-}
-
 onMounted(async () => {
   console.info('onMounted');
   localConfigure.release("file_view_mode", modeKey);
   Object.assign(queryData, GenFunc.copyObject(route.query));
+  opModule = new fHelper.opModule({
+    route: route,
+    nodeList: nodeList,
+    getList: getList,
+    contentDOM: contentDOM.value as HTMLElement,
+    queryData: queryData,
+  });
   await getList();
   // if (contentDOM.value) {
   //   contentDOM.value.addEventListener("scroll", lazyLoad);
   // }
-  // reloadOffset(undefined, timeoutDef.offsetDebounce);
-  addEventListener('mousedown', mouseDownEvt);
-  addEventListener('mousemove', mouseMoveEvt);
-  addEventListener('mouseup', mouseUpEvt);
-  addEventListener('keydown', keymap);
-  addEventListener("resize", reloadOffset);
+  // reloadOffset(undefined, fHelper.timeoutDef.offsetDebounce);
 });
 onUnmounted(() => {
+  opModule.destructor();
   // if (contentDOM.value) {
   //   contentDOM.value.removeEventListener("scroll", lazyLoad);
   // }
-  removeEventListener('mousedown', mouseDownEvt);
-  removeEventListener('mousemove', mouseMoveEvt);
-  removeEventListener('mouseup', mouseUpEvt);
-  removeEventListener('keydown', keymap);
-  removeEventListener("resize", reloadOffset);
 });
 </script>
 
@@ -916,12 +412,12 @@ onUnmounted(() => {
         </label>
       </div>
       <div class="display">
-        <template v-if="showSelectionOp">
-          <a @click="bathOp('browser')">OP</a>
-          <a @click="bathOp('rename')">RN</a>
-          <a @click="bathOp('move')">MV</a>
-          <a v-if="route.name!=='Recycle'" @click="bathOp('delete')">DEL</a>
-          <a v-if="route.name==='Recycle'" @click="bathOp('delete_forever')">rDEL</a>
+        <template v-if="opModule &&opModule.showSelectionOp">
+          <a @click="opModule.bathOp('browser')">OP</a>
+          <a @click="opModule.bathOp('rename')">RN</a>
+          <a @click="opModule.bathOp('move')">MV</a>
+          <a v-if="route.name!=='Recycle'" @click="opModule.bathOp('delete')">DEL</a>
+          <a v-if="route.name==='Recycle'" @click="opModule.bathOp('delete_forever')">rDEL</a>
           <a class="sysIcon sysIcon_fengefu"></a>
         </template>
         <a class="sysIcon sysIcon_addfolder" @click="addFolder"></a>
@@ -947,7 +443,6 @@ onUnmounted(() => {
         ></a>
       </div>
     </div>
-    <!--    @click="clearSelect"-->
     <div :class="['content_detail', `mode_${mode}`]">
       <FileItem
         v-for="(node, nodeIndex) in nodeList"
@@ -1025,26 +520,26 @@ onUnmounted(() => {
       cursor: pointer;
     }
   }
-  .content_detail {
-    //min-height: 90vh;
-  }
-  .content_detail.mode_detail {
-    //columns: $fontSize * 20 6;
-    //column-gap: 0;
-    display: flex;
-    flex-wrap: wrap;
-    //justify-content: space-around;
-    justify-content: left;
-  }
-  .content_detail.mode_img {
-    //columns: $fontSize * 10 12;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
-  }
-  .content_detail.mode_text {
-    display: table;
-    width: 100%;
-  }
+}
+.content_detail {
+  //min-height: 90vh;
+}
+.content_detail.mode_detail {
+  //columns: $fontSize * 20 6;
+  //column-gap: 0;
+  display: flex;
+  flex-wrap: wrap;
+  //justify-content: space-around;
+  justify-content: left;
+}
+.content_detail.mode_img {
+  //columns: $fontSize * 10 12;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+.content_detail.mode_text {
+  display: table;
+  width: 100%;
 }
 </style>
