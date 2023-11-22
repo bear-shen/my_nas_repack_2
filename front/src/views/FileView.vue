@@ -111,8 +111,7 @@ async function getList() {
   // console.info(res);
   crumbList.value = res.path;
   nodeList.value = sortList(res.list, sortVal.value);
-  if (opModule)
-    opModule.reloadOffset(undefined, fHelper.timeoutDef.offsetDebounce);
+  if (opModule) opModule.setList(nodeList.value);
   // console.info(crumbList);
   return {crumb: crumbList.value, node: nodeList.value};
 }
@@ -212,8 +211,7 @@ const modeKey = localConfigure.listen(
 
 function setMode(mode: string) {
   localConfigure.set("file_view_mode", mode);
-  if (opModule)
-    opModule.reloadOffset(undefined, fHelper.timeoutDef.offsetDebounce);
+  if (opModule) opModule.setList(nodeList.value);
 }
 
 //
@@ -235,13 +233,12 @@ function setSort(sort: string) {
   nodeList.value = [];
   setTimeout(() => {
     nodeList.value = sortList(preList, sortVal.value);
+    if (opModule) opModule.setList(nodeList.value);
   }, fHelper.timeoutDef.sort);
 }
 
 function sortList(list: api_node_col[], sort: string) {
   list = manualSort(list, sort);
-  if (opModule)
-    opModule.reloadOffset(undefined, fHelper.timeoutDef.offsetDebounce);
   return list;
 }
 
@@ -348,7 +345,7 @@ onMounted(async () => {
   Object.assign(queryData, GenFunc.copyObject(route.query));
   opModule = new fHelper.opModule({
     route: route,
-    nodeList: nodeList,
+    // nodeList: nodeList,
     getList: getList,
     contentDOM: contentDOM.value as HTMLElement,
     // queryData: queryData,

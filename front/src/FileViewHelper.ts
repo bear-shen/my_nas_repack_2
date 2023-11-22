@@ -30,7 +30,7 @@ export const timeoutDef = {
 *
 * 操作的基础库
 * 应当在调用getList之前实例化
-*   因为getList需要reloadOffset
+* 因为getList需要reloadOffset
 *
 * */
 export class opModule {
@@ -44,7 +44,7 @@ export class opModule {
 
     constructor(
         config: {
-            nodeList: Ref<api_node_col[]>,
+            // nodeList: Ref<api_node_col[]>,
             route: RouteLocationNormalizedLoaded,
             contentDOM: HTMLElement,
             getList: () => any,
@@ -55,7 +55,7 @@ export class opModule {
         this.contentDOM = config.contentDOM;
         this.getList = config.getList;
         this.route = config.route;
-        this.nodeList = config.nodeList;
+        // this.nodeList = config.nodeList;
         // this.queryData = config.queryData;
         //必须这么写否则无法解绑
         this.mouseDownEvt = this.mouseDownEvt.bind(this)
@@ -77,6 +77,11 @@ export class opModule {
         removeEventListener('mouseup', this.mouseUpEvt);
         removeEventListener('keydown', this.keymap);
         removeEventListener("resize", this.reloadOffset);
+    }
+
+    public setList(list: api_node_col[]) {
+        this.nodeList.value = list;
+        this.reloadOffset(undefined, timeoutDef.offsetDebounce)
     }
 
     public selecting = false;
