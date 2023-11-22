@@ -3,7 +3,7 @@
  * */
 import type {Ref} from "vue";
 import {ref,} from "vue";
-import type {api_file_bath_delete_resp, api_file_bath_move_resp, api_file_list_req, api_node_col} from "../../share/Api";
+import type {api_file_bath_delete_resp, api_file_bath_move_req, api_file_bath_move_resp, api_file_list_req, api_node_col} from "../../share/Api";
 import type {ModalConstruct} from "@/modal";
 import {query} from "@/Helper";
 import GenFunc from "../../share/GenFunc";
@@ -38,7 +38,9 @@ export class opModule {
     public getList: () => any;
     public route: RouteLocationNormalizedLoaded;
     public contentDOM: HTMLElement;
-    public queryData: { [key: string]: any };
+    //这个其实没有用，而且切换路由的时候需要手动更新
+    // 因为是直接赋值的 queryData = Object.assign({
+    // public queryData: { [key: string]: any };
 
     constructor(
         config: {
@@ -46,7 +48,7 @@ export class opModule {
             route: RouteLocationNormalizedLoaded,
             contentDOM: HTMLElement,
             getList: () => any,
-            queryData: { [key: string]: any },
+            // queryData: { [key: string]: any },
         }
     ) {
         console.info(config);
@@ -54,7 +56,7 @@ export class opModule {
         this.getList = config.getList;
         this.route = config.route;
         this.nodeList = config.nodeList;
-        this.queryData = config.queryData;
+        // this.queryData = config.queryData;
         //必须这么写否则无法解绑
         this.mouseDownEvt = this.mouseDownEvt.bind(this)
         this.mouseMoveEvt = this.mouseMoveEvt.bind(this)
@@ -385,9 +387,10 @@ export class opModule {
                         } as api_file_list_req,
                         call: async (targetNode: api_node_col) => {
                             console.info(targetNode);
-                            const queryData = {
+                            const queryData: api_file_bath_move_req = {
                                 id_list: Array.from(idSet).join(','),
-                                id_parent: targetNode.id
+                                id_parent: `${targetNode.id}`,
+                                // with: 'file',
                             };
                             const res = await query<api_file_bath_move_resp>("file/bath_move", queryData);
                             //同步回列表
@@ -467,15 +470,16 @@ export class opModule {
 
     public async bath_browser(idSet: Set<number>, nodeLs: api_node_col[]) {
         let idArr = Array.from(idSet);
-        if (idSet.size > 1) {
-            let query = GenFunc.copyObject(this.queryData);
-            query.mode = 'id_iterate';
-            query.keyword = idArr.join(',');
-            popupDetail(query, idArr[0]);
-        }
-        if (idSet.size == 1) {
-            popupDetail(GenFunc.copyObject(this.queryData), idArr[0]);
-        }
+        let query: api_file_list_req = {};
+        query.with = 'file';
+        query.mode = 'id_iterate';
+        query.keyword = idArr.join(',');
+        // if (idSet.size > 1) {
+        // let query = GenFunc.copyObject(this.queryData);
+        popupDetail(query, idArr[0]);
+        // } else if (idSet.size == 1) {
+        //     popupDetail(query, idArr[0]);
+        // }
     }
 
     public async keymap(e: KeyboardEvent) {
@@ -541,7 +545,7 @@ export class queryModule {
 
 }
 
-export function popupDetail(queryData: { [key: string]: any }, curNodeId: number) {
+export function popupDetail(queryData: api_file_list_req, curNodeId: number) {
     //双击从 emitGo 进入
     //打开是手动打开
     let w = localConfigure.get("browser_layout_w");

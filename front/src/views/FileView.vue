@@ -9,7 +9,7 @@ import GenFunc from "../../../share/GenFunc";
 import type {api_file_list_req, api_file_list_resp, api_file_mkdir_req, api_file_mkdir_resp, api_node_col,} from "../../../share/Api";
 import {useModalStore} from "@/stores/modalStore";
 import * as fHelper from "@/FileViewHelper";
-import {opModule as opModuleClass} from "@/FileViewHelper";
+import type {opModule as opModuleClass} from "@/FileViewHelper";
 import FileItem from "@/components/FileItem.vue";
 
 const modalStore = useModalStore();
@@ -351,7 +351,7 @@ onMounted(async () => {
     nodeList: nodeList,
     getList: getList,
     contentDOM: contentDOM.value as HTMLElement,
-    queryData: queryData,
+    // queryData: queryData,
   });
   await getList();
   // if (contentDOM.value) {
