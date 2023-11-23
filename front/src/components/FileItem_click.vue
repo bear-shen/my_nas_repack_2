@@ -82,7 +82,7 @@ function buildBtnDef(key: string) {
           click: op_set_favourite,
           title: 'FAV',
           show: true,
-          active: !!props.node.is_fav,
+          active: (props.node.list_fav?.length ?? 0) > 0,
         },
         {
           cls: ['sysIcon', 'sysIcon_delete'],
@@ -155,7 +155,7 @@ function buildBtnDef(key: string) {
           click: op_set_favourite,
           title: 'FAV',
           show: true,
-          active: !!props.node.is_fav,
+          active: (props.node.list_fav?.length ?? 0) > 0,
         },
         {
           cls: ['sysIcon', 'sysIcon_delete'],

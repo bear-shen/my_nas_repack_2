@@ -487,6 +487,10 @@ export class opModule {
         // }
     }
 
+    public async bath_favourite(idSet: Set<number>, nodeLs: api_node_col[]) {
+        //@todo
+    }
+
     public async keymap(e: KeyboardEvent) {
         // console.info(e);
         // let selCount: number;

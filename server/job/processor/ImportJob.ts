@@ -18,6 +18,13 @@ export default class {
             title: '',
         };
         const fileList = await scanLoop(src);
+        // console.info(fileList);
+        // for (let i1 = 0; i1 < fileList.length; i1++) {
+        //     const item = fileList[i1];
+        //     if (!item.isDir) continue;
+        //     console.info(['dir:', item.path]);
+        // }
+        // return ;
         nodeMap = new Map<string, col_node>;
         //导入的时候连根目录一起创建
         //先创建目录再创建文件
@@ -49,6 +56,8 @@ export default class {
             // console.info([item.path, relPath]);
             const parentDirname = dirname.substring(0, dirname.lastIndexOf('/'));
             const parentNode = await mkParentNode(parentDirname, importRoot);
+            // const ifDup = (new NodeModel()).where('id_parent', parentNode.id).where('title', item.name).first();
+            // if (ifDup) continue;
             const targetNode = await fp.put(item.path, parentNode, item.name, true);
             if (!targetNode) continue;
             (new QueueModel).insert({
@@ -79,9 +88,12 @@ async function mkParentNode(path: string, root: col_node): Promise<col_node> {
     let lastNode = root;
     for (let i1 = 0; i1 < tree.length; i1++) {
         // console.info([path, root.id, root.title, lastNode.id, lastNode.title, tree[i1],]);
-        const curNode = await (new NodeModel).where('id_parent', lastNode.id).where('title', tree[i1]).first();
+        //直接查询判断会有一些问题，写入时会过滤掉一些特殊字符
+        const curNode = await (new NodeModel).where('id_parent', lastNode.id)
+            .where('title', fp.titleFilter(tree[i1]))
+            .first();
         if (!curNode) {
-            const node = await fp.mkdir(lastNode.id, tree[i1]);
+            const node = await fp.mkdir(lastNode.id, tree[i1], true);
             if (!node) throw new Error('error on cascade mkdir');
             lastNode = node;
             continue;

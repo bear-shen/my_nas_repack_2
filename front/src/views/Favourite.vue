@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type {Ref} from "vue";
 // import {routes} from "@/router/index";
-import {onMounted, ref} from "vue";
+import {onMounted, onUnmounted, ref} from "vue";
 import {onBeforeRouteUpdate, useRoute, useRouter,} from "vue-router";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import GenFunc from "../../../share/GenFunc";
@@ -11,6 +11,8 @@ import type {col_favourite_group} from "../../../share/Database";
 import type {api_favourite_group_list_req, api_favourite_group_list_resp, api_favourite_group_mod_resp, api_file_list_req, api_file_list_resp, api_node_col} from "../../../share/Api";
 import {query} from "@/Helper";
 import FileItem from "@/components/FileItem.vue";
+import * as fHelper from "@/FileViewHelper";
+import {opModule as opModuleClass} from "@/FileViewHelper";
 
 //
 const localConfigure = useLocalConfigureStore();
@@ -27,13 +29,25 @@ const groupList: Ref<(api_favourite_group_col_local)[]> = ref([]);
 const nodeList: Ref<api_node_col[]> = ref([]);
 const curGroup: Ref<api_favourite_group_col_local | null> = ref(null);
 const curGroupIndex: Ref<number> = ref(-1);
+let opModule: opModuleClass;
+
 onMounted(async () => {
   Object.assign(queryData, GenFunc.copyObject(route.query));
   await getGroup();
+  opModule = new fHelper.opModule({
+    route: route,
+    // nodeList: nodeList,
+    getList: getList,
+    contentDOM: contentDOM.value as HTMLElement,
+    // queryData: queryData,
+  });
   if (queryData.id) {
     locateGroup();
-    getList(curGroupIndex.value);
+    getList();
   }
+});
+onUnmounted(() => {
+  opModule.destructor();
 });
 
 onBeforeRouteUpdate(async (to) => {
@@ -43,7 +57,7 @@ onBeforeRouteUpdate(async (to) => {
   // await getGroup();
   if (queryData.id) {
     locateGroup();
-    getList(curGroupIndex.value);
+    getList();
   }
 });
 
@@ -106,15 +120,16 @@ async function goGroup(index: number) {
   });
 }
 
-async function getList(index: number) {
-  const group = groupList.value[index];
+async function getList() {
+  // const group = groupList.value[index];
   const res = await query<api_file_list_resp>("file/get", {
     mode: 'favourite',
     pid: queryData.id,
     with: 'file,tag',
   } as api_file_list_req);
-  if(!res)return;
+  if (!res) return;
   nodeList.value = res.list;
+  opModule.setList(nodeList.value);
 }
 
 async function detach() {
@@ -123,6 +138,55 @@ async function detach() {
 async function attach() {
 }
 
+//
+function go(ext: api_file_list_req) {
+  if (!ext.tag_id) ext.tag_id = "";
+  if (!ext.keyword) ext.keyword = "";
+  if (!ext.node_type) ext.node_type = "";
+  const tQuery = Object.assign({
+    mode: "",
+    pid: "",
+    keyword: "",
+    tag_id: "",
+    node_type: "",
+    dir_only: "",
+    with: "",
+    group: "",
+  }, ext);
+  router.push({
+    path: route.path,
+    query: tQuery,
+  });
+}
+
+function emitGo(type: string, code: number) {
+  // console.info("emitGo", type, code);
+  switch (type) {
+    case "reload":
+      getList();
+      break;
+    case "tag":
+      go({tag_id: `${code}`, mode: 'tag'});
+      break;
+    case "node":
+      let node;
+      for (let i1 = 0; i1 < nodeList.value.length; i1++) {
+        if (nodeList.value[i1].id !== code) continue;
+        node = nodeList.value[i1];
+        break;
+      }
+      if (!node) break;
+      switch (node.type) {
+        case "directory":
+          go({pid: `${node.id}`, mode: 'directory'});
+          break;
+        default:
+          fHelper.popupDetail(GenFunc.copyObject(queryData), node.id ?? 0);
+          break;
+      }
+      break;
+  }
+}
 
 </script>
 
@@ -173,6 +237,7 @@ async function attach() {
         :node="node"
         :index="nodeIndex"
         :selected="false"
+        @go="emitGo"
       ></FileItem>
       <!--      @go="emitGo"-->
     </div>
@@ -228,67 +293,8 @@ async function attach() {
       }
     }
   }
-  .list_tag {
+  .list_fav {
     width: calc(100% - $fontSize * 20);
-    //height: 100%;
-    @include smallScroll();
-    overflow-y: scroll;
-    > div {
-      font-size: $fontSize;
-      -webkit-column-break-inside: avoid;
-    }
-    columns: $fontSize * 15 5;
-    column-gap: 0;
-    //display: flex;
-    //justify-content: left;
-    //flex-wrap: wrap;
-    .tag_add .sysIcon {
-      font-size: $fontSize*2;
-      line-height: $fontSize*4;
-    }
-    .tag {
-      //width: $fontSize*15;
-      margin: $fontSize*0.5;
-      padding: $fontSize*0.5;
-      display: inline-block;
-      //width: calc(100% - $fontSize);
-      @include fillAvailable(width);
-      .title {
-        color: map-get($colors, font);
-        display: flex;
-        justify-content: space-between;
-        span {
-          margin-left: $fontSize*0.5;
-          min-width: $fontSize*2;
-        }
-      }
-      .description {}
-      .alt {}
-      .operator {}
-      > div {
-        word-break: break-all;
-      }
-      //color: map-get($colors, font_sub);
-      color: map-get($colors, font_sub);
-    }
-    .tag.edit {
-      background-color: map-get($colors, bk_active);
-      > div, > div .content_editor {
-        background-color: map-get($colors, bk_active);
-      }
-      .title .content_editor::before {
-        content: 'T: ';
-      }
-      .description::before {
-        content: 'D: ';
-      }
-      .alt::before {
-        content: 'A: ';
-      }
-    }
-    .tag:hover {
-      background-color: map-get($colors, bk_active);
-    }
   }
 }
 </style>

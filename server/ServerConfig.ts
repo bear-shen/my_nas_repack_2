@@ -47,10 +47,10 @@ const BaseConfig = {
     },
     //hashFunction: process.cwd() + '/binary/b3sum_linux_x64_bin --no-names {fileName}',
     checksum: [
-        'xxhsum.exe',
-        'b3sum.exe',
-        // 'xxh128sum',
-        // 'b3sum',
+        // 'xxhsum.exe',
+        // 'b3sum.exe',
+        'xxh128sum',
+        'b3sum',
         // 'openssl md5 -r',
     ],
     /*parser: {
@@ -174,11 +174,11 @@ const BaseConfig = {
             allow_rate: 1024 * 1024 * 7 / 8,
             allow_container: ['mp4', 'ogg', 'webm', 'm4a',],
             //pix_fmt必须指定不然浏览器不认
-            // ff_encoder: '-c:v hevc_nvenc -profile:v main10 -preset slow -tune hq ' +
-            //     '-qp 16 ' +
-            //     '-rc-lookahead 80 -bf 4 -pix_fmt p010le ',
+            ff_encoder: '-c:v hevc_nvenc -profile:v main10 -preset slow -tune hq ' +
+                '-qp 16 ' +
+                '-rc-lookahead 80 -bf 4 -pix_fmt p010le ',
             //av1开qp40在5Mb/s左右
-            ff_encoder: '-c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 40 -bf 3 -pix_fmt p010le',
+            // ff_encoder: '-c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 40 -bf 3 -pix_fmt p010le',
         },
         audio: {
             quality: 1.5,  //+- 110

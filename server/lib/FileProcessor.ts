@@ -164,7 +164,7 @@ async function ls(dirId: number): Promise<FileStat[]> {
     return nodeLs;
 }
 
-async function mkdir(dirId: number, name: string): Promise<false | col_node> {
+async function mkdir(dirId: number, name: string, allowDuplicate: boolean = false): Promise<false | col_node> {
     let parentInfo = rootNode;
     name = titleFilter(name);
     if (dirId) {
@@ -177,6 +177,8 @@ async function mkdir(dirId: number, name: string): Promise<false | col_node> {
         .where('title', name)
         .first();
     if (ifDup) {
+        // console.warn('dup', name);
+        if (allowDuplicate) return ifDup;
         return false;
     }
     //

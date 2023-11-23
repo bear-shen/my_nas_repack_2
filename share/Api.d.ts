@@ -2,7 +2,7 @@ import {col_favourite, col_favourite_group, col_file_with_path, col_node, col_qu
 
 export type api_node_col = {
     is_file?: number,
-    is_fav?: number,
+    list_fav?: number[],
     //初版的设计是分开存储方便遍历
     //后来又改了
     //现在总之放crumb_node了

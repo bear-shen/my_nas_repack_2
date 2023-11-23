@@ -34,6 +34,7 @@ import FileModel from '../../model/FileModel';
 import * as fp from "../../lib/FileProcessor";
 import {get as getConfig} from "../../ServerConfig";
 import QueueModel from "../../model/QueueModel";
+import FavouriteModel from "../../model/FavouriteModel";
 
 export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_list_resp> {
@@ -131,7 +132,9 @@ export default class {
         const tagIdSet = new Set<number>();
         const fileIdSet = new Set<number>();
         const parentIdSet = new Set<number>();
+        const nodeIdSet = new Set<number>();
         nodeLs.forEach(node => {
+            nodeIdSet.add(node.id);
             node.list_tag_id.forEach(tagId => {
                 tagIdSet.add(tagId);
             });
@@ -145,6 +148,22 @@ export default class {
             });
             node.is_file = node.type === 'directory' ? 0 : 1;
         });
+        //收藏夹
+        const favList = await (new FavouriteModel).whereIn('id_node', Array.from(nodeIdSet)).select();
+        const favMap = new Map<number, number[]>();
+        favList.forEach(fav => {
+            let arr = favMap.get(fav.id_node);
+            if (arr) {
+                arr.push(fav.id_group);
+            } else {
+                favMap.set(fav.id_node, [fav.id_group]);
+            }
+        });
+        nodeLs.forEach(node => {
+            const arr = favMap.get(node.id)
+            node.list_fav = arr ? arr : [];
+        });
+        //
         let withConf = ['file', 'tag', 'crumb']
         if (request.with && request.with.length) {
             withConf = request.with.split(',');
@@ -454,7 +473,7 @@ async function buildCrumb(pid: number): Promise<col_node[]> {
     const model = new NodeModel();
     const curNode = await model.where('id', pid).first();
     //tree这个是.path下面的，with_crumb是单独节点的
-    if(!curNode) return [];
+    if (!curNode) return [];
     const treeNodeIdLs = curNode.list_node;
     const treeNodeLs = await (new NodeModel).whereIn('id', treeNodeIdLs).select();
     const treeNodeMap = GenFunc.toMap(treeNodeLs, 'id');
