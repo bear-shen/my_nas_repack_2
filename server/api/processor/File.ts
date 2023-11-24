@@ -149,7 +149,10 @@ export default class {
             node.is_file = node.type === 'directory' ? 0 : 1;
         });
         //收藏夹
-        const favList = await (new FavouriteModel).whereIn('id_node', Array.from(nodeIdSet)).select();
+        const favList = await (new FavouriteModel)
+            .whereIn('id_node', Array.from(nodeIdSet))
+            .where('status', 1)
+            .select();
         const favMap = new Map<number, number[]>();
         favList.forEach(fav => {
             let arr = favMap.get(fav.id_node);

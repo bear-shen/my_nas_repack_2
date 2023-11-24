@@ -154,7 +154,7 @@ function go(ext: api_file_list_req) {
     group: "",
   }, ext);
   router.push({
-    path: route.path,
+    path: '/',
     query: tQuery,
   });
 }

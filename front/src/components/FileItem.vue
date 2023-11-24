@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {onMounted, onUnmounted, type Ref, ref} from "vue";
-import type {api_favourite_group_list_resp, api_file_checksum_resp, api_file_cover_resp, api_file_delete_resp, api_file_list_req, api_file_mov_req, api_file_mov_resp, api_file_rebuild_resp, api_node_col, api_tag_col, api_tag_list_resp} from "../../../share/Api";
+import type {api_favourite_attach_resp, api_favourite_group_list_resp, api_file_checksum_resp, api_file_cover_resp, api_file_delete_resp, api_file_list_req, api_file_mov_req, api_file_mov_resp, api_file_rebuild_resp, api_node_col, api_tag_col, api_tag_list_resp} from "../../../share/Api";
 import {useModalStore} from "@/stores/modalStore";
 import {query} from "@/Helper";
 import ContentEditable from "@/components/ContentEditable.vue";
@@ -89,18 +89,18 @@ function buildBtnDef(key: string) {
           active: false,
         },
         {
+          cls: ['sysIcon', 'sysIcon_star-o'],
+          click: op_toggle_favourite,
+          title: 'FAV',
+          show: true,
+          active: (props.node.list_fav?.length ?? 0) > 0,
+        },
+        {
           cls: ['sysIcon', 'sysIcon_setting'],
           title: 'OP',
           show: true,
           active: false,
           sub: [
-            {
-              cls: ['sysIcon', 'sysIcon_star-o'],
-              click: op_toggle_favourite,
-              title: 'FAV',
-              show: true,
-              active: (props.node.list_fav?.length ?? 0) > 0,
-            },
             {
               cls: ['sysIcon', 'sysIcon_tag-o'],
               click: op_imp_tag_eh,
@@ -379,7 +379,7 @@ async function op_toggle_favourite(btn: BtnDef) {
   const favGroupOpts: { [key: string]: string } = {};
   if (favGroupLs) {
     favGroupLs.forEach((row) => {
-      favGroupOpts[`${row.id ?? ''}`] = row.title ?? '';
+      favGroupOpts[row.id ?? 0] = row.title ?? '';
     })
   }
   modalStore.set({
@@ -402,13 +402,19 @@ async function op_toggle_favourite(btn: BtnDef) {
         type: "checkbox",
         label: "attach to:",
         key: "target_group",
-        value: [],
+        value: props.node.list_fav,
         options: favGroupOpts,
       },
     ],
     callback: {
       submit: async function (modal) {
         console.info(modal)
+        const groupIdLs = modal.content.form[0].value.join(',');
+        await query<api_favourite_attach_resp>("favourite/attach", {
+          id_node: props.node.id,
+          list_group: groupIdLs,
+        });
+
       },
     },
   });

@@ -358,7 +358,7 @@ export type api_favourite_del_resp = {};
 
 export type api_favourite_attach_req = {
     id_node?: string,
-    id_group?: string,
+    list_group?: string,
 } & { [key: string]: any };
 
 export type api_favourite_attach_resp = col_favourite;

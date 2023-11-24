@@ -14,24 +14,40 @@ export default class {
 
     async attach(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_favourite_attach_resp> {
         const request = data.fields as api_favourite_attach_req;
+        const groupArr = request.list_group.split(',');
         const node = await (new NodeModel()).where('id', request.id_node).first();
-        const group = await (new FavouriteModel()).where('id', request.id_group).first();
         if (!node) throw new Error('node not exist');
-        if (!group) throw new Error('group not exist');
-        const ifExs = await (new FavouriteModel())
-            .where('id_node', request.id_node)
-            .where('id_group', request.id_group).first();
-        if (ifExs) {
-            await (new FavouriteModel()).where('id', ifExs.id).update({
-                status: ifExs.status * 1 ? 0 : 1
+        await (new FavouriteModel())
+            .where('id_user', data.uid)
+            .where('id_node', node.id)
+            .not().whereIn('id_group', groupArr).update({
+                status: 0,
             });
-        } else {
-            await (new FavouriteModel()).insert({
-                id_user: data.uid,
-                id_group: request.id_group,
-                id_node: request.id_node,
-                status: 1,
-            });
+        //
+        const curFavGroupLs = await (new FavouriteModel())
+            .where('id_user', data.uid)
+            .where('id_node', node.id)
+            .select();
+        const curFavGroupMap: Map<number, number> = new Map();
+        curFavGroupLs.forEach(group => {
+            curFavGroupMap.set(group.id_group, group.id);
+        });
+        for (let i1 = 0; i1 < groupArr.length; i1++) {
+            let groupId = parseInt(groupArr[i1]);
+            let ifExs = curFavGroupMap.get(groupId);
+            if (ifExs) {
+                await (new FavouriteModel()).where('id', ifExs).update({
+                    status: 1,
+                });
+                // curFavGroupMap.delete(ifExs);
+            } else {
+                await (new FavouriteModel()).insert({
+                    id_user: data.uid,
+                    id_group: groupId,
+                    id_node: node.id,
+                    status: 1,
+                });
+            }
         }
         return;
     };
