@@ -363,6 +363,13 @@ export type api_favourite_attach_req = {
 
 export type api_favourite_attach_resp = col_favourite;
 
+export type api_favourite_bath_attach_req = {
+    list_node?: string,
+    list_group?: string,
+} & { [key: string]: any };
+
+export type api_favourite_bath_attach_resp = col_favourite;
+
 export type api_favourite_group_list_req = {
     id?: string,
     keyword?: string,

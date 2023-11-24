@@ -295,6 +295,14 @@ function emitGo(type: string, code: number) {
   }
   .list_fav {
     width: calc(100% - $fontSize * 20);
+    max-height: 100%;
+    //columns: $fontSize * 20 6;
+    //column-gap: 0;
+    display: flex;
+    flex-wrap: wrap;
+    //justify-content: space-around;
+    justify-content: left;
+    align-content: flex-start;
   }
 }
 </style>

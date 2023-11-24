@@ -411,6 +411,7 @@ onUnmounted(() => {
       <div class="display">
         <template v-if="opModule &&opModule.showSelectionOp">
           <a @click="opModule.bathOp('browser')">OP</a>
+          <a @click="opModule.bathOp('favourite')">FAV</a>
           <a @click="opModule.bathOp('rename')">RN</a>
           <a @click="opModule.bathOp('move')">MV</a>
           <a v-if="route.name!=='Recycle'" @click="opModule.bathOp('delete')">DEL</a>
@@ -528,12 +529,14 @@ onUnmounted(() => {
   flex-wrap: wrap;
   //justify-content: space-around;
   justify-content: left;
+  align-content: flex-start;
 }
 .content_detail.mode_img {
   //columns: $fontSize * 10 12;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
+  align-content: flex-start;
 }
 .content_detail.mode_text {
   display: table;

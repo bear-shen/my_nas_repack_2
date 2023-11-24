@@ -3,7 +3,7 @@
  * */
 import type {Ref} from "vue";
 import {ref,} from "vue";
-import type {api_file_bath_delete_resp, api_file_bath_move_req, api_file_bath_move_resp, api_file_list_req, api_node_col} from "../../share/Api";
+import type {api_favourite_attach_resp, api_favourite_group_list_resp, api_file_bath_delete_resp, api_file_bath_move_req, api_file_bath_move_resp, api_file_list_req, api_node_col} from "../../share/Api";
 import type {ModalConstruct} from "@/modal";
 import {query} from "@/Helper";
 import GenFunc from "../../share/GenFunc";
@@ -321,6 +321,9 @@ export class opModule {
             case 'browser':
                 this.bath_browser(idSet, nodeLs);
                 break;
+            case 'favourite':
+                this.bath_favourite(idSet, nodeLs);
+                break;
         }
     }
 
@@ -488,7 +491,48 @@ export class opModule {
     }
 
     public async bath_favourite(idSet: Set<number>, nodeLs: api_node_col[]) {
-        //@todo
+        const favGroupLs = await query<api_favourite_group_list_resp>("favourite_group/get", {});
+        const favGroupOpts: { [key: string]: string } = {};
+        if (favGroupLs) {
+            favGroupLs.forEach((row) => {
+                favGroupOpts[row.id ?? 0] = row.title ?? '';
+            })
+        }
+        modalStore.set({
+            title: `select fav group:`,
+            alpha: false,
+            key: "",
+            single: false,
+            w: 400,
+            h: 150,
+            minW: 400,
+            minH: 150,
+            // h: 160,
+            allow_resize: true,
+            allow_move: true,
+            allow_fullscreen: false,
+            auto_focus: true,
+            // text: "this is text",
+            form: [
+                {
+                    type: "checkbox",
+                    label: "attach to:",
+                    key: "target_group",
+                    value: [],
+                    options: favGroupOpts,
+                },
+            ],
+            callback: {
+                submit: async function (modal) {
+                    console.info(modal)
+                    const groupIdLs = modal.content.form[0].value.join(',');
+                    await query<api_favourite_attach_resp>("favourite/bath_attach", {
+                        list_node: Array.from(idSet),
+                        list_group: groupIdLs,
+                    });
+                },
+            },
+        });
     }
 
     public async keymap(e: KeyboardEvent) {
