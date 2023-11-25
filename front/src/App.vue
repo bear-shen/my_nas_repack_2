@@ -4,9 +4,9 @@ import FrHeader from "./framework/Header.vue";
 import FrFooter from "./framework/Footer.vue";
 import FrNavi from "./framework/Navi.vue";
 import Popup from "./framework/Popup.vue";
-import dev from "../../share/dev";
+// import dev from "../../share/dev";
 
-dev();
+// dev();
 const containerDef = {};
 </script>
 
