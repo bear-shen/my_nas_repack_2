@@ -149,23 +149,25 @@ export default class {
             node.is_file = node.type === 'directory' ? 0 : 1;
         });
         //收藏夹
-        const favList = await (new FavouriteModel)
-            .whereIn('id_node', Array.from(nodeIdSet))
-            .where('status', 1)
-            .select();
-        const favMap = new Map<number, number[]>();
-        favList.forEach(fav => {
-            let arr = favMap.get(fav.id_node);
-            if (arr) {
-                arr.push(fav.id_group);
-            } else {
-                favMap.set(fav.id_node, [fav.id_group]);
-            }
-        });
+        if(nodeIdSet.size) {
+            const favList = await (new FavouriteModel)
+                .whereIn('id_node', Array.from(nodeIdSet))
+                .where('status', 1)
+                .select();
+            const favMap = new Map<number, number[]>();
+            favList.forEach(fav => {
+                let arr = favMap.get(fav.id_node);
+                if (arr) {
+                    arr.push(fav.id_group);
+                } else {
+                    favMap.set(fav.id_node, [fav.id_group]);
+                }
+            });
         nodeLs.forEach(node => {
             const arr = favMap.get(node.id)
             node.list_fav = arr ? arr : [];
         });
+        }
         //
         let withConf = ['file', 'tag', 'crumb']
         if (request.with && request.with.length) {

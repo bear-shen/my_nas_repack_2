@@ -9,7 +9,14 @@ module.exports = {
     '@vue/eslint-config-typescript',
     '@vue/eslint-config-prettier'
   ],
+  rules:{
+    'no-unused-vars'  : 'off',
+    'no-console'      : 'off',
+    'no-useless-catch': 'off',
+    'linebreak-style': 0,
+  },
   parserOptions: {
     ecmaVersion: 'latest'
   }
+
 }
