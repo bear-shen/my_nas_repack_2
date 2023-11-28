@@ -52,7 +52,7 @@ async function statFromStat(relPath: string, isFullPath?: boolean): Promise<api_
     const localPath = isFullPath ? relPath : getConfig().path.root_local + relPath;
     // console.info(localPath);
     try {
-        const stat = await fs.stat(localPath);
+        const stat = fsNP.statSync(localPath);
         const result = {
             name: getFileName(relPath),
             path: relPath,

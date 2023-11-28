@@ -198,7 +198,7 @@ class FileJob {
         for (const fileKey in node.index_file_id) {
             (new QueueModel).insert({
                 type: 'file/checksum',
-                payload: {id: node.index_file_id[fileKey]},
+                payload: {id: node.index_file_id[fileKey], reload: true},
                 status: 1,
             });
         }
@@ -209,6 +209,7 @@ class FileJob {
      * */
     static async checksum(payload: { [key: string]: any }): Promise<any> {
         const fileId = payload.id;
+        const ifReload = payload.reload;
         let file: col_file;
         if (typeof fileId === 'object')
             file = fileId;
@@ -218,7 +219,7 @@ class FileJob {
         if (!file || !file.uuid)
             throw new Error(`invalid file id, ${fileId}`);
         const checksum = await fp.checksum(file);
-        if (file.checksum && file.checksum.length) {
+        if (!ifReload && file.checksum && file.checksum.length) {
             if (file.checksum != checksum) {
                 throw new Error(`invalid hash code, ${checksum}`)
             } else {

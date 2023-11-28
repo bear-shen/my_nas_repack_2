@@ -37,7 +37,7 @@ async function loadMeta(path: string): Promise<ffMeta> {
     let meta;
     try {
         // await fs.stat(path);
-        const vidProbe = `ffprobe -v quiet -hide_banner -print_format json -show_format -show_streams -i '${path}'`;// > '${root}/dev/${path}.json'
+        const vidProbe = `ffprobe -v quiet -hide_banner -print_format json -show_format -show_streams -i "${path}"`;// > '${root}/dev/${path}.json'
         const {stdout, stderr} = await exec(vidProbe);
         // console.info(stdout, stderr);
         meta = JSON.parse(stdout);
@@ -86,7 +86,7 @@ async function subtitleStr(meta: ffMeta): Promise<boolean | Map<string, string>>
         let str = `[execMask.program]
 -i [execMask.resource]
 ${multiCount ? `-map 0:${i1}` : ''}
-[execMask.target]`.replaceAll(/[\r\n]+/gm, " \\\n");
+[execMask.target]`.replaceAll(/[\r\n]+/gm, "  ");
         resMap.set(lang, str);
     }
     return resMap;
@@ -260,7 +260,7 @@ ${(tranRate || tranVCodec || tranLength) ? videoConf.ff_encoder : '-c:v copy'}
 ${tranLength ? `-s ${Math.round(tranLength ? w * videoConf.length / maxLen : w)}x${Math.round(tranLength ? h * videoConf.length / maxLen : h)}` : ''}
 ${(audioIndex !== -1) && (tranRate || tranACodec) ? audioConf.ff_encoder : '-c:a copy'}
 -map 0:${videoIndex} ${audioIndex !== -1 ? `-map 0:${audioIndex}` : ''}
-[execMask.target]`.replaceAll(/[\r\n]+/gm, " \\\n");
+[execMask.target]`.replaceAll(/[\r\n]+/gm, "  ");
     return str;
     // return {video: str, subtitle: subMap};
 }
@@ -334,7 +334,7 @@ async function audioStr(meta: ffMeta): Promise<string | boolean> {
 -i [execMask.resource]
 ${(tranContainer || tranRate || tranACodec) ? audioConf.ff_encoder : '-c:a copy'}
 -map 0:${audioIndex} 
-[execMask.target]`.replaceAll(/[\r\n]+/gm, " \\\n");
+[execMask.target]`.replaceAll(/[\r\n]+/gm, "  ");
     return str;
 }
 
@@ -453,7 +453,7 @@ async function imageStr(meta: ffMeta, level: 'cover' | 'preview' | 'image'): Pro
 -vframes 1
 ${(tranSize || tranLength || tranType || tranStreams) ? imgConf.ff_encoder : '-c:v copy'}
 ${tranLength ? `-s ${Math.round(tranLength ? w * imgConf.max_length / maxLen : w)}x${Math.round(tranLength ? h * imgConf.max_length / maxLen : h)}` : ''}
-[execMask.target]`.replaceAll(/[\r\n]+/gm, " \\\n");
+[execMask.target]`.replaceAll(/[\r\n]+/gm, "  ");
     return str;
 }
 

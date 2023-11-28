@@ -40,3 +40,5 @@ dev_*
 dst
 server/archive
 /resource/
+/file
+/file/*
