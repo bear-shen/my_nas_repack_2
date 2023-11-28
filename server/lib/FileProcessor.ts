@@ -520,6 +520,13 @@ function titleFilter(title: string) {
     return title.replaceAll(/[\^'/,\r\n\t\\:*?"|<>]/igm, ' ');
 }
 
+async function checkOrphanFile(fileId: number): Promise<number> {
+    return await (new NodeModel)
+        .whereRaw("JSON_CONTAINS(JSON_EXTRACT(index_file_id, '$.*'), ?)", fileId)
+        // .where('status', '<>', -1)
+        .count('id');
+}
+
 export {
     relPath2node,
     getRelPathByFile,
@@ -544,6 +551,7 @@ export {
     //
     FileStat,
     titleFilter,
+    checkOrphanFile,
 };
 
 type FileStat = col_node & {

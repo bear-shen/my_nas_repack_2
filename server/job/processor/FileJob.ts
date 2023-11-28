@@ -279,7 +279,7 @@ class FileJob {
         for (const key in node.index_file_id) {
             if (key === 'raw') continue;
             const fileId = node.index_file_id[key];
-            const ifExs = await checkOrphanFile(fileId);
+            const ifExs = await fp.checkOrphanFile(fileId);
             if (ifExs > 1) continue;
             await fp.rmReal(fileId);
         }
@@ -357,19 +357,12 @@ async function deleteNodeForever(nodeIdList: number[]) {
             const fileId = node.index_file_id[key];
             if (fileIdSet.has(fileId)) continue;
             fileIdSet.add(fileId);
-            const ifExs = await checkOrphanFile(fileId);
+            const ifExs = await fp.checkOrphanFile(fileId);
             if (ifExs > 1) continue;
             await fp.rmReal(fileId);
         }
         await (new NodeModel()).where('id', node.id).delete();
     }
-}
-
-async function checkOrphanFile(fileId: number) {
-    return await (new NodeModel)
-        .whereRaw("JSON_CONTAINS(JSON_EXTRACT(index_file_id, '$.*'), ?)", fileId)
-        // .where('status', '<>', -1)
-        .count('id');
 }
 
 
