@@ -39,6 +39,7 @@ export class CurlData {
 }
 
 const Util = {
+    //nodejs里并没有XMLHttpRequest定义,这个只是和GenFunc同步的
     send: function (input: CurlData): XMLHttpRequest | string | boolean {
         const xmlHttp = new XMLHttpRequest();
         xmlHttp.withCredentials = !!input.withCredentials;
