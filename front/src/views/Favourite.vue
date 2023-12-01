@@ -175,13 +175,18 @@ function emitGo(type: string, code: number) {
         node = nodeList.value[i1];
         break;
       }
+      // console.info(node);
       if (!node) break;
       switch (node.type) {
         case "directory":
           go({pid: `${node.id}`, mode: 'directory'});
           break;
         default:
-          fHelper.popupDetail(GenFunc.copyObject(queryData), node.id ?? 0);
+          fHelper.popupDetail({
+            mode: 'favourite',
+            pid: queryData.id,
+            with: 'file',
+          }, node.id ?? 0);
           break;
       }
       break;

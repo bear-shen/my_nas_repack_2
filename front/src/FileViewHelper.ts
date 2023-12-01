@@ -58,11 +58,13 @@ export class opModule {
         // this.nodeList = config.nodeList;
         // this.queryData = config.queryData;
         //必须这么写否则无法解绑
-        this.mouseDownEvt = this.mouseDownEvt.bind(this)
-        this.mouseMoveEvt = this.mouseMoveEvt.bind(this)
-        this.mouseUpEvt = this.mouseUpEvt.bind(this)
-        this.keymap = this.keymap.bind(this)
-        this.reloadOffset = this.reloadOffset.bind(this)
+        this.contentMenuEvt = this.contentMenuEvt.bind(this);
+        this.mouseDownEvt = this.mouseDownEvt.bind(this);
+        this.mouseMoveEvt = this.mouseMoveEvt.bind(this);
+        this.mouseUpEvt = this.mouseUpEvt.bind(this);
+        this.keymap = this.keymap.bind(this);
+        this.reloadOffset = this.reloadOffset.bind(this);
+        addEventListener('contextmenu', this.contentMenuEvt);
         addEventListener('mousedown', this.mouseDownEvt);
         addEventListener('mousemove', this.mouseMoveEvt);
         addEventListener('mouseup', this.mouseUpEvt);
@@ -72,6 +74,7 @@ export class opModule {
 
     public destructor() {
         console.info('destructor loaded');
+        removeEventListener('contextmenu', this.contentMenuEvt);
         removeEventListener('mousedown', this.mouseDownEvt);
         removeEventListener('mousemove', this.mouseMoveEvt);
         removeEventListener('mouseup', this.mouseUpEvt);
@@ -120,6 +123,16 @@ export class opModule {
             // console.info(prop.classList);
             // console.info(prop.classList.contains('content_detail'));
             // if(props.tagName)
+            //收藏夹单独处理一下
+            if (prop.classList.contains('list_fav')) {
+                inDetail = true;
+                break;
+            }
+            if (prop.classList.contains('view_fav')) {
+                inDetail = false;
+                break;
+            }
+            //文件夹部分
             if (prop.classList.contains('content_meta')) {
                 inDetail = false;
                 break;
@@ -155,11 +168,12 @@ export class opModule {
         // console.info('here');
         // console.info(this);
         // console.info(this.inDetailView);
-        if (!this.inDetailView) return;
         if (!this.inDetailView(e)) return;
         // console.info('here');
         // if (inTaggingDOM(e)) return;
         // console.info(e);
+        //左键
+        // if (e.button !== 0) return;
         // console.info(inDetail(e));
         // console.info('mouseDownEvt');
         // e.stopPropagation();
@@ -187,7 +201,7 @@ export class opModule {
         const selIndexArr = Array.from(selIndexLs);
         if (selIndexArr.length)
             newSelectIndex = selIndexArr.pop() ?? -1;
-        console.info(this.lastSelectIndex, newSelectIndex);
+        // console.info(this.lastSelectIndex, newSelectIndex);
         switch (this.selectingKeyDef) {
             case 'shift':
                 this.preSelectedNodeIndexSet.clear();
@@ -215,6 +229,7 @@ export class opModule {
         this.lastSelectIndex = newSelectIndex;
         //只要选中就显示吧
         this.showSelectionOp.value = this.preSelectedNodeIndexSet.size + selIndexLs.size > 0;
+        // console.warn('this.mouseDownEvt() end');
     }
 
     public mouseMoveEvt(e: MouseEvent) {
@@ -256,6 +271,17 @@ export class opModule {
             this.preSelectedNodeIndexSet.clear();
             this.selectingKeyDef = '';
         }, timeoutDef.selectEvt);
+    }
+
+    public contentMenuEvt(e: MouseEvent) {
+        if (!this.inDetailView(e)) return;
+        // console.info('this.contentMenuEvt');
+        // console.info(this.inDetailView(e));
+        e.preventDefault();
+        e.stopPropagation();
+        const curLs = this.getSelected();
+
+
     }
 
     public getSelection(selectingOffset: number[][]): Set<number> {
@@ -394,7 +420,7 @@ export class opModule {
                             type: 'directory',
                         } as api_file_list_req,
                         call: async (targetNode: api_node_col) => {
-                            console.info(targetNode);
+                            // console.info(targetNode);
                             const queryData: api_file_bath_move_req = {
                                 id_list: Array.from(idSet).join(','),
                                 id_parent: `${targetNode.id}`,
@@ -524,7 +550,7 @@ export class opModule {
             ],
             callback: {
                 submit: async function (modal) {
-                    console.info(modal)
+                    // console.info(modal)
                     const groupIdLs = modal.content.form[0].value.join(',');
                     await query<api_favourite_attach_resp>("favourite/bath_attach", {
                         list_node: Array.from(idSet),
