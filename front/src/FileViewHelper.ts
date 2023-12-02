@@ -3,12 +3,12 @@
  * */
 import type {Ref} from "vue";
 import {ref,} from "vue";
-import type {api_favourite_attach_resp, api_favourite_group_list_resp, api_file_bath_delete_resp, api_file_bath_move_req, api_file_bath_move_resp, api_file_list_req, api_node_col} from "../../share/Api";
+import type {api_favourite_attach_resp, api_favourite_group_list_resp, api_file_bath_delete_resp, api_file_bath_move_req, api_file_bath_move_resp, api_file_checksum_resp, api_file_cover_resp, api_file_delete_resp, api_file_list_req, api_file_mov_req, api_file_mov_resp, api_file_rebuild_resp, api_node_col, api_tag_list_resp} from "../../share/Api";
 import type {ModalConstruct} from "@/modal";
 import {query} from "@/Helper";
 import GenFunc from "../../share/GenFunc";
 import {useModalStore} from "@/stores/modalStore";
-import type {RouteLocationNormalizedLoaded} from "vue-router";
+import type {RouteLocationNormalizedLoaded, Router} from "vue-router";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {useContextStore} from "@/stores/useContext";
 
@@ -28,6 +28,8 @@ export const timeoutDef = {
     offsetUIDebounce: 500,
 };
 
+let opModuleVal: null | opModule;
+
 /*
 *
 * 操作的基础库
@@ -39,7 +41,9 @@ export class opModule {
     public nodeList: Ref<api_node_col[]> = ref([]);
     public getList: () => any;
     public route: RouteLocationNormalizedLoaded;
+    public router: Router;
     public contentDOM: HTMLElement;
+    public emitGo: (type: string, code: any) => any;
     //这个其实没有用，而且切换路由的时候需要手动更新
     // 因为是直接赋值的 queryData = Object.assign({
     // public queryData: { [key: string]: any };
@@ -48,8 +52,10 @@ export class opModule {
         config: {
             // nodeList: Ref<api_node_col[]>,
             route: RouteLocationNormalizedLoaded,
+            router: Router,
             contentDOM: HTMLElement,
             getList: () => any,
+            emitGo: (type: string, code: any) => any,
             // queryData: { [key: string]: any },
         }
     ) {
@@ -57,6 +63,8 @@ export class opModule {
         this.contentDOM = config.contentDOM;
         this.getList = config.getList;
         this.route = config.route;
+        this.router = config.router;
+        this.emitGo = config.emitGo;
         // this.nodeList = config.nodeList;
         // this.queryData = config.queryData;
         //必须这么写否则无法解绑
@@ -72,6 +80,7 @@ export class opModule {
         addEventListener('mouseup', this.mouseUpEvt);
         addEventListener('keydown', this.keymap);
         addEventListener("resize", this.reloadOffset);
+        opModuleVal = this;
     }
 
     public destructor() {
@@ -82,6 +91,7 @@ export class opModule {
         removeEventListener('mouseup', this.mouseUpEvt);
         removeEventListener('keydown', this.keymap);
         removeEventListener("resize", this.reloadOffset);
+        opModuleVal = null;
     }
 
     public setList(list: api_node_col[]) {
@@ -627,6 +637,8 @@ export class opModule {
         });
     }
 
+    //-----------------------
+
     public async keymap(e: KeyboardEvent) {
         // console.info(e);
         // let selCount: number;
@@ -684,6 +696,206 @@ export class opModule {
             });
         }, debounceDelay, `debounce_node_resize`);
     }
+
+    public go(ext: api_file_list_req) {
+        if (!ext.tag_id) ext.tag_id = "";
+        if (!ext.keyword) ext.keyword = "";
+        if (!ext.node_type) ext.node_type = "";
+        const tQuery = Object.assign({
+            mode: "",
+            pid: "",
+            keyword: "",
+            tag_id: "",
+            node_type: "",
+            dir_only: "",
+            with: "",
+            group: "",
+        }, ext);
+        this.router.push({
+            path: this.route.path,
+            query: tQuery,
+        });
+    }
+
+}
+
+export class opFunctionModule {
+    public static async op_download(node: api_node_col) {
+        let filePath = node.file?.raw?.path;
+        if (!filePath) return;
+        window.open(`${filePath}?filename=${node.title}`);
+    }
+
+    public static async op_move(node: api_node_col) {
+        modalStore.set({
+            title: `locator | move ${node.title} to:`,
+            alpha: false,
+            key: "",
+            single: false,
+            w: 400,
+            h: 60,
+            minW: 400,
+            minH: 60,
+            // h: 160,
+            allow_resize: true,
+            allow_move: true,
+            allow_fullscreen: false,
+            auto_focus: true,
+            // text: "this is text",
+            component: [
+                {
+                    componentName: "locator",
+                    data: {
+                        query: {
+                            type: 'directory',
+                        } as api_file_list_req,
+                        call: async (node: api_node_col) => {
+                            console.info(node);
+                            const formData = new FormData();
+                            formData.set('node_id', `${node.id}`);
+                            formData.set('target_id', `${node.id}`);
+                            const res = await query<api_file_mov_req>('file/mov', formData);
+                            if (opModuleVal) opModuleVal.emitGo("go", 'reload');
+                        }
+                    },
+                },
+            ],
+        });
+        //
+    }
+
+    public static async op_rename(node: api_node_col) {
+        if (node._renaming) {
+            console.info(node.title, node.description, node);
+            // console.info(node);
+            const formData = new FormData();
+            formData.set('id', `${node.id}`);
+            formData.set('title', node.title ?? '');
+            formData.set('description', node.description ?? '');
+            const res = await query<api_file_mov_resp>('file/mod', formData);
+            if (opModuleVal) opModuleVal.emitGo("go", 'reload');
+        }
+        node._renaming = !node._renaming;
+        setTimeout(() => {
+            let tDOM = document.body.querySelector('[contenteditable="true"]') as HTMLElement;
+            tDOM.focus();
+        }, 50)
+    }
+
+    public static async op_tag(node: api_node_col) {
+        if (node._tagging) {
+            const tagSet = new Set<number>();
+            if (node.tag)
+                for (let i1 = 0; i1 < node.tag.length; i1++) {
+                    for (let i2 = 0; i2 < node.tag[i1].sub.length; i2++) {
+                        const id = node.tag[i1].sub[i2].id;
+                        if (id)
+                            tagSet.add(id);
+                    }
+                }
+            const formData = new FormData();
+            formData.set('id_node', `${node.id}`);
+            formData.set('tag_list', Array.from(tagSet).join(','));
+            const res = await query<api_tag_list_resp>('tag/attach', formData);
+        }
+        //
+        node._tagging = !node._tagging;
+    }
+
+    public static async op_imp_tag_eh(node: api_node_col) {
+    }
+
+    public static async op_set_cover(node: api_node_col) {
+        const formData = new FormData();
+        formData.set('id', `${node.id}`);
+        const res = await query<api_file_cover_resp>('file/cover', formData);
+        return res;
+    }
+
+    public static async op_toggle_favourite(node: api_node_col) {
+        const favGroupLs = await query<api_favourite_group_list_resp>("favourite_group/get", {});
+
+        const favGroupOpts: { [key: string]: string } = {};
+        if (favGroupLs) {
+            favGroupLs.forEach((row) => {
+                favGroupOpts[row.id ?? 0] = row.title ?? '';
+            })
+        }
+        modalStore.set({
+            title: `select fav group:`,
+            alpha: false,
+            key: "",
+            single: false,
+            w: 400,
+            h: 150,
+            minW: 400,
+            minH: 150,
+            // h: 160,
+            allow_resize: true,
+            allow_move: true,
+            allow_fullscreen: false,
+            auto_focus: true,
+            // text: "this is text",
+            form: [
+                {
+                    type: "checkbox",
+                    label: "attach to:",
+                    key: "target_group",
+                    value: node.list_fav,
+                    options: favGroupOpts,
+                },
+            ],
+            callback: {
+                submit: async function (modal) {
+                    console.info(modal)
+                    const groupIdLs = modal.content.form[0].value.join(',');
+                    await query<api_favourite_attach_resp>("favourite/attach", {
+                        id_node: node.id,
+                        list_group: groupIdLs,
+                    });
+
+                },
+            },
+        });
+    }
+
+    public static async op_delete_forever(node: api_node_col) {
+        const formData = new FormData();
+        formData.set('id', `${node.id}`);
+        const res = await query<api_file_delete_resp>('file/delete_forever', formData);
+        if (opModuleVal) opModuleVal.emitGo("go", 'reload');
+        return res;
+    }
+
+    public static async op_delete(node: api_node_col) {
+        const formData = new FormData();
+        formData.set('id', `${node.id}`);
+        const res = await query<api_file_delete_resp>('file/delete', formData);
+        if (opModuleVal) opModuleVal.emitGo("go", 'reload');
+        return res;
+    }
+
+    public static async op_rebuild(node: api_node_col) {
+        const formData = new FormData();
+        formData.set('id', `${node.id}`);
+        const res = await query<api_file_rebuild_resp>('file/rebuild', formData);
+        // emits('go', 'reload');
+        return res;
+    }
+
+    public static async op_recheck(node: api_node_col) {
+        const formData = new FormData();
+        const idList = new Set<number>();
+        for (const key in node.index_file_id) {
+            idList.add(node.index_file_id[key] ?? 0);
+        }
+        if (!idList.size) return;
+        formData.set('id_list', Array.from(idList).join(','));
+        const res = await query<api_file_checksum_resp>('file/rehash', formData);
+        // emits('go', 'reload');
+        return res;
+    }
+
 }
 
 export class queryModule {

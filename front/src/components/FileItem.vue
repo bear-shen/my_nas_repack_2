@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {onMounted, onUnmounted, type Ref, ref} from "vue";
-import type {api_favourite_attach_resp, api_favourite_group_list_resp, api_file_checksum_resp, api_file_cover_resp, api_file_delete_resp, api_file_list_req, api_file_mov_req, api_file_mov_resp, api_file_rebuild_resp, api_node_col, api_tag_col, api_tag_list_resp} from "../../../share/Api";
+import type {api_node_col, api_tag_col, api_tag_list_resp} from "../../../share/Api";
 import {useModalStore} from "@/stores/modalStore";
 import {query} from "@/Helper";
 import ContentEditable from "@/components/ContentEditable.vue";
 import Hinter from "@/components/Hinter.vue";
 import type {col_tag, col_tag_group} from "../../../share/Database";
+import {opFunctionModule} from "@/FileViewHelper";
 // import type {col_tag} from "../../../share/Database";
 // import {api_tag_col} from "../../../share/Api";
 
@@ -38,7 +39,7 @@ function setMode(mode: string) {
 type BtnDef = {
   cls: string[],
   title: string,
-  click?: (btn: BtnDef) => any,
+  click?: (node: api_node_col) => any,
   show?: true | ((btn: BtnDef) => boolean),
   active: boolean,
   sub?: BtnDef[],
@@ -53,7 +54,7 @@ function buildBtnDef(key: string) {
       btnDef.value = [
         {
           cls: ['sysIcon', 'sysIcon_download'],
-          click: op_download,
+          click: opFunctionModule.op_download,
           title: 'DL',
           show: (btn: BtnDef) => {
             return !!props.node.is_file
@@ -62,35 +63,35 @@ function buildBtnDef(key: string) {
         },
         {
           cls: ['sysIcon', 'sysIcon_edit'],
-          click: op_rename,
+          click: opFunctionModule.op_rename,
           title: 'RN',
           show: true,
           active: false,
         },
         {
           cls: ['sysIcon', 'sysIcon_folderopen'],
-          click: op_move,
+          click: opFunctionModule.op_move,
           title: 'MV',
           show: true,
           active: false,
         },
         {
           cls: ['sysIcon', 'sysIcon_delete'],
-          click: op_delete,
+          click: opFunctionModule.op_delete,
           title: 'DEL',
           show: true,
           active: false,
         },
         {
           cls: ['sysIcon', 'sysIcon_tag-o'],
-          click: op_tag,
+          click: opFunctionModule.op_tag,
           title: 'TAG',
           show: true,
           active: false,
         },
         {
           cls: ['sysIcon', 'sysIcon_star-o'],
-          click: op_toggle_favourite,
+          click: opFunctionModule.op_toggle_favourite,
           title: 'FAV',
           show: true,
           active: (props.node.list_fav?.length ?? 0) > 0,
@@ -103,21 +104,21 @@ function buildBtnDef(key: string) {
           sub: [
             {
               cls: ['sysIcon', 'sysIcon_tag-o'],
-              click: op_imp_tag_eh,
+              click: opFunctionModule.op_imp_tag_eh,
               title: 'IMP EH TAG',
               show: true,
               active: false,
             },
             {
               cls: ['sysIcon', 'sysIcon_scan'],
-              click: op_set_cover,
+              click: opFunctionModule.op_set_cover,
               title: 'COV',
               show: () => !!props.node.file?.cover?.path,
               active: false,
             },
             {
               cls: ['sysIcon', 'sysIcon_reload'],
-              click: op_rebuild,
+              click: opFunctionModule.op_rebuild,
               title: 'RB',
               show: (btn: BtnDef) => {
                 // console.info(props.node.is_file)
@@ -127,7 +128,7 @@ function buildBtnDef(key: string) {
             },
             {
               cls: ['sysIcon', 'sysIcon_reload'],
-              click: op_recheck,
+              click: opFunctionModule.op_recheck,
               title: 'CHK',
               show: (btn: BtnDef) => {
                 // console.info(props.node.is_file)
@@ -143,7 +144,7 @@ function buildBtnDef(key: string) {
       btnDef.value = [
         {
           cls: ['sysIcon', 'sysIcon_download'],
-          click: op_download,
+          click: opFunctionModule.op_download,
           title: 'DL',
           show: (btn: BtnDef) => {
             return !!props.node.is_file
@@ -152,28 +153,28 @@ function buildBtnDef(key: string) {
         },
         {
           cls: ['sysIcon', 'sysIcon_folderopen'],
-          click: op_move,
+          click: opFunctionModule.op_move,
           title: 'MV',
           show: true,
           active: false,
         },
         {
           cls: ['sysIcon', 'sysIcon_star-o'],
-          click: op_toggle_favourite,
+          click: opFunctionModule.op_toggle_favourite,
           title: 'FAV',
           show: true,
           active: (props.node.list_fav?.length ?? 0) > 0,
         },
         {
           cls: ['sysIcon', 'sysIcon_delete'],
-          click: op_delete,
+          click: opFunctionModule.op_delete,
           title: 'DEL',
           show: true,
           active: false,
         },
         {
           cls: ['sysIcon', 'sysIcon_reload'],
-          click: op_rebuild,
+          click: opFunctionModule.op_rebuild,
           title: 'RB',
           show: (btn: BtnDef) => {
             return !!props.node.is_file
@@ -182,7 +183,7 @@ function buildBtnDef(key: string) {
         },
         {
           cls: ['sysIcon', 'sysIcon_reload'],
-          click: op_recheck,
+          click: opFunctionModule.op_recheck,
           title: 'CHK',
           show: (btn: BtnDef) => {
             // console.info(props.node.is_file)
@@ -197,14 +198,14 @@ function buildBtnDef(key: string) {
       btnDef.value = [
         {
           cls: ['sysIcon', 'sysIcon_delete'],
-          click: op_delete_forever,
+          click: opFunctionModule.op_delete_forever,
           title: 'rDEL',
           show: true,
           active: false,
         },
         {
           cls: ['sysIcon', 'sysIcon_delete'],
-          click: op_delete,
+          click: opFunctionModule.op_delete,
           title: 'REC',
           show: true,
           active: false,
@@ -235,89 +236,6 @@ function go(type: string, id?: number) {
   emits("go", type, id);
 }
 
-function op_download() {
-  let filePath = props.node.file?.raw?.path;
-  if (!filePath) return;
-  window.open(`${filePath}?filename=${props.node.title}`);
-}
-
-function op_move() {
-  modalStore.set({
-    title: `locator | move ${props.node.title} to:`,
-    alpha: false,
-    key: "",
-    single: false,
-    w: 400,
-    h: 60,
-    minW: 400,
-    minH: 60,
-    // h: 160,
-    allow_resize: true,
-    allow_move: true,
-    allow_fullscreen: false,
-    auto_focus: true,
-    // text: "this is text",
-    component: [
-      {
-        componentName: "locator",
-        data: {
-          query: {
-            type: 'directory',
-          } as api_file_list_req,
-          call: async (node: api_node_col) => {
-            console.info(node);
-            const formData = new FormData();
-            formData.set('node_id', `${props.node.id}`);
-            formData.set('target_id', `${node.id}`);
-            const res = await query<api_file_mov_req>('file/mov', formData);
-            emits("go", 'reload');
-          }
-        },
-      },
-    ],
-  });
-  //
-}
-
-async function op_rename(btn: BtnDef) {
-  if (btn.active) {
-    console.info(props.node.title, props.node.description, props.node);
-    // console.info(props.node);
-    const formData = new FormData();
-    formData.set('id', `${props.node.id}`);
-    formData.set('title', props.node.title ?? '');
-    formData.set('description', props.node.description ?? '');
-    const res = await query<api_file_mov_resp>('file/mod', formData);
-    emits("go", 'reload');
-  }
-  btn.active = !btn.active;
-  props.node._renaming = btn.active;
-  setTimeout(() => {
-    let tDOM = curDOM.value?.querySelector('[contenteditable="true"]') as HTMLElement;
-    tDOM.focus();
-  }, 50)
-}
-
-async function op_tag(btn: BtnDef) {
-  if (btn.active) {
-    const tagSet = new Set<number>();
-    if (props.node.tag)
-      for (let i1 = 0; i1 < props.node.tag.length; i1++) {
-        for (let i2 = 0; i2 < props.node.tag[i1].sub.length; i2++) {
-          const id = props.node.tag[i1].sub[i2].id;
-          if (id)
-            tagSet.add(id);
-        }
-      }
-    const formData = new FormData();
-    formData.set('id_node', `${props.node.id}`);
-    formData.set('tag_list', Array.from(tagSet).join(','));
-    const res = await query<api_tag_list_resp>('tag/attach', formData);
-  }
-  //
-  btn.active = !btn.active;
-  props.node._tagging = btn.active;
-}
 
 function tag_del(tagId?: number) {
   if (!tagId) return;
@@ -361,101 +279,6 @@ function tag_parse(item: api_tag_col) {
   if (!item) return '';
   // console.info(item);
   return `${item.group.title} : ${item.title}`;
-}
-
-function op_imp_tag_eh() {
-}
-
-async function op_set_cover(btn: BtnDef) {
-  const formData = new FormData();
-  formData.set('id', `${props.node.id}`);
-  const res = await query<api_file_cover_resp>('file/cover', formData);
-  return res;
-}
-
-async function op_toggle_favourite(btn: BtnDef) {
-  const favGroupLs = await query<api_favourite_group_list_resp>("favourite_group/get", {});
-
-  const favGroupOpts: { [key: string]: string } = {};
-  if (favGroupLs) {
-    favGroupLs.forEach((row) => {
-      favGroupOpts[row.id ?? 0] = row.title ?? '';
-    })
-  }
-  modalStore.set({
-    title: `select fav group:`,
-    alpha: false,
-    key: "",
-    single: false,
-    w: 400,
-    h: 150,
-    minW: 400,
-    minH: 150,
-    // h: 160,
-    allow_resize: true,
-    allow_move: true,
-    allow_fullscreen: false,
-    auto_focus: true,
-    // text: "this is text",
-    form: [
-      {
-        type: "checkbox",
-        label: "attach to:",
-        key: "target_group",
-        value: props.node.list_fav,
-        options: favGroupOpts,
-      },
-    ],
-    callback: {
-      submit: async function (modal) {
-        console.info(modal)
-        const groupIdLs = modal.content.form[0].value.join(',');
-        await query<api_favourite_attach_resp>("favourite/attach", {
-          id_node: props.node.id,
-          list_group: groupIdLs,
-        });
-
-      },
-    },
-  });
-}
-
-async function op_delete_forever() {
-  const formData = new FormData();
-  formData.set('id', `${props.node.id}`);
-  const res = await query<api_file_delete_resp>('file/delete_forever', formData);
-  emits('go', 'reload');
-  return res;
-}
-
-async function op_delete() {
-  const formData = new FormData();
-  formData.set('id', `${props.node.id}`);
-  const res = await query<api_file_delete_resp>('file/delete', formData);
-  emits('go', 'reload');
-  return res;
-}
-
-async function op_rebuild() {
-  const formData = new FormData();
-  formData.set('id', `${props.node.id}`);
-  const res = await query<api_file_rebuild_resp>('file/rebuild', formData);
-  // emits('go', 'reload');
-  return res;
-}
-
-
-async function op_recheck() {
-  const formData = new FormData();
-  const idList = new Set<number>();
-  for (const key in props.node.index_file_id) {
-    idList.add(props.node.index_file_id[key] ?? 0);
-  }
-  if (!idList.size) return;
-  formData.set('id_list', Array.from(idList).join(','));
-  const res = await query<api_file_checksum_resp>('file/rehash', formData);
-  // emits('go', 'reload');
-  return res;
 }
 
 //双击会触发两次单击，按照m￥的理论只能自己做
@@ -541,14 +364,14 @@ async function op_click(evt: MouseEvent) {
                     <dd>
                       <template v-for="btn in btn.sub">
                         <template v-if="btn.show && (btn.show===true ||btn.show(btn))">
-                          <button :class="btn.active?btn.cls.concat(['active']):btn.cls" @click="btn.click?btn.click(btn):null">{{ btn.title }}</button>
+                          <button :class="btn.active?btn.cls.concat(['active']):btn.cls" @click="btn.click?btn.click(node):null">{{ btn.title }}</button>
                         </template>
                       </template>
                     </dd>
                   </dl>
                 </template>
                 <template v-else>
-                  <button :class="btn.active?btn.cls.concat(['active']):btn.cls" @click="btn.click?btn.click(btn):null">{{ btn.title }}</button>
+                  <button :class="btn.active?btn.cls.concat(['active']):btn.cls" @click="btn.click?btn.click(node):null">{{ btn.title }}</button>
                 </template>
               </template>
             </template>
@@ -632,12 +455,12 @@ async function op_click(evt: MouseEvent) {
             <template v-if="btn.sub">
               <template v-for="btn in btn.sub">
                 <template v-if="btn.show && (btn.show===true ||btn.show(btn))">
-                  <button :class="btn.active?btn.cls.concat(['active']):btn.cls" @click="btn.click?btn.click(btn):null">{{ btn.title }}</button>
+                  <button :class="btn.active?btn.cls.concat(['active']):btn.cls" @click="btn.click?btn.click(node):null">{{ btn.title }}</button>
                 </template>
               </template>
             </template>
             <template v-else>
-              <button :class="btn.active?btn.cls.concat(['active']):btn.cls" @click="btn.click?btn.click(btn):null">{{ btn.title }}</button>
+              <button :class="btn.active?btn.cls.concat(['active']):btn.cls" @click="btn.click?btn.click(node):null">{{ btn.title }}</button>
             </template>
           </template>
         </template>

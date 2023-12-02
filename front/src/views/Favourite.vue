@@ -36,9 +36,11 @@ onMounted(async () => {
   await getGroup();
   opModule = new fHelper.opModule({
     route: route,
+    router: router,
     // nodeList: nodeList,
     getList: getList,
     contentDOM: contentDOM.value as HTMLElement,
+    emitGo: emitGo,
     // queryData: queryData,
   });
   if (queryData.id) {
@@ -138,27 +140,6 @@ async function detach() {
 async function attach() {
 }
 
-//
-function go(ext: api_file_list_req) {
-  if (!ext.tag_id) ext.tag_id = "";
-  if (!ext.keyword) ext.keyword = "";
-  if (!ext.node_type) ext.node_type = "";
-  const tQuery = Object.assign({
-    mode: "",
-    pid: "",
-    keyword: "",
-    tag_id: "",
-    node_type: "",
-    dir_only: "",
-    with: "",
-    group: "",
-  }, ext);
-  router.push({
-    path: '/',
-    query: tQuery,
-  });
-}
-
 function emitGo(type: string, code: number) {
   // console.info("emitGo", type, code);
   switch (type) {
@@ -166,7 +147,7 @@ function emitGo(type: string, code: number) {
       getList();
       break;
     case "tag":
-      go({tag_id: `${code}`, mode: 'tag'});
+      opModule.go({tag_id: `${code}`, mode: 'tag'});
       break;
     case "node":
       let node;
@@ -179,7 +160,7 @@ function emitGo(type: string, code: number) {
       if (!node) break;
       switch (node.type) {
         case "directory":
-          go({pid: `${node.id}`, mode: 'directory'});
+          opModule.go({pid: `${node.id}`, mode: 'directory'});
           break;
         default:
           fHelper.popupDetail({

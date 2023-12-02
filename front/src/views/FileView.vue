@@ -8,8 +8,8 @@ import {manualSort, query} from "@/Helper";
 import GenFunc from "../../../share/GenFunc";
 import type {api_file_list_req, api_file_list_resp, api_file_mkdir_req, api_file_mkdir_resp, api_node_col,} from "../../../share/Api";
 import {useModalStore} from "@/stores/modalStore";
-import * as fHelper from "@/FileViewHelper";
 import type {opModule as opModuleClass} from "@/FileViewHelper";
+import * as fHelper from "@/FileViewHelper";
 import FileItem from "@/components/FileItem.vue";
 
 const modalStore = useModalStore();
@@ -253,30 +253,9 @@ function search() {
   }
   tQuery.mode = 'search';
   if (!queryData.keyword && (!queryData.node_type || queryData.node_type == 'any')) {
-    return go({pid: queryData.pid, mode: 'directory',});
+    return opModule.go({pid: queryData.pid, mode: 'directory',});
   }
   console.info(tQuery);
-  router.push({
-    path: route.path,
-    query: tQuery,
-  });
-}
-
-//
-function go(ext: api_file_list_req) {
-  if (!ext.tag_id) ext.tag_id = "";
-  if (!ext.keyword) ext.keyword = "";
-  if (!ext.node_type) ext.node_type = "";
-  const tQuery = Object.assign({
-    mode: "",
-    pid: "",
-    keyword: "",
-    tag_id: "",
-    node_type: "",
-    dir_only: "",
-    with: "",
-    group: "",
-  }, ext);
   router.push({
     path: route.path,
     query: tQuery,
@@ -290,7 +269,7 @@ function emitGo(type: string, code: number) {
       getList();
       break;
     case "tag":
-      go({tag_id: `${code}`, mode: 'tag'});
+      opModule.go({tag_id: `${code}`, mode: 'tag'});
       break;
     case "node":
       let node;
@@ -302,7 +281,7 @@ function emitGo(type: string, code: number) {
       if (!node) break;
       switch (node.type) {
         case "directory":
-          go({pid: `${node.id}`, mode: 'directory'});
+          opModule.go({pid: `${node.id}`, mode: 'directory'});
           break;
         default:
           fHelper.popupDetail(GenFunc.copyObject(queryData), node.id ?? 0);
@@ -345,9 +324,11 @@ onMounted(async () => {
   Object.assign(queryData, GenFunc.copyObject(route.query));
   opModule = new fHelper.opModule({
     route: route,
+    router: router,
     // nodeList: nodeList,
     getList: getList,
     contentDOM: contentDOM.value as HTMLElement,
+    emitGo: emitGo,
     // queryData: queryData,
   });
   await getList();
@@ -372,7 +353,7 @@ onUnmounted(() => {
           class="item"
           v-for="(node, nodeIndex) in crumbList"
           :key="nodeIndex"
-          @click="go({ pid: `${node?.id}`,mode:'directory' })"
+          @click="opModule.go({ pid: `${node?.id}`,mode:'directory' })"
         >{{ node.title }}
         </a>
       </div>
