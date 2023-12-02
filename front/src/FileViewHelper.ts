@@ -281,55 +281,73 @@ export class opModule {
         // console.info(this.inDetailView(e));
         e.preventDefault();
         e.stopPropagation();
+        let selRes: { nodeLs: api_node_col[], idSet: Set<number> };
+        let inRecycle = this.route.name === 'Recycle';
         contextStore.trigger([
             {
-                title: 'title1',
+                title: 'rename',
                 auth: 'user',
                 method: (e: MouseEvent) => {
                     console.info(e);
                 },
             },
             {
-                title: 'title2title2title2title2title2title2title2',
+                title: 'move',
                 auth: 'user',
                 method: (e: MouseEvent) => {
                     console.info(e);
                 },
-                child: [
-                    {
-                        title: 'title1',
-                        auth: 'user',
-                        method: (e: MouseEvent) => {
-                            console.info(e);
-                        },
-                    },
-                    {
-                        title: 'title2title2title2title2title2title2title2',
-                        auth: 'user',
-                        method: (e: MouseEvent) => {
-                            console.info(e);
-                        },
-                    },
-                    {
-                        title: 'title3title3title3title3title3title3title3title3title3title3title3',
-                        auth: 'user',
-                        method: (e: MouseEvent) => {
-                            console.info(e);
-                        },
-                    },
-                ],
             },
             {
-                title: 'title3title3title3title3title3title3title3title3title3title3title3',
+                title: 'delete',
+                auth: 'user',
+                method: (e: MouseEvent) => {
+                    console.info(e);
+                },
+            },
+            {
+                title: 'delete_forever',
+                auth: 'user',
+                method: (e: MouseEvent) => {
+                    console.info(e);
+                },
+            },
+            {
+                title: 'open',
+                auth: 'user',
+                method: (e: MouseEvent) => {
+                    console.info(e);
+                },
+            },
+            {
+                title: 'favourite',
+                auth: 'user',
+                method: (e: MouseEvent) => {
+                    console.info(e);
+                },
+            },
+            {
+                title: 'download',
+                auth: 'user',
+                method: (e: MouseEvent) => {
+                    console.info(e);
+                },
+            },
+            {
+                title: 'tagging',
+                auth: 'user',
+                method: (e: MouseEvent) => {
+                    console.info(e);
+                },
+            },
+            {
+                title: 'set cover',
                 auth: 'user',
                 method: (e: MouseEvent) => {
                     console.info(e);
                 },
             },
         ], e);
-        // const curLs = this.getSelected();
-
-
     }
 
     public getSelection(selectingOffset: number[][]): Set<number> {
@@ -381,22 +399,22 @@ export class opModule {
         let res: any;
         switch (mode) {
             case 'rename':
-                this.bath_rename(idSet, nodeLs);
+                this.op_bath_rename(idSet, nodeLs);
                 break;
             case 'move':
-                this.bath_move(idSet, nodeLs);
+                this.op_bath_move(idSet, nodeLs);
                 break;
             case 'delete':
-                this.bath_delete(idSet, nodeLs);
+                this.op_bath_delete(idSet, nodeLs);
                 break;
             case 'delete_forever':
-                this.bath_delete_forever(idSet, nodeLs);
+                this.op_bath_delete_forever(idSet, nodeLs);
                 break;
             case 'browser':
-                this.bath_browser(idSet, nodeLs);
+                this.op_bath_browser(idSet, nodeLs);
                 break;
             case 'favourite':
-                this.bath_favourite(idSet, nodeLs);
+                this.op_bath_favourite(idSet, nodeLs);
                 break;
         }
     }
@@ -415,7 +433,7 @@ export class opModule {
         }
     }
 
-    public async bath_rename(idSet: Set<number>, nodeLs: api_node_col[]) {
+    public async op_bath_rename(idSet: Set<number>, nodeLs: api_node_col[]) {
         modalStore.set({
             title: `bath rename`,
             alpha: false,
@@ -444,7 +462,7 @@ export class opModule {
         return;
     }
 
-    public async bath_move(idSet: Set<number>, nodeLs?: api_node_col[]) {
+    public async op_bath_move(idSet: Set<number>, nodeLs?: api_node_col[]) {
         modalStore.set({
             title: `locator | move ${idSet.size} files to:`,
             alpha: false,
@@ -486,7 +504,7 @@ export class opModule {
         } as ModalConstruct);
     }
 
-    public async bath_delete(idSet: Set<number>, nodeLs?: api_node_col[]) {
+    public async op_bath_delete(idSet: Set<number>, nodeLs?: api_node_col[]) {
         modalStore.set({
             title: `confirm to delete ${idSet.size} files`,
             alpha: false,
@@ -518,8 +536,8 @@ export class opModule {
         } as ModalConstruct);
     }
 
-    public async bath_delete_forever(idSet: Set<number>, nodeLs?: api_node_col[]) {
-        // console.warn('bath_delete_forever');
+    public async op_bath_delete_forever(idSet: Set<number>, nodeLs?: api_node_col[]) {
+        // console.warn('op_bath_delete_forever');
         modalStore.set({
             title: `confirm to delete ${idSet.size} files forever`,
             alpha: false,
@@ -537,7 +555,7 @@ export class opModule {
             text: "conform to delete forever",
             callback: {
                 confirm: async (modal) => {
-                    // console.warn('bath_delete_forever confirm');
+                    // console.warn('op_bath_delete_forever confirm');
                     const queryData = {
                         id_list: Array.from(idSet).join(',')
                     };
@@ -550,7 +568,7 @@ export class opModule {
         } as ModalConstruct);
     }
 
-    public async bath_browser(idSet: Set<number>, nodeLs: api_node_col[]) {
+    public async op_bath_browser(idSet: Set<number>, nodeLs: api_node_col[]) {
         let idArr = Array.from(idSet);
         let query: api_file_list_req = {};
         query.with = 'file';
@@ -564,7 +582,7 @@ export class opModule {
         // }
     }
 
-    public async bath_favourite(idSet: Set<number>, nodeLs: api_node_col[]) {
+    public async op_bath_favourite(idSet: Set<number>, nodeLs: api_node_col[]) {
         const favGroupLs = await query<api_favourite_group_list_resp>("favourite_group/get", {});
         const favGroupOpts: { [key: string]: string } = {};
         if (favGroupLs) {
@@ -621,22 +639,22 @@ export class opModule {
             case 'F2':
                 if ((e.target as HTMLElement).tagName !== "BODY") return;
                 selRes = this.getSelected();
-                this.bath_rename(selRes.idSet, selRes.nodeLs);
+                this.op_bath_rename(selRes.idSet, selRes.nodeLs);
                 break;
             case 'Delete':
                 if ((e.target as HTMLElement).tagName !== "BODY") return;
                 selRes = this.getSelected();
                 if (this.route.name === 'Recycle') {
-                    this.bath_delete_forever(selRes.idSet, selRes.nodeLs);
+                    this.op_bath_delete_forever(selRes.idSet, selRes.nodeLs);
                 } else {
-                    this.bath_delete(selRes.idSet, selRes.nodeLs);
+                    this.op_bath_delete(selRes.idSet, selRes.nodeLs);
                 }
                 break;
             case 'NumpadEnter':
             case 'Enter':
                 if ((e.target as HTMLElement).tagName !== "BODY") return;
                 selRes = this.getSelected();
-                this.bath_browser(selRes.idSet, selRes.nodeLs);
+                this.op_bath_browser(selRes.idSet, selRes.nodeLs);
                 break;
         }
     }
