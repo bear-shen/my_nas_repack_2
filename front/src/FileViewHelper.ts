@@ -10,11 +10,13 @@ import GenFunc from "../../share/GenFunc";
 import {useModalStore} from "@/stores/modalStore";
 import type {RouteLocationNormalizedLoaded} from "vue-router";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
+import {useContextStore} from "@/stores/useContext";
 
 const modalStore = useModalStore();
 // const router = useRouter();
 // const route = useRoute();
 const localConfigure = useLocalConfigureStore();
+const contextStore = useContextStore();
 
 export const timeoutDef = {
     sort: 50,
@@ -279,7 +281,53 @@ export class opModule {
         // console.info(this.inDetailView(e));
         e.preventDefault();
         e.stopPropagation();
-        const curLs = this.getSelected();
+        contextStore.trigger([
+            {
+                title: 'title1',
+                auth: 'user',
+                method: (e: MouseEvent) => {
+                    console.info(e);
+                },
+            },
+            {
+                title: 'title2title2title2title2title2title2title2',
+                auth: 'user',
+                method: (e: MouseEvent) => {
+                    console.info(e);
+                },
+                child: [
+                    {
+                        title: 'title1',
+                        auth: 'user',
+                        method: (e: MouseEvent) => {
+                            console.info(e);
+                        },
+                    },
+                    {
+                        title: 'title2title2title2title2title2title2title2',
+                        auth: 'user',
+                        method: (e: MouseEvent) => {
+                            console.info(e);
+                        },
+                    },
+                    {
+                        title: 'title3title3title3title3title3title3title3title3title3title3title3',
+                        auth: 'user',
+                        method: (e: MouseEvent) => {
+                            console.info(e);
+                        },
+                    },
+                ],
+            },
+            {
+                title: 'title3title3title3title3title3title3title3title3title3title3title3',
+                auth: 'user',
+                method: (e: MouseEvent) => {
+                    console.info(e);
+                },
+            },
+        ], e);
+        // const curLs = this.getSelected();
 
 
     }

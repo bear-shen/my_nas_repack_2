@@ -2,18 +2,15 @@
 import type {Ref} from "vue";
 import {onMounted, ref} from "vue";
 import {useUserStore} from "@/stores/userStore";
+import {useContextStore} from "@/stores/useContext";
+import type {contextListDef} from "@/context";
 
 const userStore = useUserStore();
 const user = userStore.get();
 const userRole = user ? (user?.group.admin ? 2 : 1) : 0;
 
-type contextItemDef = {
-  title: string,
-  auth: 'guest' | 'user' | 'admin',
-  child?: contextItemDef[],
-  method: (e: MouseEvent) => any,
-};
-type contextListDef = contextItemDef[];
+const useContext = useContextStore();
+
 const contextList: Ref<contextListDef> = ref([]);
 
 const contextDOM: Ref<HTMLElement | null> = ref(null);
@@ -26,64 +23,10 @@ let offset = {
   direction: 'lb',
 };
 
+useContext.register(triggerMenu);
+
 function triggerMenu(menuDefLs: contextListDef, e: MouseEvent) {
   active.value = false;
-  menuDefLs = [
-    {
-      title: 'title1',
-      auth: 'user',
-      method: (e: MouseEvent) => {
-        console.info(e);
-      },
-    },
-    {
-      title: 'title2title2title2title2title2title2title2',
-      auth: 'user',
-      method: (e: MouseEvent) => {
-        console.info(e);
-      },
-      child: [
-        {
-          title: 'title1',
-          auth: 'user',
-          method: (e: MouseEvent) => {
-            console.info(e);
-          },
-        },
-        {
-          title: 'title2title2title2title2title2title2title2',
-          auth: 'user',
-          method: (e: MouseEvent) => {
-            console.info(e);
-          },
-          child: [
-            {
-              title: 'title2title2title2title2title2title2title2',
-              auth: 'user',
-              method: (e: MouseEvent) => {
-                console.info(e);
-              },
-              child: [],
-            },
-          ],
-        },
-        {
-          title: 'title3title3title3title3title3title3title3title3title3title3title3',
-          auth: 'user',
-          method: (e: MouseEvent) => {
-            console.info(e);
-          },
-        },
-      ],
-    },
-    {
-      title: 'title3title3title3title3title3title3title3title3title3title3title3',
-      auth: 'user',
-      method: (e: MouseEvent) => {
-        console.info(e);
-      },
-    },
-  ];
   const ls: contextListDef = [];
   menuDefLs.forEach(menuDef => {
     switch (menuDef.auth) {
@@ -145,7 +88,6 @@ function reloadLayout(e: MouseEvent) {
 function closeMenu() {
   active.value = false;
   setTimeout(() => {
-    contextList.value = [];
     contextList.value = [];
     offset = {
       x: -1000,
