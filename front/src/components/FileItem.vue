@@ -87,7 +87,7 @@ function buildBtnDef(key: string) {
           click: opFunctionModule.op_tag,
           title: 'TAG',
           show: true,
-          active: false,
+          active: !!props.node._tagging,
         },
         {
           cls: ['sysIcon', 'sysIcon_star-o'],

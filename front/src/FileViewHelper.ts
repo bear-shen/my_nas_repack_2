@@ -409,22 +409,22 @@ export class opModule {
         let res: any;
         switch (mode) {
             case 'rename':
-                this.op_bath_rename(idSet, nodeLs);
+                await opFunctionModule.op_bath_rename(idSet, nodeLs);
                 break;
             case 'move':
-                this.op_bath_move(idSet, nodeLs);
+                await opFunctionModule.op_bath_move(idSet, nodeLs);
                 break;
             case 'delete':
-                this.op_bath_delete(idSet, nodeLs);
+                await opFunctionModule.op_bath_delete(idSet, nodeLs);
                 break;
             case 'delete_forever':
-                this.op_bath_delete_forever(idSet, nodeLs);
+                await opFunctionModule.op_bath_delete_forever(idSet, nodeLs);
                 break;
             case 'browser':
-                this.op_bath_browser(idSet, nodeLs);
+                await opFunctionModule.op_bath_browser(idSet, nodeLs);
                 break;
             case 'favourite':
-                this.op_bath_favourite(idSet, nodeLs);
+                await opFunctionModule.op_bath_favourite(idSet, nodeLs);
                 break;
         }
     }
@@ -443,200 +443,6 @@ export class opModule {
         }
     }
 
-    public async op_bath_rename(idSet: Set<number>, nodeLs: api_node_col[]) {
-        modalStore.set({
-            title: `bath rename`,
-            alpha: false,
-            key: "",
-            single: false,
-            w: 400,
-            h: 275,
-            minW: 400,
-            minH: 275,
-            // h: 160,
-            allow_resize: true,
-            allow_move: true,
-            allow_fullscreen: false,
-            auto_focus: true,
-            component: [
-                {
-                    componentName: "renameUtil",
-                    data: {
-                        node_list: nodeLs,
-                        callback: () => {          //同步回列表
-                            this.getList();
-                        }
-                    }
-                },],
-        } as ModalConstruct);
-        return;
-    }
-
-    public async op_bath_move(idSet: Set<number>, nodeLs?: api_node_col[]) {
-        modalStore.set({
-            title: `locator | move ${idSet.size} files to:`,
-            alpha: false,
-            key: "",
-            single: false,
-            w: 400,
-            h: 60,
-            minW: 400,
-            minH: 60,
-            // h: 160,
-            allow_resize: true,
-            allow_move: true,
-            allow_fullscreen: false,
-            auto_focus: true,
-            // text: "this is text",
-            component: [
-                {
-                    componentName: "locator",
-                    data: {
-                        query: {
-                            type: 'directory',
-                        } as api_file_list_req,
-                        call: async (targetNode: api_node_col) => {
-                            // console.info(targetNode);
-                            const queryData: api_file_bath_move_req = {
-                                id_list: Array.from(idSet).join(','),
-                                id_parent: `${targetNode.id}`,
-                                // with: 'file',
-                            };
-                            const res = await query<api_file_bath_move_resp>("file/bath_move", queryData);
-                            //同步回列表
-                            this.getList();
-                            if (!res) return;
-                            return;
-                        }
-                    },
-                },
-            ],
-        } as ModalConstruct);
-    }
-
-    public async op_bath_delete(idSet: Set<number>, nodeLs?: api_node_col[]) {
-        modalStore.set({
-            title: `confirm to delete ${idSet.size} files`,
-            alpha: false,
-            key: "",
-            single: false,
-            w: 400,
-            h: 100,
-            minW: 400,
-            minH: 100,
-            // h: 160,
-            allow_resize: false,
-            allow_move: true,
-            allow_fullscreen: false,
-            auto_focus: true,
-            text: "conform to delete",
-            callback: {
-                confirm: async (modal) => {
-                    // console.info(modal);
-                    // return;
-                    const queryData = {
-                        id_list: Array.from(idSet).join(',')
-                    };
-                    const res = await query<api_file_bath_delete_resp>("file/bath_delete", queryData);
-                    //同步回列表
-                    this.getList();
-                    if (!res) return;
-                },
-            },
-        } as ModalConstruct);
-    }
-
-    public async op_bath_delete_forever(idSet: Set<number>, nodeLs?: api_node_col[]) {
-        // console.warn('op_bath_delete_forever');
-        modalStore.set({
-            title: `confirm to delete ${idSet.size} files forever`,
-            alpha: false,
-            key: "",
-            single: false,
-            w: 400,
-            h: 100,
-            minW: 400,
-            minH: 100,
-            // h: 160,
-            allow_resize: false,
-            allow_move: true,
-            allow_fullscreen: false,
-            auto_focus: true,
-            text: "conform to delete forever",
-            callback: {
-                confirm: async (modal) => {
-                    // console.warn('op_bath_delete_forever confirm');
-                    const queryData = {
-                        id_list: Array.from(idSet).join(',')
-                    };
-                    const res = await query<api_file_bath_delete_resp>("file/bath_delete_forever", queryData);
-                    //同步回列表
-                    this.getList();
-                    if (!res) return;
-                },
-            },
-        } as ModalConstruct);
-    }
-
-    public async op_bath_browser(idSet: Set<number>, nodeLs: api_node_col[]) {
-        let idArr = Array.from(idSet);
-        let query: api_file_list_req = {};
-        query.with = 'file';
-        query.mode = 'id_iterate';
-        query.keyword = idArr.join(',');
-        // if (idSet.size > 1) {
-        // let query = GenFunc.copyObject(this.queryData);
-        popupDetail(query, idArr[0]);
-        // } else if (idSet.size == 1) {
-        //     popupDetail(query, idArr[0]);
-        // }
-    }
-
-    public async op_bath_favourite(idSet: Set<number>, nodeLs: api_node_col[]) {
-        const favGroupLs = await query<api_favourite_group_list_resp>("favourite_group/get", {});
-        const favGroupOpts: { [key: string]: string } = {};
-        if (favGroupLs) {
-            favGroupLs.forEach((row) => {
-                favGroupOpts[row.id ?? 0] = row.title ?? '';
-            })
-        }
-        modalStore.set({
-            title: `select fav group:`,
-            alpha: false,
-            key: "",
-            single: false,
-            w: 400,
-            h: 150,
-            minW: 400,
-            minH: 150,
-            // h: 160,
-            allow_resize: true,
-            allow_move: true,
-            allow_fullscreen: false,
-            auto_focus: true,
-            // text: "this is text",
-            form: [
-                {
-                    type: "checkbox",
-                    label: "attach to:",
-                    key: "target_group",
-                    value: [],
-                    options: favGroupOpts,
-                },
-            ],
-            callback: {
-                submit: async function (modal) {
-                    // console.info(modal)
-                    const groupIdLs = modal.content.form[0].value.join(',');
-                    await query<api_favourite_attach_resp>("favourite/bath_attach", {
-                        list_node: Array.from(idSet),
-                        list_group: groupIdLs,
-                    });
-                },
-            },
-        });
-    }
-
     //-----------------------
 
     public async keymap(e: KeyboardEvent) {
@@ -651,22 +457,22 @@ export class opModule {
             case 'F2':
                 if ((e.target as HTMLElement).tagName !== "BODY") return;
                 selRes = this.getSelected();
-                this.op_bath_rename(selRes.idSet, selRes.nodeLs);
+                await opFunctionModule.op_bath_rename(selRes.idSet, selRes.nodeLs);
                 break;
             case 'Delete':
                 if ((e.target as HTMLElement).tagName !== "BODY") return;
                 selRes = this.getSelected();
                 if (this.route.name === 'Recycle') {
-                    this.op_bath_delete_forever(selRes.idSet, selRes.nodeLs);
+                    await opFunctionModule.op_bath_delete_forever(selRes.idSet, selRes.nodeLs);
                 } else {
-                    this.op_bath_delete(selRes.idSet, selRes.nodeLs);
+                    await opFunctionModule.op_bath_delete(selRes.idSet, selRes.nodeLs);
                 }
                 break;
             case 'NumpadEnter':
             case 'Enter':
                 if ((e.target as HTMLElement).tagName !== "BODY") return;
                 selRes = this.getSelected();
-                this.op_bath_browser(selRes.idSet, selRes.nodeLs);
+                opFunctionModule.op_bath_browser(selRes.idSet, selRes.nodeLs);
                 break;
         }
     }
@@ -720,6 +526,201 @@ export class opModule {
 }
 
 export class opFunctionModule {
+
+    public static async op_bath_rename(idSet: Set<number>, nodeLs: api_node_col[]) {
+        modalStore.set({
+            title: `bath rename`,
+            alpha: false,
+            key: "",
+            single: false,
+            w: 400,
+            h: 275,
+            minW: 400,
+            minH: 275,
+            // h: 160,
+            allow_resize: true,
+            allow_move: true,
+            allow_fullscreen: false,
+            auto_focus: true,
+            component: [
+                {
+                    componentName: "renameUtil",
+                    data: {
+                        node_list: nodeLs,
+                        callback: () => {          //同步回列表
+                            if (opModuleVal) opModuleVal.getList();
+                        }
+                    }
+                },],
+        } as ModalConstruct);
+        return;
+    }
+
+    public static async op_bath_move(idSet: Set<number>, nodeLs?: api_node_col[]) {
+        modalStore.set({
+            title: `locator | move ${idSet.size} files to:`,
+            alpha: false,
+            key: "",
+            single: false,
+            w: 400,
+            h: 60,
+            minW: 400,
+            minH: 60,
+            // h: 160,
+            allow_resize: true,
+            allow_move: true,
+            allow_fullscreen: false,
+            auto_focus: true,
+            // text: "this is text",
+            component: [
+                {
+                    componentName: "locator",
+                    data: {
+                        query: {
+                            type: 'directory',
+                        } as api_file_list_req,
+                        call: async (targetNode: api_node_col) => {
+                            // console.info(targetNode);
+                            const queryData: api_file_bath_move_req = {
+                                id_list: Array.from(idSet).join(','),
+                                id_parent: `${targetNode.id}`,
+                                // with: 'file',
+                            };
+                            const res = await query<api_file_bath_move_resp>("file/bath_move", queryData);
+                            //同步回列表
+                            if (opModuleVal) opModuleVal.getList();
+                            if (!res) return;
+                            return;
+                        }
+                    },
+                },
+            ],
+        } as ModalConstruct);
+    }
+
+    public static async op_bath_delete(idSet: Set<number>, nodeLs?: api_node_col[]) {
+        modalStore.set({
+            title: `confirm to delete ${idSet.size} files`,
+            alpha: false,
+            key: "",
+            single: false,
+            w: 400,
+            h: 100,
+            minW: 400,
+            minH: 100,
+            // h: 160,
+            allow_resize: false,
+            allow_move: true,
+            allow_fullscreen: false,
+            auto_focus: true,
+            text: "conform to delete",
+            callback: {
+                confirm: async (modal) => {
+                    // console.info(modal);
+                    // return;
+                    const queryData = {
+                        id_list: Array.from(idSet).join(',')
+                    };
+                    const res = await query<api_file_bath_delete_resp>("file/bath_delete", queryData);
+                    //同步回列表
+                    if (opModuleVal) opModuleVal.getList();
+                    if (!res) return;
+                },
+            },
+        } as ModalConstruct);
+    }
+
+    public static async op_bath_delete_forever(idSet: Set<number>, nodeLs?: api_node_col[]) {
+        // console.warn('op_bath_delete_forever');
+        modalStore.set({
+            title: `confirm to delete ${idSet.size} files forever`,
+            alpha: false,
+            key: "",
+            single: false,
+            w: 400,
+            h: 100,
+            minW: 400,
+            minH: 100,
+            // h: 160,
+            allow_resize: false,
+            allow_move: true,
+            allow_fullscreen: false,
+            auto_focus: true,
+            text: "conform to delete forever",
+            callback: {
+                confirm: async (modal) => {
+                    // console.warn('op_bath_delete_forever confirm');
+                    const queryData = {
+                        id_list: Array.from(idSet).join(',')
+                    };
+                    const res = await query<api_file_bath_delete_resp>("file/bath_delete_forever", queryData);
+                    //同步回列表
+                    if (opModuleVal) opModuleVal.getList();
+                    if (!res) return;
+                },
+            },
+        } as ModalConstruct);
+    }
+
+    public static async op_bath_browser(idSet: Set<number>, nodeLs: api_node_col[]) {
+        let idArr = Array.from(idSet);
+        let query: api_file_list_req = {};
+        query.with = 'file';
+        query.mode = 'id_iterate';
+        query.keyword = idArr.join(',');
+        // if (idSet.size > 1) {
+        // let query = GenFunc.copyObject(this.queryData);
+        popupDetail(query, idArr[0]);
+        // } else if (idSet.size == 1) {
+        //     popupDetail(query, idArr[0]);
+        // }
+    }
+
+    public static async op_bath_favourite(idSet: Set<number>, nodeLs: api_node_col[]) {
+        const favGroupLs = await query<api_favourite_group_list_resp>("favourite_group/get", {});
+        const favGroupOpts: { [key: string]: string } = {};
+        if (favGroupLs) {
+            favGroupLs.forEach((row) => {
+                favGroupOpts[row.id ?? 0] = row.title ?? '';
+            })
+        }
+        modalStore.set({
+            title: `select fav group:`,
+            alpha: false,
+            key: "",
+            single: false,
+            w: 400,
+            h: 150,
+            minW: 400,
+            minH: 150,
+            // h: 160,
+            allow_resize: true,
+            allow_move: true,
+            allow_fullscreen: false,
+            auto_focus: true,
+            // text: "this is text",
+            form: [
+                {
+                    type: "checkbox",
+                    label: "attach to:",
+                    key: "target_group",
+                    value: [],
+                    options: favGroupOpts,
+                },
+            ],
+            callback: {
+                submit: async function (modal) {
+                    // console.info(modal)
+                    const groupIdLs = modal.content.form[0].value.join(',');
+                    await query<api_favourite_attach_resp>("favourite/bath_attach", {
+                        list_node: Array.from(idSet),
+                        list_group: groupIdLs,
+                    });
+                },
+            },
+        });
+    }
+
     public static async op_download(node: api_node_col) {
         let filePath = node.file?.raw?.path;
         if (!filePath) return;
@@ -778,7 +779,7 @@ export class opFunctionModule {
         node._renaming = !node._renaming;
         setTimeout(() => {
             let tDOM = document.body.querySelector('[contenteditable="true"]') as HTMLElement;
-            tDOM.focus();
+            if (tDOM) tDOM.focus();
         }, 50)
     }
 
@@ -800,6 +801,7 @@ export class opFunctionModule {
         }
         //
         node._tagging = !node._tagging;
+        // console.info(node);
     }
 
     public static async op_imp_tag_eh(node: api_node_col) {
