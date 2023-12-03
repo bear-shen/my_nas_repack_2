@@ -355,27 +355,27 @@ async function op_click(evt: MouseEvent) {
             <p>{{ node.time_update }}</p>
             <p v-if="node.description">{{ node.description }}</p>
           </template>
-          <section class="bar">
-            <template v-for="btn in btnDef">
-              <template v-if="btn.show && (btn.show===true ||btn.show(btn))">
-                <template v-if="btn.sub">
-                  <dl>
-                    <dt :class="btn.active?btn.cls.concat(['active','btn']):btn.cls.concat(['btn'])">{{ btn.title }}</dt>
-                    <dd>
-                      <template v-for="btn in btn.sub">
+          <!--          <section class="bar">
+                      <template v-for="btn in btnDef">
                         <template v-if="btn.show && (btn.show===true ||btn.show(btn))">
-                          <button :class="btn.active?btn.cls.concat(['active']):btn.cls" @click="btn.click?btn.click(node):null">{{ btn.title }}</button>
+                          <template v-if="btn.sub">
+                            <dl>
+                              <dt :class="btn.active?btn.cls.concat(['active','btn']):btn.cls.concat(['btn'])">{{ btn.title }}</dt>
+                              <dd>
+                                <template v-for="btn in btn.sub">
+                                  <template v-if="btn.show && (btn.show===true ||btn.show(btn))">
+                                    <button :class="btn.active?btn.cls.concat(['active']):btn.cls" @click="btn.click?btn.click(node):null">{{ btn.title }}</button>
+                                  </template>
+                                </template>
+                              </dd>
+                            </dl>
+                          </template>
+                          <template v-else>
+                            <button :class="btn.active?btn.cls.concat(['active']):btn.cls" @click="btn.click?btn.click(node):null">{{ btn.title }}</button>
+                          </template>
                         </template>
                       </template>
-                    </dd>
-                  </dl>
-                </template>
-                <template v-else>
-                  <button :class="btn.active?btn.cls.concat(['active']):btn.cls" @click="btn.click?btn.click(node):null">{{ btn.title }}</button>
-                </template>
-              </template>
-            </template>
-          </section>
+                    </section>-->
         </div>
       </div>
       <div v-if="!node._tagging && node.tag" class="tag_list">
@@ -449,22 +449,22 @@ async function op_click(evt: MouseEvent) {
       >{{ node.title }}</p>
       <!--        <p class="title" @click="op_dblclick">{{ node.title }}</p>-->
       <p class="time">{{ node.time_update }}</p>
-      <section class="bar">
-        <template v-for="btn in btnDef">
-          <template v-if="btn.show && (btn.show===true ||btn.show(btn))">
-            <template v-if="btn.sub">
-              <template v-for="btn in btn.sub">
+      <!--      <section class="bar">
+              <template v-for="btn in btnDef">
                 <template v-if="btn.show && (btn.show===true ||btn.show(btn))">
-                  <button :class="btn.active?btn.cls.concat(['active']):btn.cls" @click="btn.click?btn.click(node):null">{{ btn.title }}</button>
+                  <template v-if="btn.sub">
+                    <template v-for="btn in btn.sub">
+                      <template v-if="btn.show && (btn.show===true ||btn.show(btn))">
+                        <button :class="btn.active?btn.cls.concat(['active']):btn.cls" @click="btn.click?btn.click(node):null">{{ btn.title }}</button>
+                      </template>
+                    </template>
+                  </template>
+                  <template v-else>
+                    <button :class="btn.active?btn.cls.concat(['active']):btn.cls" @click="btn.click?btn.click(node):null">{{ btn.title }}</button>
+                  </template>
                 </template>
               </template>
-            </template>
-            <template v-else>
-              <button :class="btn.active?btn.cls.concat(['active']):btn.cls" @click="btn.click?btn.click(node):null">{{ btn.title }}</button>
-            </template>
-          </template>
-        </template>
-      </section>
+            </section>-->
     </template>
   </div>
 </template>
@@ -481,7 +481,7 @@ async function op_click(evt: MouseEvent) {
   -webkit-column-break-inside: avoid;
   //padding: 0 0 $fontSize * 0.5 0;
   //padding: 0 $fontSize * 0.5 $fontSize;
-  width: $fontSize*25;
+  width: $fontSize*20;
   padding: $fontSize * 0.5;
   display: block;
   $contentHeight: $fontSize * 5;
@@ -491,13 +491,13 @@ async function op_click(evt: MouseEvent) {
     min-height: $contentHeight;
     .thumb {
       width: calc(25% - $fontSize * 0.5);
-      padding: 0 $fontSize * 0.25;
+      padding: 0 $fontSize * 0.5 0 $fontSize * 0.25 ;
       text-align: center;
       img {
         width: 100%;
         height: 100%;
         max-height: $contentHeight;
-        object-fit: contain;
+        object-fit: cover;
       }
     }
     .listIcon {
@@ -514,11 +514,14 @@ async function op_click(evt: MouseEvent) {
       .title {
         font-size: $fontSize;
         //line-height: $fontSize;
-        white-space: nowrap;
+        white-space: normal;
         overflow: hidden;
         text-overflow: ellipsis;
         color: map-get($colors, font);
         margin: 0 0 $fontSize * 0.5 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
       }
       .editing {
         font-size: $fontSize;
@@ -628,10 +631,12 @@ async function op_click(evt: MouseEvent) {
   text-align: center;
   width: $fontSize*8;
   .thumb {
-    padding: 0 $fontSize * 0.5;
-    height: $fontSize * 10;
-    line-height: $fontSize * 10;
-    font-size: $fontSize * 6;
+    padding: 0 $fontSize * 0.25;
+    height: $fontSize * 6;
+    line-height: $fontSize * 6;
+    font-size: $fontSize * 5;
+    width: calc(100% - $fontSize*0.5);
+    aspect-ratio: 1;
     img {
       width: 100%;
       height: 100%;

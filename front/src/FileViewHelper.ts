@@ -184,11 +184,12 @@ export class opModule {
         // console.info('here');
         // if (inTaggingDOM(e)) return;
         // console.info(e);
-        //左键
-        // if (e.button !== 0) return;
         // console.info(inDetail(e));
         // console.info('mouseDownEvt');
         // e.stopPropagation();
+        //左键，屏蔽右键可以左键点了右键选，不屏蔽的话只能右键选或者ctrl选
+        //但是屏蔽了体验感觉反而不大好
+        // if (e.button !== 0) return;
         e.preventDefault();
         this.selectingOffset[0] = [e.x + (this.contentDOM?.scrollLeft ?? 0), e.y + (this.contentDOM?.scrollTop ?? 0),];
         this.selectingOffset[1] = [e.x + (this.contentDOM?.scrollLeft ?? 0), e.y + (this.contentDOM?.scrollTop ?? 0),];
@@ -289,73 +290,126 @@ export class opModule {
         if (!this.inDetailView(e)) return;
         // console.info('this.contentMenuEvt');
         // console.info(this.inDetailView(e));
+        let inRecycle = this.route.name === 'Recycle';
+        let selRes: { nodeLs: api_node_col[], idSet: Set<number> } = this.getSelected();
+        if (!selRes.nodeLs || !selRes.nodeLs.length) return;
+        let isBath = selRes.nodeLs.length !== 1;
+        const nodeLs = selRes.nodeLs;
+        const idSet = selRes.idSet;
+        console.info(isBath, nodeLs);
+        //
         e.preventDefault();
         e.stopPropagation();
-        let selRes: { nodeLs: api_node_col[], idSet: Set<number> };
-        let inRecycle = this.route.name === 'Recycle';
+        //
         contextStore.trigger([
             {
-                title: 'rename',
+                title: 'Open',
                 auth: 'user',
                 method: (e: MouseEvent) => {
-                    console.info(e);
+                    console.info('Open', e);
+                    if (isBath) opFunctionModule.op_bath_browser(idSet, nodeLs);
+                    else this.emitGo('node', nodeLs[0].id);
                 },
             },
             {
-                title: 'move',
-                auth: 'user',
+                title: 'Download',
+                auth: isBath ? 'none' : 'user',
                 method: (e: MouseEvent) => {
-                    console.info(e);
+                    console.info('Download', e);
+                    // nodeLs.forEach(node => {
+                    const node = nodeLs[0];
+                    let href = node?.file?.raw?.path;
+                    let title = node?.title ?? '';
+                    if (!href) return;
+                    let link = document.createElement('a');
+                    link.style.display = 'none';
+                    link.href = href + '?filename=' + title;
+                    link.target = '_blank';
+                    link.setAttribute('download', title)
+                    link.click();
+                    // });
                 },
             },
             {
-                title: 'delete',
+                title: 'Rename',
                 auth: 'user',
                 method: (e: MouseEvent) => {
-                    console.info(e);
+                    console.info('Rename', e);
+                    if (isBath) opFunctionModule.op_bath_rename(idSet, nodeLs);
+                    else opFunctionModule.op_rename(nodeLs[0]);
                 },
             },
             {
-                title: 'delete_forever',
+                title: 'Move',
                 auth: 'user',
                 method: (e: MouseEvent) => {
-                    console.info(e);
+                    console.info('Move', e);
+                    if (isBath) opFunctionModule.op_bath_move(idSet, nodeLs);
+                    else opFunctionModule.op_move(nodeLs[0]);
                 },
             },
             {
-                title: 'open',
-                auth: 'user',
+                title: 'Delete',
+                auth: !inRecycle ? 'user' : 'none',
                 method: (e: MouseEvent) => {
-                    console.info(e);
+                    console.info('Delete', e);
+                    if (isBath) opFunctionModule.op_bath_delete(idSet, nodeLs);
+                    else opFunctionModule.op_delete(nodeLs[0]);
+
                 },
             },
             {
-                title: 'favourite',
-                auth: 'user',
+                title: 'Delete Forever',
+                auth: inRecycle ? 'user' : 'none',
                 method: (e: MouseEvent) => {
-                    console.info(e);
+                    console.info('Delete Forever', e);
+                    if (isBath) opFunctionModule.op_bath_delete_forever(idSet, nodeLs);
+                    else opFunctionModule.op_delete_forever(nodeLs[0]);
                 },
             },
             {
-                title: 'download',
+                title: 'Favourite',
                 auth: 'user',
                 method: (e: MouseEvent) => {
-                    console.info(e);
+                    console.info('Favourite', e);
+                    if (isBath) opFunctionModule.op_bath_favourite(idSet, nodeLs);
+                    else opFunctionModule.op_toggle_favourite(nodeLs[0]);
                 },
             },
             {
-                title: 'tagging',
+                title: 'Extra',
                 auth: 'user',
                 method: (e: MouseEvent) => {
-                    console.info(e);
+                    console.info('Extra', e);
                 },
-            },
-            {
-                title: 'set cover',
-                auth: 'user',
-                method: (e: MouseEvent) => {
-                    console.info(e);
-                },
+                child: [
+                    {
+                        title: 'Tagging',
+                        auth: 'user',
+                        method: (e: MouseEvent) => {
+                            console.info('Tagging', e);
+                            nodeLs.forEach(node => {
+                                opFunctionModule.op_tag(node);
+                            });
+                        },
+                    },
+                    {
+                        title: 'Set Cover',
+                        auth: isBath ? 'none' : 'user',
+                        method: (e: MouseEvent) => {
+                            console.info('Set Cover', e);
+
+                        },
+                    },
+                    {
+                        title: 'Import EHT',
+                        auth: 'user',
+                        method: (e: MouseEvent) => {
+                            console.info('Import EHT', e);
+
+                        },
+                    },
+                ],
             },
         ], e);
     }
@@ -526,6 +580,29 @@ export class opModule {
 }
 
 export class opFunctionModule {
+    public static async op_download(node: api_node_col) {
+        let filePath = node.file?.raw?.path;
+        if (!filePath) return;
+        window.open(`${filePath}?filename=${node.title}`);
+    }
+
+    public static async op_rename(node: api_node_col) {
+        if (node._renaming) {
+            console.info(node.title, node.description, node);
+            // console.info(node);
+            const formData = new FormData();
+            formData.set('id', `${node.id}`);
+            formData.set('title', node.title ?? '');
+            formData.set('description', node.description ?? '');
+            const res = await query<api_file_mov_resp>('file/mod', formData);
+            if (opModuleVal) opModuleVal.emitGo("go", 'reload');
+        }
+        node._renaming = !node._renaming;
+        setTimeout(() => {
+            let tDOM = document.body.querySelector('[contenteditable="true"]') as HTMLElement;
+            if (tDOM) tDOM.focus();
+        }, 50)
+    }
 
     public static async op_bath_rename(idSet: Set<number>, nodeLs: api_node_col[]) {
         modalStore.set({
@@ -554,6 +631,44 @@ export class opFunctionModule {
                 },],
         } as ModalConstruct);
         return;
+    }
+
+    public static async op_move(node: api_node_col) {
+        modalStore.set({
+            title: `locator | move ${node.title} to:`,
+            alpha: false,
+            key: "",
+            single: false,
+            w: 400,
+            h: 60,
+            minW: 400,
+            minH: 60,
+            // h: 160,
+            allow_resize: true,
+            allow_move: true,
+            allow_fullscreen: false,
+            auto_focus: true,
+            // text: "this is text",
+            component: [
+                {
+                    componentName: "locator",
+                    data: {
+                        query: {
+                            type: 'directory',
+                        } as api_file_list_req,
+                        call: async (node: api_node_col) => {
+                            console.info(node);
+                            const formData = new FormData();
+                            formData.set('node_id', `${node.id}`);
+                            formData.set('target_id', `${node.id}`);
+                            const res = await query<api_file_mov_req>('file/mov', formData);
+                            if (opModuleVal) opModuleVal.emitGo("go", 'reload');
+                        }
+                    },
+                },
+            ],
+        });
+        //
     }
 
     public static async op_bath_move(idSet: Set<number>, nodeLs?: api_node_col[]) {
@@ -598,6 +713,14 @@ export class opFunctionModule {
         } as ModalConstruct);
     }
 
+    public static async op_delete(node: api_node_col) {
+        const formData = new FormData();
+        formData.set('id', `${node.id}`);
+        const res = await query<api_file_delete_resp>('file/delete', formData);
+        if (opModuleVal) opModuleVal.emitGo("go", 'reload');
+        return res;
+    }
+
     public static async op_bath_delete(idSet: Set<number>, nodeLs?: api_node_col[]) {
         modalStore.set({
             title: `confirm to delete ${idSet.size} files`,
@@ -630,6 +753,14 @@ export class opFunctionModule {
         } as ModalConstruct);
     }
 
+    public static async op_delete_forever(node: api_node_col) {
+        const formData = new FormData();
+        formData.set('id', `${node.id}`);
+        const res = await query<api_file_delete_resp>('file/delete_forever', formData);
+        if (opModuleVal) opModuleVal.emitGo("go", 'reload');
+        return res;
+    }
+
     public static async op_bath_delete_forever(idSet: Set<number>, nodeLs?: api_node_col[]) {
         // console.warn('op_bath_delete_forever');
         modalStore.set({
@@ -660,158 +791,6 @@ export class opFunctionModule {
                 },
             },
         } as ModalConstruct);
-    }
-
-    public static async op_bath_browser(idSet: Set<number>, nodeLs: api_node_col[]) {
-        let idArr = Array.from(idSet);
-        let query: api_file_list_req = {};
-        query.with = 'file';
-        query.mode = 'id_iterate';
-        query.keyword = idArr.join(',');
-        // if (idSet.size > 1) {
-        // let query = GenFunc.copyObject(this.queryData);
-        popupDetail(query, idArr[0]);
-        // } else if (idSet.size == 1) {
-        //     popupDetail(query, idArr[0]);
-        // }
-    }
-
-    public static async op_bath_favourite(idSet: Set<number>, nodeLs: api_node_col[]) {
-        const favGroupLs = await query<api_favourite_group_list_resp>("favourite_group/get", {});
-        const favGroupOpts: { [key: string]: string } = {};
-        if (favGroupLs) {
-            favGroupLs.forEach((row) => {
-                favGroupOpts[row.id ?? 0] = row.title ?? '';
-            })
-        }
-        modalStore.set({
-            title: `select fav group:`,
-            alpha: false,
-            key: "",
-            single: false,
-            w: 400,
-            h: 150,
-            minW: 400,
-            minH: 150,
-            // h: 160,
-            allow_resize: true,
-            allow_move: true,
-            allow_fullscreen: false,
-            auto_focus: true,
-            // text: "this is text",
-            form: [
-                {
-                    type: "checkbox",
-                    label: "attach to:",
-                    key: "target_group",
-                    value: [],
-                    options: favGroupOpts,
-                },
-            ],
-            callback: {
-                submit: async function (modal) {
-                    // console.info(modal)
-                    const groupIdLs = modal.content.form[0].value.join(',');
-                    await query<api_favourite_attach_resp>("favourite/bath_attach", {
-                        list_node: Array.from(idSet),
-                        list_group: groupIdLs,
-                    });
-                },
-            },
-        });
-    }
-
-    public static async op_download(node: api_node_col) {
-        let filePath = node.file?.raw?.path;
-        if (!filePath) return;
-        window.open(`${filePath}?filename=${node.title}`);
-    }
-
-    public static async op_move(node: api_node_col) {
-        modalStore.set({
-            title: `locator | move ${node.title} to:`,
-            alpha: false,
-            key: "",
-            single: false,
-            w: 400,
-            h: 60,
-            minW: 400,
-            minH: 60,
-            // h: 160,
-            allow_resize: true,
-            allow_move: true,
-            allow_fullscreen: false,
-            auto_focus: true,
-            // text: "this is text",
-            component: [
-                {
-                    componentName: "locator",
-                    data: {
-                        query: {
-                            type: 'directory',
-                        } as api_file_list_req,
-                        call: async (node: api_node_col) => {
-                            console.info(node);
-                            const formData = new FormData();
-                            formData.set('node_id', `${node.id}`);
-                            formData.set('target_id', `${node.id}`);
-                            const res = await query<api_file_mov_req>('file/mov', formData);
-                            if (opModuleVal) opModuleVal.emitGo("go", 'reload');
-                        }
-                    },
-                },
-            ],
-        });
-        //
-    }
-
-    public static async op_rename(node: api_node_col) {
-        if (node._renaming) {
-            console.info(node.title, node.description, node);
-            // console.info(node);
-            const formData = new FormData();
-            formData.set('id', `${node.id}`);
-            formData.set('title', node.title ?? '');
-            formData.set('description', node.description ?? '');
-            const res = await query<api_file_mov_resp>('file/mod', formData);
-            if (opModuleVal) opModuleVal.emitGo("go", 'reload');
-        }
-        node._renaming = !node._renaming;
-        setTimeout(() => {
-            let tDOM = document.body.querySelector('[contenteditable="true"]') as HTMLElement;
-            if (tDOM) tDOM.focus();
-        }, 50)
-    }
-
-    public static async op_tag(node: api_node_col) {
-        if (node._tagging) {
-            const tagSet = new Set<number>();
-            if (node.tag)
-                for (let i1 = 0; i1 < node.tag.length; i1++) {
-                    for (let i2 = 0; i2 < node.tag[i1].sub.length; i2++) {
-                        const id = node.tag[i1].sub[i2].id;
-                        if (id)
-                            tagSet.add(id);
-                    }
-                }
-            const formData = new FormData();
-            formData.set('id_node', `${node.id}`);
-            formData.set('tag_list', Array.from(tagSet).join(','));
-            const res = await query<api_tag_list_resp>('tag/attach', formData);
-        }
-        //
-        node._tagging = !node._tagging;
-        // console.info(node);
-    }
-
-    public static async op_imp_tag_eh(node: api_node_col) {
-    }
-
-    public static async op_set_cover(node: api_node_col) {
-        const formData = new FormData();
-        formData.set('id', `${node.id}`);
-        const res = await query<api_file_cover_resp>('file/cover', formData);
-        return res;
     }
 
     public static async op_toggle_favourite(node: api_node_col) {
@@ -861,19 +840,95 @@ export class opFunctionModule {
         });
     }
 
-    public static async op_delete_forever(node: api_node_col) {
-        const formData = new FormData();
-        formData.set('id', `${node.id}`);
-        const res = await query<api_file_delete_resp>('file/delete_forever', formData);
-        if (opModuleVal) opModuleVal.emitGo("go", 'reload');
-        return res;
+    public static async op_bath_favourite(idSet: Set<number>, nodeLs: api_node_col[]) {
+        const favGroupLs = await query<api_favourite_group_list_resp>("favourite_group/get", {});
+        const favGroupOpts: { [key: string]: string } = {};
+        if (favGroupLs) {
+            favGroupLs.forEach((row) => {
+                favGroupOpts[row.id ?? 0] = row.title ?? '';
+            })
+        }
+        modalStore.set({
+            title: `select fav group:`,
+            alpha: false,
+            key: "",
+            single: false,
+            w: 400,
+            h: 150,
+            minW: 400,
+            minH: 150,
+            // h: 160,
+            allow_resize: true,
+            allow_move: true,
+            allow_fullscreen: false,
+            auto_focus: true,
+            // text: "this is text",
+            form: [
+                {
+                    type: "checkbox",
+                    label: "attach to:",
+                    key: "target_group",
+                    value: [],
+                    options: favGroupOpts,
+                },
+            ],
+            callback: {
+                submit: async function (modal) {
+                    // console.info(modal)
+                    const groupIdLs = modal.content.form[0].value.join(',');
+                    await query<api_favourite_attach_resp>("favourite/bath_attach", {
+                        list_node: Array.from(idSet),
+                        list_group: groupIdLs,
+                    });
+                },
+            },
+        });
     }
 
-    public static async op_delete(node: api_node_col) {
+    //
+
+    public static async op_bath_browser(idSet: Set<number>, nodeLs: api_node_col[]) {
+        let idArr = Array.from(idSet);
+        let query: api_file_list_req = {};
+        query.with = 'file';
+        query.mode = 'id_iterate';
+        query.keyword = idArr.join(',');
+        // if (idSet.size > 1) {
+        // let query = GenFunc.copyObject(this.queryData);
+        popupDetail(query, idArr[0]);
+        // } else if (idSet.size == 1) {
+        //     popupDetail(query, idArr[0]);
+        // }
+    }
+
+    public static async op_tag(node: api_node_col) {
+        if (node._tagging) {
+            const tagSet = new Set<number>();
+            if (node.tag)
+                for (let i1 = 0; i1 < node.tag.length; i1++) {
+                    for (let i2 = 0; i2 < node.tag[i1].sub.length; i2++) {
+                        const id = node.tag[i1].sub[i2].id;
+                        if (id)
+                            tagSet.add(id);
+                    }
+                }
+            const formData = new FormData();
+            formData.set('id_node', `${node.id}`);
+            formData.set('tag_list', Array.from(tagSet).join(','));
+            const res = await query<api_tag_list_resp>('tag/attach', formData);
+        }
+        //
+        node._tagging = !node._tagging;
+        // console.info(node);
+    }
+
+    public static async op_imp_tag_eh(node: api_node_col) {
+    }
+
+    public static async op_set_cover(node: api_node_col) {
         const formData = new FormData();
         formData.set('id', `${node.id}`);
-        const res = await query<api_file_delete_resp>('file/delete', formData);
-        if (opModuleVal) opModuleVal.emitGo("go", 'reload');
+        const res = await query<api_file_cover_resp>('file/cover', formData);
         return res;
     }
 

@@ -1,6 +1,6 @@
 export type contextItemDef = {
     title: string,
-    auth: 'guest' | 'user' | 'admin',
+    auth: 'none' | 'guest' | 'user' | 'admin',
     // child?: contextItemDef[],
     method: (e: MouseEvent) => any,
 };

@@ -3,7 +3,7 @@ import type {Ref} from "vue";
 import {onMounted, ref} from "vue";
 import {useUserStore} from "@/stores/userStore";
 import {useContextStore} from "@/stores/useContext";
-import type {contextListDef} from "@/context";
+import type {contextItemDef, contextListDef} from "@/context";
 
 const userStore = useUserStore();
 const user = userStore.get();
@@ -29,24 +29,42 @@ function triggerMenu(menuDefLs: contextListDef, e: MouseEvent) {
   active.value = false;
   const ls: contextListDef = [];
   menuDefLs.forEach(menuDef => {
-    switch (menuDef.auth) {
-      default:
-      case 'guest':
-        ls.push(menuDef);
-        break;
-      case 'user':
-        if (userRole < 1) break;
-        ls.push(menuDef);
-        break;
-      case 'admin':
-        if (userRole < 2) break;
-        ls.push(menuDef);
-        break;
+    if (!menuAuthFilter(menuDef)) return;
+    if (menuDef.child) {
+      let sLs: contextItemDef[] = [];
+      menuDef.child.forEach(menuDef => {
+        if (!menuAuthFilter(menuDef)) return;
+        sLs.push(menuDef);
+      });
+      if (!sLs.length) return;
+      menuDef.child = sLs;
     }
+    ls.push(menuDef);
   });
   contextList.value = ls;
+  console.info(ls);
   //
   setTimeout(() => reloadLayout(e), 20);
+}
+
+function menuAuthFilter(menuDef: contextItemDef) {
+  switch (menuDef.auth) {
+    case 'none':
+      return false;
+      break;
+    default:
+    case 'guest':
+      return true;
+      break;
+    case 'user':
+      if (userRole < 1) break;
+      return true;
+      break;
+    case 'admin':
+      if (userRole < 2) break;
+      return true;
+      break;
+  }
 }
 
 function reloadLayout(e: MouseEvent) {
