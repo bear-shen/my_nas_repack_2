@@ -304,7 +304,7 @@ export class opModule {
         contextStore.trigger([
             {
                 title: 'Open',
-                auth: 'user',
+                auth: 'guest',
                 method: (e: MouseEvent) => {
                     console.info('Open', e);
                     if (isBath) opFunctionModule.op_bath_browser(idSet, nodeLs);
@@ -313,7 +313,7 @@ export class opModule {
             },
             {
                 title: 'Download',
-                auth: isBath ? 'none' : 'user',
+                auth: isBath ? 'none' : 'guest',
                 method: (e: MouseEvent) => {
                     console.info('Download', e);
                     // nodeLs.forEach(node => {
@@ -355,7 +355,6 @@ export class opModule {
                     console.info('Delete', e);
                     if (isBath) opFunctionModule.op_bath_delete(idSet, nodeLs);
                     else opFunctionModule.op_delete(nodeLs[0]);
-
                 },
             },
             {
@@ -378,7 +377,7 @@ export class opModule {
             },
             {
                 title: 'Extra',
-                auth: 'user',
+                auth: 'guest',
                 method: (e: MouseEvent) => {
                     console.info('Extra', e);
                 },
