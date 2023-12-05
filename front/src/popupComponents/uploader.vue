@@ -22,7 +22,7 @@ const props = defineProps<{
   };
   modalData: ModalStruct;
 }>();
-type uploadFile = {
+type uploadFileType = {
   size: number;
   name: string;
   loaded: number;
@@ -30,8 +30,8 @@ type uploadFile = {
   start: number;
   file: File;
 };
-// const list = ref(new Map() as Map<string, uploadFile>);
-const list = ref([] as uploadFile[]);
+// const list = ref(new Map() as Map<string, uploadFileType>);
+const list = ref([] as uploadFileType[]);
 onMounted(() => {
 });
 onUnmounted(() => {
@@ -75,7 +75,7 @@ async function goUpload() {
   props.data.emitGo('reload');
 }
 
-async function uploadFile(file: uploadFile) {
+async function uploadFile(file: uploadFileType) {
   const formData = new FormData();
   formData.set('pid', `${props.data.pid}`);
   formData.set('file', file.file);
@@ -98,11 +98,11 @@ function remove(index: number) {
   <div class="modal_uploader" @drop="onDrop" @dragover="onDragover">
     <div class="upload_list">
       <!-- <div v-for="[key, file] in list"> -->
-      <div v-for="(file,index) in list">
+      <div v-for="(file,index) in list" :key='`file_upload_${index}`'>
         <div class="title">{{ file.name }}</div>
         <div class="meta">
           <span v-if="file.status==='uploading'">
-            {{ parseInt(100 * file.loaded / file.size) }} %
+            {{ Math.round(100 * file.loaded / file.size) }} %
           </span>
           <span v-else>{{ file.status }}</span>
           <span>{{ GenFunc.kmgt(file.size) }}</span>

@@ -121,7 +121,7 @@ onMounted(() => {
 
 const list: Ref<valType[]> = ref([]);
 
-function parseText(value: valType) {
+function parseTextVal(value: valType) {
   if (props.parseText)
     return props.parseText(value);
   return value;
@@ -160,8 +160,9 @@ function setFocus() {
       @blur="setBlur"
       ref="editor"></div>
     <ul>
-      <li v-for="item in list"
-          v-html="parseText(item)"
+      <li v-for="(item,index) in list"
+          :key='`hinter_${index}`'
+          v-html="parseTextVal(item)"
           @click="setItem(item)"
           :class="{active:item._sel}"
       ></li>

@@ -142,7 +142,7 @@ const BaseConfig = {
         },
     },*/
     parser: {
-        ffProgram: 'ffmpeg.exe',
+        ffProgram: 'ffmpeg.exe -v quiet -hide_banner',
         cover: {
             format: 'webp',
             max_length: 320,

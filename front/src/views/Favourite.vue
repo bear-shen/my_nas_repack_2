@@ -12,7 +12,7 @@ import type {api_favourite_group_list_req, api_favourite_group_list_resp, api_fa
 import {query} from "@/Helper";
 import FileItem from "@/components/FileItem.vue";
 import * as fHelper from "@/FileViewHelper";
-import {opModule as opModuleClass} from "@/FileViewHelper";
+import type {opModule as opModuleClass} from "@/FileViewHelper";
 
 //
 const localConfigure = useLocalConfigureStore();
