@@ -296,7 +296,16 @@ export class opModule {
         let isBath = selRes.nodeLs.length !== 1;
         const nodeLs = selRes.nodeLs;
         const idSet = selRes.idSet;
-        console.info(isBath, nodeLs);
+        let fileViewMode = localConfigure.get("file_view_mode") ?? "detail";
+        if (this.route.name !== 'Directory') {
+            fileViewMode = 'detail';
+        }
+        let useEditMethods = fileViewMode === 'detail';
+        if (this.route.name === 'Recycle') {
+            useEditMethods = false;
+        }
+
+        // console.info(isBath, nodeLs);
         //
         e.preventDefault();
         e.stopPropagation();
@@ -334,7 +343,7 @@ export class opModule {
             },
             {
                 title: 'Rename',
-                auth: 'user',
+                auth: !useEditMethods ? 'none' : 'user',
                 method: (e: MouseEvent) => {
                     console.info('Rename', e);
                     if (isBath) opFunctionModule.op_bath_rename(idSet, nodeLs);
@@ -343,7 +352,7 @@ export class opModule {
             },
             {
                 title: 'Move',
-                auth: 'user',
+                auth: !useEditMethods ? 'none' : 'user',
                 method: (e: MouseEvent) => {
                     console.info('Move', e);
                     if (isBath) opFunctionModule.op_bath_move(idSet, nodeLs);
@@ -370,7 +379,7 @@ export class opModule {
             },
             {
                 title: 'Favourite',
-                auth: 'user',
+                auth: !useEditMethods ? 'none' : 'user',
                 method: (e: MouseEvent) => {
                     console.info('Favourite', e);
                     if (isBath) opFunctionModule.op_bath_favourite(idSet, nodeLs);
@@ -386,7 +395,7 @@ export class opModule {
                 child: [
                     {
                         title: 'Tagging',
-                        auth: 'user',
+                        auth: !useEditMethods ? 'none' : 'user',
                         method: (e: MouseEvent) => {
                             console.info('Tagging', e);
                             nodeLs.forEach(node => {

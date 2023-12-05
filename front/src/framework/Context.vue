@@ -15,13 +15,23 @@ const contextList: Ref<contextListDef> = ref([]);
 
 const contextDOM: Ref<HTMLElement | null> = ref(null);
 const active: Ref<boolean> = ref(true);
-let offset = {
+const offset: Ref<{
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  sx: number,
+  sy: number,
+  direction: string,
+}> = ref({
   x: -1000,
   y: 0,
   w: 0,
   h: 0,
+  sx: 0,
+  sy: 0,
   direction: 'lb',
-};
+});
 
 useContext.register(triggerMenu);
 
@@ -70,11 +80,14 @@ function menuAuthFilter(menuDef: contextItemDef) {
 function reloadLayout(e: MouseEvent) {
   if (!contextDOM.value) return;
   const dom = contextDOM.value;
+  let scrollDOM = getContentDOM();
   const nOffset = {
     x: e.clientX,
     y: e.clientY,
     w: dom?.offsetWidth,
     h: dom?.offsetHeight,
+    sx: scrollDOM.scrollTop,
+    sy: scrollDOM.scrollLeft,
     direction: 'rb',
   };
   let d = ['r', 'b',];
@@ -99,19 +112,24 @@ function reloadLayout(e: MouseEvent) {
       nOffset.y -= nOffset.h;
       break;
   }
-  offset = nOffset;
+  offset.value = nOffset;
+  getContentDOM().addEventListener('scroll', scrollEvent);
   setTimeout(() => active.value = true, 10);
 }
 
 function closeMenu() {
+  getContentDOM().removeEventListener('scroll', scrollEvent);
   active.value = false;
+  contentDOM = null;
   setTimeout(() => {
     contextList.value = [];
-    offset = {
+    offset.value = {
       x: -1000,
       y: 0,
       w: 0,
       h: 0,
+      sx: 0,
+      sy: 0,
       direction: 'lb',
     };
   }, 10);
@@ -119,7 +137,37 @@ function closeMenu() {
 
 onMounted(() => {
   // triggerMenu([],null);
+  console.info(contentDOM);
 });
+
+let contentDOM: HTMLElement | null = null;
+
+function scrollEvent(e: Event) {
+  const dom = getContentDOM();
+  if (!dom) return;
+  // console.info('scrollEvent', dom.scrollTop, e);
+  console.info('scrollEvent');
+  let offsetVal = offset.value;
+  let sx = dom.scrollLeft;
+  let sy = dom.scrollTop;
+  let dx = sx - offsetVal.sx;
+  let dy = sy - offsetVal.sy;
+  offset.value = Object.assign(
+    offsetVal, {
+      x: offsetVal.x - dx,
+      y: offsetVal.y - dy,
+      sx: sx,
+      sy: sy,
+    }
+  );
+  // console.info(offset);
+}
+
+function getContentDOM(): HTMLElement {
+  if (contentDOM) return contentDOM;
+  contentDOM = document.querySelector('.fr_content') as HTMLElement;
+  return contentDOM;
+}
 
 addEventListener('contextmenu', (e: MouseEvent) => {
   console.info('triggerMenu');

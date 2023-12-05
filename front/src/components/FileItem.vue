@@ -399,12 +399,15 @@ async function op_click(evt: MouseEvent) {
             <span class="sysIcon sysIcon_delete"></span>
           </dd>
         </dl>
-        <hinter
-          :get-list="tag_hint"
-          :submit="tag_add"
-          :parse-text="tag_parse"
-          @mousedown.stop
-        ></hinter>
+        <div class="tag_hinter_bar">
+          <hinter
+            :get-list="tag_hint"
+            :submit="tag_add"
+            :parse-text="tag_parse"
+            @mousedown.stop
+          ></hinter>
+          <button :class="['active','sysIcon', 'sysIcon_save']" @click="opFunctionModule.op_tag(node)">SAVE</button>
+        </div>
       </div>
     </template>
     <template v-else-if="mode === 'img'">
@@ -540,19 +543,10 @@ async function op_click(evt: MouseEvent) {
       .sysIcon::before {
         margin-right: $fontSize*0.25;
       }
-      button {
-        padding: $fontSize * 0.25;
-        font-size: $fontSize * 0.75;
-        line-height: $fontSize * 0.75;
-        //        margin: 0 $fontSize * 0.1 0;
-      }
     }
     .bar {
       font-size: $fontSize * 0.75;
       line-height: $fontSize * 0.75;
-      .sysIcon::before {
-        margin-right: $fontSize*0.25;
-      }
       button, dt {
         padding: $fontSize * 0.25;
         font-size: $fontSize * 0.75;
@@ -585,6 +579,15 @@ async function op_click(evt: MouseEvent) {
       }
     }
   }
+  button {
+    padding: $fontSize * 0.25;
+    font-size: $fontSize * 0.75;
+    line-height: $fontSize * 0.75;
+    //        margin: 0 $fontSize * 0.1 0;
+  }
+  button.sysIcon::before {
+    margin-right: $fontSize*0.25;
+  }
   .tag_list {
     width: 100%;
     font-size: $fontSize;
@@ -599,16 +602,30 @@ async function op_click(evt: MouseEvent) {
     dd {
       margin-left: $fontSize * 0.5;
       color: map-get($colors, font_sub);
-      word-break: break-word;
+      word-break: break-all;
       max-width: 90%;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      //overflow: hidden;
+      //text-overflow: ellipsis;
       &:hover {
         color: map-get($colors, font);
       }
     }
     dt::after {
       content: " :";
+    }
+    .tag_hinter_bar {
+      //vertical-align: top;
+      .hinter, > button {
+        vertical-align: top;
+      }
+      .hinter {
+        width: calc(100% - 3.5 * $fontSize);
+        display: inline-block;
+      }
+      > button {
+        display: inline-block;
+        width: $fontSize*3.5;
+      }
     }
   }
   p {
@@ -681,7 +698,7 @@ async function op_click(evt: MouseEvent) {
   .sysIcon {
     padding-left: $fontSize*0.25;
   }
-  dt, dd, .hinter {
+  dt, dd, .tag_hinter_bar {
     margin-top: $fontSize*0.25;
   }
 }
