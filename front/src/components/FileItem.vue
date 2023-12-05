@@ -333,21 +333,26 @@ async function op_click(evt: MouseEvent) {
         </template>
         <div class="meta">
           <template v-if="node.status">
-            <p v-if="!node._renaming" class="title">{{ node.title }}</p>
-            <!--            <p v-if="!renaming" class="title" @click="op_dblclick">{{ node.title }}</p>-->
-            <content-editable
-              v-else v-model="node.title"
-              class="title editing"
-              :auto-focus="true"
-              @mousedown.stop
-            ></content-editable>
-            <p v-if="!node._renaming">{{ node.time_update }}</p>
-            <p v-if="!node._renaming && node.description">{{ node.description }}</p>
-            <content-editable
-              v-if="node._renaming" v-model="node.description"
-              class="editing"
-              @mousedown.stop
-            ></content-editable>
+            <template v-if="node._renaming">
+              <content-editable
+                v-model="node.title"
+                class="title editing"
+                :auto-focus="true"
+                @mousedown.stop
+              ></content-editable>
+              <content-editable
+                v-model="node.description"
+                class="editing"
+                @mousedown.stop
+              ></content-editable>
+              <button :class="['active','sysIcon', 'sysIcon_save']" @click="opFunctionModule.op_rename(node)">SAVE</button>
+            </template>
+            <template v-else>
+              <p class="title">{{ node.title }}</p>
+              <!--            <p class="title" @click="op_dblclick">{{ node.title }}</p>-->
+              <p>{{ node.time_update }}</p>
+              <p v-if="node.description">{{ node.description }}</p>
+            </template>
           </template>
           <template v-else>
             <p class="title">{{ node.title }}</p>
@@ -491,7 +496,7 @@ async function op_click(evt: MouseEvent) {
     min-height: $contentHeight;
     .thumb {
       width: calc(25% - $fontSize * 0.5);
-      padding: 0 $fontSize * 0.5 0 $fontSize * 0.25 ;
+      padding: 0 $fontSize * 0.5 0 $fontSize * 0.25;
       text-align: center;
       img {
         width: 100%;
@@ -510,6 +515,7 @@ async function op_click(evt: MouseEvent) {
         word-break: break-all;
         white-space: pre-wrap;
         line-height: $fontSize*1.25;
+        margin: 0 0 $fontSize * 0.5 0;
       }
       .title {
         font-size: $fontSize;
@@ -518,7 +524,6 @@ async function op_click(evt: MouseEvent) {
         overflow: hidden;
         text-overflow: ellipsis;
         color: map-get($colors, font);
-        margin: 0 0 $fontSize * 0.5 0;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
@@ -532,6 +537,15 @@ async function op_click(evt: MouseEvent) {
         margin: $fontSize * 0.5 0 0 0;
       }
       color: map-get($colors, font_sub);
+      .sysIcon::before {
+        margin-right: $fontSize*0.25;
+      }
+      button {
+        padding: $fontSize * 0.25;
+        font-size: $fontSize * 0.75;
+        line-height: $fontSize * 0.75;
+        //        margin: 0 $fontSize * 0.1 0;
+      }
     }
     .bar {
       font-size: $fontSize * 0.75;
@@ -635,7 +649,7 @@ async function op_click(evt: MouseEvent) {
     height: $fontSize * 6;
     line-height: $fontSize * 6;
     font-size: $fontSize * 5;
-    width: calc(100% - $fontSize*0.5);
+    width: calc(100% - $fontSize * 0.5);
     aspect-ratio: 1;
     img {
       width: 100%;

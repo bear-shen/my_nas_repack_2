@@ -313,7 +313,9 @@ export class opModule {
             },
             {
                 title: 'Download',
-                auth: isBath ? 'none' : 'guest',
+                auth: isBath ? 'none' : (
+                    nodeLs[0].type == 'directory' ? 'none' : 'guest'
+                ),
                 method: (e: MouseEvent) => {
                     console.info('Download', e);
                     // nodeLs.forEach(node => {
@@ -397,7 +399,7 @@ export class opModule {
                         auth: isBath ? 'none' : 'user',
                         method: (e: MouseEvent) => {
                             console.info('Set Cover', e);
-
+                            opFunctionModule.op_set_cover(nodeLs[0]);
                         },
                     },
                     {
@@ -405,7 +407,6 @@ export class opModule {
                         auth: 'user',
                         method: (e: MouseEvent) => {
                             console.info('Import EHT', e);
-
                         },
                     },
                 ],
