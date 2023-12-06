@@ -26,6 +26,7 @@ export const timeoutDef = {
 };
 
 let opModuleVal: null | opModule;
+const scrollLog: Map<string, number[]> = new Map<string, number[]>();
 
 /*
 *
@@ -78,12 +79,14 @@ export class opModule {
         this.mouseUpEvt = this.mouseUpEvt.bind(this);
         this.keymap = this.keymap.bind(this);
         this.reloadOffset = this.reloadOffset.bind(this);
+        this.scrollEvt = this.scrollEvt.bind(this);
         addEventListener('contextmenu', this.contentMenuEvt);
         addEventListener('mousedown', this.mouseDownEvt);
         addEventListener('mousemove', this.mouseMoveEvt);
         addEventListener('mouseup', this.mouseUpEvt);
         addEventListener('keydown', this.keymap);
         addEventListener("resize", this.reloadOffset);
+        this.contentDOM.addEventListener("scroll", this.scrollEvt);
         opModuleVal = this;
     }
 
@@ -95,6 +98,8 @@ export class opModule {
         removeEventListener('mouseup', this.mouseUpEvt);
         removeEventListener('keydown', this.keymap);
         removeEventListener("resize", this.reloadOffset);
+        if (this.contentDOM)
+            this.contentDOM.removeEventListener("scroll", this.scrollEvt);
         opModuleVal = null;
     }
 
@@ -567,6 +572,7 @@ export class opModule {
                 node._offsets = [l, t, r, b,];
                 // console.info(node.id, node._dom, node._offsets);
             });
+            this.reloadScroll();
         }, debounceDelay, `debounce_node_resize`);
     }
 
@@ -588,6 +594,37 @@ export class opModule {
             path: this.route.path,
             query: tQuery,
         });
+    }
+
+    private startScroll: boolean = false;
+
+    public scrollEvt(e: Event) {
+        // GenFunc.debounce(() => {
+        this.saveScroll();
+        // }, timeoutDef.offsetUIDebounce, `debounce_scroll_view`);
+    }
+
+    public saveScroll() {
+        // console.warn('this.saveScroll()');
+        const path = this.route.fullPath;
+        // console.info(path, this.contentDOM.scrollTop);
+        const offset = [
+            this.contentDOM.scrollTop,
+            this.contentDOM.scrollLeft,
+        ];
+        //更新路由的时候会产生一个offset为0的scroll事件，直接跳过0
+        if (!offset[0] && !offset[1]) return;
+        scrollLog.set(path, offset);
+    }
+
+    public reloadScroll() {
+        // console.warn('this.reloadScroll()');
+        const path = this.route.fullPath;
+        const ifLogExs = scrollLog.get(path);
+        if (!ifLogExs) return;
+        // console.info(path, ifLogExs);
+        this.contentDOM.scrollTop = ifLogExs[0];
+        this.contentDOM.scrollLeft = ifLogExs[1];
     }
 
 }
@@ -909,7 +946,8 @@ export class opFunctionModule {
     public static async op_bath_browser(idSet: Set<number>, nodeLs: api_node_col[]) {
         let idArr = Array.from(idSet);
         let query: api_file_list_req = {};
-        query.with = 'file';
+        //按文件夹排序需要crumb
+        query.with = 'crumb,file';
         query.mode = 'id_iterate';
         query.keyword = idArr.join(',');
         // if (idSet.size > 1) {

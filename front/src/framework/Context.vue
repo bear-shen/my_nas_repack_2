@@ -146,7 +146,7 @@ function scrollEvent(e: Event) {
   const dom = getContentDOM();
   if (!dom) return;
   // console.info('scrollEvent', dom.scrollTop, e);
-  console.info('scrollEvent');
+  // console.info('scrollEvent');
   let offsetVal = offset.value;
   let sx = dom.scrollLeft;
   let sy = dom.scrollTop;
