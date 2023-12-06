@@ -29,8 +29,9 @@ onMounted(() => {
 
 // const value: Ref<valType> = ref(null);
 
-async function inputText(e: InputEvent) {
+async function inputText(evt: Event) {
   // console.info(e);
+  const e = evt as InputEvent;
   if (e.isComposing) return;
   GenFunc.debounce(async () => {
     // console.info('input', editor.value, editor.value?.innerText);

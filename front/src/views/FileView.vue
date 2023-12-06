@@ -370,7 +370,7 @@ onUnmounted(() => {
         </label>
         <label v-if="crumbList.length">
           <span>InDir : </span>
-          <input type="checkbox" v-model="queryData.dir_only" id="FV_S_CB"
+          <input type="checkbox" v-model="(queryData.dir_only as any)" id="FV_S_CB"
                  :true-value="1"
                  false-value=""
           />

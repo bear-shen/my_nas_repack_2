@@ -300,6 +300,9 @@ async function op_click(evt: MouseEvent) {
   // emits("onSelect", evt, props.node);
 }
 
+function emp(e: Event) {
+}
+
 </script>
 
 <template>
@@ -338,12 +341,12 @@ async function op_click(evt: MouseEvent) {
                 v-model="node.title"
                 class="title editing"
                 :auto-focus="true"
-                @mousedown.stop
+                @mousedown.stop="emp"
               ></content-editable>
               <content-editable
                 v-model="node.description"
                 class="editing"
-                @mousedown.stop
+                @mousedown.stop="emp"
               ></content-editable>
               <button :class="['active','sysIcon', 'sysIcon_save']" @click="opFunctionModule.op_rename(node)">SAVE</button>
             </template>
@@ -404,7 +407,7 @@ async function op_click(evt: MouseEvent) {
             :get-list="tag_hint"
             :submit="tag_add"
             :parse-text="tag_parse"
-            @mousedown.stop
+            @mousedown.stop="emp"
           ></hinter>
           <button :class="['active','sysIcon', 'sysIcon_save']" @click="opFunctionModule.op_tag(node)">SAVE</button>
         </div>

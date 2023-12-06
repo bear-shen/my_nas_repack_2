@@ -1,36 +1,14 @@
 <script setup lang="ts">
-import {watch, ref, onUnmounted} from "vue";
 import type {Ref} from "vue";
-import {
-  useRouter,
-  useRoute,
-  type RouteRecordRaw,
-  type RouteLocationNormalizedLoaded,
-  onBeforeRouteUpdate,
-} from "vue-router";
 // import {routes} from "@/router/index";
-import {onMounted} from "vue";
+import {onMounted, onUnmounted, ref} from "vue";
+import {onBeforeRouteUpdate, useRoute, useRouter,} from "vue-router";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
-import type {
-  col_node,
-  col_file,
-  col_user_group,
-  col_user,
-} from "../../../share/Database";
-import {query, queryDemo} from "@/Helper";
-import smp_file_list_resp from "../../../share/sampleApi/smp_file_list_resp";
+import {query} from "@/Helper";
 import GenFunc from "../../../share/GenFunc";
-import FileItem from "@/components/FileItem.vue";
-import type {
-  api_file_list_resp,
-  api_file_list_req,
-  api_user_group_col, api_user_group_list_req, api_user_group_list_resp,
-  api_user_col, api_user_list_req, api_user_list_resp, api_node_col,
-  api_user_group_mod_req, api_user_group_mod_resp, api_user_mod_resp, api_user_del_resp,
-} from "../../../share/Api";
+import type {api_user_col, api_user_del_resp, api_user_group_col, api_user_group_list_req, api_user_group_list_resp, api_user_group_mod_req, api_user_group_mod_resp, api_user_list_req, api_user_list_resp, api_user_mod_resp,} from "../../../share/Api";
 // import {useModalStore} from "@/stores/modalStore";
 import ContentEditable from "@/components/ContentEditable.vue";
-import Hinter from "@/components/Hinter.vue";
 
 //
 const localConfigure = useLocalConfigureStore();
@@ -259,7 +237,7 @@ async function modUser(index: number) {
           <content-editable class="title" v-model="group.title" :auto-focus="true"></content-editable>
           <content-editable class="description" v-model="group.description"></content-editable>
           <div class="operator">
-            <input type="checkbox" v-model="group.status"
+            <input type="checkbox" v-model="(group.status as any)"
                    :id="`UV_G_CB_S_${group.ext_key?group.ext_key:group.id}`"
                    :true-value="1"
                    :false-value="0"
@@ -322,7 +300,7 @@ async function modUser(index: number) {
           <div class="title">
             <content-editable v-model="user.name" :auto-focus="true"></content-editable>
             <div>
-              <input type="checkbox" v-model="user.status"
+              <input type="checkbox" v-model="(user.status as any)"
                      :id="`UV_U_CB_${user.ext_key?user.ext_key:user.id}`"
                      :true-value="1"
                      :false-value="0"
