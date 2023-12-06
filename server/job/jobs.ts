@@ -1,6 +1,7 @@
 import FileJob from "./processor/FileJob";
 import ImportJob from "./processor/ImportJob";
 import SysJob from "./processor/SysJob";
+import ExtJob from "./processor/ExtJob";
 
 /**
  * @notice 考虑到现在队列是用worker跑
@@ -15,4 +16,7 @@ export default {
     'file/deleteForever': FileJob.deleteForever,
     'import/run': ImportJob.run,
     'sys/scanOrphanFile': SysJob.scanOrphanFile,
+    'ext/cascadeTag': ExtJob.cascadeTag,
+    'ext/rmRaw': ExtJob.rmRaw,
+    'ext/importEHT': ExtJob.importEHT,
 } as { [key: string]: (payload: { [key: string]: any }) => Promise<any> };

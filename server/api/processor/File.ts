@@ -149,7 +149,7 @@ export default class {
             node.is_file = node.type === 'directory' ? 0 : 1;
         });
         //收藏夹
-        if(nodeIdSet.size) {
+        if (nodeIdSet.size) {
             const favList = await (new FavouriteModel)
                 .whereIn('id_node', Array.from(nodeIdSet))
                 .where('status', 1)
@@ -163,10 +163,10 @@ export default class {
                     favMap.set(fav.id_node, [fav.id_group]);
                 }
             });
-        nodeLs.forEach(node => {
-            const arr = favMap.get(node.id)
-            node.list_fav = arr ? arr : [];
-        });
+            nodeLs.forEach(node => {
+                const arr = favMap.get(node.id)
+                node.list_fav = arr ? arr : [];
+            });
         }
         //
         let withConf = ['file', 'tag', 'crumb']
@@ -471,6 +471,30 @@ export default class {
                 status: 1,
             });
         }
+    }
+
+    async cascade_tag(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<false | api_file_rebuild_resp> {
+        const request = data.fields as api_file_rebuild_req;
+        const curNode = await new NodeModel().where('id', request.id).first();
+        if (!curNode) return false;
+        (new QueueModel).insert({
+            type: 'ext/cascadeTag',
+            payload: {id: curNode.id},
+            status: 1,
+        });
+        return curNode;
+    }
+
+    async rm_raw(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<false | api_file_rebuild_resp> {
+        const request = data.fields as api_file_rebuild_req;
+        const curNode = await new NodeModel().where('id', request.id).first();
+        if (!curNode) return false;
+        (new QueueModel).insert({
+            type: 'ext/rmRaw',
+            payload: {id: curNode.id},
+            status: 1,
+        });
+        return curNode;
     }
 };
 

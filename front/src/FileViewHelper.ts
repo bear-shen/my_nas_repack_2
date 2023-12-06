@@ -422,9 +422,55 @@ export class opModule {
                     },
                     {
                         title: 'Import EHT',
-                        auth: 'user',
+                        auth: isBath ? 'none' : 'user',
                         method: (e: MouseEvent) => {
                             console.info('Import EHT', e);
+                            opFunctionModule.op_imp_tag_eh(nodeLs[0]);
+                        },
+                    },
+                    {
+                        title: 'Cascade Tag',
+                        auth: isBath ? 'none' : (
+                            nodeLs[0].type == 'directory' ? 'none' : 'guest'
+                        ),
+                        method: (e: MouseEvent) => {
+                            console.info('Cascade Tag', e);
+                            opFunctionModule.op_cascade_tag(nodeLs[0]);
+                        },
+                    },
+                ],
+            },
+            {
+                title: 'Admin',
+                auth: 'guest',
+                method: (e: MouseEvent) => {
+                    console.info('Extra', e);
+                },
+                child: [
+                    {
+                        title: 'ReBuild',
+                        auth: isBath ? 'none' : 'admin',
+                        method: (e: MouseEvent) => {
+                            console.info('ReBuild', e);
+                            opFunctionModule.op_rebuild(nodeLs[0]);
+                        },
+                    },
+                    {
+                        title: 'ReCheck',
+                        auth: isBath ? 'none' : 'admin',
+                        method: (e: MouseEvent) => {
+                            console.info('ReCheck', e);
+                            opFunctionModule.op_recheck(nodeLs[0]);
+                        },
+                    },
+                    {
+                        title: 'RM RAW',
+                        auth: isBath ? 'none' : (
+                            nodeLs[0].type !== 'directory' ? 'none' : 'admin'
+                        ),
+                        method: (e: MouseEvent) => {
+                            console.info('RMRAW', e);
+                            opFunctionModule.op_rm_raw(nodeLs[0]);
                         },
                     },
                 ],
@@ -979,9 +1025,6 @@ export class opFunctionModule {
         // console.info(node);
     }
 
-    public static async op_imp_tag_eh(node: api_node_col) {
-    }
-
     public static async op_set_cover(node: api_node_col) {
         const formData = new FormData();
         formData.set('id', `${node.id}`);
@@ -1008,6 +1051,25 @@ export class opFunctionModule {
         const res = await query<api_file_checksum_resp>('file/rehash', formData);
         // emits('go', 'reload');
         return res;
+    }
+
+    public static async op_cascade_tag(node: api_node_col) {
+        const formData = new FormData();
+        formData.set('id', `${node.id}`);
+        const res = await query<api_file_rebuild_resp>('file/cascade_tag', formData);
+        // emits('go', 'reload');
+        return res;
+    }
+
+    public static async op_rm_raw(node: api_node_col) {
+        const formData = new FormData();
+        formData.set('id', `${node.id}`);
+        const res = await query<api_file_rebuild_resp>('file/rm_raw', formData);
+        // emits('go', 'reload');
+        return res;
+    }
+
+    public static async op_imp_tag_eh(node: api_node_col) {
     }
 
 }

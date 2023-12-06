@@ -26,7 +26,7 @@ const modeKey = localConfigure.listen(
   "file_view_mode",
   (v) => {
     mode.value = v;
-    buildBtnDef(mode.value + '_' + (props.node.status ? 'enabled' : 'disabled'));
+    // buildBtnDef(mode.value + '_' + (props.node.status ? 'enabled' : 'disabled'));
     // reloadOffset();
   }
 );
@@ -34,185 +34,6 @@ const modeKey = localConfigure.listen(
 // console.info(modeKey);
 function setMode(mode: string) {
   localConfigure.set("file_view_mode", mode);
-}
-
-type BtnDef = {
-  cls: string[],
-  title: string,
-  click?: (node: api_node_col) => any,
-  show?: true | ((btn: BtnDef) => boolean),
-  active: boolean,
-  sub?: BtnDef[],
-};
-const btnDef: Ref<BtnDef[]> = ref([]);
-buildBtnDef(mode.value + '_' + (props.node.status ? 'enabled' : 'disabled'));
-
-function buildBtnDef(key: string) {
-  // console.info(key);
-  switch (key) {
-    case 'detail_enabled':
-      btnDef.value = [
-        {
-          cls: ['sysIcon', 'sysIcon_download'],
-          click: opFunctionModule.op_download,
-          title: 'DL',
-          show: (btn: BtnDef) => {
-            return !!props.node.is_file
-          },
-          active: false,
-        },
-        {
-          cls: ['sysIcon', 'sysIcon_edit'],
-          click: opFunctionModule.op_rename,
-          title: 'RN',
-          show: true,
-          active: false,
-        },
-        {
-          cls: ['sysIcon', 'sysIcon_folderopen'],
-          click: opFunctionModule.op_move,
-          title: 'MV',
-          show: true,
-          active: false,
-        },
-        {
-          cls: ['sysIcon', 'sysIcon_delete'],
-          click: opFunctionModule.op_delete,
-          title: 'DEL',
-          show: true,
-          active: false,
-        },
-        {
-          cls: ['sysIcon', 'sysIcon_tag-o'],
-          click: opFunctionModule.op_tag,
-          title: 'TAG',
-          show: true,
-          active: !!props.node._tagging,
-        },
-        {
-          cls: ['sysIcon', 'sysIcon_star-o'],
-          click: opFunctionModule.op_toggle_favourite,
-          title: 'FAV',
-          show: true,
-          active: (props.node.list_fav?.length ?? 0) > 0,
-        },
-        {
-          cls: ['sysIcon', 'sysIcon_setting'],
-          title: 'OP',
-          show: true,
-          active: false,
-          sub: [
-            {
-              cls: ['sysIcon', 'sysIcon_tag-o'],
-              click: opFunctionModule.op_imp_tag_eh,
-              title: 'IMP EH TAG',
-              show: true,
-              active: false,
-            },
-            {
-              cls: ['sysIcon', 'sysIcon_scan'],
-              click: opFunctionModule.op_set_cover,
-              title: 'COV',
-              show: () => !!props.node.file?.cover?.path,
-              active: false,
-            },
-            {
-              cls: ['sysIcon', 'sysIcon_reload'],
-              click: opFunctionModule.op_rebuild,
-              title: 'RB',
-              show: (btn: BtnDef) => {
-                // console.info(props.node.is_file)
-                return !!props.node.is_file
-              },
-              active: false,
-            },
-            {
-              cls: ['sysIcon', 'sysIcon_reload'],
-              click: opFunctionModule.op_recheck,
-              title: 'CHK',
-              show: (btn: BtnDef) => {
-                // console.info(props.node.is_file)
-                return !!props.node.is_file
-              },
-              active: false,
-            },
-          ],
-        },
-      ];
-      break;
-    case 'text_enabled':
-      btnDef.value = [
-        {
-          cls: ['sysIcon', 'sysIcon_download'],
-          click: opFunctionModule.op_download,
-          title: 'DL',
-          show: (btn: BtnDef) => {
-            return !!props.node.is_file
-          },
-          active: false,
-        },
-        {
-          cls: ['sysIcon', 'sysIcon_folderopen'],
-          click: opFunctionModule.op_move,
-          title: 'MV',
-          show: true,
-          active: false,
-        },
-        {
-          cls: ['sysIcon', 'sysIcon_star-o'],
-          click: opFunctionModule.op_toggle_favourite,
-          title: 'FAV',
-          show: true,
-          active: (props.node.list_fav?.length ?? 0) > 0,
-        },
-        {
-          cls: ['sysIcon', 'sysIcon_delete'],
-          click: opFunctionModule.op_delete,
-          title: 'DEL',
-          show: true,
-          active: false,
-        },
-        {
-          cls: ['sysIcon', 'sysIcon_reload'],
-          click: opFunctionModule.op_rebuild,
-          title: 'RB',
-          show: (btn: BtnDef) => {
-            return !!props.node.is_file
-          },
-          active: false,
-        },
-        {
-          cls: ['sysIcon', 'sysIcon_reload'],
-          click: opFunctionModule.op_recheck,
-          title: 'CHK',
-          show: (btn: BtnDef) => {
-            // console.info(props.node.is_file)
-            return !!props.node.is_file
-          },
-          active: false,
-        },
-      ];
-      break;
-    case 'text_disabled':
-    case 'detail_disabled':
-      btnDef.value = [
-        {
-          cls: ['sysIcon', 'sysIcon_delete'],
-          click: opFunctionModule.op_delete_forever,
-          title: 'rDEL',
-          show: true,
-          active: false,
-        },
-        {
-          cls: ['sysIcon', 'sysIcon_delete'],
-          click: opFunctionModule.op_delete,
-          title: 'REC',
-          show: true,
-          active: false,
-        },
-      ];
-      break;
-  }
 }
 
 
@@ -363,27 +184,6 @@ function emp(e: Event) {
             <p>{{ node.time_update }}</p>
             <p v-if="node.description">{{ node.description }}</p>
           </template>
-          <!--          <section class="bar">
-                      <template v-for="btn in btnDef">
-                        <template v-if="btn.show && (btn.show===true ||btn.show(btn))">
-                          <template v-if="btn.sub">
-                            <dl>
-                              <dt :class="btn.active?btn.cls.concat(['active','btn']):btn.cls.concat(['btn'])">{{ btn.title }}</dt>
-                              <dd>
-                                <template v-for="btn in btn.sub">
-                                  <template v-if="btn.show && (btn.show===true ||btn.show(btn))">
-                                    <button :class="btn.active?btn.cls.concat(['active']):btn.cls" @click="btn.click?btn.click(node):null">{{ btn.title }}</button>
-                                  </template>
-                                </template>
-                              </dd>
-                            </dl>
-                          </template>
-                          <template v-else>
-                            <button :class="btn.active?btn.cls.concat(['active']):btn.cls" @click="btn.click?btn.click(node):null">{{ btn.title }}</button>
-                          </template>
-                        </template>
-                      </template>
-                    </section>-->
         </div>
       </div>
       <div v-if="!node._tagging && node.tag" class="tag_list">
@@ -460,23 +260,7 @@ function emp(e: Event) {
       >{{ node.title }}</p>
       <!--        <p class="title" @click="op_dblclick">{{ node.title }}</p>-->
       <p class="time">{{ node.time_update }}</p>
-      <!--      <section class="bar">
-              <template v-for="btn in btnDef">
-                <template v-if="btn.show && (btn.show===true ||btn.show(btn))">
-                  <template v-if="btn.sub">
-                    <template v-for="btn in btn.sub">
-                      <template v-if="btn.show && (btn.show===true ||btn.show(btn))">
-                        <button :class="btn.active?btn.cls.concat(['active']):btn.cls" @click="btn.click?btn.click(node):null">{{ btn.title }}</button>
-                      </template>
-                    </template>
-                  </template>
-                  <template v-else>
-                    <button :class="btn.active?btn.cls.concat(['active']):btn.cls" @click="btn.click?btn.click(node):null">{{ btn.title }}</button>
-                  </template>
-                </template>
-              </template>
-            </section>-->
-    </template>
+      </template>
   </div>
 </template>
 
