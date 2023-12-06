@@ -1,20 +1,23 @@
-import { ref, computed } from 'vue'
-import { defineStore } from 'pinia'
-import type { ModalConstruct } from '../modal';
+import type {_ExtractActionsFromSetupStore, _ExtractGettersFromSetupStore, _ExtractStateFromSetupStore, StoreDefinition} from 'pinia';
+import {defineStore} from 'pinia';
+import type {ModalConstruct} from '../modal';
 
 let caller = {
-  set: null,
-  close: null,
+    set: null,
+    close: null,
 } as { [key: string]: null | ((input: any) => any) };
 export const useModalStore = defineStore('modalStore', () => {
-  return { set: setModal, close: closeModal, handleEvent };
+    return {set: setModal, close: closeModal, handleEvent: handleEvent};
 })
+
 function setModal(modal: ModalConstruct) {
-  caller.set ? caller.set(modal) : null;
+    caller.set ? caller.set(modal) : null;
 }
+
 function closeModal(key: string) {
-  caller.close ? caller.close(key) : null;
+    caller.close ? caller.close(key) : null;
 }
+
 function handleEvent(type: keyof typeof caller, func: (val: any) => any) {
-  caller[type] = func;
+    caller[type] = func;
 }

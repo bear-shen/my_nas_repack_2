@@ -5,7 +5,8 @@ import type {ModalStruct} from "@/modal";
 import type {api_file_bath_rename_resp, api_node_col} from "../../../share/Api";
 import {useModalStore} from "@/stores/modalStore";
 import GenFunc from "../../../share/GenFunc";
-import {manualSort, query} from "@/Helper";
+import {query} from "@/Helper";
+import {manualSort} from "@/FileViewHelper";
 
 
 type valType = api_node_col;

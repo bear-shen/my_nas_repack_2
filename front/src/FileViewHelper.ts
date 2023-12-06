@@ -12,11 +12,8 @@ import type {RouteLocationNormalizedLoaded, Router} from "vue-router";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {useContextStore} from "@/stores/useContext";
 
-const modalStore = useModalStore();
 // const router = useRouter();
 // const route = useRoute();
-const localConfigure = useLocalConfigureStore();
-const contextStore = useContextStore();
 
 export const timeoutDef = {
     sort: 50,
@@ -46,7 +43,10 @@ export class opModule {
     public emitGo: (type: string, code: any) => any;
     //这个其实没有用，而且切换路由的时候需要手动更新
     // 因为是直接赋值的 queryData = Object.assign({
-    // public queryData: { [key: string]: any };
+    // public queryData: { [key: string]: any }
+    public modalStore: ReturnType<typeof useModalStore>;
+    public localConfigure: ReturnType<typeof useLocalConfigureStore>;
+    public contextStore: ReturnType<typeof useContextStore>;
 
     constructor(
         config: {
@@ -65,6 +65,10 @@ export class opModule {
         this.route = config.route;
         this.router = config.router;
         this.emitGo = config.emitGo;
+//在类的外部初始化会导致一些问题，参考Helper的manualSort
+        this.modalStore = useModalStore();
+        this.localConfigure = useLocalConfigureStore();
+        this.contextStore = useContextStore();
         // this.nodeList = config.nodeList;
         // this.queryData = config.queryData;
         //必须这么写否则无法解绑
@@ -296,7 +300,7 @@ export class opModule {
         let isBath = selRes.nodeLs.length !== 1;
         const nodeLs = selRes.nodeLs;
         const idSet = selRes.idSet;
-        let fileViewMode = localConfigure.get("file_view_mode") ?? "detail";
+        let fileViewMode = this.localConfigure.get("file_view_mode") ?? "detail";
         if (this.route.name !== 'Directory') {
             fileViewMode = 'detail';
         }
@@ -310,7 +314,7 @@ export class opModule {
         e.preventDefault();
         e.stopPropagation();
         //
-        contextStore.trigger([
+        this.contextStore.trigger([
             {
                 title: 'Open',
                 auth: 'guest',
@@ -614,7 +618,8 @@ export class opFunctionModule {
     }
 
     public static async op_bath_rename(idSet: Set<number>, nodeLs: api_node_col[]) {
-        modalStore.set({
+        if (!opModuleVal) return;
+        opModuleVal.modalStore.set({
             title: `bath rename`,
             alpha: false,
             key: "",
@@ -643,7 +648,8 @@ export class opFunctionModule {
     }
 
     public static async op_move(node: api_node_col) {
-        modalStore.set({
+        if (!opModuleVal) return;
+        opModuleVal.modalStore.set({
             title: `locator | move ${node.title} to:`,
             alpha: false,
             key: "",
@@ -681,7 +687,8 @@ export class opFunctionModule {
     }
 
     public static async op_bath_move(idSet: Set<number>, nodeLs?: api_node_col[]) {
-        modalStore.set({
+        if (!opModuleVal) return;
+        opModuleVal.modalStore.set({
             title: `locator | move ${idSet.size} files to:`,
             alpha: false,
             key: "",
@@ -731,7 +738,8 @@ export class opFunctionModule {
     }
 
     public static async op_bath_delete(idSet: Set<number>, nodeLs?: api_node_col[]) {
-        modalStore.set({
+        if (!opModuleVal) return;
+        opModuleVal.modalStore.set({
             title: `confirm to delete ${idSet.size} files`,
             alpha: false,
             key: "",
@@ -771,8 +779,8 @@ export class opFunctionModule {
     }
 
     public static async op_bath_delete_forever(idSet: Set<number>, nodeLs?: api_node_col[]) {
-        // console.warn('op_bath_delete_forever');
-        modalStore.set({
+        if (!opModuleVal) return;
+        opModuleVal.modalStore.set({
             title: `confirm to delete ${idSet.size} files forever`,
             alpha: false,
             key: "",
@@ -811,7 +819,8 @@ export class opFunctionModule {
                 favGroupOpts[row.id ?? 0] = row.title ?? '';
             })
         }
-        modalStore.set({
+        if (!opModuleVal) return;
+        opModuleVal.modalStore.set({
             title: `select fav group:`,
             alpha: false,
             key: "",
@@ -857,7 +866,8 @@ export class opFunctionModule {
                 favGroupOpts[row.id ?? 0] = row.title ?? '';
             })
         }
-        modalStore.set({
+        if (!opModuleVal) return;
+        opModuleVal.modalStore.set({
             title: `select fav group:`,
             alpha: false,
             key: "",
@@ -969,17 +979,18 @@ export class queryModule {
 }
 
 export function popupDetail(queryData: api_file_list_req, curNodeId: number) {
+    if (!opModuleVal) return;
     //双击从 emitGo 进入
     //打开是手动打开
-    let w = localConfigure.get("browser_layout_w");
-    let h = localConfigure.get("browser_layout_h");
+    let w = opModuleVal.localConfigure.get("browser_layout_w");
+    let h = opModuleVal.localConfigure.get("browser_layout_h");
     // console.info(w, h);
     const iw = window.innerWidth;
     const ih = window.innerHeight;
     if (iw < w) w = 0;
     if (ih < h) h = 0;
     // console.info(w, h);
-    modalStore.set({
+    opModuleVal.modalStore.set({
         title: "file browser",
         alpha: false,
         key: "",
@@ -1010,3 +1021,56 @@ export function popupDetail(queryData: api_file_list_req, curNodeId: number) {
     });
 }
 
+export function manualSort(list: api_node_col[], sort: string) {
+    let sortType: [keyof api_node_col, string] = ['id', 'asc'];
+    switch (sort) {
+        default:
+        case 'id_asc':
+            sortType = ['id', 'asc',];
+            break;
+        case 'id_desc':
+            sortType = ['id', 'desc',];
+            break;
+        case 'name_asc':
+            sortType = ['title', 'asc',];
+            break;
+        case 'name_desc':
+            sortType = ['title', 'desc',];
+            break;
+        case 'crt_asc':
+            sortType = ['time_create', 'asc',];
+            break;
+        case 'crt_desc':
+            sortType = ['time_create', 'desc',];
+            break;
+        case 'upd_asc':
+            sortType = ['time_update', 'asc',];
+            break;
+        case 'upd_desc':
+            sortType = ['time_update', 'desc',];
+            break;
+    }
+    list.sort((a, b) => {
+        let va: any = '';
+        let vb: any = '';
+        let ca = [];
+        let cb = [];
+        switch (sortType[0]) {
+            default:
+                va = a[sortType[0]];
+                vb = b[sortType[0]];
+                break;
+            case 'title':
+                a?.crumb_node?.forEach(node => ca.push(node.title));
+                b?.crumb_node?.forEach(node => cb.push(node.title));
+                ca.push(a.title);
+                cb.push(b.title);
+                va = ca.join(' ');
+                vb = cb.join(' ');
+                break;
+        }
+        const rev = sortType[1] == 'desc' ? -1 : 1;
+        return (va ? va : 0) > (vb ? vb : 0) ? rev * 1 : rev * -1;
+    });
+    return list;
+}

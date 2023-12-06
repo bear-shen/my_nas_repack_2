@@ -4,12 +4,13 @@ import type {Ref} from "vue";
 import {onMounted, onUnmounted, ref} from "vue";
 import {onBeforeRouteUpdate, useRoute, useRouter,} from "vue-router";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
-import {manualSort, query} from "@/Helper";
+import {query} from "@/Helper";
+import type {opModule as opModuleClass} from "@/FileViewHelper";
+import * as fHelper from "@/FileViewHelper";
+import {manualSort} from "@/FileViewHelper";
 import GenFunc from "../../../share/GenFunc";
 import type {api_file_list_req, api_file_list_resp, api_file_mkdir_req, api_file_mkdir_resp, api_node_col,} from "../../../share/Api";
 import {useModalStore} from "@/stores/modalStore";
-import type {opModule as opModuleClass} from "@/FileViewHelper";
-import * as fHelper from "@/FileViewHelper";
 import FileItem from "@/components/FileItem.vue";
 
 const modalStore = useModalStore();
