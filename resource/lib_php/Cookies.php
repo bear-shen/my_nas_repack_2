@@ -55,6 +55,7 @@ class Cookies {
     }
 
     /**
+     * 注意这个是针对SetCookie的，所以写法比较奇怪
      * @param $string string
      * @param $url string
      * @return void
@@ -222,6 +223,18 @@ class Cookies {
                  $cookie->path . "\t" .
                  $cookie->name . "\t" .
                  $cookie->value . "\r\n";
+        }
+    }
+
+    /**
+     * 从header的cookie里面提取的数据
+     */
+    public static function parseFromStr($cookieStr) {
+        $cookieArr = explode('; ', $cookieStr);
+        foreach ($cookieArr as $cookieS) {
+            $arr=explode('=',$cookieS,2);
+            $cookie       = new Cookie($arr[0], $arr[1]);
+            self::$list[] = $cookie;
         }
     }
 

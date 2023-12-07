@@ -178,6 +178,7 @@ export default class {
         }
         // console.info(withConf);
         if (withConf.indexOf('tag') !== -1 && tagIdSet.size) {
+            // console.info(Array.from(tagIdSet));
             const tagLs = await (new TagModel).whereIn('id', Array.from(tagIdSet)).select();
             const tagGroupIdSet = new Set<number>();
             const tagMap = GenFunc.toMap(tagLs, 'id', (tag) => {
@@ -188,17 +189,18 @@ export default class {
             nodeLs.forEach(node => {
                 node.tag = [];
                 const iTagGroupIdSet = new Set<number>();
+                if (!node.list_tag_id.length) return;
                 node.list_tag_id.forEach(tagId => {
                     const tag = tagMap.get(tagId);
                     iTagGroupIdSet.add(tag.id_group);
                 });
                 iTagGroupIdSet.forEach(groupId => {
-                    const tagGroup = tagGroupMap.get(groupId);
+                    const tagGroup = GenFunc.copyObject(tagGroupMap.get(groupId));
                     const tagLs: col_tag[] = [];
                     tagMap.forEach(tag => {
-                        if (tag.id_group === tagGroup.id) {
-                            tagLs.push(tag);
-                        }
+                        if (tag.id_group !== tagGroup.id) return;
+                        if (node.list_tag_id.indexOf(tag.id) === -1) return;
+                        tagLs.push(tag);
                     });
                     node.tag.push(Object.assign(tagGroup, {sub: tagLs}));
                 });

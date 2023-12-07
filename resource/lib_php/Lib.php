@@ -9,7 +9,7 @@ function curl($config = [], $retry = 5) {
         $config = ['url' => $config,];
     }
     $genHeader = [
-        'Accept-Encoding: deflate',
+        'Accept-Encoding: deflate, br',
         'Accept-Language: zh-CN,zh;q=0.9',
         'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.124 Safari/537.36 Edg/102.0.1245.41',
         //        'Content-Type: application/json;charset=UTF-8',
