@@ -7,7 +7,7 @@ const {
 } = require('node:worker_threads');
 const exec = util.promisify(require('child_process').exec);
 if (isMainThread) {
-    const workerThreads = 4;
+    const workerThreads = 2;
     const exitSleep = 5 * 1000;
     const workerMap: Map<number, Worker> = new Map();
 
