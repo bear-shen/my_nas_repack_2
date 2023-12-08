@@ -38,6 +38,11 @@ $title = preg_replace(
     ' ',
     $title
 );
+$title = explode(' ', $title);
+$title = array_filter($title, function ($sub) {
+    return mb_strlen($sub) > 1;
+});
+$title = implode(' ', $title);
 //var_dump($title);
 //var_dump(file_get_contents(__DIR__ . '/getEHTTag.cookie.txt'));
 //exit();
@@ -133,9 +138,9 @@ foreach ($tagLs as $tagInfo) {
         ORM::table('tag')->insert($ifTagExs);
         $ifTagExs['id'] = ORM::lastInsertId();
     }
-    var_dump('=============');
-    var_dump($tagName);
-    var_dump($ifTagExs['title']);
+//    var_dump('=============');
+//    var_dump($tagName);
+//    var_dump($ifTagExs['title']);
     $tagIdLs[] = (string)intval($ifTagExs['id']);
 }
 //exit();

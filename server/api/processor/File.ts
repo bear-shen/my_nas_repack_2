@@ -468,11 +468,15 @@ export default class {
         //
         for (const fileId of list) {
             const id = parseInt(fileId);
-            await (new QueueModel).insert({
-                type: 'file/checksum',
-                payload: {id: id},
-                status: 1,
-            });
+            const curNode = await new NodeModel().where('id', id).first();
+            if (!curNode) continue;
+            for (const key in curNode.index_file_id) {
+                await (new QueueModel).insert({
+                    type: 'file/checksum',
+                    payload: {id: curNode.index_file_id[key]},
+                    status: 1,
+                });
+            }
         }
     }
 

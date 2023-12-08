@@ -1,5 +1,4 @@
 import util from "util";
-import {get as getConfig} from "../../ServerConfig";
 import NodeModel from "../../model/NodeModel";
 import * as fp from "../../lib/FileProcessor";
 import {Buffer} from "buffer";
@@ -7,6 +6,7 @@ import * as https from "https";
 import {RequestOptions} from "https";
 import http from "http";
 import {col_node} from "../../../share/Database";
+import QueueModel from "../../model/QueueModel";
 
 const exec = util.promisify(require('child_process').exec);
 
@@ -54,7 +54,11 @@ class ExtJob {
         if (!root) throw new Error('root not found');
         // if (!root.list_tag_id.length) return;
         //
-        const dirLs = await (new NodeModel).where('id_parent', root.id).select();
+        const dirLs = await (new NodeModel)
+            .where('id_parent', root.id)
+            .where('type', 'directory')
+            .select();
+        dirLs.push(root);
         // console.info(dirLs);
         if (!dirLs.length) return;
         for (let i1 = 0; i1 < dirLs.length; i1++) {
@@ -74,24 +78,25 @@ class ExtJob {
                     .update({
                         list_tag_id: Array.from(tagIdSet),
                     });
+                await (new QueueModel).insert({
+                    type: 'file/rebuildIndex',
+                    payload: {id: sub.id},
+                    status: 1,
+                });
             }
         }
         return;
     }
 
     static async importEHT(payload: { [key: string]: any }): Promise<any> {
-        const config = getConfig();
-        const req = await sendRequest(
-            'https://www.baidu.com/',
-            null,
-            {
-                method: 'GET',
-                headers: {
-                    'User-Agent': 'Mozilla/5.0',
-                    'Cookie': 'yey=ney',
-                },
-            });
-        console.info(req);
+        const cmd = `php ${__dirname}/../../../../../resource/getEHTTag.php ${payload.id}`;
+        const {stdout, stderr} = await exec(cmd);
+        // console.info(stdout, stderr);
+        await (new QueueModel).insert({
+            type: 'file/rebuildIndex',
+            payload: {id: payload.id},
+            status: 1,
+        });
     }
 }
 
