@@ -422,37 +422,35 @@ export class opModule {
                     },
                     {
                         title: 'Import EHT',
-                        auth: isBath ? 'none' : 'user',
+                        auth: 'admin',
                         method: (e: MouseEvent) => {
                             console.info('Import EHT', e);
-                            opFunctionModule.op_imp_tag_eh(nodeLs[0]);
+                            opFunctionModule.op_imp_tag_eh(Array.from(idSet));
                         },
                     },
                     {
                         title: 'Cascade Tag',
-                        auth: isBath ? 'none' : (
-                            nodeLs[0].type == 'directory' ? 'none' : 'guest'
-                        ),
+                        auth: 'user',
                         method: (e: MouseEvent) => {
                             console.info('Cascade Tag', e);
-                            opFunctionModule.op_cascade_tag(nodeLs[0]);
+                            opFunctionModule.op_cascade_tag(Array.from(idSet));
                         },
                     },
                 ],
             },
             {
                 title: 'Admin',
-                auth: 'guest',
+                auth: 'admin',
                 method: (e: MouseEvent) => {
                     console.info('Extra', e);
                 },
                 child: [
                     {
                         title: 'ReBuild',
-                        auth: isBath ? 'none' : 'admin',
+                        auth: 'admin',
                         method: (e: MouseEvent) => {
                             console.info('ReBuild', e);
-                            opFunctionModule.op_rebuild(nodeLs[0]);
+                            opFunctionModule.op_rebuild(Array.from(idSet));
                         },
                     },
                     {
@@ -460,17 +458,15 @@ export class opModule {
                         auth: isBath ? 'none' : 'admin',
                         method: (e: MouseEvent) => {
                             console.info('ReCheck', e);
-                            opFunctionModule.op_recheck(nodeLs[0]);
+                            opFunctionModule.op_recheck(Array.from(idSet));
                         },
                     },
                     {
                         title: 'RM RAW',
-                        auth: isBath ? 'none' : (
-                            nodeLs[0].type !== 'directory' ? 'none' : 'admin'
-                        ),
+                        auth: 'admin',
                         method: (e: MouseEvent) => {
                             console.info('RMRAW', e);
-                            opFunctionModule.op_rm_raw(nodeLs[0]);
+                            opFunctionModule.op_rm_raw(Array.from(idSet));
                         },
                     },
                 ],
@@ -1032,44 +1028,44 @@ export class opFunctionModule {
         return res;
     }
 
-    public static async op_rebuild(node: api_node_col) {
+    public static async op_rebuild(idSet: number[]) {
         const formData = new FormData();
-        formData.set('id', `${node.id}`);
+        formData.set('id_list', idSet.join(','));
         const res = await query<api_file_rebuild_resp>('file/rebuild', formData);
         // emits('go', 'reload');
         return res;
     }
 
-    public static async op_recheck(node: api_node_col) {
+    public static async op_recheck(idSet: number[]) {
         const formData = new FormData();
-        const idList = new Set<number>();
-        for (const key in node.index_file_id) {
-            idList.add(node.index_file_id[key] ?? 0);
-        }
-        if (!idList.size) return;
-        formData.set('id_list', Array.from(idList).join(','));
+        formData.set('id_list', idSet.join(','));
         const res = await query<api_file_checksum_resp>('file/rehash', formData);
         // emits('go', 'reload');
         return res;
     }
 
-    public static async op_cascade_tag(node: api_node_col) {
+    public static async op_cascade_tag(idSet: number[]) {
         const formData = new FormData();
-        formData.set('id', `${node.id}`);
+        formData.set('id_list', idSet.join(','));
         const res = await query<api_file_rebuild_resp>('file/cascade_tag', formData);
         // emits('go', 'reload');
         return res;
     }
 
-    public static async op_rm_raw(node: api_node_col) {
+    public static async op_rm_raw(idSet: number[]) {
         const formData = new FormData();
-        formData.set('id', `${node.id}`);
+        formData.set('id_list', idSet.join(','));
         const res = await query<api_file_rebuild_resp>('file/rm_raw', formData);
         // emits('go', 'reload');
         return res;
     }
 
-    public static async op_imp_tag_eh(node: api_node_col) {
+    public static async op_imp_tag_eh(idSet: number[]) {
+        const formData = new FormData();
+        formData.set('id_list', idSet.join(','));
+        const res = await query<api_file_rebuild_resp>('file/import_eht', formData);
+        // emits('go', 'reload');
+        return res;
     }
 
 }

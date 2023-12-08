@@ -19,8 +19,6 @@ import type {
     api_file_mkdir_resp,
     api_file_mod_req,
     api_file_mov_req,
-    api_file_rebuild_req,
-    api_file_rebuild_resp,
     api_file_upload_req,
     api_file_upload_resp,
     api_node_col
@@ -392,23 +390,6 @@ export default class {
         return;
     }
 
-    async rebuild(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<false | api_file_rebuild_resp> {
-        const request = data.fields as api_file_rebuild_req;
-        const curNode = await new NodeModel().where('id', request.id).first();
-        if (!curNode) return false;
-        (new QueueModel).insert({
-            type: 'file/rebuild',
-            payload: {id: curNode.id},
-            status: 1,
-        });
-        (new QueueModel).insert({
-            type: 'file/rebuildIndex',
-            payload: {id: curNode.id},
-            status: 1,
-        });
-        return curNode;
-    }
-
     async bath_rename(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_bath_rename_resp | any> {
         const request = data.fields as api_file_bath_rename_req;
         const list: { id: number, title: string }[] = JSON.parse(request.list);
@@ -461,13 +442,33 @@ export default class {
         }
     }
 
+    async rebuild(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<any> {
+        const request = data.fields as api_file_checksum_req;
+        const list = request.id_list.split(',');
+        //
+        for (const nodeId of list) {
+            const curNode = await new NodeModel().where('id', nodeId).first();
+            if (!curNode) continue;
+            await (new QueueModel).insert({
+                type: 'file/rebuild',
+                payload: {id: curNode.id},
+                status: 1,
+            });
+            await (new QueueModel).insert({
+                type: 'file/rebuildIndex',
+                payload: {id: curNode.id},
+                status: 1,
+            });
+        }
+    }
+
     async rehash(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_checksum_resp | any> {
         const request = data.fields as api_file_checksum_req;
         const list = request.id_list.split(',');
         //
         for (const fileId of list) {
             const id = parseInt(fileId);
-            (new QueueModel).insert({
+            await (new QueueModel).insert({
                 type: 'file/checksum',
                 payload: {id: id},
                 status: 1,
@@ -475,28 +476,49 @@ export default class {
         }
     }
 
-    async cascade_tag(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<false | api_file_rebuild_resp> {
-        const request = data.fields as api_file_rebuild_req;
-        const curNode = await new NodeModel().where('id', request.id).first();
-        if (!curNode) return false;
-        (new QueueModel).insert({
-            type: 'ext/cascadeTag',
-            payload: {id: curNode.id},
-            status: 1,
-        });
-        return curNode;
+    async cascade_tag(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<any> {
+        const request = data.fields as api_file_checksum_req;
+        const list = request.id_list.split(',');
+        //
+        for (const nodeId of list) {
+            const curNode = await new NodeModel().where('id', nodeId).first();
+            if (!curNode) continue;
+            await (new QueueModel).insert({
+                type: 'ext/cascadeTag',
+                payload: {id: curNode.id},
+                status: 1,
+            });
+        }
     }
 
-    async rm_raw(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<false | api_file_rebuild_resp> {
-        const request = data.fields as api_file_rebuild_req;
-        const curNode = await new NodeModel().where('id', request.id).first();
-        if (!curNode) return false;
-        (new QueueModel).insert({
-            type: 'ext/rmRaw',
-            payload: {id: curNode.id},
-            status: 1,
-        });
-        return curNode;
+    async rm_raw(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<any> {
+        const request = data.fields as api_file_checksum_req;
+        const list = request.id_list.split(',');
+        //
+        for (const nodeId of list) {
+            const curNode = await new NodeModel().where('id', nodeId).first();
+            if (!curNode) continue;
+            await (new QueueModel).insert({
+                type: 'ext/rmRaw',
+                payload: {id: curNode.id},
+                status: 1,
+            });
+        }
+    }
+
+    async import_eht(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<any> {
+        const request = data.fields as api_file_checksum_req;
+        const list = request.id_list.split(',');
+        //
+        for (const nodeId of list) {
+            const curNode = await new NodeModel().where('id', nodeId).first();
+            if (!curNode) continue;
+            await (new QueueModel).insert({
+                type: 'ext/importEHT',
+                payload: {id: curNode.id},
+                status: 1,
+            });
+        }
     }
 };
 
