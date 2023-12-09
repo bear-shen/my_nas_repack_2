@@ -178,7 +178,7 @@ const BaseConfig = {
             //     '-qp 16 ' +
             //     '-rc-lookahead 80 -bf 4 -pix_fmt p010le ',
             //av1开qp40在5Mb/s左右
-            ff_encoder: '-c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 40 -bf 3 -pix_fmt p010le',
+            ff_encoder: '-c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 40 -bf 3 -pix_fmt p010le --multipass 2pass-full --lookahead 32 --weightp --bref-mode each',
         },
         audio: {
             quality: 1.5,  //+- 110

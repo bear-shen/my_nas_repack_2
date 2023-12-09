@@ -7,7 +7,8 @@
     "webdav": "tsc && node ./dst/server/webdav/index.js --max_old_space_size=16384 --max-new-space-size=16384",
     "job": "tsc && node ./dst/server/job/index.js --max_old_space_size=16384 --max-new-space-size=16384",
     "dev": "tsc && node ./dst/server/job/dev.js --max_old_space_size=16384 --max-new-space-size=16384",
-    "dev_worker": "tsc && node ./dst/server/job/index_worker.js --max_old_space_size=16384 --max-new-space-size=16384"
+    "dev_worker": "tsc && node ./dst/server/job/index_worker.js --max_old_space_size=16384 --max-new-space-size=16384",
+    "bench_ffmpeg": "tsc && node ./dst/server/job/bench_ffmpeg.js"
   },
   "dependencies": {
     "@types/node": "^18.11.8",
