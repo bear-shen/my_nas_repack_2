@@ -196,7 +196,7 @@ class FileJob {
         });
         await cascadeCover(node.id);
         for (const fileKey in node.index_file_id) {
-            (new QueueModel).insert({
+            await (new QueueModel).insert({
                 type: 'file/checksum',
                 payload: {id: node.index_file_id[fileKey], reload: true},
                 status: 1,
@@ -276,17 +276,22 @@ class FileJob {
         else
             node = await (new NodeModel()).where('id', nodeId).first();
         //
+        if (!node) return;
+        if (!node.index_file_id.raw) return;
+        const rawId = node.index_file_id.raw;
         for (const key in node.index_file_id) {
             if (key === 'raw') continue;
             const fileId = node.index_file_id[key];
+            if (fileId === rawId) continue;
             const ifExs = await fp.checkOrphanFile(fileId);
             if (ifExs > 1) continue;
-            await fp.rmReal(fileId);
+            // await fp.rmReal(fileId);
         }
+        // return;
         await (new NodeModel()).where('id', nodeId).update({
             index_file_id: {raw: node.index_file_id.raw},
         });
-        FileJob.build(payload);
+        await FileJob.build(payload);
     }
 
     static async rebuildIndex(payload: { [key: string]: any }): Promise<any> {

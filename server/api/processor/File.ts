@@ -434,7 +434,7 @@ export default class {
         for (const nodeId of list) {
             const id = parseInt(nodeId);
             await fp.mv(id, parseInt(request.id_parent));
-            (new QueueModel).insert({
+            await (new QueueModel).insert({
                 type: 'file/rebuildIndex',
                 payload: {id: id},
                 status: 1,
