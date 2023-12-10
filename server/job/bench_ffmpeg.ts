@@ -17,9 +17,9 @@ if (isMainThread) {
 } else {
     let fr = new Date();
     console.info(`sub:construct ${fr.toISOString()}`);
-    const cmd = `ffmpeg -v quiet -hide_banner 
+    const cmd = `ffmpeg -y 
 -i /home/vSample/i.mkv
--c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 40 -bf 3 -pix_fmt p010le --multipass 2pass-full --lookahead 32 --weightp --bref-mode each
+-c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 40 -bf 3 -pix_fmt p010le -multipass qres -rc-lookahead 32
 -c:a aac -q:a 1.3
 /home/vSample/o.${threadId}.mkv
 `.replace(/[\r\n]+/ig, ' ');
@@ -30,6 +30,8 @@ if (isMainThread) {
         } tt: ${
             (ed.valueOf() - fr.valueOf()) / 1000
         }`);
+    }).catch((e: any) => {
+        console.info(e)
     })
 }
 
@@ -49,7 +51,7 @@ function buildThread(index: number) {
         //exit之后已经取不到threadId了，不清楚有没有例外情况
         // if (worker.threadId)
         workerMap.delete(index);
-        setTimeout(buildThread.bind(this, index), exitSleep);
+        // setTimeout(buildThread.bind(this, index), exitSleep);
     });
     workerMap.set(index, worker);
 }
