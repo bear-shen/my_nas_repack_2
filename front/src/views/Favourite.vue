@@ -11,8 +11,8 @@ import type {col_favourite_group} from "../../../share/Database";
 import type {api_favourite_group_list_req, api_favourite_group_list_resp, api_favourite_group_mod_resp, api_file_list_req, api_file_list_resp, api_node_col} from "../../../share/Api";
 import {query} from "@/Helper";
 import FileItem from "@/components/FileItem.vue";
-import * as fHelper from "@/FileViewHelper";
 import type {opModule as opModuleClass} from "@/FileViewHelper";
+import * as fHelper from "@/FileViewHelper";
 
 //
 const localConfigure = useLocalConfigureStore();
@@ -45,7 +45,8 @@ onMounted(async () => {
   });
   if (queryData.id) {
     locateGroup();
-    getList();
+    await getList();
+    opModule.reloadScroll();
   }
 });
 onUnmounted(() => {

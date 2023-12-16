@@ -26,6 +26,7 @@ export const timeoutDef = {
 };
 
 let opModuleVal: null | opModule;
+const scrollLogKey = 'tosho_scroll_log';
 const scrollLog: Map<string, number[]> = new Map<string, number[]>();
 
 /*
@@ -86,6 +87,15 @@ export class opModule {
         addEventListener('mouseup', this.mouseUpEvt);
         addEventListener('keydown', this.keymap);
         addEventListener("resize", this.reloadOffset);
+        const ifScrLogExs = localStorage.getItem(scrollLogKey);
+        if (ifScrLogExs) {
+            let log = JSON.parse(ifScrLogExs);
+            let indS = log.length - 100;
+            indS = indS > 0 ? indS : 0;
+            for (let i1 = indS; i1 < log.length; i1++) {
+                scrollLog.set(log[i1][0], log[i1][1]);
+            }
+        }
         this.contentDOM.addEventListener("scroll", this.scrollEvt);
         opModuleVal = this;
     }
@@ -680,6 +690,13 @@ export class opModule {
         //更新路由的时候会产生一个offset为0的scroll事件，直接跳过0
         if (!offset[0] && !offset[1]) return;
         scrollLog.set(path, offset);
+        GenFunc.debounce(() => {
+            localStorage.setItem(scrollLogKey,
+                JSON.stringify(
+                    Array.from(scrollLog)
+                )
+            );
+        }, 500, 'debounce_reloadScroll');
     }
 
     public reloadScroll() {

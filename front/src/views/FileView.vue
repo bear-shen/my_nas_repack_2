@@ -333,6 +333,7 @@ onMounted(async () => {
     // queryData: queryData,
   });
   await getList();
+  opModule.reloadScroll();
   // if (contentDOM.value) {
   //   contentDOM.value.addEventListener("scroll", lazyLoad);
   // }
@@ -347,7 +348,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="fr_content" ref="contentDOM">
+  <div class="fr_content">
     <div class="content_meta">
       <div class="crumb" v-if="crumbList.length">
         <a dir="ltr"
@@ -423,7 +424,7 @@ onUnmounted(() => {
         ></a>
       </div>
     </div>
-    <div :class="['content_detail', `mode_${mode}`]">
+    <div :class="['content_detail', `mode_${mode}`]" ref="contentDOM">
       <FileItem
         v-for="(node, nodeIndex) in nodeList"
         :key="nodeIndex"
@@ -442,7 +443,25 @@ onUnmounted(() => {
 
 <style scoped lang="scss">
 .fr_content {
+  display: flex;
+  flex-direction: column;
+  /*position: relative;
+  padding-top: $fontSize*1.5;
+  @media (max-width: 1920px) {
+    padding-top: $fontSize*3;
+  }
+  @media (max-width: 1280px) {
+    padding-top: $fontSize*3;
+  }
+  @media (max-width: 960px) {
+    padding-top: $fontSize*4.5;
+  }*/
   .content_meta {
+    /*position: fixed;
+    top: $fontSize*1.5;
+    @include fillAvailable(width);
+    z-index: 1;
+    //left:0;*/
     $metaBk: map-get($colors, bar_meta);
     background-color: $metaBk;
     display: flex;
@@ -495,22 +514,24 @@ onUnmounted(() => {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      direction: rtl;
+      //direction: rtl;
+      /*max-width: $fontSize*30;
+      text-align: right;*/
       .item {
-        unicode-bidi: bidi-override;
+        //unicode-bidi: bidi-override;
         //float: left;
-        direction: ltr;
-        display: inline;
-        padding-left: $fontSize * 0.25;
+        //direction: ltr;
+        display: inline-block;
+        padding-right: $fontSize * 0.25;
         cursor: pointer;
-        //overflow: hidden;
-        //text-overflow: ellipsis;
-        //width: 500px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: $fontSize*10;
       }
       .item:hover {
         background-color: map-get($colors, bar_meta_active);
       }
-      .item::after {
+      .item::before {
         content: "/";
         font-size: $fontSize;
         padding-left: $fontSize * 0.25;
@@ -523,7 +544,10 @@ onUnmounted(() => {
   }
 }
 .content_detail {
-  //min-height: 90vh;
+  //height: 90vh;
+  overflow: auto;
+  height: 100%;
+  @include smallScroll();
 }
 .content_detail.mode_detail {
   //columns: $fontSize * 20 6;
