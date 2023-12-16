@@ -6,11 +6,25 @@
   "description": "",
   "glyphs": [
     {
-      "icon_id": "7461696",
-      "name": "硬盘",
-      "font_class": "yingpan",
-      "unicode": "e63b",
-      "unicode_decimal": 58939
+      "icon_id": "372253",
+      "name": "cc-star",
+      "font_class": "cc-star",
+      "unicode": "e69e",
+      "unicode_decimal": 59038
+    },
+    {
+      "icon_id": "372255",
+      "name": "cc-star-o",
+      "font_class": "c-cstar-o",
+      "unicode": "e69f",
+      "unicode_decimal": 59039
+    },
+    {
+      "icon_id": "372282",
+      "name": "cc-star-half",
+      "font_class": "cc-star-half",
+      "unicode": "e6b6",
+      "unicode_decimal": 59062
     },
     {
       "icon_id": "15659132",

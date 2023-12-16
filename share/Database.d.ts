@@ -149,3 +149,12 @@ export type col_favourite = {
     time_create?: string,
     time_update?: string,
 }
+
+export type col_rate = {
+    id?: number,
+    id_user?: number,
+    id_node?: number,
+    rate?: number,
+    time_create?: string,
+    time_update?: string,
+}
