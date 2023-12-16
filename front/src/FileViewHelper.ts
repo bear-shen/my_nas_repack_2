@@ -73,14 +73,14 @@ export class opModule {
         // this.nodeList = config.nodeList;
         // this.queryData = config.queryData;
         //必须这么写否则无法解绑
-        this.contentMenuEvt = this.contentMenuEvt.bind(this);
+        this.contextMenuEvt = this.contextMenuEvt.bind(this);
         this.mouseDownEvt = this.mouseDownEvt.bind(this);
         this.mouseMoveEvt = this.mouseMoveEvt.bind(this);
         this.mouseUpEvt = this.mouseUpEvt.bind(this);
         this.keymap = this.keymap.bind(this);
         this.reloadOffset = this.reloadOffset.bind(this);
         this.scrollEvt = this.scrollEvt.bind(this);
-        addEventListener('contextmenu', this.contentMenuEvt);
+        addEventListener('contextmenu', this.contextMenuEvt);
         addEventListener('mousedown', this.mouseDownEvt);
         addEventListener('mousemove', this.mouseMoveEvt);
         addEventListener('mouseup', this.mouseUpEvt);
@@ -92,7 +92,7 @@ export class opModule {
 
     public destructor() {
         console.info('destructor loaded');
-        removeEventListener('contextmenu', this.contentMenuEvt);
+        removeEventListener('contextmenu', this.contextMenuEvt);
         removeEventListener('mousedown', this.mouseDownEvt);
         removeEventListener('mousemove', this.mouseMoveEvt);
         removeEventListener('mouseup', this.mouseUpEvt);
@@ -198,11 +198,11 @@ export class opModule {
         // e.stopPropagation();
         //左键，屏蔽右键可以左键点了右键选，不屏蔽的话只能右键选或者ctrl选
         //但是屏蔽了体验感觉反而不大好
-        // if (e.button !== 0) return;
-        e.preventDefault();
         this.selectingOffset[0] = [e.x + (this.contentDOM?.scrollLeft ?? 0), e.y + (this.contentDOM?.scrollTop ?? 0),];
         this.selectingOffset[1] = [e.x + (this.contentDOM?.scrollLeft ?? 0), e.y + (this.contentDOM?.scrollTop ?? 0),];
         this.preSelectedNodeIndexSet.clear();
+        e.preventDefault();
+        if (e.button !== 0) return this.rightMouseDownEvt(e);
         this.nodeList.value.forEach((node, index) => {
             if (node._selected)
                 this.preSelectedNodeIndexSet.add(index)
@@ -254,6 +254,29 @@ export class opModule {
         // console.warn('this.mouseDownEvt() end');
     }
 
+    public rightMouseDownEvt(e: MouseEvent) {
+        console.info('rightMouseDownEvt');
+        //定义一下：
+        //如果在当前已经选择的文件上右键，弹出已选文件的右键菜单
+        //如果在未选择的文件上右键，选择当前文件再弹出菜单
+        const selIndexLs = this.getSelection(this.selectingOffset);
+        let inSel = false;
+        const preSelectNodeIndexSet = new Set<number>();
+        this.nodeList.value.forEach((node, index) => {
+            if (!node._selected) return;
+            preSelectNodeIndexSet.add(index);
+            if (selIndexLs.has(index)) inSel = true;
+        });
+        if (!inSel) {
+            this.preSelectedNodeIndexSet = selIndexLs;
+        } else {
+            this.preSelectedNodeIndexSet = preSelectNodeIndexSet;
+        }
+        this.nodeList.value.forEach((node, index) => {
+            node._selected = this.preSelectedNodeIndexSet.has(index);
+        });
+    }
+
     public mouseMoveEvt(e: MouseEvent) {
         if (!this.selecting) return;
         //有时候click会触发到mousemove事件，做个防抖
@@ -295,9 +318,9 @@ export class opModule {
         }, timeoutDef.selectEvt);
     }
 
-    public contentMenuEvt(e: MouseEvent) {
+    public contextMenuEvt(e: MouseEvent) {
         if (!this.inDetailView(e)) return;
-        // console.info('this.contentMenuEvt');
+        // console.info('this.contextMenuEvt');
         // console.info(this.inDetailView(e));
         let inRecycle = this.route.name === 'Recycle';
         let selRes: { nodeLs: api_node_col[], idSet: Set<number> } = this.getSelected();

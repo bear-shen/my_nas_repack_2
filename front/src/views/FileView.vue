@@ -350,13 +350,13 @@ onUnmounted(() => {
   <div class="fr_content" ref="contentDOM">
     <div class="content_meta">
       <div class="crumb" v-if="crumbList.length">
-        <a
-          class="item"
-          v-for="(node, nodeIndex) in crumbList"
-          :key="nodeIndex"
-          @click="opModule.go({ pid: `${node?.id}`,mode:'directory' })"
-        >{{ node.title }}
-        </a>
+        <a dir="ltr"
+           class="item"
+           v-for="(node, nodeIndex) in crumbList"
+           :key="nodeIndex"
+           @click="opModule.go({ pid: `${node?.id}`,mode:'directory' })"
+           :title="node.title"
+        >{{ node.title }}</a>
       </div>
       <div class="search">
         <label>
@@ -481,10 +481,31 @@ onUnmounted(() => {
     a:hover {
       background-color: map-get($colors, bar_meta_active);
     }
+    @media (min-width: 640px) {
+      .crumb { max-width: 50%;}
+    }
+    @media (min-width: 1280px) {
+      .crumb { max-width: 90%;}
+    }
+    @media (min-width: 1920px) {
+      .crumb { max-width: 50%;}
+    }
     .crumb {
+      font-size: $fontSize;
+      overflow: hidden;
+      text-overflow: ellipsis;
       white-space: nowrap;
+      direction: rtl;
       .item {
+        unicode-bidi: bidi-override;
+        //float: left;
+        direction: ltr;
+        display: inline;
         padding-left: $fontSize * 0.25;
+        cursor: pointer;
+        //overflow: hidden;
+        //text-overflow: ellipsis;
+        //width: 500px;
       }
       .item:hover {
         background-color: map-get($colors, bar_meta_active);

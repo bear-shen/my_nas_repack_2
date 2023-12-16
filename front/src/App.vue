@@ -22,9 +22,11 @@ const containerDef = {};
 </template>
 
 <style lang="scss">
+.fr_header,
 .fr_body,
 .fr_footer {
   width: 100vw;
+  overflow: hidden;
 }
 .fr_header,
 .fr_footer {
