@@ -132,6 +132,7 @@ export default class {
         const parentIdSet = new Set<number>();
         const nodeIdSet = new Set<number>();
         nodeLs.forEach(node => {
+            node.rate = Math.round(Math.random() * 10);
             nodeIdSet.add(node.id);
             node.list_tag_id.forEach(tagId => {
                 tagIdSet.add(tagId);

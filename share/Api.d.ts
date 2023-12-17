@@ -1,6 +1,7 @@
 import {col_favourite, col_favourite_group, col_file_with_path, col_node, col_queue, col_tag, col_tag_group, col_user, col_user_group, type_file} from './Database';
 
 export type api_node_col = {
+    rate?: number,
     is_file?: number,
     list_fav?: number[],
     //初版的设计是分开存储方便遍历
@@ -392,4 +393,10 @@ export type api_favourite_group_mod_req = {
 
 export type api_favourite_group_mod_resp = api_favourite_group_mod_req;
 
+export type api_rate_attach_req = {
+    list_node?: string,
+    rate?: string,
+} & { [key: string]: any };
+
+export type api_rate_attach_resp = col_node;
 

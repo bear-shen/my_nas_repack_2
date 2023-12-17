@@ -8,6 +8,7 @@ import ContentEditable from "@/components/ContentEditable.vue";
 import Hinter from "@/components/Hinter.vue";
 import type {col_tag, col_tag_group} from "../../../share/Database";
 import {opFunctionModule} from "@/FileViewHelper";
+import Rater from "@/components/Rater.vue";
 // import type {col_tag} from "../../../share/Database";
 // import {api_tag_col} from "../../../share/Api";
 
@@ -172,9 +173,12 @@ function emp(e: Event) {
               <button :class="['active','sysIcon', 'sysIcon_save']" @click="opFunctionModule.op_rename(node)">SAVE</button>
             </template>
             <template v-else>
-              <p class="title">{{ node.title }}</p>
+              <p class="title" :title="node.title">{{ node.title }}</p>
               <!--            <p class="title" @click="op_dblclick">{{ node.title }}</p>-->
-              <p>{{ node.time_update }}</p>
+              <p class="time">
+                <rater :node="node" v-model="node.rate"></rater>
+                <span :title="`C:${node.time_create}\r\nU:${node.time_update}`">{{ node.time_update.substring(0, 10) }}</span>
+              </p>
               <p v-if="node.description">{{ node.description }}</p>
             </template>
           </template>
@@ -260,7 +264,7 @@ function emp(e: Event) {
       >{{ node.title }}</p>
       <!--        <p class="title" @click="op_dblclick">{{ node.title }}</p>-->
       <p class="time">{{ node.time_update }}</p>
-      </template>
+    </template>
   </div>
 </template>
 
@@ -325,6 +329,15 @@ function emp(e: Event) {
       }
       .bar {
         margin: $fontSize * 0.5 0 0 0;
+      }
+      .time {
+        width: 100%;
+        > * {
+          width: 50%;
+        }
+        > :first-child {
+          margin-right: $fontSize*0.5;
+        }
       }
       color: map-get($colors, font_sub);
       .sysIcon::before {

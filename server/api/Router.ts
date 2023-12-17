@@ -13,6 +13,7 @@ import Setting from "./processor/Setting";
 import Log from "./processor/Log";
 import Favourite from "./processor/Favourite";
 import FavouriteGroup from "./processor/FavouriteGroup";
+import Rate from "./processor/Rate";
 
 type t = RowDataPacket;
 const controllers: { [key: string]: any } = {
@@ -26,6 +27,7 @@ const controllers: { [key: string]: any } = {
     local: Local,
     log: Log,
     setting: Setting,
+    rate: Rate,
     dev: 0,
 }
 
