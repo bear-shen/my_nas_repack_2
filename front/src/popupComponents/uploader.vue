@@ -122,6 +122,7 @@ function remove(index: number) {
 </template>
 
 <style lang="scss">
+@import "../assets/variables";
 .modal_uploader {
   width: 100%;
   //height: calc(100% - $fontSize);

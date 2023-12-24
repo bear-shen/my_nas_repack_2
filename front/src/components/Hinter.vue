@@ -174,6 +174,7 @@ function setFocus() {
 </template>
 
 <style scoped lang="scss">
+@import "../assets/variables";
 .hinter {
   position: relative;
   > div, > ul > li {

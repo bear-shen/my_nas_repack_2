@@ -326,6 +326,7 @@ async function modUser(index: number) {
 </template>
 
 <style lang="scss">
+@import "../assets/variables";
 .fr_content.view_user {
   .sysIcon {
     cursor: pointer;

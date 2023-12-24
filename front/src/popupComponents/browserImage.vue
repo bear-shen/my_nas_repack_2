@@ -308,6 +308,7 @@ function setZoom(e?: WheelEvent, dir?: number) {
 </template>
 
 <style lang="scss">
+@import "../assets/variables";
 .modal_browser.base {
   .content {
     img {

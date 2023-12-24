@@ -47,6 +47,7 @@ function logout() {
 </template>
 
 <style scoped lang="scss">
+@import "../assets/variables";
 .fr_header {
   display: flex;
   justify-content: space-between;

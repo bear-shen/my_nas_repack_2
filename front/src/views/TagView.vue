@@ -407,6 +407,7 @@ async function modTag(index: number) {
 </template>
 
 <style lang="scss">
+@import "../assets/variables";
 .fr_content.view_tag {
   padding-bottom: 0;
   height: 100%;

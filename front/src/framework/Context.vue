@@ -218,6 +218,7 @@ addEventListener('click', (e: MouseEvent) => {
 </template>
 
 <style lang="scss">
+@import "../assets/variables";
 .fr_context {
   pointer-events: none;
   left: 0;

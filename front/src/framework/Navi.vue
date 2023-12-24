@@ -14,6 +14,7 @@ import NaviContent from "./NaviContent.vue";
 </template>
 
 <style lang="scss">
+@import "../assets/variables";
 .fr_navi {
   text-align: center;
   .title.active {

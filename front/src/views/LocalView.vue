@@ -22,6 +22,7 @@ const rootStatement = {
 </template>
 
 <style lang="scss">
+@import "../assets/variables";
 .fr_content.local_item_table {
   table {
     width: 100%;

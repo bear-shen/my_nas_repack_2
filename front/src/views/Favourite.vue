@@ -232,6 +232,7 @@ function emitGo(type: string, code: number) {
 </template>
 
 <style lang="scss">
+@import "../assets/variables";
 .fr_content.view_fav {
   padding-bottom: 0;
   height: 100%;

@@ -368,6 +368,7 @@ function toggleSubtitle(index: number) {
 </template>
 
 <style lang="scss">
+@import "../assets/variables";
 .modal_browser.video {
   .content {
     video {

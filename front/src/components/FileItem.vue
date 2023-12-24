@@ -269,6 +269,7 @@ function emp(e: Event) {
 </template>
 
 <style scoped lang="scss">
+@import "../assets/variables";
 .node_node {
   &:hover, &.select {
     background-color: map-get($colors, bk_active);

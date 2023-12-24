@@ -42,4 +42,5 @@ const props = defineProps<{
 </template>
 
 <style lang="scss">
+@import "../assets/variables";
 </style>

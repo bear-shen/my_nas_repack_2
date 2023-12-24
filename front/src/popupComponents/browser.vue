@@ -47,6 +47,19 @@ const def = {
     rate_asc: "rate ↑",
     rate_desc: "rate ↓",
   },
+  rate: {
+    '0': '&#xe69f;&#xe69f;&#xe69f;&#xe69f;&#xe69f;',
+    '1': '&#xe6b6;&#xe69f;&#xe69f;&#xe69f;&#xe69f;',
+    '2': '&#xe69e;&#xe69f;&#xe69f;&#xe69f;&#xe69f;',
+    '3': '&#xe69e;&#xe6b6;&#xe69f;&#xe69f;&#xe69f;',
+    '4': '&#xe69e;&#xe69e;&#xe69f;&#xe69f;&#xe69f;',
+    '5': '&#xe69e;&#xe69e;&#xe6b6;&#xe69f;&#xe69f;',
+    '6': '&#xe69e;&#xe69e;&#xe69e;&#xe69f;&#xe69f;',
+    '7': '&#xe69e;&#xe69e;&#xe69e;&#xe6b6;&#xe69f;',
+    '8': '&#xe69e;&#xe69e;&#xe69e;&#xe69e;&#xe69f;',
+    '9': '&#xe69e;&#xe69e;&#xe69e;&#xe69e;&#xe6b6;',
+    '10': '&#xe69e;&#xe69e;&#xe69e;&#xe69e;&#xe69e;',
+  },
   listType: ["detail", "text", "img"],
 };
 const regComponentLs = {
@@ -280,6 +293,7 @@ function emitNav(index: number) {
 function isValidNav(nextIndex: number) {
   const node = nodeList.value[nextIndex];
   console.info([node.type, filterVal.value, ignoreFileType.indexOf(node.type ?? 'directory')]);
+
   switch (filterVal.value) {
     case 'any':
     case 'file':
@@ -447,11 +461,14 @@ function sortList(list: col_node[], sort: string) {
 }
 
 const filterVal: Ref<string> = ref(localConfigure.get("browser_list_filter") ?? "any");
+const rateVal: Ref<string> = ref('0');
 
 function setFilter(target: string) {
   localConfigure.set("browser_list_filter", target);
   checkNext();
 }
+
+function setRater(target: string){}
 </script>
 
 <template>
@@ -483,6 +500,9 @@ function setFilter(target: string) {
       <!--      <div class="btnContainer">-->
       <!--      </div>-->
       <div class="btnContainer">
+        <select class="sysIcon" v-model="rateVal" @change="setRater(rateVal)">
+          <option v-for="(type,key) in def.rate" :value="key" v-html="type"></option>
+        </select>
         <select v-model="filterVal" @change="setFilter(filterVal)">
           <option v-for="(fileType, key) in def.fileType" :value="fileType">
             {{ fileType }}
@@ -524,6 +544,7 @@ function setFilter(target: string) {
 </template>
 
 <style lang="scss">
+@import "../assets/variables";
 .modal_browser {
   width: 100%;
   height: 100%;

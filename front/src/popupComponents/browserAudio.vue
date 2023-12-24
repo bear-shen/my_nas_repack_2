@@ -301,6 +301,7 @@ function parseTime(t: number) {
 </template>
 
 <style lang="scss">
+@import "../assets/variables";
 .modal_browser.audio {
   .content {
     img {

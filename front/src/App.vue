@@ -22,6 +22,7 @@ const containerDef = {};
 </template>
 
 <style lang="scss">
+@import "./assets/variables";
 .fr_header,
 .fr_body,
 .fr_footer {

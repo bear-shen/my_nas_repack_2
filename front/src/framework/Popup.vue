@@ -788,6 +788,7 @@ function keymap(e: KeyboardEvent) {
 </template>
 
 <style lang="scss">
+@import "../assets/variables";
 .fr_popup {
   pointer-events: none;
   left: 0;

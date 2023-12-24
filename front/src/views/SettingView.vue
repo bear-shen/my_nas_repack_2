@@ -221,6 +221,7 @@ async function btn_scanOrphanFiles() {
 </template>
 
 <style lang="scss">
+@import "../assets/variables";
 .fr_content.view_setting {
   table {
     th, td {

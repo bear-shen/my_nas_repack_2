@@ -44,6 +44,19 @@ const def = {
     rate_asc: "rate ↑",
     rate_desc: "rate ↓",
   },
+  rate: {
+    '0': '&#xe69f;&#xe69f;&#xe69f;&#xe69f;&#xe69f;',
+    '1': '&#xe6b6;&#xe69f;&#xe69f;&#xe69f;&#xe69f;',
+    '2': '&#xe69e;&#xe69f;&#xe69f;&#xe69f;&#xe69f;',
+    '3': '&#xe69e;&#xe6b6;&#xe69f;&#xe69f;&#xe69f;',
+    '4': '&#xe69e;&#xe69e;&#xe69f;&#xe69f;&#xe69f;',
+    '5': '&#xe69e;&#xe69e;&#xe6b6;&#xe69f;&#xe69f;',
+    '6': '&#xe69e;&#xe69e;&#xe69e;&#xe69f;&#xe69f;',
+    '7': '&#xe69e;&#xe69e;&#xe69e;&#xe6b6;&#xe69f;',
+    '8': '&#xe69e;&#xe69e;&#xe69e;&#xe69e;&#xe69f;',
+    '9': '&#xe69e;&#xe69e;&#xe69e;&#xe69e;&#xe6b6;',
+    '10': '&#xe69e;&#xe69e;&#xe69e;&#xe69e;&#xe69e;',
+  },
   listType: ["detail", "text", "img"],
 };
 let queryData = {
@@ -55,6 +68,7 @@ let queryData = {
   dir_only: "",
   with: "",
   group: "",
+  rate: "",
 } as api_file_list_req;
 // let usePid = false;
 //
@@ -84,6 +98,7 @@ onBeforeRouteUpdate(async (to) => {
     dir_only: "",
     with: "",
     group: "",
+    rate: "",
   }, GenFunc.copyObject(to.query));
   await getList();
 });
@@ -255,7 +270,15 @@ function search() {
     //   delete tQuery.pid;
   }
   tQuery.mode = 'search';
-  if (!queryData.keyword && (!queryData.node_type || queryData.node_type == 'any')) {
+  // console.info(tQuery);
+  console.info(!queryData.node_type || queryData.node_type == 'any' || !queryData.rate);
+  if (
+    !queryData.keyword
+    && (
+      !queryData.node_type || queryData.node_type == 'any'
+    )
+    && !queryData.rate
+  ) {
     return opModule.go({pid: queryData.pid, mode: 'directory',});
   }
   console.info(tQuery);
@@ -371,6 +394,12 @@ onUnmounted(() => {
             <option v-for="type in def.fileType">{{ type }}</option>
           </select>
         </label>
+        <label>
+          <span>Rate : </span>
+          <select class="sysIcon" v-model="queryData.rate">
+            <option v-for="(type,key) in def.rate" :value="key" v-html="type"></option>
+          </select>
+        </label>
         <label v-if="crumbList.length">
           <span>InDir : </span>
           <input type="checkbox" v-model="(queryData.dir_only as any)" id="FV_S_CB"
@@ -444,6 +473,7 @@ onUnmounted(() => {
 </template>
 
 <style scoped lang="scss">
+@import "../assets/variables";
 .fr_content {
   display: flex;
   flex-direction: column;

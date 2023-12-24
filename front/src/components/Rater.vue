@@ -124,6 +124,7 @@ function prepStar() {
 </template>
 
 <style scoped lang="scss">
+@import "../assets/variables";
 .rater {
   cursor: pointer;
   &:hover {

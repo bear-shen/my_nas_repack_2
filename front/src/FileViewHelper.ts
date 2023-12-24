@@ -675,6 +675,7 @@ export class opModule {
             dir_only: "",
             with: "",
             group: "",
+            rate: "",
         }, ext);
         this.router.push({
             path: this.route.path,

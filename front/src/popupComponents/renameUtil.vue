@@ -199,6 +199,7 @@ async function onSubmit() {
 </template>
 
 <style lang="scss">
+@import "../assets/variables";
 .modal_rename_util {
   width: 100%;
   //min-height: 90%;

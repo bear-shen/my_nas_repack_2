@@ -21,6 +21,7 @@ const active = true;
 </template>
 
 <style scoped lang="scss">
+@import "../assets/variables";
 .fr_footer {
   display: flex;
   justify-content: space-between;

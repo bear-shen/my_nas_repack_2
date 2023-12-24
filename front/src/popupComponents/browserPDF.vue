@@ -35,6 +35,7 @@ const props = defineProps<{
 </template>
 
 <style lang="scss">
+@import "../assets/variables";
 .modal_browser.pdf {
   .content {
     text-align: center;
