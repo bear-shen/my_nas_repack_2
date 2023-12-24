@@ -293,7 +293,10 @@ function emitNav(index: number) {
 function isValidNav(nextIndex: number) {
   const node = nodeList.value[nextIndex];
   console.info([node.type, filterVal.value, ignoreFileType.indexOf(node.type ?? 'directory')]);
-
+  const rate = parseInt(rateVal.value) ?? 0;
+  if (node.rate < rate) {
+    return false;
+  }
   switch (filterVal.value) {
     case 'any':
     case 'file':
@@ -468,7 +471,8 @@ function setFilter(target: string) {
   checkNext();
 }
 
-function setRater(target: string){}
+function setRater(target: string) {
+}
 </script>
 
 <template>
