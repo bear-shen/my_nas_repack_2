@@ -64,6 +64,7 @@ export type api_file_list_req = {
     node_type?: type_file | string,
     //
     // sort?: string,
+    rate?: string,
     // detail: string,
     with?: 'file' | 'tag' | 'crumb' | 'none' | string,
     group?: 'directory' | 'deleted' | 'favourite' | string,

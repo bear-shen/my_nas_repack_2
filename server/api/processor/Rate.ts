@@ -9,6 +9,7 @@ export default class {
     async attach(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<null | api_rate_attach_resp> {
         const request = data.fields as api_rate_attach_req;
         const nodeIdArr = request.list_node.split(',');
+        // console.info(nodeIdArr);
         for (let i1 = 0; i1 < nodeIdArr.length; i1++) {
             const id = nodeIdArr[i1];
             const node = await (new NodeModel()).where('id', id).first();
@@ -22,7 +23,7 @@ export default class {
                     rate: request.rate,
                 })
             } else {
-                await (new RateModel()).update({
+                await (new RateModel()).insert({
                     id_user: data.uid,
                     id_node: id,
                     rate: request.rate,

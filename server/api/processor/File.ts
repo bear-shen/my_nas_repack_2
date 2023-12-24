@@ -33,6 +33,7 @@ import * as fp from "../../lib/FileProcessor";
 import {get as getConfig} from "../../ServerConfig";
 import QueueModel from "../../model/QueueModel";
 import FavouriteModel from "../../model/FavouriteModel";
+import RateModel from "../../model/RateModel";
 
 export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_list_resp> {
@@ -121,6 +122,13 @@ export default class {
         if (request.limit) {
             model.limit(parseInt(request.limit));
         }
+        if (request.rate) {
+            model.whereRaw(
+                'id in (select id_node from rate where id_user = ? and rate >= ?)'
+                , data.uid, request.rate
+            )
+            ;
+        }
         // console.info(model.l)
         // ORM.dumpSql = true;
         const nodeLs: api_node_col[] = await model.select();
@@ -150,6 +158,7 @@ export default class {
         //收藏夹
         if (nodeIdSet.size) {
             const favList = await (new FavouriteModel)
+                .where('id_user', data.uid)
                 .whereIn('id_node', Array.from(nodeIdSet))
                 .where('status', 1)
                 .select();
@@ -165,6 +174,21 @@ export default class {
             nodeLs.forEach(node => {
                 const arr = favMap.get(node.id)
                 node.list_fav = arr ? arr : [];
+            });
+        }
+        //评级
+        if (nodeIdSet.size) {
+            const rateList = await (new RateModel)
+                .where('id_user', data.uid)
+                .whereIn('id_node', Array.from(nodeIdSet))
+                .select();
+            const rateMap = new Map<number, number>();
+            rateList.forEach(rate => {
+                rateMap.set(rate.id_node, rate.rate);
+            });
+            nodeLs.forEach(node => {
+                const ifExs = rateMap.get(node.id) ?? 0;
+                node.rate = ifExs;
             });
         }
         //

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import {onMounted, ref, type Ref} from "vue";
-import type {api_node_col, api_rate_attach_resp} from "../../../share/Api";
-import {query} from "@/Helper";
+import {onMounted, ref, type Ref, watch} from "vue";
+import type {api_node_col} from "../../../share/Api";
+import {opFunctionModule} from "@/FileViewHelper";
 
 const emits = defineEmits([
   "update:modelValue",
@@ -29,6 +29,13 @@ function inputText() {
 // });
 const preValue: Ref<number> = ref(props.modelValue);
 const value: Ref<number> = ref(props.modelValue);
+
+watch(() => props.modelValue, async (to) => {
+  preValue.value = to;
+  value.value = to;
+  prepStar();
+});
+
 onMounted(() => {
   // console.info('contentEditable', editor.value, editor.value?.innerHTML);
   // value.value = props.modelValue;
@@ -52,10 +59,7 @@ onMounted(() => {
       preValue.value = value.value;
       prepStar();
       //
-      const formData = new FormData();
-      formData.set('list_node', `${props.node.id ?? ''}`);
-      formData.set('rate', `${preValue.value}`);
-      const res = await query<api_rate_attach_resp>('rate/attach', formData);
+      await opFunctionModule.op_rate(preValue.value)
     });
   }
 });

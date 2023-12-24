@@ -44,6 +44,8 @@ const def = {
     crt_desc: "crt time ↓",
     upd_asc: "upd time ↑",
     upd_desc: "upd time ↓",
+    rate_asc: "rate ↑",
+    rate_desc: "rate ↓",
   },
   listType: ["detail", "text", "img"],
 };

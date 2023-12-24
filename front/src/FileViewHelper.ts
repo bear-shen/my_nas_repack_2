@@ -3,7 +3,8 @@
  * */
 import type {Ref} from "vue";
 import {ref,} from "vue";
-import type {api_favourite_attach_resp, api_favourite_group_list_resp, api_file_bath_delete_resp, api_file_bath_move_req, api_file_bath_move_resp, api_file_checksum_resp, api_file_cover_resp, api_file_delete_resp, api_file_list_req, api_file_mov_req, api_file_mov_resp, api_file_rebuild_resp, api_node_col, api_tag_list_resp} from "../../share/Api";
+import type {api_favourite_attach_resp, api_favourite_group_list_resp, api_file_bath_delete_resp, api_file_bath_move_req, api_file_bath_move_resp, api_file_checksum_resp, api_file_cover_resp, api_file_delete_resp, api_file_list_req, api_file_mov_req, api_file_mov_resp, api_file_rebuild_resp, api_node_col, api_rate_attach_resp, api_tag_list_resp} from "../../share/Api";
+
 import type {ModalConstruct} from "@/modal";
 import {query} from "@/Helper";
 import GenFunc from "../../share/GenFunc";
@@ -148,12 +149,22 @@ export class opModule {
     public inDetailView(e: MouseEvent): boolean {
         // console.info(e);
         let inDetail = false;
-        let prop = e.target as Element;
+        let prop = e.target as HTMLElement;
         while (prop) {
             // console.info(prop);
             // console.info(prop.classList);
             // console.info(prop.classList.contains('content_detail'));
             // if(props.tagName)
+            //做一些屏蔽
+            // console.info(prop.contentEditable);
+            if (prop.contentEditable === 'true') {
+                inDetail = false;
+                break;
+            }
+            if (prop.classList.contains('rater')) {
+                inDetail = false;
+                break;
+            }
             //收藏夹单独处理一下
             if (prop.classList.contains('list_fav')) {
                 inDetail = true;
@@ -1108,6 +1119,18 @@ export class opFunctionModule {
         return res;
     }
 
+    public static async op_rate(rateVal: number) {
+        //
+        if (!opModuleVal) return;
+        let selRes: { nodeLs: api_node_col[], idSet: Set<number> } = opModuleVal.getSelected();
+        selRes.nodeLs.forEach(node => {
+            node.rate = rateVal;
+        })
+        const formData = new FormData();
+        formData.set('list_node', Array.from(selRes.idSet).join(','));
+        formData.set('rate', `${rateVal}`);
+        const res = await query<api_rate_attach_resp>('rate/attach', formData);
+    }
 }
 
 export class queryModule {
@@ -1184,6 +1207,12 @@ export function manualSort(list: api_node_col[], sort: string) {
             break;
         case 'upd_desc':
             sortType = ['time_update', 'desc',];
+            break;
+        case 'rate_asc':
+            sortType = ['rate', 'asc',];
+            break;
+        case 'rate_desc':
+            sortType = ['rate', 'desc',];
             break;
     }
     list.sort((a, b) => {
