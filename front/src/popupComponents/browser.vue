@@ -3,7 +3,7 @@ import type {Ref} from "vue";
 import {onMounted, onUnmounted, ref} from "vue";
 import type {ModalStruct} from "@/modal";
 import {query} from "@/Helper";
-import {manualSort} from "@/FileViewHelper";
+import {manualSort, opFunctionModule} from "@/FileViewHelper";
 import type {api_file_list_req, api_file_list_resp, api_node_col} from "../../../share/Api";
 import GenFunc from "../../../share/GenFunc";
 import browserBaseVue from "./browserBase.vue";
@@ -61,6 +61,13 @@ const def = {
     '10': '&#xe69e;&#xe69e;&#xe69e;&#xe69e;&#xe69e;',
   },
   listType: ["detail", "text", "img"],
+  playMode: [
+    /*"queue",*/ "loop", "single", "shuffle"
+  ],
+  ignoreFileType: [
+    'directory',
+    'subtitle',
+  ] as type_file[],
 };
 const regComponentLs = {
   audio: browserAudioVue,
@@ -72,10 +79,13 @@ const regComponentLs = {
 
 const eventStore = useEventStore();
 const localConfigure = useLocalConfigureStore();
-//------------------
+
+// fullscreen btn ------------------
+
 let ifFullscreen = false;
+
 //浏览器的缩放不按照弹窗默认的设置
-let resizingEvtKey = eventStore.listen(
+const resizingEvtKey = eventStore.listen(
   `modal_resizing_${props.modalData.nid}`,
   (data) => {
     // console.info(ifFullscreen, !props.modalData.layout.fullscreen);
@@ -98,28 +108,23 @@ let resizingEvtKey = eventStore.listen(
   }
 );
 
-//------------------
-//------------------
-const playModes = [/*"queue",*/ "loop", "single", "shuffle"];
-let playMode: Ref<string> = ref(
+// mode btn ------------------
+
+const playMode: Ref<string> = ref(
   localConfigure.get("browser_play_mode") ?? "loop"
 );
-const ignoreFileType = [
-  'directory',
-  'subtitle',
-] as type_file[];
 
 function togglePlayMode() {
-  let curModeIndex = playModes.indexOf(playMode.value);
+  let curModeIndex = def.playMode.indexOf(playMode.value);
   curModeIndex += 1;
-  if (curModeIndex > playModes.length - 1) curModeIndex = 0;
-  playMode.value = playModes[curModeIndex];
+  if (curModeIndex > def.playMode.length - 1) curModeIndex = 0;
+  playMode.value = def.playMode[curModeIndex];
   localConfigure.set("browser_play_mode", playMode.value);
-  checkNext();
 }
 
-//------------------
-let showDetail: Ref<boolean> = ref(
+// detail btn ------------------
+
+const showDetail: Ref<boolean> = ref(
   localConfigure.get("browser_show_detail") ?? false
 );
 
@@ -147,13 +152,15 @@ onUnmounted(() => {
 // props.modalData.base.title = "dev browser";
 // }, 1000);
 
-let crumbList: Ref<api_node_col[]> = ref([]);
-//注意这个是全量的nodeList，传递到内部遍历的也是这个
-let nodeList: Ref<api_node_col[]> = ref([]);
-//这个是筛选后的nodeList，但是想了一下这个在导航阶段做掉就可以了
-// let nodeList: Ref<api_node_col[]> = ref([]);
-let curIndex: Ref<number> = ref(0);
-let curNode: Ref<api_node_col> = ref({});
+//[]切换文件夹用的list
+const crumbList: Ref<api_node_col[]> = ref([]);
+//这个是全量的nodeList，传递到内部遍历的也是这个
+const nodeList: Ref<api_node_col[]> = ref([]);
+//这个是筛选后的nodeList
+const vNodeList: Ref<api_node_col[]> = ref([]);
+//
+const curIndex: Ref<number> = ref(0);
+const curNode: Ref<api_node_col> = ref({});
 // onMounted(async () => {
 // getList();
 // });
@@ -180,6 +187,10 @@ async function getParentDir(pid: number | string): Promise<api_file_list_resp> {
 }
 
 getList();
+
+async function buildVList() {
+
+}
 
 async function getList(ext: api_file_list_req = {}) {
   // let queryData = GenFunc.copyObject(props.data.query);
@@ -223,50 +234,10 @@ async function getList(ext: api_file_list_req = {}) {
   // curNode.value = node;
   // console.info(crumbList);
   onModNav();
-  checkNext();
   return true;
 }
 
 //------------------
-let hasNext = ref(true);
-let hasPrev = ref(true);
-
-function checkNext() {
-  //queue去掉以后这个没有用了
-  return;
-  console.info('checkNext',);
-  // console.log()
-  let hasPrevL = true;
-  let hasNextL = true;
-  //
-  let validListLen = 0;
-  nodeList.value.forEach((node, index) => {
-    validListLen += isValidNav(index) ? 1 : 0
-  })
-  if (!validListLen) {
-    hasPrev.value = false;
-    hasNext.value = false;
-    return;
-  }
-  let isStart = curIndex.value === 0;
-  let isEnd = curIndex.value === nodeList.value.length - 1;
-  console.info(isStart, isEnd);
-  switch (playMode.value) {
-    case "queue":
-      if (isStart) hasPrevL = false;
-      if (isEnd) hasNextL = false;
-      break;
-    case "loop":
-    case "single":
-    case "shuffle":
-      break;
-  }
-  hasPrev.value = hasPrevL;
-  hasNext.value = hasNextL;
-  // console.info(hasPrev.value, hasNext.value)
-}
-
-//
 function goNav(curNavIndex: number, offset: number, counter: number = 0): any {
   // console.info('goNav', [curNavIndex, offset, counter,]);
   let listLen = nodeList.value.length;
@@ -292,7 +263,7 @@ function emitNav(index: number) {
 
 function isValidNav(nextIndex: number) {
   const node = nodeList.value[nextIndex];
-  console.info([node.type, filterVal.value, ignoreFileType.indexOf(node.type ?? 'directory')]);
+  console.info([node.type, filterVal.value, def.ignoreFileType.indexOf(node.type ?? 'directory')]);
   const rate = parseInt(rateVal.value) ?? 0;
   if (node.rate < rate) {
     return false;
@@ -300,7 +271,7 @@ function isValidNav(nextIndex: number) {
   switch (filterVal.value) {
     case 'any':
     case 'file':
-      return ignoreFileType.indexOf(node.type ?? 'directory') === -1;
+      return def.ignoreFileType.indexOf(node.type ?? 'directory') === -1;
       break;
     default:
       return filterVal.value == node.type;
@@ -316,15 +287,6 @@ function onModNav() {
   // curIndex.value = locateCurNode(nodeList.value, curNode.value);
   curNode.value = nodeList.value[curIndex.value];
   modTitle();
-  //类型相同的时候添加一个事件用于预处理
-  //这边更新的效率会比props的慢，还是watch好用
-  // console.warn(changeType);
-  // if (!changeType)
-  //   eventStore.trigger(
-  //     `modal_browser_change_${props.modalData.nid}`,
-  //     curNode.value.id
-  //   );
-  checkNext();
 }
 
 function modTitle() {
@@ -414,12 +376,6 @@ async function keymap(e: KeyboardEvent) {
   }
 }
 
-function goDownload() {
-  let filePath = curNode.value.file?.raw?.path;
-  if (!filePath) return;
-  window.open(`${filePath}?filename=${curNode.value.title}`);
-}
-
 function locateCurNode(list: col_node[], node: col_node) {
   let index = 0;
   list.forEach((item, ind) => {
@@ -431,6 +387,7 @@ function locateCurNode(list: col_node[], node: col_node) {
   return index;
 }
 
+// sort btn ------------------
 
 const sortVal: Ref<string> = ref(localConfigure.get("browser_list_sort") ?? "name_asc");
 
@@ -463,13 +420,17 @@ function sortList(list: col_node[], sort: string) {
   return list;
 }
 
+// filter btn ------------------
+
 const filterVal: Ref<string> = ref(localConfigure.get("browser_list_filter") ?? "any");
-const rateVal: Ref<string> = ref('0');
 
 function setFilter(target: string) {
   localConfigure.set("browser_list_filter", target);
-  checkNext();
 }
+
+// rate btn ------------------
+
+const rateVal: Ref<string> = ref('0');
 
 function setRater(target: string) {
 }
@@ -530,16 +491,16 @@ function setRater(target: string) {
         <button
           v-if="curNode.file?.raw?.path"
           :class="['sysIcon', 'sysIcon_download']"
-          @click="goDownload"
+          @click="opFunctionModule.op_download(curNode)"
         ></button>
       </div>
     </template>
     <template v-slot:navigator>
       <div class="pagination">
-        <div v-if="hasPrev" class="left" @click="goNav(curIndex,-1)">
+        <div class="left" @click="goNav(curIndex,-1)">
           <span class="sysIcon sysIcon_arrowleft"></span>
         </div>
-        <div v-if="hasNext" class="right" @click="goNav(curIndex,+1)">
+        <div class="right" @click="goNav(curIndex,+1)">
           <span class="sysIcon sysIcon_arrowright"></span>
         </div>
       </div>
