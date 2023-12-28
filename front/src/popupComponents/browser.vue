@@ -152,12 +152,15 @@ onUnmounted(() => {
 // props.modalData.base.title = "dev browser";
 // }, 1000);
 
+//_weight_stack 从 2 开始到 12 对应 0 - 10 分，根据列表顺序生成
+type node_browser_def = api_node_col & { _weight_stack: number };
 //[]切换文件夹用的list
 const crumbList: Ref<api_node_col[]> = ref([]);
 //这个是全量的nodeList，传递到内部遍历的也是这个
 const nodeList: Ref<api_node_col[]> = ref([]);
 //这个是筛选后的nodeList
-const vNodeList: Ref<api_node_col[]> = ref([]);
+const vNodeList: Ref<node_browser_def[]> = ref([]);
+let stackSize = 0;
 //
 const curIndex: Ref<number> = ref(0);
 const curNode: Ref<api_node_col> = ref({});
@@ -188,8 +191,19 @@ async function getParentDir(pid: number | string): Promise<api_file_list_resp> {
 
 getList();
 
-async function buildVList() {
-
+function buildVList() {
+  let newVList: node_browser_def[] = [];
+  stackSize = 0;
+  nodeList.value.forEach(node => {
+    if (!isValidNode(node)) return;
+    const weight = node.rate ? node.rate + 2 : 2;
+    newVList.push(Object.assign(node, {
+      _weight_stack: stackSize,
+    }));
+    stackSize += weight;
+  })
+  newVList = sortList(newVList, sortVal.value);
+  return newVList;
 }
 
 async function getList(ext: api_file_list_req = {}) {
@@ -223,16 +237,18 @@ async function getList(ext: api_file_list_req = {}) {
   }
   console.info(index, node);
   crumbList.value = res.path;
-  nodeList.value = sortList(res.list, sortVal.value);
+  nodeList.value = res.list;
   // console.info(res);
   if (!node) node = nodeList.value[0];
   // console.warn(node.title);
-  curIndex.value = locateCurNode(nodeList.value, node);
-  console.info(curIndex.value);
   // console.info(curIndex.value);
   // nodeList.value = sortList(res.list);
   // curNode.value = node;
   // console.info(crumbList);
+  let vList = buildVList();
+  vNodeList.value = sortList(vList, sortVal.value);
+  curIndex.value = locateCurNode(vNodeList.value, node);
+  console.info(curIndex.value);
   onModNav();
   return true;
 }
@@ -240,18 +256,26 @@ async function getList(ext: api_file_list_req = {}) {
 //------------------
 function goNav(curNavIndex: number, offset: number, counter: number = 0): any {
   // console.info('goNav', [curNavIndex, offset, counter,]);
-  let listLen = nodeList.value.length;
+  let listLen = vNodeList.value.length;
+  let nextIndex = 0;
   if (playMode.value === "shuffle") {
-    offset = Math.round(Math.random() * listLen);
+    let p = Math.random() * stackSize;
+    offset = 0;
+    for (let i = 0; i < listLen; i++) {
+      offset = i;
+      if (vNodeList.value[i]._weight_stack > p) break;
+    }
+    nextIndex = offset;
+  } else {
+    nextIndex = curNavIndex + offset;
   }
-  let nextIndex = curNavIndex + offset;
   while (nextIndex < 0) nextIndex += listLen;
   while (nextIndex > listLen - 1) nextIndex -= listLen;
   if (!counter) counter = 0;
   counter += 1;
   if (counter > listLen) return;
-  console.info(isValidNav(nextIndex));
-  if (!isValidNav(nextIndex)) return goNav(nextIndex, offset, counter);
+  // console.info(isValidNav(nextIndex));
+  // if (!isValidNav(nextIndex)) return goNav(nextIndex, offset, counter);
   curIndex.value = nextIndex;
   onModNav();
 }
@@ -261,11 +285,11 @@ function emitNav(index: number) {
   goNav(curIndex.value, delta);
 }
 
-function isValidNav(nextIndex: number) {
-  const node = nodeList.value[nextIndex];
+function isValidNode(node: api_node_col) {
+  // const node = nodeList.value[nextIndex];
   console.info([node.type, filterVal.value, def.ignoreFileType.indexOf(node.type ?? 'directory')]);
   const rate = parseInt(rateVal.value) ?? 0;
-  if (node.rate < rate) {
+  if ((node.rate ?? 0) < rate) {
     return false;
   }
   switch (filterVal.value) {
@@ -280,23 +304,23 @@ function isValidNav(nextIndex: number) {
 }
 
 function onModNav() {
-  // console.info(curNode.value);
-  // console.info(nodeList.value);
-  // console.info(curIndex.value);
-  const changeType = curNode.value.type !== nodeList.value[curIndex.value].type;
-  // curIndex.value = locateCurNode(nodeList.value, curNode.value);
-  curNode.value = nodeList.value[curIndex.value];
+  if (vNodeList.value.length) {
+    // console.info(curNode.value);
+    // console.info(vNodeList.value);
+    // console.info(curIndex.value);
+    const changeType = curNode.value.type !== vNodeList.value[curIndex.value].type;
+    // curIndex.value = locateCurNode(nodeList.value, curNode.value);
+    curNode.value = vNodeList.value[curIndex.value];
+  }
   modTitle();
 }
 
 function modTitle() {
   // console.info(['modTitle', curIndex.value, nodeList.value.length]);
   props.modalData.base.title =
-    (curIndex.value + 1) + '/' + nodeList.value.length + ' ' +
+    (curIndex.value + 1) + '/' + vNodeList.value.length + ' ' +
     (curNode.value.title ?? "");
 }
-
-//------------------
 
 async function keymap(e: KeyboardEvent) {
   // console.info(e);
@@ -404,18 +428,18 @@ const sortVal: Ref<string> = ref(localConfigure.get("browser_list_sort") ?? "nam
 function setSort(val: string) {
   console.info('setSort', val);
   sortVal.value = val;
-  const orgLs = nodeList.value;
-  nodeList.value = [];
+  const orgLs = vNodeList.value;
+  vNodeList.value = [];
   sortList(orgLs, sortVal.value);
-  nodeList.value = orgLs;
+  vNodeList.value = orgLs;
   curIndex.value = locateCurNode(orgLs, curNode.value);
   modTitle();
   // localConfigure.set("file_view_sort", sortVal);
 }
 
-function sortList(list: col_node[], sort: string) {
+function sortList<K extends api_node_col>(list: K[], sort: string) {
   list = manualSort(list, sort);
-  curIndex.value = locateCurNode(nodeList.value, curNode.value);
+  curIndex.value = locateCurNode(list, curNode.value);
   localConfigure.set("browser_list_sort", sortVal)
   return list;
 }
@@ -432,7 +456,13 @@ function setFilter(target: string) {
 
 const rateVal: Ref<string> = ref('0');
 
-function setRater(target: string) {
+function setRater(rateVal: string) {
+  let curNode = vNodeList.value[curIndex.value];
+  let vList = buildVList();
+  vNodeList.value = sortList(vList, sortVal.value);
+  curIndex.value = locateCurNode(vNodeList.value, curNode);
+  console.info(curIndex.value);
+  onModNav();
 }
 </script>
 

@@ -1181,7 +1181,7 @@ export function popupDetail(queryData: api_file_list_req, curNodeId: number) {
     });
 }
 
-export function manualSort(list: api_node_col[], sort: string) {
+export function manualSort<K extends api_node_col>(list: K[], sort: string) {
     let sortType: [keyof api_node_col, string] = ['id', 'asc'];
     switch (sort) {
         default:
