@@ -450,6 +450,12 @@ const filterVal: Ref<string> = ref(localConfigure.get("browser_list_filter") ?? 
 
 function setFilter(target: string) {
   localConfigure.set("browser_list_filter", target);
+  let curNode = vNodeList.value[curIndex.value];
+  let vList = buildVList();
+  vNodeList.value = sortList(vList, sortVal.value);
+  curIndex.value = locateCurNode(vNodeList.value, curNode);
+  console.info(curIndex.value);
+  onModNav();
 }
 
 // rate btn ------------------
