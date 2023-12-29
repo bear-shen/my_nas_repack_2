@@ -177,7 +177,7 @@ function emp(e: Event) {
               <!--            <p class="title" @click="op_dblclick">{{ node.title }}</p>-->
               <p class="time">
                 <rater :node="node" v-model="node.rate"></rater>
-                <span :title="`C:${node.time_create}\r\nU:${node.time_update}`">{{ node.time_update.substring(0, 10) }}</span>
+                <span :title="`C:${node.time_create}\r\nU:${node.time_update}`">{{ (node.time_update ?? '').substring(0, 10) }}</span>
               </p>
               <p v-if="node.description">{{ node.description }}</p>
             </template>
