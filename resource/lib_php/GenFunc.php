@@ -1095,12 +1095,15 @@ class GenFunc {
     public static function scanDirPlus($dir, $mode = 1, $step = false) {
         $fList   = [];
         $absRoot = is_array($dir) ? rtrim($dir[0], '/\\') . DIRECTORY_SEPARATOR . ltrim($dir[1], '/\\') : trim($dir, '/\\');
-        $scan    = scandir($absRoot);
+//        echo $absRoot, "\r\n";
+        $scan = @scandir($absRoot) ?: [];
+//        var_dump($scan);
         foreach ($scan as $item) {
             if ($item == '.' || $item == '..') continue;
             //
             $subAbsRoot = $absRoot . DIRECTORY_SEPARATOR . $item;
-            $fList[]    = $item;
+            if (is_link($subAbsRoot)) continue;
+            $fList[] = $item;
             if (!is_dir($subAbsRoot)) continue;
             if (is_int($step) && $step <= 0) continue;
             //遍历子目录使用相对地址，主要仅文件名模式需要单独处理mode

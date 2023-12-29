@@ -14,13 +14,18 @@ require_once $root . '/lib_php/ORM.php';
 require_once $root . '/lib_php/DB.php';
 
 $dirRoot = $argv[1];
-$fLs     = GenFunc::scanDirPlus($dirRoot);
+echo 'scanning:', "\r\n";
+$fLs = GenFunc::scanDirPlus($dirRoot);
 echo 'get file size: ', sizeof($fLs), "\r\n";
-foreach ($fLs as $file) {
+foreach ($fLs as $i => $file) {
+    if ($i % 100 == 0) {
+        echo 'cmp ', $i, "\r\n";
+    }
     if (!is_file($file)) continue;
     $size = filesize($file);
     if (!empty($size)) continue;
     echo 'empty file: ', $file, "\r\n";
+    file_put_contents(__FILE__ . '.log', $file . "\r\n", FILE_APPEND);
 }
 
 
