@@ -21,7 +21,7 @@ export const timeoutDef = {
     selectEvt: 50,
     clearEvt: 100,
     //zzz
-    lazyLoad: 200,
+    scrollEvt: 50,
     offsetDebounce: 100,
     offsetUIDebounce: 500,
 };
@@ -658,7 +658,7 @@ export class opModule {
                 node._offsets = [l, t, r, b,];
                 // console.info(node.id, node._dom, node._offsets);
             });
-            this.reloadScroll();
+            this.scrollEvt(e as Event);
         }, debounceDelay, `debounce_node_resize`);
     }
 
@@ -686,9 +686,10 @@ export class opModule {
     private startScroll: boolean = false;
 
     public scrollEvt(e: Event) {
-        // GenFunc.debounce(() => {
-        this.saveScroll();
-        // }, timeoutDef.offsetUIDebounce, `debounce_scroll_view`);
+        GenFunc.debounce(() => {
+            this.saveScroll();
+            this.reloadLazyLoad();
+        }, timeoutDef.scrollEvt, `debounce_scroll_view`);
     }
 
     public saveScroll() {
@@ -719,6 +720,24 @@ export class opModule {
         // console.info(path, ifLogExs);
         this.contentDOM.scrollTop = ifLogExs[0];
         this.contentDOM.scrollLeft = ifLogExs[1];
+    }
+
+    public reloadLazyLoad() {
+        console.info("triggleLazyLoad");
+        if (!this.contentDOM) return;
+        const dom = (this.contentDOM as HTMLElement);
+        const d = GenFunc.nodeOffsetY(dom);
+        const top = dom.scrollTop + d;
+        const bottom = top + dom.clientHeight + d;
+        // console.info(top);
+        // opModule.reloadOffset();
+        this.nodeList.value.forEach(node => {
+            let hit = true;
+            let offsets = node._offsets as number[];
+            if (offsets[1] > bottom) hit = false;
+            if (offsets[3] < top) hit = false;
+            node._in_screen = hit;
+        });
     }
 
 }

@@ -136,7 +136,7 @@ function emp(e: Event) {
     <template v-if="mode === 'detail'">
       <div class="content">
         <template v-if="node.status">
-          <div v-if="node.file?.cover" class="thumb"
+          <div v-if="node.file?.cover && node._in_screen" class="thumb"
                @dblclick="op_dblclick"
                @click="op_click"
           >
@@ -149,7 +149,7 @@ function emp(e: Event) {
           ></div>
         </template>
         <template v-else>
-          <div v-if="node.file?.cover" class="thumb">
+          <div v-if="node.file?.cover && node._in_screen" class="thumb">
             <img :src="node.file?.cover.path"/>
           </div>
           <div v-else
@@ -219,7 +219,7 @@ function emp(e: Event) {
     </template>
     <template v-else-if="mode === 'img'">
       <template v-if="node.status">
-        <div v-if="node.file?.cover" class="thumb"
+        <div v-if="node.file?.cover && node._in_screen" class="thumb"
              @dblclick="op_dblclick"
              @click="op_click"
         >
@@ -236,7 +236,7 @@ function emp(e: Event) {
         <p>{{ node.time_update }}</p>
       </template>
       <template v-else>
-        <div v-if="node.file?.cover" class="thumb">
+        <div v-if="node.file?.cover && node._in_screen" class="thumb">
           <img :src="node.file?.cover.path"/>
         </div>
         <div

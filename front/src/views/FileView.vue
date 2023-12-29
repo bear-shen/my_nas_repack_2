@@ -317,31 +317,6 @@ function emitGo(type: string, code: number) {
   }
 }
 
-// console.info('here');
-
-//
-/*let lazyLoadTimer = 0;
-
-function lazyLoad(e: Event) {
-  clearTimeout(lazyLoadTimer);
-  lazyLoadTimer = setTimeout(triggleLazyLoad, fHelper.timeoutDef.lazyLoad);
-}
-
-function triggleLazyLoad() {
-  // @todo 这边主要传值不好做, 看看到时候效果怎么样再说吧...
-  return;
-  // console.info("triggleLazyLoad");
-  // if (!contentDOM.value) return;
-  // const top = contentDOM.value.scrollTop;
-  // console.info(top);
-}*/
-
-/*function selectNode(e: MouseEvent, node: api_node_col) {
-  console.info(e, node);
-}*/
-
-/*function toGo() {
-}*/
 
 
 onMounted(async () => {
@@ -363,6 +338,7 @@ onMounted(async () => {
   //   contentDOM.value.addEventListener("scroll", lazyLoad);
   // }
   // reloadOffset(undefined, fHelper.timeoutDef.offsetDebounce);
+  // (contentDOM.value as HTMLElement).addEventListener("scroll", scrollEvt);
 });
 onUnmounted(() => {
   opModule.destructor();
@@ -370,6 +346,7 @@ onUnmounted(() => {
   //   contentDOM.value.removeEventListener("scroll", lazyLoad);
   // }
 });
+
 </script>
 
 <template>
