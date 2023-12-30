@@ -20,7 +20,7 @@ const orgZoomLevel = [0.1, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 2];
 
 const contentDOM: Ref<HTMLElement | null> = ref(null);
 const imgDOM: Ref<HTMLImageElement | null> = ref(null);
-
+const showImg: Ref<boolean> = ref(true);
 const imgLayout = ref({
   loaded: 0,
   w: 0,
@@ -38,11 +38,14 @@ function onload(e: any) {
 }
 
 function loadImageRes(): any {
-  // console.info("loadImageRes");
   const dom = imgDOM.value;
-  if (!dom || !dom.complete)
+  if (!dom) return;
+  if (!dom.complete) {
     // return setTimeout(loadImageRes.bind(null, curNodeId), 50);
     return setTimeout(loadImageRes, 50);
+  }
+  console.warn("loadImageRes");
+
   //以dom为基准矫正
   // if (dom.getAttribute("data-ref-node-id") !== `${curNodeId}`)
   //   return setTimeout(loadImageRes.bind(null, curNodeId), 50);
@@ -57,7 +60,7 @@ function loadImageRes(): any {
 onMounted(() => {
   // console.warn("mounted");
   Object.assign(imgLayout.value, {
-    loaded: false,
+    loaded: 0,
     w: 0,
     h: 0,
     x: 0,
@@ -66,7 +69,7 @@ onMounted(() => {
     orgH: 0,
   });
   // loadImageRes(props.curNode.id ?? 0);
-  loadImageRes();
+  // loadImageRes();
 });
 //
 const eventStore = useEventStore();
@@ -75,7 +78,16 @@ let resizingEvtKey = eventStore.listen(
   (data) => fitImg()
 );
 watch(() => props.curNode, async (to) => {
-  loadImageRes();
+  console.info('onMod props.curNode');
+  //非得这样切一下不然不刷新
+  showImg.value = false;
+  setTimeout(() => {
+    showImg.value = true;
+    imgLayout.value.loaded = 0;
+    // setTimeout(() => {
+    //   loadImageRes();
+    // }, 0)
+  }, 0)
 });
 
 onUnmounted(() => {
@@ -258,7 +270,7 @@ function setZoom(e?: WheelEvent, dir?: number) {
 </script>
 
 <template>
-  <div class="modal_browser base">
+  <div class="modal_browser image">
     <!-- :style="{ height: props.modalData.layout.h + 'px' }" -->
     <div class="base">
       <div class="l">
@@ -285,7 +297,9 @@ function setZoom(e?: WheelEvent, dir?: number) {
     <slot name="navigator"></slot>
     <div class="content" ref="contentDOM">
       <!-- {{ props.curNode.title }} -->
+      <span class="sysIcon sysIcon_sync" v-if="!imgLayout.loaded"></span>
       <img
+        v-if="showImg"
         :data-ref-node-id="props.curNode.id"
         :src="`${props.curNode.file?.normal?.path}?filename=${props.curNode.title}`"
         @mousedown="onDragging"
@@ -309,8 +323,34 @@ function setZoom(e?: WheelEvent, dir?: number) {
 
 <style lang="scss">
 @import "../assets/variables";
-.modal_browser.base {
+@keyframes rotateAnimate {
+  0% {
+    transform: rotate(0);
+  }
+  50% {
+    transform: rotate(180deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.modal_browser.image {
   .content {
+    .sysIcon {
+      font-size: $fontSize*10;
+      display: block;
+      margin: 15% auto;
+      text-align: center;
+      z-index: 2;
+      color: map-get($colors, font);
+      position: relative;
+    }
+    .sysIcon::before {
+      display: block;
+      animation: rotateAnimate 5s infinite linear;
+      $blurSize: $fontSize ;
+      text-shadow: 0 0 $blurSize black;
+    }
     img {
       position: absolute;
       width: 100%;

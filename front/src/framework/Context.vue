@@ -174,7 +174,7 @@ addEventListener('contextmenu', (e: MouseEvent) => {
   triggerMenu([], e)
 });
 addEventListener('click', (e: MouseEvent) => {
-  console.info('closeMenu');
+  // console.info('closeMenu');
   closeMenu();
 });
 </script>
