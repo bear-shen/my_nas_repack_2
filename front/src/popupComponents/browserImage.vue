@@ -44,8 +44,7 @@ function loadImageRes(): any {
     // return setTimeout(loadImageRes.bind(null, curNodeId), 50);
     return setTimeout(loadImageRes, 50);
   }
-  console.warn("loadImageRes");
-
+  // console.info("loadImageRes");
   //以dom为基准矫正
   // if (dom.getAttribute("data-ref-node-id") !== `${curNodeId}`)
   //   return setTimeout(loadImageRes.bind(null, curNodeId), 50);
@@ -338,12 +337,15 @@ function setZoom(e?: WheelEvent, dir?: number) {
   .content {
     .sysIcon {
       font-size: $fontSize*10;
-      display: block;
-      margin: 15% auto;
+      //display: block;
       text-align: center;
-      z-index: 2;
+      z-index: 1;
       color: map-get($colors, font);
+      height: 100%;
       position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
     .sysIcon::before {
       display: block;
