@@ -6,16 +6,17 @@ $sourceDir = 'E:\\newdown\\';
 //临时数据输出目录
 //$tmpDir = 'E:\\newdown_tmp\\';
 //原始数据目录
-$targetDir   = 'F:\\hun\\';
+$targetDir = 'F:\\hun\\';
+global $filterWords;
 $filterWords = [
     '汉化', '翻译', '漢化', '中国', '翻訳', 'chinese', 'english', '翻訳', '汉化',
     "r18", "r-18", "高解像度", "psd", "补档",
     "えっちビデオ", "どえっち動画", "序章", "胡桃", "どえっち特別版", "無料版！",
     "※r-18注意※", "※微エロ注意※", "同人誌", "r-18", "まとめ1", "※エロ注意※", "まとめ2", "リクエスト", "全体公開", "食べ放題プラン限定", "ちょいエロ", "乳首あり注意", "まとめ", "新春リク", "skeb", "みんなで自己紹介",
-    "差分",
+    "差分", "雑誌",
     "表情", "セリフ", "再販", 'オリジナル', 'オリジ',
     'アンソロジ', '同人誌', 'コミッ', 'comic', 'よろず', 'Various', '同人CG集',
-    '成年コミック','オリジナル',
+    '成年コミック', 'オリジナル', 'ゲームCG', 'Game CG', 'よろず',
 ];
 $expArr      = [];
 $expTxt      = '';
@@ -238,9 +239,10 @@ class folderMeta {
             echo implode("\t", [$this->name]), "\r\n";
             return;
         }
-        if (mb_trim($matchParody[1]) == $this->author)
-            return;
-        $this->parody = mb_trim($matchParody[1]);
+        $probeParody = mb_trim($matchParody[1]);
+        if (mb_strlen($probeParody) < 2) return;
+        if ($probeParody == $this->author) return;
+        $this->parody = $probeParody;
         if (empty($this->parody)) {
             echo implode("\t", [$this->name]), "\r\n";
         }
@@ -262,6 +264,7 @@ class folderMeta {
     }
 
     public function parseAuthor() {
+        global $filterWords;
         $matchGroup = [];
         preg_match('/[\[【](.+?)[】\]]/iu', $this->name, $matchGroup);
         if (!empty($matchGroup)) {
@@ -273,13 +276,13 @@ class folderMeta {
                 preg_match('/(.+?)[\(（]/iu', $matchGroup, $revMatchGroup);
 //                $matchName   = trim($matchName[1][0]);
                 if (!empty($revMatchGroup) && !empty(mb_trim($revMatchGroup[1]))) {
-                    $this->author = mb_trim($matchAuthor[1]);
-                    $this->group  = mb_trim($revMatchGroup[1]);
+                    $this->author = $this->useFilter(mb_trim($matchAuthor[1]));
+                    $this->group  = $this->useFilter(mb_trim($revMatchGroup[1]));
                 } else {
-                    $this->author = mb_trim($matchAuthor[1]);
+                    $this->author = $this->useFilter(mb_trim($matchAuthor[1]));
                 }
             } else {
-                $this->author = mb_trim($matchGroup);
+                $this->author = $this->useFilter(mb_trim($matchGroup));
             }
         }
         if (empty($this->author)) {
@@ -287,5 +290,11 @@ class folderMeta {
         }
         if ($this->author) $this->author = strtolower($this->author);
         if ($this->group) $this->group = strtolower($this->group);
+    }
+
+    function useFilter($in) {
+        global $filterWords;
+        if (in_array($in, $filterWords)) return null;
+        return $in;
     }
 }
