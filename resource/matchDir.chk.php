@@ -1,11 +1,25 @@
 <?php
-require_once 'bootloader.php';
-require_once 'GenFunc.php';
-$sourceDir = 'F:\\newdown\\erohun\\';
-$tmpDir    = 'F:\\newdown\\erohun_tmp\\';
-$targetDir = 'F:\\newdown\\erohun_proc\\';
+require_once 'lib_php/bootloader.php';
+require_once 'lib_php/GenFunc.php';
+//临时数据目录
+$sourceDir = 'E:\\newdown\\';
+//临时数据输出目录
+//$tmpDir = 'E:\\newdown_tmp\\';
+//原始数据目录
+$targetDir   = 'F:\\hun\\';
+$filterWords = [
+    '汉化', '翻译', '漢化', '中国', '翻訳', 'chinese', 'english', '翻訳', '汉化',
+    "r18", "r-18", "高解像度", "psd", "补档",
+    "えっちビデオ", "どえっち動画", "序章", "胡桃", "どえっち特別版", "無料版！",
+    "※r-18注意※", "※微エロ注意※", "同人誌", "r-18", "まとめ1", "※エロ注意※", "まとめ2", "リクエスト", "全体公開", "食べ放題プラン限定", "ちょいエロ", "乳首あり注意", "まとめ", "新春リク", "skeb", "みんなで自己紹介",
+    "差分",
+    "表情", "セリフ", "再販", 'オリジナル', 'オリジ',
+    'アンソロジ', '同人誌', 'コミッ', 'comic', 'よろず', 'Various', '同人CG集',
+];
+$expArr      = [];
+$expTxt      = '';
 //------------------------------------------
-//获取已分组数据
+//原始目录
 $tMetaLs = [];
 $tls     = scandir($targetDir);
 foreach ($tls as $fl) {
@@ -26,17 +40,8 @@ foreach ($tls as $fl) {
             if ($sMeta->author) $keyLs[] = $sMeta->author;
         }
     }
-    $keyLs       = array_filter($keyLs, function ($val) {
-        $fKey = [
-            '汉化', '翻译', '漢化', '中国', '翻訳', 'chinese', 'english', '翻訳', '汉化',
-            "r18", "r-18", "高解像度", "psd", "补档",
-            "えっちビデオ", "どえっち動画", "序章", "胡桃", "どえっち特別版", "無料版！",
-            "※r-18注意※", "※微エロ注意※", "同人誌", "r-18", "まとめ1", "※エロ注意※", "まとめ2", "リクエスト", "全体公開", "食べ放題プラン限定", "ちょいエロ", "乳首あり注意", "まとめ", "新春リク", "skeb", "みんなで自己紹介",
-            "差分",
-            "表情", "セリフ", "再販", 'オリジナル', 'オリジ',
-            'アンソロジ', '同人誌', 'コミッ', 'comic', 'よろず', 'Various',
-        ];
-        foreach ($fKey as $key) {
+    $keyLs       = array_filter($keyLs, function ($val) use ($filterWords) {
+        foreach ($filterWords as $key) {
             if (stripos($val, $key) !== false) return false;
         }
         return true;
@@ -47,7 +52,7 @@ foreach ($tls as $fl) {
 }
 file_put_contents(__DIR__ . '/meta.dir.json', json_encode($tMetaLs, JSON_UNESCAPED_UNICODE));
 //------------------------------------------
-//获取分组数据
+//获取临时数据目录
 $fMetaLs = [];
 $fls     = scandir($sourceDir);
 foreach ($fls as $fl) {
@@ -58,23 +63,28 @@ foreach ($fls as $fl) {
 //    break;
 }
 file_put_contents(__DIR__ . '/meta.src.json', json_encode($fMetaLs, JSON_UNESCAPED_UNICODE));
-
+//匹配已经有的目录
 foreach ($fMetaLs as $i => $f) {
     $toDir = '';
+    //作品
     if (empty($toDir)) {
         foreach ($tMetaLs as $t) {
             if (!$t->isAuthor) continue;
             foreach ($t->keyLs as $key) {
-                if (strtolower($f->author) == strtolower($key)) $toDir = '作品合集 ' . $t->name;
-                if (strtolower($f->group) == strtolower($key)) $toDir = '作品合集 ' . $t->name;
+//                if (empty($key)) var_dump($t);
+//                if (empty($f->author)) var_dump($f);
+//                if (empty($f->group)) var_dump($f);
+                if ($f->author && strtolower($f->author) == strtolower($key)) $toDir = '作品合集 ' . $t->name;
+                if ($f->group && strtolower($f->group) == strtolower($key)) $toDir = '作品合集 ' . $t->name;
             }
         }
     }
+    //主题
     if (empty($toDir)) {
         foreach ($tMetaLs as $t) {
             if (!$t->isParody) continue;
             foreach ($t->keyLs as $key) {
-                if (strtolower($f->parody) == strtolower($key)) $toDir = '合集 ' . $t->name;
+                if ($f->parody && strtolower($f->parody) == strtolower($key)) $toDir = '合集 ' . $t->name;
             }
         }
     }
@@ -84,14 +94,17 @@ foreach ($fMetaLs as $i => $f) {
 //        else if (!empty($f->group)) $toDir = 'n 作品合集 ' . $f->group;
 //        else $toDir = 'unknown';
     }
-    $toDirPath = $tmpDir . $toDir;
-    if (!file_exists($toDirPath))
-        @mkdir($toDirPath, 0777, true);
-    $mvTo = $toDirPath . '\\' . $f->name;
-    @rename($f->path, $mvTo);
+//    continue;
+    $expArr[] = [$toDir, $f->name];
+//    $toDirPath = $tmpDir . $toDir;
+//    if (!file_exists($toDirPath))
+//        @mkdir($toDirPath, 0777, true);
+//    $mvTo = $toDirPath . '\\' . $f->name;
+//    @rename($f->path, $mvTo);
     unset($fMetaLs[$i]);
 }
-//有多个项目的时候才创建分组
+//exit();
+//对没有匹配的项目创建分组
 $fMetaLs        = array_values($fMetaLs);
 $authCountMap   = [];
 $parodyCountMap = [];
@@ -113,43 +126,56 @@ foreach ($fMetaLs as $i => $f) {
         $parodyCountMap[$k] += 1;
     }
 }
+//创建用户
 foreach ($authCountMap as $author => $count) {
     if ($count < 2) continue;
-    $toDirPath = $tmpDir . 'n作品合集 ' . $author;
-    $fMetaLs   = array_values($fMetaLs);
+//    $toDirPath = $tmpDir . 'n作品合集 ' . $author;
+    $toDir   = 'n作品合集 ' . $author;
+    $fMetaLs = array_values($fMetaLs);
     foreach ($fMetaLs as $i => $f) {
         /** @var $f folderMeta */
         if ($f->author == $author) {
-            $mvTo = $toDirPath . '\\' . $f->name;
+            $expArr[] = [$toDir, $f->name];
+            /*$mvTo = $toDirPath . '\\' . $f->name;
             if (!file_exists($toDirPath))
                 @mkdir($toDirPath, 0777, true);
             @rename($f->path, $mvTo);
+//            usleep(100000);//0.1s*/
             unset($fMetaLs[$i]);
         }
         if ($f->group == $author) {
-            $mvTo = $toDirPath . '\\' . $f->name;
+            $expArr[] = [$toDir, $f->name];
+            /*$mvTo = $toDirPath . '\\' . $f->name;
             if (!file_exists($toDirPath))
                 @mkdir($toDirPath, 0777, true);
             @rename($f->path, $mvTo);
+            usleep(100000);//0.1s*/
             unset($fMetaLs[$i]);
         }
     }
 }
-foreach ($parodyCountMap as $parody => $count) {
-    if ($count < 2) continue;
-    $toDirPath = $tmpDir . 'n合集 ' . $parody;
-    $fMetaLs   = array_values($fMetaLs);
-    foreach ($fMetaLs as $i => $f) {
-        /** @var $f folderMeta */
-        if ($f->parody == $parody) {
-            $mvTo = $toDirPath . '\\' . $f->name;
-            if (!file_exists($toDirPath))
-                @mkdir($toDirPath, 0777, true);
-            @rename($f->path, $mvTo);
-            unset($fMetaLs[$i]);
-        }
-    }
+$extTxt = '';
+foreach ($expArr as $arr) {
+    $extTxt .= implode("\t", $arr) . "\r\n";
 }
+file_put_contents(__DIR__ . 'matchDir.exp.txt', $extTxt);
+//创建主题
+//foreach ($parodyCountMap as $parody => $count) {
+//    if ($count < 2) continue;
+//    $toDirPath = $tmpDir . 'n合集 ' . $parody;
+//    $fMetaLs   = array_values($fMetaLs);
+//    foreach ($fMetaLs as $i => $f) {
+//        /** @var $f folderMeta */
+//        if ($f->parody == $parody) {
+//            $mvTo = $toDirPath . '\\' . $f->name;
+//            if (!file_exists($toDirPath))
+//                @mkdir($toDirPath, 0777, true);
+//            @rename($f->path, $mvTo);
+//            unset($fMetaLs[$i]);
+//            usleep(100000);//0.1s
+//        }
+//    }
+//}
 
 //similar_text()
 class groupMeta {
@@ -211,6 +237,8 @@ class folderMeta {
             echo implode("\t", [$this->name]), "\r\n";
             return;
         }
+        if (mb_trim($matchParody[1]) == $this->author)
+            return;
         $this->parody = mb_trim($matchParody[1]);
         if (empty($this->parody)) {
             echo implode("\t", [$this->name]), "\r\n";
