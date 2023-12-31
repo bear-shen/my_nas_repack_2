@@ -15,6 +15,7 @@ $filterWords = [
     "差分",
     "表情", "セリフ", "再販", 'オリジナル', 'オリジ',
     'アンソロジ', '同人誌', 'コミッ', 'comic', 'よろず', 'Various', '同人CG集',
+    '成年コミック','オリジナル',
 ];
 $expArr      = [];
 $expTxt      = '';
@@ -158,7 +159,7 @@ $extTxt = '';
 foreach ($expArr as $arr) {
     $extTxt .= implode("\t", $arr) . "\r\n";
 }
-file_put_contents(__DIR__ . 'matchDir.exp.txt', $extTxt);
+file_put_contents(__DIR__ . '/matchDir.exp.txt', $extTxt);
 //创建主题
 //foreach ($parodyCountMap as $parody => $count) {
 //    if ($count < 2) continue;
