@@ -7,7 +7,7 @@ const emits = defineEmits([
   "update:modelValue",
 ]);
 const props = defineProps<{
-  node: api_node_col,
+  node: api_node_col | null,
   modelValue: any,
 }>();
 
@@ -59,7 +59,8 @@ onMounted(() => {
       preValue.value = value.value;
       prepStar();
       //
-      await opFunctionModule.op_rate(preValue.value)
+      if (props.node)
+        await opFunctionModule.op_rate(preValue.value);
     });
   }
 });

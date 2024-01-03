@@ -76,7 +76,9 @@ export default class {
                 }
                 break;
             case 'tag':
-                model.whereRaw('find_in_set(?,list_tag_id)', request.tag_id);
+                request.tag_id.split(',').forEach(tagId=>
+                    model.whereRaw('find_in_set(?,list_tag_id)', tagId)
+                )
                 if (request.pid) {
                     target.path = await buildCrumb(parseInt(request.pid));
                     if (request.dir_only)

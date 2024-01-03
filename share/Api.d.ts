@@ -379,8 +379,11 @@ export type api_favourite_group_list_req = {
     is_del?: string,
 } & { [key: string]: any };
 
-export type api_favourite_group_list_resp =
-    col_favourite_group[];
+export type api_favourite_group_item = col_favourite_group & {
+    node?: col_node,
+    tag?: col_tag[],
+};
+export type api_favourite_group_list_resp = api_favourite_group_item[];
 
 export type api_favourite_group_del_req = {
     id?: string,
@@ -391,6 +394,8 @@ export type api_favourite_group_mod_req = {
     id?: string,
     title?: string,
     status?: string,
+    auto?: string,
+    meta?: string,
 } & { [key: string]: any };
 
 export type api_favourite_group_mod_resp = api_favourite_group_mod_req;

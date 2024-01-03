@@ -1,3 +1,5 @@
+import {api_file_list_req, api_file_list_resp, api_node_col} from "./Api";
+
 export type type_file = 'audio' | 'video' |
     'image' | 'binary' |
     'text' | 'subtitle' |
@@ -136,6 +138,8 @@ export type col_favourite_group = {
     id_user?: number,
     title?: string,
     status?: 0 | 1,
+    auto?: 0 | 1,
+    meta?: api_file_list_req,
     time_create?: string,
     time_update?: string,
 }

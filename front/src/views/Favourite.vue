@@ -7,13 +7,27 @@ import {useLocalConfigureStore} from "@/stores/localConfigure";
 import GenFunc from "../../../share/GenFunc";
 import {useModalStore} from "@/stores/modalStore";
 import ContentEditable from "@/components/ContentEditable.vue";
-import type {col_favourite_group} from "../../../share/Database";
-import type {api_favourite_group_list_req, api_favourite_group_list_resp, api_favourite_group_mod_resp, api_file_list_req, api_file_list_resp, api_node_col} from "../../../share/Api";
+import type {api_favourite_group_item, api_favourite_group_list_req, api_favourite_group_list_resp, api_favourite_group_mod_resp, api_file_list_req, api_file_list_resp, api_node_col, api_tag_col, api_tag_list_resp} from "../../../share/Api";
 import {query} from "@/Helper";
 import FileItem from "@/components/FileItem.vue";
 import type {opModule as opModuleClass} from "@/FileViewHelper";
 import * as fHelper from "@/FileViewHelper";
+import Hinter from "@/components/Hinter.vue";
+import Rater from "@/components/Rater.vue";
 
+const def = {
+  fileType: [
+    "any",
+    // "directory",
+    "file",
+    "audio",
+    "video",
+    "image",
+    "binary",
+    "text",
+    "pdf",
+  ],
+};
 //
 const localConfigure = useLocalConfigureStore();
 const modalStore = useModalStore();
@@ -24,7 +38,10 @@ let queryData = {
   id: "",
   keyword: "",
 } as api_favourite_group_list_req;
-type api_favourite_group_col_local = (col_favourite_group & { edit?: boolean, ext_key?: number });
+type api_favourite_group_col_local = (api_favourite_group_item & {
+  edit?: boolean, ext_key?: number,
+  node?: api_node_col,
+});
 const groupList: Ref<(api_favourite_group_col_local)[]> = ref([]);
 const nodeList: Ref<api_node_col[]> = ref([]);
 const curGroup: Ref<api_favourite_group_col_local | null> = ref(null);
@@ -92,10 +109,17 @@ async function modGroup(index: number) {
   }
 }
 
-function addGroup() {
+function addGroup(auto: 0 | 1) {
   groupList.value.unshift({
     title: '',
     status: 1,
+    auto: auto,
+    meta: {
+      node_type: 'any',
+      tag_id: '',
+      rate: '',
+      pid: '',
+    },
     edit: true,
     ext_key: (new Date()).valueOf(),
   });
@@ -175,6 +199,88 @@ function emitGo(type: string, code: number) {
   }
 }
 
+
+async function node_hint(text: string): Promise<api_node_col[] | false> {
+  console.info('node_hint');
+  let queryData: api_file_list_req = {
+    mode: "search",
+    node_type: "directory",
+    keyword: text,
+    with: 'none',
+    limit: '20',
+  };
+  const res = await query<api_file_list_resp>("file/get", queryData);
+  if (!res) return false;
+  // console.info(res)
+  if ('root'.indexOf(text) !== -1) {
+    res.list.unshift({
+      id: 0, title: 'root', status: 1, type: 'directory', crumb_node: [],
+    });
+  }
+  return res.list;
+}
+
+function node_submit(item: api_node_col, groupIndex: number) {
+  console.info('node_add', item, groupIndex);
+  const curGroup = groupList.value[groupIndex];
+  curGroup.meta = Object.assign(curGroup.meta ?? {}, {
+    pid: item.id,
+  });
+  groupList.value[groupIndex].node = item;
+  // groupList.value[groupIndex].node = item;
+}
+
+function node_parse(item: api_node_col) {
+  console.info('node_parse');
+  if (!item) return '';
+  const treeMap = [] as string[];
+  item.crumb_node?.forEach(crumb => {
+    if (crumb.title)
+      treeMap.push(crumb.title);
+  });
+  if (item.title) treeMap.push(item.title);
+  return `/ ${treeMap.join(' / ')}`;
+}
+
+
+async function tag_hint(text: string): Promise<api_tag_list_resp | false> {
+  const formData = new FormData();
+  formData.set('keyword', text);
+  formData.set('size', '20');
+  const res = await query<api_tag_list_resp>('tag/get', formData);
+  return res;
+}
+
+function tag_add(item: api_tag_col, groupIndex: number) {
+  // console.info(item);
+  const curGroup = groupList.value[groupIndex];
+  if (!curGroup.tag) curGroup.tag = [];
+  curGroup.tag.push(item);
+  const tagIdLs: number[] = [];
+  curGroup.tag.forEach(tag => tagIdLs.push(tag.id ?? 0));
+  curGroup.meta = Object.assign(curGroup.meta ?? {}, {
+    tag_id: tagIdLs.join(','),
+  });
+}
+
+function tag_parse(item: api_tag_col) {
+  if (!item) return '';
+  // console.info(item);
+  return `${item.group.title} : ${item.title}`;
+}
+
+function delTag(groupIndex: number, tagIndex: number) {
+  const curGroup = groupList.value[groupIndex];
+  if (!curGroup.tag) curGroup.tag = [];
+  curGroup.tag.splice(tagIndex, 1);
+  const tagIdLs: number[] = [];
+  curGroup.tag.forEach(tag => tagIdLs.push(tag.id ?? 0));
+  curGroup.meta = Object.assign(curGroup.meta ?? {}, {
+    tag_id: tagIdLs.join(','),
+  });
+}
+
+
 </script>
 
 <template>
@@ -185,9 +291,15 @@ function emitGo(type: string, code: number) {
         fav_group_add:true,
         active:curGroupIndex===-1,
 }"
-           @click="addGroup"
       >
-        <span class="sysIcon sysIcon_plus-square-o"></span>
+        <span
+          class="sysIcon sysIcon_plus-square-o"
+          @click="addGroup(0)"
+        ></span>
+        <span
+          class="sysIcon sysIcon_A"
+          @click="addGroup(1)"
+        ></span>
       </div>
       <div v-for="(group,index) in groupList"
            :key="`favView_group_${group.ext_key?group.ext_key:group.id}`"
@@ -197,23 +309,122 @@ function emitGo(type: string, code: number) {
         edit:group.edit,
         }"
       >
-        <template v-if="!group.edit">
-          <div :class="{active:curGroupIndex==index}" @click="goGroup(index)">
-            <div class="title">{{ group.title }}</div>
-            <div class="operator" @click.stop>
-              <span class="sysIcon sysIcon_edit" @click="modGroup(index)"></span>
-              <span class="sysIcon sysIcon_delete" @click="delGroup(index)"></span>
+        <template v-if="group.auto">
+          <template v-if="!group.edit">
+            <div :class="{active:curGroupIndex==index,auto:true}" @click="goGroup(index)">
+              <div class="title"><span class="sysIcon sysIcon_A"></span>{{ group.title }}</div>
+              <div class="operator" @click.stop>
+                <span class="sysIcon sysIcon_edit" @click="modGroup(index)"></span>
+                <span class="sysIcon sysIcon_delete" @click="delGroup(index)"></span>
+              </div>
+              <table>
+                <tr>
+                  <td>nodeType</td>
+                  <td>
+                    <select v-model="group.meta.node_type">
+                      <option v-for="(fileType, key) in def.fileType" :value="fileType">
+                        {{ fileType }}
+                      </option>
+                    </select>
+                  </td>
+                </tr>
+                <!--                <tr>
+                                  <td>dirOnly</td>
+                                  <td>
+                                    <input
+                                      :id="`FG_${index}_DO_N`"
+                                      :name="`FG_${index}_DO_N`"
+                                      :value="undefined"
+                                      type="radio"
+                                      v-model="group.meta.type"
+                                    />
+                                    <label :for="`FG_${index}_DO_N`">C</label>
+                                    <input
+                                      :id="`FG_${index}_DO_1`"
+                                      :name="`FG_${index}_DO_1`"
+                                      :value="'directory'"
+                                      type="radio"
+                                      v-model="group.meta.type"
+                                    />
+                                    <label :for="`FG_${index}_DO_1`">Y</label>
+                                    <input
+                                      :id="`FG_${index}_DO_0`"
+                                      :name="`FG_${index}_DO_0`"
+                                      :value="''"
+                                      type="radio"
+                                      v-model="group.meta.type"
+                                    />
+                                    <label :for="`FG_${index}_DO_0`">N</label>
+                                  </td>
+                                </tr>-->
+                <tr>
+                  <td>withTag</td>
+                  <td class="favTagLs">
+                    <div>
+                      <p v-for="(tag,tagIndex) in group.tag">
+                        <span>{{ tag.title }}</span>
+                        <span class="sysIcon sysIcon_delete" @click="delTag(index,tagIndex)"></span>
+                      </p>
+                    </div>
+                    <hinter
+                      :get-list="tag_hint"
+                      :submit="tag_add"
+                      :parse-text="tag_parse"
+                      :meta="index"
+                    ></hinter>
+                  </td>
+                </tr>
+                <tr>
+                  <td>root</td>
+                  <td>
+                    <hinter
+                      :get-list="node_hint"
+                      :submit="node_submit"
+                      :parse-text="node_parse"
+                      v-model="group.node"
+                      :meta="index"
+                    ></hinter>
+                  </td>
+                </tr>
+                <tr>
+                  <td>rate</td>
+                  <td>
+                    <rater :node="null" v-model="group.meta.rate"></rater>
+                  </td>
+                </tr>
+              </table>
             </div>
-          </div>
+          </template>
+          <template v-else>
+            <div>
+              <content-editable class="title" v-model="group.title" :auto-focus="true"></content-editable>
+              <div class="operator">
+                <span class="sysIcon sysIcon_save" @click="modGroup(index)"></span>
+                <span class="sysIcon sysIcon_delete" @click="delGroup(index)"></span>
+              </div>
+              <div class="rate"></div>
+            </div>
+          </template>
         </template>
         <template v-else>
-          <div>
-            <content-editable class="title" v-model="group.title" :auto-focus="true"></content-editable>
-            <div class="operator">
-              <span class="sysIcon sysIcon_save" @click="modGroup(index)"></span>
-              <span class="sysIcon sysIcon_delete" @click="delGroup(index)"></span>
+          <template v-if="!group.edit">
+            <div :class="{active:curGroupIndex==index}" @click="goGroup(index)">
+              <div class="title">{{ group.title }}</div>
+              <div class="operator" @click.stop>
+                <span class="sysIcon sysIcon_edit" @click="modGroup(index)"></span>
+                <span class="sysIcon sysIcon_delete" @click="delGroup(index)"></span>
+              </div>
             </div>
-          </div>
+          </template>
+          <template v-else>
+            <div>
+              <content-editable class="title" v-model="group.title" :auto-focus="true"></content-editable>
+              <div class="operator">
+                <span class="sysIcon sysIcon_save" @click="modGroup(index)"></span>
+                <span class="sysIcon sysIcon_delete" @click="delGroup(index)"></span>
+              </div>
+            </div>
+          </template>
         </template>
       </div>
     </div>
@@ -248,6 +459,9 @@ function emitGo(type: string, code: number) {
       span {
         font-size: $fontSize*1.5;
         line-height: $fontSize*3;
+        cursor: pointer;
+        padding: $fontSize*0.5;
+        margin-right: $fontSize;
       }
       //text-align: center;
     }
@@ -261,22 +475,76 @@ function emitGo(type: string, code: number) {
         color: map-get($colors, font_sub);
         display: flex;
         justify-content: space-between;
+        flex-wrap: wrap;
+        > div {
+          width: 100%;
+        }
+        .title {
+          width: $fontSize*12;
+        }
+        .operator {
+          width: $fontSize*4;
+        }
       }
       //>div
       .title {
         color: map-get($colors, font);
         padding: 0 $fontSize*0.5;
         background-color: transparent;
-        min-width: $fontSize*10;
         overflow: hidden;
         word-break: break-all;
         //display: flex;
         //justify-content: space-between;
+        span.sysIcon {
+          margin-right: $fontSize*0.5;
+        }
       }
       .operator {
         .sysIcon {
           margin-left: $fontSize;
           cursor: pointer;
+        }
+      }
+      table {
+        margin-top: $fontSize*0.5;
+        font-size: $fontSize*0.9;
+        color: map-get($colors, font_sub);
+        width: 100%;
+        overflow: hidden;
+        display: block;
+        td {
+          //height: $fontSize*1.5;
+          line-height: $fontSize*1.5;
+        }
+        td:first-child {
+          width: $fontSize*4;
+        }
+        td:last-child {
+          padding-left: $fontSize*0.5;
+          width: $fontSize*12;
+          label::after {
+            display: none;
+          }
+          select {
+            color: map-get($colors, font_sub);
+            padding: 0 $fontSize;
+          }
+        }
+        .favTagLs {
+          > div {
+            display: block;
+            p {
+              display: inline-block;
+              margin-right: $fontSize*0.25;
+              white-space: break-spaces;
+              word-break: break-all;
+            }
+            .sysIcon {
+              margin-left: $fontSize*0.25;
+            }
+          }
+          .hinter {
+          }
         }
       }
     }
