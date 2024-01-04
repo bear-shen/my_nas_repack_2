@@ -379,11 +379,11 @@ export type api_favourite_group_list_req = {
     is_del?: string,
 } & { [key: string]: any };
 
-export type api_favourite_group_item = col_favourite_group & {
+export type api_favourite_group_col = col_favourite_group & {
     node?: col_node,
-    tag?: col_tag[],
+    tag?: api_tag_col[],
 };
-export type api_favourite_group_list_resp = api_favourite_group_item[];
+export type api_favourite_group_list_resp = api_favourite_group_col[];
 
 export type api_favourite_group_del_req = {
     id?: string,

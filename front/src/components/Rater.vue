@@ -40,29 +40,30 @@ onMounted(() => {
   // console.info('contentEditable', editor.value, editor.value?.innerHTML);
   // value.value = props.modelValue;
   prepStar();
-  if (rater.value) {
-    rater.value.addEventListener('mousemove', (e: MouseEvent) => {
-      // console.info(rater.value?.offsetWidth, e, e.offsetX);
-      let r = Math.round(10 * e.offsetX / (rater.value?.offsetWidth ?? 1));
-      if (r < 0) r = 0;
-      if (r > 10) r = 10;
-      value.value = r;
-      prepStar();
-    });
-    rater.value.addEventListener('mouseleave', (e: MouseEvent) => {
-      // console.info(rater.value?.offsetWidth, e, e.offsetX);
-      value.value = preValue.value;
-      prepStar();
-    });
-    rater.value.addEventListener('click', async (e: MouseEvent) => {
-      // console.info(rater.value?.offsetWidth, e, e.offsetX);
-      preValue.value = value.value;
-      prepStar();
-      //
-      if (props.node)
-        await opFunctionModule.op_rate(preValue.value);
-    });
-  }
+  if (!rater.value) return;
+  rater.value.addEventListener('mousemove', (e: MouseEvent) => {
+    // console.info(rater.value?.offsetWidth, e, e.offsetX);
+    let r = Math.round(10 * e.offsetX / (rater.value?.offsetWidth ?? 1));
+    if (r < 0) r = 0;
+    if (r > 10) r = 10;
+    value.value = r;
+    prepStar();
+  });
+  rater.value.addEventListener('mouseleave', (e: MouseEvent) => {
+    // console.info(rater.value?.offsetWidth, e, e.offsetX);
+    value.value = preValue.value;
+    prepStar();
+  });
+  rater.value.addEventListener('click', async (e: MouseEvent) => {
+    // console.info(rater.value?.offsetWidth, e, e.offsetX);
+    preValue.value = value.value;
+    prepStar();
+    //
+    if (props.node)
+      await opFunctionModule.op_rate(preValue.value);
+    else
+      emits('update:modelValue', preValue.value);
+  });
 });
 
 const starLs: Ref<number[]> = ref([]);

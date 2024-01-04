@@ -7,7 +7,7 @@ import {useLocalConfigureStore} from "@/stores/localConfigure";
 import GenFunc from "../../../share/GenFunc";
 import {useModalStore} from "@/stores/modalStore";
 import ContentEditable from "@/components/ContentEditable.vue";
-import type {api_favourite_group_item, api_favourite_group_list_req, api_favourite_group_list_resp, api_favourite_group_mod_resp, api_file_list_req, api_file_list_resp, api_node_col, api_tag_col, api_tag_list_resp} from "../../../share/Api";
+import type {api_favourite_group_col, api_favourite_group_list_req, api_favourite_group_list_resp, api_favourite_group_mod_req, api_favourite_group_mod_resp, api_file_list_req, api_file_list_resp, api_node_col, api_tag_col, api_tag_list_resp} from "../../../share/Api";
 import {query} from "@/Helper";
 import FileItem from "@/components/FileItem.vue";
 import type {opModule as opModuleClass} from "@/FileViewHelper";
@@ -38,7 +38,7 @@ let queryData = {
   id: "",
   keyword: "",
 } as api_favourite_group_list_req;
-type api_favourite_group_col_local = (api_favourite_group_item & {
+type api_favourite_group_col_local = (api_favourite_group_col & {
   edit?: boolean, ext_key?: number,
   node?: api_node_col,
 });
@@ -98,14 +98,16 @@ async function delGroup(index: number) {
 }
 
 async function modGroup(index: number) {
-  const target = groupList.value[index];
+  console.info(groupList.value[index]);
+  const target = GenFunc.copyObject(groupList.value[index]) as api_favourite_group_mod_req;
   if (target.edit) {
-    target.edit = false;
+    groupList.value[index].edit = false;
+    target.meta = JSON.stringify(target.meta);
     const res = await query<api_favourite_group_mod_resp>("favourite_group/mod", target);
     if (!res) return;
     groupList.value[index].id = parseInt(res.id ?? '');
   } else {
-    target.edit = true;
+    groupList.value[index].edit = true;
   }
 }
 
@@ -312,9 +314,18 @@ function delTag(groupIndex: number, tagIndex: number) {
         <template v-if="group.auto">
           <template v-if="!group.edit">
             <div :class="{active:curGroupIndex==index,auto:true}" @click="goGroup(index)">
-              <div class="title"><span class="sysIcon sysIcon_A"></span>{{ group.title }}</div>
+              <div class="title">{{ group.title }}</div>
               <div class="operator" @click.stop>
                 <span class="sysIcon sysIcon_edit" @click="modGroup(index)"></span>
+                <span class="sysIcon sysIcon_delete" @click="delGroup(index)"></span>
+              </div>
+            </div>
+          </template>
+          <template v-else>
+            <div :class="{active:curGroupIndex==index,auto:true}">
+              <content-editable class="title" v-model="group.title" :auto-focus="true"></content-editable>
+              <div class="operator">
+                <span class="sysIcon sysIcon_save" @click="modGroup(index)"></span>
                 <span class="sysIcon sysIcon_delete" @click="delGroup(index)"></span>
               </div>
               <table>
@@ -328,41 +339,12 @@ function delTag(groupIndex: number, tagIndex: number) {
                     </select>
                   </td>
                 </tr>
-                <!--                <tr>
-                                  <td>dirOnly</td>
-                                  <td>
-                                    <input
-                                      :id="`FG_${index}_DO_N`"
-                                      :name="`FG_${index}_DO_N`"
-                                      :value="undefined"
-                                      type="radio"
-                                      v-model="group.meta.type"
-                                    />
-                                    <label :for="`FG_${index}_DO_N`">C</label>
-                                    <input
-                                      :id="`FG_${index}_DO_1`"
-                                      :name="`FG_${index}_DO_1`"
-                                      :value="'directory'"
-                                      type="radio"
-                                      v-model="group.meta.type"
-                                    />
-                                    <label :for="`FG_${index}_DO_1`">Y</label>
-                                    <input
-                                      :id="`FG_${index}_DO_0`"
-                                      :name="`FG_${index}_DO_0`"
-                                      :value="''"
-                                      type="radio"
-                                      v-model="group.meta.type"
-                                    />
-                                    <label :for="`FG_${index}_DO_0`">N</label>
-                                  </td>
-                                </tr>-->
                 <tr>
                   <td>withTag</td>
                   <td class="favTagLs">
                     <div>
                       <p v-for="(tag,tagIndex) in group.tag">
-                        <span>{{ tag.title }}</span>
+                        <span>{{ tag_parse(tag) }}</span>
                         <span class="sysIcon sysIcon_delete" @click="delTag(index,tagIndex)"></span>
                       </p>
                     </div>
@@ -395,16 +377,6 @@ function delTag(groupIndex: number, tagIndex: number) {
               </table>
             </div>
           </template>
-          <template v-else>
-            <div>
-              <content-editable class="title" v-model="group.title" :auto-focus="true"></content-editable>
-              <div class="operator">
-                <span class="sysIcon sysIcon_save" @click="modGroup(index)"></span>
-                <span class="sysIcon sysIcon_delete" @click="delGroup(index)"></span>
-              </div>
-              <div class="rate"></div>
-            </div>
-          </template>
         </template>
         <template v-else>
           <template v-if="!group.edit">
@@ -417,7 +389,7 @@ function delTag(groupIndex: number, tagIndex: number) {
             </div>
           </template>
           <template v-else>
-            <div>
+            <div :class="{active:curGroupIndex==index}">
               <content-editable class="title" v-model="group.title" :auto-focus="true"></content-editable>
               <div class="operator">
                 <span class="sysIcon sysIcon_save" @click="modGroup(index)"></span>
@@ -486,6 +458,15 @@ function delTag(groupIndex: number, tagIndex: number) {
           width: $fontSize*4;
         }
       }
+      .auto .title:before {
+        font-family: "sysIcon" !important;
+        font-size: 16px;
+        font-style: normal;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        margin-right: $fontSize*0.5;
+        content: "\e603";
+      }
       //>div
       .title {
         color: map-get($colors, font);
@@ -495,9 +476,9 @@ function delTag(groupIndex: number, tagIndex: number) {
         word-break: break-all;
         //display: flex;
         //justify-content: space-between;
-        span.sysIcon {
-          margin-right: $fontSize*0.5;
-        }
+        //span.sysIcon {
+        //  margin-right: $fontSize*0.5;
+        //}
       }
       .operator {
         .sysIcon {
@@ -528,6 +509,7 @@ function delTag(groupIndex: number, tagIndex: number) {
           select {
             color: map-get($colors, font_sub);
             padding: 0 $fontSize;
+            text-align: center;
           }
         }
         .favTagLs {
@@ -535,7 +517,7 @@ function delTag(groupIndex: number, tagIndex: number) {
             display: block;
             p {
               display: inline-block;
-              margin-right: $fontSize*0.25;
+              margin-right: $fontSize*0.5;
               white-space: break-spaces;
               word-break: break-all;
             }
