@@ -1,33 +1,12 @@
 <script setup lang="ts">
-import {watch, ref, onUnmounted} from "vue";
 import type {Ref} from "vue";
-import {
-  useRouter,
-  useRoute,
-  type RouteRecordRaw,
-  type RouteLocationNormalizedLoaded,
-  onBeforeRouteUpdate,
-} from "vue-router";
 // import {routes} from "@/router/index";
-import {onMounted} from "vue";
+import {onMounted, onUnmounted, ref} from "vue";
+import {onBeforeRouteUpdate, useRoute, useRouter,} from "vue-router";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
-import type {
-  col_node,
-  col_file,
-  col_tag_group,
-  col_tag,
-} from "../../../share/Database";
-import {query, queryDemo} from "@/Helper";
-import smp_file_list_resp from "../../../share/sampleApi/smp_file_list_resp";
+import {query} from "@/Helper";
 import GenFunc from "../../../share/GenFunc";
-import FileItem from "@/components/FileItem.vue";
-import type {
-  api_file_list_resp,
-  api_file_list_req,
-  api_tag_group_col, api_tag_group_list_req, api_tag_group_list_resp,
-  api_tag_col, api_tag_list_req, api_tag_list_resp, api_node_col,
-  api_tag_group_mod_req, api_tag_group_mod_resp, api_tag_mod_resp, api_tag_del_resp,
-} from "../../../share/Api";
+import type {api_file_list_req, api_file_list_resp, api_node_col, api_tag_col, api_tag_del_resp, api_tag_group_col, api_tag_group_list_req, api_tag_group_list_resp, api_tag_group_mod_resp, api_tag_list_req, api_tag_list_resp, api_tag_mod_resp,} from "../../../share/Api";
 import {useModalStore} from "@/stores/modalStore";
 import ContentEditable from "@/components/ContentEditable.vue";
 import Hinter from "@/components/Hinter.vue";
@@ -131,27 +110,6 @@ async function getTagList() {
 //
 onUnmounted(() => {
 });
-
-//
-function go(ext: api_file_list_req) {
-  if (!ext.tag_id) ext.tag_id = "";
-  if (!ext.keyword) ext.keyword = "";
-  if (!ext.node_type) ext.node_type = "";
-  const tQuery = Object.assign({
-    mode: "",
-    pid: "",
-    keyword: "",
-    tag_id: "",
-    node_type: "",
-    dir_only: "",
-    with: "",
-    group: "",
-  }, ext);
-  router.push({
-    path: route.path,
-    query: tQuery,
-  });
-}
 
 async function modGroup(index: number) {
   // console.info(index);

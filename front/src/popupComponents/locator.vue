@@ -17,7 +17,7 @@ let queryData: api_file_list_req = {
   pid: '',
   keyword: '',
   tag_id: '',
-  dir_only: '',
+  cascade_dir: '',
   node_type: 'directory',
   with: 'crumb',
   group: '',

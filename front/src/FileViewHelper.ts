@@ -672,13 +672,14 @@ export class opModule {
             keyword: "",
             tag_id: "",
             node_type: "",
-            dir_only: "",
+            cascade_dir: "",
             with: "",
             group: "",
             rate: "",
         }, ext);
         this.router.push({
-            path: this.route.path,
+            // path: this.route.path,
+            path: '/',
             query: tQuery,
         });
     }
@@ -713,7 +714,7 @@ export class opModule {
     }
 
     public reloadScroll() {
-        // console.warn('this.reloadScroll()');
+        console.warn('this.reloadScroll()');
         const path = this.route.fullPath;
         const ifLogExs = scrollLog.get(path);
         if (!ifLogExs) return;
@@ -734,6 +735,7 @@ export class opModule {
         this.nodeList.value.forEach(node => {
             let hit = true;
             let offsets = node._offsets as number[];
+            if (!offsets || !offsets.length) return;
             if (offsets[1] > bottom) hit = false;
             if (offsets[3] < top) hit = false;
             node._in_screen = hit;

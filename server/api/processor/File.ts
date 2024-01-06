@@ -34,58 +34,41 @@ import {get as getConfig} from "../../ServerConfig";
 import QueueModel from "../../model/QueueModel";
 import FavouriteModel from "../../model/FavouriteModel";
 import RateModel from "../../model/RateModel";
+import FavouriteGroupModel from "../../model/FavouriteGroupModel";
+import ORM from "../../lib/ORM";
 
 export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_list_resp> {
         const request = data.fields as api_file_list_req;
+        console.info(request);
         const treeLs = [];
         const listLs = [];
         const target = {
             path: [] as col_node[],
             list: [] as api_node_col[],
         };
-
         const model = new NodeModel();
-
         switch (request.mode) {
             default:
             case 'directory':
-                //pid可能为0因此单独做判断
-                //但是按照道理讲为什么不直接判断一下request.pid.length呢？
-                //之前考虑过这一点但是忘记为什么了
-                let pid = parseInt(request.pid);
-                pid = isNaN(pid) ? 0 : pid;
-                target.path = await buildCrumb(pid);
-                if (!pid && request.group == 'deleted') break;
-                //不加toString不出数据，绑定是有值的，不清楚为什么
-                model.where('id_parent', pid.toString());
+                if (!request.pid) {
+                    throw new Error('no def pid');
+                }
                 break;
             case 'search':
-                model.where(
-                    // 'index_node',
-                    'title',
-                    'like',
-                    `%${request.keyword.trim()}%`
-                );
-                if (request.pid) {
-                    target.path = await buildCrumb(parseInt(request.pid));
-                    if (request.dir_only)
-                        model.where('id_parent', request.pid);
-                    else
-                        model.whereRaw('find_in_set(?,list_node)', request.pid);
+                if (request.keyword.length) {
+                    model.where(
+                        // 'index_node',
+                        'title',
+                        'like',
+                        `%${request.keyword.trim()}%`
+                    );
                 }
                 break;
             case 'tag':
-                request.tag_id.split(',').forEach(tagId=>
+                request.tag_id.split(',').forEach(tagId =>
                     model.whereRaw('find_in_set(?,list_tag_id)', tagId)
                 )
-                if (request.pid) {
-                    target.path = await buildCrumb(parseInt(request.pid));
-                    if (request.dir_only)
-                        model.where('id_parent', request.pid);
-                    else
-                        model.whereRaw('find_in_set(?,list_node)', request.pid);
-                }
                 break;
             case 'id_iterate':
                 let idList = request.keyword.split(',');
@@ -101,16 +84,45 @@ export default class {
                 });
                 break;
             case 'favourite':
+                const curFav = await (new FavouriteGroupModel).where('id', request.fav_id).first();
+                if (!curFav) throw new Error('fav group not exist');
+                if (curFav.auto) {
+                    return await this.get({
+                        uid: data.uid,
+                        fields: Object.assign({
+                            cascade_dir: '1',
+                            mode: 'directory',
+                        } as api_file_list_req, curFav.meta),
+                        files: data.files,
+                    }, req, res);
+                }
                 model.whereRaw(
                     'id in (select id_node from favourite where id_group = ? and id_user = ?)'
-                    , request.pid, data.uid
+                    , request.fav_id, data.uid
                 ).where('status', 1)
                 ;
                 break;
         }
+        if (request.pid) {
+            target.path = await buildCrumb(parseInt(request.pid));
+            if (request.cascade_dir)
+                model.whereRaw('find_in_set(?,list_node)', request.pid);
+            else
+                model.where('id_parent', request.pid);
+        }
         if (request.node_type) {
-            if (request.node_type !== 'any')
-                model.where('type', request.node_type);
+            switch (request.node_type) {
+                case 'any':
+                    break;
+                default:
+                case 'directory':
+                    model.where('type', request.node_type);
+                    break;
+                case 'file':
+                    model.where('type', '!=', 'directory');
+                    break;
+                    break;
+            }
         }
         switch (request.group) {
             default:
@@ -132,9 +144,9 @@ export default class {
             ;
         }
         // console.info(model.l)
-        // ORM.dumpSql = true;
+        ORM.dumpSql = true;
         const nodeLs: api_node_col[] = await model.select();
-        // ORM.dumpSql=false;
+        ORM.dumpSql=false;
         // console.info(nodeLs);
         //
         const tagIdSet = new Set<number>();

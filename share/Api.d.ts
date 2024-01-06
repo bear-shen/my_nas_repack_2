@@ -50,6 +50,20 @@ export type api_file_list_resp = {
     limit?: string,
 } & { [key: string]: any }*/
 
+/**
+ * directory
+ *      pid
+ * search
+ *      pid
+ *      keyword
+ * tag
+ *      pid
+ *      tag_id
+ * id_iterate
+ *      keyword
+ * favourite
+ *      fav_id
+ * */
 export type api_file_list_req = {
     mode?:
         'directory' | 'search' | 'tag'
@@ -59,16 +73,17 @@ export type api_file_list_req = {
     pid?: string,
     keyword?: string,
     tag_id?: string,
+    fav_id?: string,
+    //
     //这个只是表示在当前文件夹中搜索
-    dir_only?: '1' | '' | string,
+    cascade_dir?: '1' | '' | string,
     //
     node_type?: type_file | string,
-    //
     // sort?: string,
     rate?: string,
     // detail: string,
     with?: 'file' | 'tag' | 'crumb' | 'none' | string,
-    group?: 'directory' | 'deleted' | 'favourite' | string,
+    group?: 'directory' | 'deleted'  | string,
     // favourite?: string,
     // no_file?: string,
     // no_tag?: string,

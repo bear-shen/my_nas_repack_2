@@ -14,6 +14,7 @@ import type {opModule as opModuleClass} from "@/FileViewHelper";
 import * as fHelper from "@/FileViewHelper";
 import Hinter from "@/components/Hinter.vue";
 import Rater from "@/components/Rater.vue";
+import {manualSort} from "@/FileViewHelper";
 
 const def = {
   fileType: [
@@ -77,7 +78,7 @@ onBeforeRouteUpdate(async (to) => {
   // await getGroup();
   if (queryData.id) {
     locateGroup();
-    getList();
+    await getList();
   }
 });
 
@@ -153,11 +154,11 @@ async function getList() {
   // const group = groupList.value[index];
   const res = await query<api_file_list_resp>("file/get", {
     mode: 'favourite',
-    pid: queryData.id,
+    fav_id: queryData.id,
     with: 'file,tag',
   } as api_file_list_req);
   if (!res) return;
-  nodeList.value = res.list;
+  nodeList.value = manualSort(res.list,'name_asc');
   opModule.setList(nodeList.value);
 }
 
@@ -192,7 +193,7 @@ function emitGo(type: string, code: number) {
         default:
           fHelper.popupDetail({
             mode: 'favourite',
-            pid: queryData.id,
+            fav_id: queryData.id,
             with: 'file',
           }, node.id ?? 0);
           break;
@@ -443,6 +444,7 @@ function delTag(groupIndex: number, tagIndex: number) {
         background-color: map-get($colors, bar_meta_active);
       }
       > div {
+        cursor: pointer;
         font-size: $fontSize;
         color: map-get($colors, font_sub);
         display: flex;
@@ -533,7 +535,9 @@ function delTag(groupIndex: number, tagIndex: number) {
   }
   .list_fav {
     width: calc(100% - $fontSize * 20);
-    max-height: 100%;
+    height: 100%;
+    overflow: auto;
+    @include smallScroll();
     //columns: $fontSize * 20 6;
     //column-gap: 0;
     display: flex;

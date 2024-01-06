@@ -59,17 +59,17 @@ const def = {
   },
   listType: ["detail", "text", "img"],
 };
-let queryData = {
-  mode: "",
-  pid: "",
+let queryData: api_file_list_req = {
+  mode: "directory",
+  pid: "0",
   keyword: "",
   tag_id: "",
   node_type: "",
-  dir_only: "",
+  cascade_dir: "",
   with: "",
   group: "",
   rate: "",
-} as api_file_list_req;
+};
 // let usePid = false;
 //
 // defineProps<{
@@ -90,16 +90,16 @@ watch(route, async (to: RouteLocationNormalizedLoaded) => {
 onBeforeRouteUpdate(async (to) => {
   console.info('onBeforeRouteUpdate', to);
   queryData = Object.assign({
-    mode: "",
-    pid: "",
+    mode: "directory",
+    pid: "0",
     keyword: "",
     tag_id: "",
     node_type: "",
-    dir_only: "",
+    cascade_dir: "",
     with: "",
     group: "",
     rate: "",
-  }, GenFunc.copyObject(to.query));
+  } as api_file_list_req, GenFunc.copyObject(to.query));
   await getList();
 });
 
@@ -263,7 +263,7 @@ function sortList(list: api_node_col[], sort: string) {
 //
 function search() {
   const tQuery = GenFunc.copyObject(queryData);
-  if (tQuery.dir_only && crumbList.value.length) {
+  if (crumbList.value.length) {
     tQuery.pid =
       crumbList.value[crumbList.value.length - 1].id?.toString() ?? "";
     // } else {
@@ -316,7 +316,6 @@ function emitGo(type: string, code: number) {
       break;
   }
 }
-
 
 
 onMounted(async () => {
@@ -378,8 +377,8 @@ onUnmounted(() => {
           </select>
         </label>
         <label v-if="crumbList.length">
-          <span>InDir : </span>
-          <input type="checkbox" v-model="(queryData.dir_only as any)" id="FV_S_CB"
+          <span>Cascade : </span>
+          <input type="checkbox" v-model="(queryData.cascade_dir as any)" id="FV_S_CB"
                  :true-value="1"
                  false-value=""
           />
