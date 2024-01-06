@@ -35,7 +35,6 @@ import QueueModel from "../../model/QueueModel";
 import FavouriteModel from "../../model/FavouriteModel";
 import RateModel from "../../model/RateModel";
 import FavouriteGroupModel from "../../model/FavouriteGroupModel";
-import ORM from "../../lib/ORM";
 
 export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_list_resp> {
@@ -66,9 +65,6 @@ export default class {
                 }
                 break;
             case 'tag':
-                request.tag_id.split(',').forEach(tagId =>
-                    model.whereRaw('find_in_set(?,list_tag_id)', tagId)
-                )
                 break;
             case 'id_iterate':
                 let idList = request.keyword.split(',');
@@ -102,6 +98,11 @@ export default class {
                 ).where('status', 1)
                 ;
                 break;
+        }
+        if (request.tag_id) {
+            request.tag_id.split(',').forEach(tagId =>
+                model.whereRaw('find_in_set(?,list_tag_id)', tagId)
+            )
         }
         if (request.pid) {
             target.path = await buildCrumb(parseInt(request.pid));
@@ -144,9 +145,9 @@ export default class {
             ;
         }
         // console.info(model.l)
-        ORM.dumpSql = true;
+        // ORM.dumpSql = true;
         const nodeLs: api_node_col[] = await model.select();
-        ORM.dumpSql=false;
+        // ORM.dumpSql = false;
         // console.info(nodeLs);
         //
         const tagIdSet = new Set<number>();

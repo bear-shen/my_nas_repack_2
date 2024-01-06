@@ -21,9 +21,9 @@ export const timeoutDef = {
     selectEvt: 50,
     clearEvt: 100,
     //zzz
-    scrollEvt: 50,
-    offsetDebounce: 100,
-    offsetUIDebounce: 500,
+    scrollEvt: 100,
+    offsetDebounce: 50,
+    // offsetUIDebounce: 500,
 };
 
 let opModuleVal: null | opModule;
@@ -116,7 +116,7 @@ export class opModule {
 
     public setList(list: api_node_col[]) {
         this.nodeList.value = list;
-        this.reloadOffset(undefined, timeoutDef.offsetDebounce)
+        this.reloadOffset(undefined)
     }
 
     public selecting = false;
@@ -128,6 +128,10 @@ export class opModule {
     public showSelectionOp: Ref<boolean> = ref(false);
 //shift用的
     public lastSelectIndex = -1;
+
+    //
+    public reloadOffset_timer = 0;
+    public reloadOffset_count = 0;
 
     /**
      * 仅仅在内容页面中启用多选
@@ -635,33 +639,44 @@ export class opModule {
         }
     }
 
-    public reloadOffset(e?: UIEvent, debounceDelay?: number) {
-        if (!debounceDelay) debounceDelay = timeoutDef.offsetUIDebounce;
+    public reloadOffset(e?: UIEvent) {
         // console.info(arguments);
-        GenFunc.debounce(() => {
-            // 这边因为布局的关系offsetParent直接就是body，不需要过度优化
-            // console.info('resize');
-            // const baseDOM = document.querySelector('.content_detail') as HTMLElement;
-            // if (!baseDOM) return;
-            // const baseX = GenFunc.nodeOffsetX(baseDOM);
-            // const baseY = GenFunc.nodeOffsetY(baseDOM);
-            //
-            this.nodeList.value.forEach(node => {
-                // console.info(node._dom);
-                if (!node._dom) return;
-                const dom = node._dom;
-                // console.info(evt);
-                let l = 0, t = 0, r = 0, b = 0;
-                l = GenFunc.nodeOffsetX(dom);
-                t = GenFunc.nodeOffsetY(dom);
-                r = l + dom.offsetWidth;
-                b = t + dom.offsetHeight;
-                node._offsets = [l, t, r, b,];
-                // console.warn(node, node._offsets);
-                // console.info(node.id, node._dom, node._offsets);
-            });
-            this.scrollEvt(e as Event);
-        }, debounceDelay, `debounce_node_resize`);
+        // console.info('reloadOffset');
+        if (this.reloadOffset_count > 100) return;
+        //强制同步以后再
+        let loaded = true;
+        this.nodeList.value.forEach(node => {
+            if (!node._dom) loaded = false;
+        });
+        clearTimeout(this.reloadOffset_timer);
+        if (!loaded) return this.reloadOffset_timer = setTimeout(() => {
+                this.reloadOffset_count += 1;
+                this.reloadOffset(e);
+            }, timeoutDef.offsetDebounce
+        );
+        //
+        // 这边因为布局的关系offsetParent直接就是body，不需要过度优化
+        // console.info('resize');
+        // const baseDOM = document.querySelector('.content_detail') as HTMLElement;
+        // if (!baseDOM) return;
+        // const baseX = GenFunc.nodeOffsetX(baseDOM);
+        // const baseY = GenFunc.nodeOffsetY(baseDOM);
+        //
+        this.nodeList.value.forEach(node => {
+            // console.info(node._dom);
+            if (!node._dom) return;
+            const dom = node._dom;
+            // console.info(evt);
+            let l = 0, t = 0, r = 0, b = 0;
+            l = GenFunc.nodeOffsetX(dom);
+            t = GenFunc.nodeOffsetY(dom);
+            r = l + dom.offsetWidth;
+            b = t + dom.offsetHeight;
+            node._offsets = [l, t, r, b,];
+            // console.warn(node, node._offsets);
+            // console.info(node.id, node._dom, node._offsets);
+        });
+        this.scrollEvt(e as Event);
     }
 
     public go(ext: api_file_list_req) {
@@ -690,7 +705,7 @@ export class opModule {
 
     public scrollEvt(e: Event) {
         GenFunc.debounce(() => {
-            console.info('this.scrollEvt()');
+            // console.info('this.scrollEvt()');
             this.saveScroll();
             this.reloadLazyLoad();
         }, timeoutDef.scrollEvt, `debounce_scroll_view`);
@@ -739,6 +754,7 @@ export class opModule {
             // console.info(node, node._offsets);
             let hit = true;
             let offsets = node._offsets as number[];
+            //不判断可能会报错，但是感觉影响调试，有需要再加
             // if (!offsets || !offsets.length) return;
             if (offsets[1] > bottom) hit = false;
             if (offsets[3] < top) hit = false;

@@ -19,7 +19,7 @@ import Rater from "@/components/Rater.vue";
 const def = {
   fileType: [
     "any",
-    // "directory",
+    "directory",
     "file",
     "audio",
     "video",
