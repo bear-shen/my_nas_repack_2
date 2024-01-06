@@ -647,6 +647,7 @@ export class opModule {
             // const baseY = GenFunc.nodeOffsetY(baseDOM);
             //
             this.nodeList.value.forEach(node => {
+                // console.info(node._dom);
                 if (!node._dom) return;
                 const dom = node._dom;
                 // console.info(evt);
@@ -656,6 +657,7 @@ export class opModule {
                 r = l + dom.offsetWidth;
                 b = t + dom.offsetHeight;
                 node._offsets = [l, t, r, b,];
+                // console.warn(node, node._offsets);
                 // console.info(node.id, node._dom, node._offsets);
             });
             this.scrollEvt(e as Event);
@@ -688,6 +690,7 @@ export class opModule {
 
     public scrollEvt(e: Event) {
         GenFunc.debounce(() => {
+            console.info('this.scrollEvt()');
             this.saveScroll();
             this.reloadLazyLoad();
         }, timeoutDef.scrollEvt, `debounce_scroll_view`);
@@ -714,7 +717,7 @@ export class opModule {
     }
 
     public reloadScroll() {
-        console.warn('this.reloadScroll()');
+        // console.warn('this.reloadScroll()');
         const path = this.route.fullPath;
         const ifLogExs = scrollLog.get(path);
         if (!ifLogExs) return;
@@ -724,7 +727,7 @@ export class opModule {
     }
 
     public reloadLazyLoad() {
-        console.info("triggleLazyLoad");
+        // console.info("triggleLazyLoad");
         if (!this.contentDOM) return;
         const dom = (this.contentDOM as HTMLElement);
         const d = GenFunc.nodeOffsetY(dom);
@@ -733,9 +736,10 @@ export class opModule {
         // console.info(top);
         // opModule.reloadOffset();
         this.nodeList.value.forEach(node => {
+            // console.info(node, node._offsets);
             let hit = true;
             let offsets = node._offsets as number[];
-            if (!offsets || !offsets.length) return;
+            // if (!offsets || !offsets.length) return;
             if (offsets[1] > bottom) hit = false;
             if (offsets[3] < top) hit = false;
             node._in_screen = hit;
@@ -753,7 +757,7 @@ export class opFunctionModule {
 
     public static async op_rename(node: api_node_col) {
         if (node._renaming) {
-            console.info(node.title, node.description, node);
+            // console.info(node.title, node.description, node);
             // console.info(node);
             const formData = new FormData();
             formData.set('id', `${node.id}`);
@@ -824,7 +828,7 @@ export class opFunctionModule {
                             type: 'directory',
                         } as api_file_list_req,
                         call: async (node: api_node_col) => {
-                            console.info(node);
+                            // console.info(node);
                             const formData = new FormData();
                             formData.set('node_id', `${node.id}`);
                             formData.set('target_id', `${node.id}`);
@@ -998,7 +1002,7 @@ export class opFunctionModule {
             ],
             callback: {
                 submit: async function (modal) {
-                    console.info(modal)
+                    // console.info(modal)
                     const groupIdLs = modal.content.form[0].value.join(',');
                     await query<api_favourite_attach_resp>("favourite/attach", {
                         id_node: node.id,

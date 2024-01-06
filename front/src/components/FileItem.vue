@@ -40,6 +40,7 @@ function setMode(mode: string) {
 
 const curDOM: Ref<HTMLElement | null> = ref(null);
 onMounted(() => {
+  // console.info(curDOM.value);
   if (curDOM.value)
     props.node._dom = curDOM.value;
   // reloadOffset();

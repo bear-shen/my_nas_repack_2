@@ -12,9 +12,9 @@ import {query} from "@/Helper";
 import FileItem from "@/components/FileItem.vue";
 import type {opModule as opModuleClass} from "@/FileViewHelper";
 import * as fHelper from "@/FileViewHelper";
+import {manualSort} from "@/FileViewHelper";
 import Hinter from "@/components/Hinter.vue";
 import Rater from "@/components/Rater.vue";
-import {manualSort} from "@/FileViewHelper";
 
 const def = {
   fileType: [
@@ -152,13 +152,14 @@ async function goGroup(index: number) {
 
 async function getList() {
   // const group = groupList.value[index];
+  nodeList.value = [];
   const res = await query<api_file_list_resp>("file/get", {
     mode: 'favourite',
     fav_id: queryData.id,
     with: 'file,tag',
   } as api_file_list_req);
   if (!res) return;
-  nodeList.value = manualSort(res.list,'name_asc');
+  nodeList.value = manualSort(res.list, 'name_asc');
   opModule.setList(nodeList.value);
 }
 
@@ -287,7 +288,7 @@ function delTag(groupIndex: number, tagIndex: number) {
 </script>
 
 <template>
-  <div class="fr_content view_fav" ref="contentDOM">
+  <div class="fr_content view_fav">
     <div class="list_fav_group">
       <div :class="{
         fav_group:true,
@@ -401,7 +402,7 @@ function delTag(groupIndex: number, tagIndex: number) {
         </template>
       </div>
     </div>
-    <div class="list_fav">
+    <div class="list_fav" ref="contentDOM">
       <FileItem
         v-for="(node, nodeIndex) in nodeList"
         :key="nodeIndex"
