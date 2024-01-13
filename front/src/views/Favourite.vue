@@ -334,7 +334,7 @@ function delTag(groupIndex: number, tagIndex: number) {
                 <tr>
                   <td>nodeType</td>
                   <td>
-                    <select v-model="group.meta.node_type">
+                    <select v-model="(group.meta as api_file_list_req).node_type as string">
                       <option v-for="(fileType, key) in def.fileType" :value="fileType">
                         {{ fileType }}
                       </option>
@@ -373,7 +373,7 @@ function delTag(groupIndex: number, tagIndex: number) {
                 <tr>
                   <td>rate</td>
                   <td>
-                    <rater :node="null" v-model="group.meta.rate"></rater>
+                    <rater :node="null" v-model="(group.meta as api_file_list_req).rate"></rater>
                   </td>
                 </tr>
               </table>
