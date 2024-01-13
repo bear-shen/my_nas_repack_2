@@ -35,11 +35,12 @@ import QueueModel from "../../model/QueueModel";
 import FavouriteModel from "../../model/FavouriteModel";
 import RateModel from "../../model/RateModel";
 import FavouriteGroupModel from "../../model/FavouriteGroupModel";
+import fs from "node:fs/promises";
 
 export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_list_resp> {
         const request = data.fields as api_file_list_req;
-        console.info(request);
+        // console.info(request);
         const treeLs = [];
         const listLs = [];
         const target = {
@@ -74,9 +75,10 @@ export default class {
                     //参考 HoneyView 的话应该只看 parent
                     //但是参考 PotPlayer 就是用 find_in_set
                     //这样有性能问题，但是没想到什么好办法
-                    idList.forEach(id =>
-                        model.or().whereRaw('find_in_set(?,list_node)', id)
-                    );
+                    //考虑到还是书多，所以还是只看 parent
+                    // idList.forEach(id =>
+                    //     model.or().whereRaw('find_in_set(?,list_node)', id)
+                    // );
                 });
                 break;
             case 'favourite':
@@ -554,6 +556,11 @@ export default class {
         const request = data.fields as api_file_checksum_req;
         const list = request.id_list.split(',');
         //
+        try {
+            const ifConfExs = await fs.access(`${__dirname}/../../../../../resource/getEHTTag.cookie.txt`)
+        } catch (e) {
+            throw new Error('eht conf file not found, write cookie to resource/getEHTTag.cookie.txt');
+        }
         for (const nodeId of list) {
             const curNode = await new NodeModel().where('id', nodeId).first();
             if (!curNode) continue;
