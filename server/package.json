@@ -1,30 +1,31 @@
 {
-  "name": "nas_be",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "serve": "tsc && node ./dst/server/api/index.js --max_old_space_size=16384 --max-new-space-size=16384",
-    "webdav": "tsc && node ./dst/server/webdav/index.js --max_old_space_size=16384 --max-new-space-size=16384",
-    "job": "tsc && node ./dst/server/job/index.js --max_old_space_size=16384 --max-new-space-size=16384",
-    "dev": "tsc && node ./dst/server/job/dev.js --max_old_space_size=16384 --max-new-space-size=16384",
-    "dev_worker": "tsc && node ./dst/server/job/index_worker.js --max_old_space_size=16384 --max-new-space-size=16384",
-    "bench_ffmpeg": "tsc && node ./dst/server/job/bench_ffmpeg.js"
+  "name"           : "nas_be",
+  "version"        : "0.1.0",
+  "private"        : true,
+  "scripts"        : {
+	"serve"       : "tsc && node ./dst/server/api/index.js --max_old_space_size=16384 --max-new-space-size=16384",
+	"webdav"      : "tsc && node ./dst/server/webdav/index.js --max_old_space_size=16384 --max-new-space-size=16384",
+	"ftp"         : "tsc && node ./dst/server/ftp/index.js --max_old_space_size=16384 --max-new-space-size=16384",
+	"job"         : "tsc && node ./dst/server/job/index.js --max_old_space_size=16384 --max-new-space-size=16384",
+	"dev"         : "tsc && node ./dst/server/job/dev.js --max_old_space_size=16384 --max-new-space-size=16384",
+	"dev_worker"  : "tsc && node ./dst/server/job/index_worker.js --max_old_space_size=16384 --max-new-space-size=16384",
+	"bench_ffmpeg": "tsc && node ./dst/server/job/bench_ffmpeg.js"
   },
-  "dependencies": {
-    "@types/node": "^18.11.8",
-    "@types/Promise": "npm:@types/promise@^7.1.30",
-    "base64-js": "^1.5.1",
-    "formidable": "^2.1.1",
-    "http": "^0.0.1-security",
-    "install": "^0.13.0",
-    "md5": "^2.3.0",
-    "mysql2": "^3.6.2",
-    "npm": "^8.5.2",
-    "Promise": "npm:promise@^8.1.0",
-    "xml": "^1.0.1",
-    "xml-js": "^1.6.11"
+  "dependencies"   : {
+	"@types/node"   : "^18.11.8",
+	"@types/Promise": "npm:@types/promise@^7.1.30",
+	"base64-js"     : "^1.5.1",
+	"formidable"    : "^2.1.1",
+	"http"          : "^0.0.1-security",
+	"install"       : "^0.13.0",
+	"md5"           : "^2.3.0",
+	"mysql2"        : "^3.6.2",
+	"npm"           : "^8.5.2",
+	"Promise"       : "npm:promise@^8.1.0",
+	"xml"           : "^1.0.1",
+	"xml-js"        : "^1.6.11"
   },
   "devDependencies": {
-    "@types/formidable": "^2.0.4"
+	"@types/formidable": "^2.0.4"
   }
 }
