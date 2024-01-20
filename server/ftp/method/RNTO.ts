@@ -1,44 +1,14 @@
 import {SessionDef} from "../types";
-import {buildTemplate, dirname, fileExists, getAbsolutePath, getRelPath} from "../Lib";
-import fs from "node:fs/promises";
+import {basename, buildTemplate, dirname, getRelPath} from "../Lib";
+import * as fp from "../../lib/FileProcessor";
 
 export async function execute(session: SessionDef, buffer: Buffer) {
-    const filePath = getRelPath(session, buffer.toString());
-    const absTargetPath = getAbsolutePath(filePath);
-    const absSourcePath = getAbsolutePath(session.ext_rnfr);
-    if (await fileExists(absTargetPath)) {
-        return session.socket.write(buildTemplate(451));
-    }
-    if (!await fileExists(dirname(absTargetPath))) {
-        await fs.mkdir(
-            dirname(absTargetPath),
-            {
-                recursive: true,
-                mode: 0o666,
-            }
-        );
-    }
-    let renameSuccess = false;
-    try {
-        await fs.rename(
-            absSourcePath,
-            absTargetPath
-        )
-        renameSuccess = true;
-    } catch (e) {
-        renameSuccess = false;
-    }
-    if (!renameSuccess) {
-        try {
-            await fs.cp(
-                absSourcePath,
-                absTargetPath,
-                {recursive: true,}
-            )
-            await fs.rm(absSourcePath);
-        } catch (e) {
-            return session.socket.write(buildTemplate(451));
-        }
-    }
+    let targetPath = buffer.toString();
+    let targetDirPath = dirname(targetPath);
+    let targetFileName = basename(targetPath);
+    const targetDirNode = await getRelPath(session, dirname(targetPath));
+    const ifExs = await getRelPath(session, targetPath);
+    if (ifExs) return session.socket.write(buildTemplate(451));
+    await fp.mv(session.ext_rnfr, targetDirNode, targetFileName);
     return session.socket.write(buildTemplate(250));
 }

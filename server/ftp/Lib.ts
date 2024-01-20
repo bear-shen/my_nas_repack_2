@@ -2,10 +2,12 @@ import {SessionDef} from "./types";
 import Config from "./Config";
 import {Server, Socket} from "net";
 import {ReadStream, WriteStream} from "fs";
-import fs from "node:fs/promises";
 import net from "node:net";
 import Route from "./Route";
 import * as tls from "tls";
+import * as fp from "../lib/FileProcessor";
+import {relPath2node} from "../lib/FileProcessor";
+import {col_node} from "../../share/Database";
 
 function dataProcessor(session: SessionDef, buffer: Buffer) {
     if (typeof buffer == 'string') {
@@ -258,25 +260,21 @@ function socket2writeStream(socket: Socket, writeStream: WriteStream) {
 }
 
 async function fileExists(path: string) {
-    let ifExs = false;
-    try {
-        await fs.access(path);
-        ifExs = true;
-    } catch (e: any) {
-        ifExs = false;
-    }
-    return ifExs;
+    // await fs.access(path);
+    const nodeLs = await fp.relPath2node(path);
+    if (!nodeLs) return false;
 }
 
-function getRelPath(session: SessionDef, fileName: string) {
+async function getRelPath(session: SessionDef, fileName: string): Promise<col_node | null> {
     const isAbsolutePath = fileName.indexOf('/') === 0;
-    let filePath = '';
-    if (isAbsolutePath) {
-        filePath = fileName;
+    let nodeLs: col_node[] | false = [];
+    if (!isAbsolutePath) {
+        nodeLs = await relPath2node(fileName, [session.curNode]);
     } else {
-        filePath = rtrimSlash(session.curPath) + '/' + ltrimSlash(fileName);
+        nodeLs = await relPath2node(fileName);
     }
-    return filePath;
+    if (!nodeLs || !nodeLs.length) return null;
+    return nodeLs[nodeLs.length - 1];
 }
 
 function getAbsolutePath(relPath: string) {

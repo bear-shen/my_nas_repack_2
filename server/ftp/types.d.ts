@@ -1,4 +1,5 @@
 import {Server, Socket} from "net";
+import {col_node} from "../../share/Database";
 
 type SessionDef = {
     id: number,
@@ -16,7 +17,8 @@ type SessionDef = {
         server: Server,
         socket?: Socket,
     } | null,
-    curPath: string,
-    ext_rnfr?: string,
-    // curNode: number,
+    // curPath: string,
+    curNode: col_node,
+    // ext_rnfr?: string,
+    ext_rnfr?: number,
 };

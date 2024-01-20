@@ -1,8 +1,7 @@
 import {SessionDef} from "../types";
-import {buildTemplate, fileExists, ltrimSlash, rtrimSlash, syncWriteSocket, waitForPassiveSocket} from "../Lib";
-import * as fs from "node:fs/promises";
+import {buildTemplate, syncWriteSocket, waitForPassiveSocket} from "../Lib";
 import {Stats} from "fs";
-import Config from "../Config";
+import * as fp from "../../lib/FileProcessor";
 
 /**
  * 如果整个目录已成功传输，则接受代码为 226 的 LIST 或 NLST 请求；
@@ -25,46 +24,29 @@ export async function execute(session: SessionDef, buffer: Buffer) {
         return session.socket.write(buildTemplate(425));
     await waitForPassiveSocket(session);
     await syncWriteSocket(session.socket, buildTemplate(150));
+    //
     let withCDir = false;
     let extPath = buffer.toString();
+    let curNode = session.curNode;
     if (extPath.length) {
         withCDir = true;
-        extPath = ltrimSlash(rtrimSlash(extPath));
+        let nodeArr = await fp.relPath2node(extPath, [curNode]);
+        if (!nodeArr)
+            return session.socket.write(buildTemplate(451));
+        curNode = nodeArr[nodeArr.length - 1];
     }
-    let curPath = Config.root + session.curPath;
-    if (withCDir) {
-        curPath = rtrimSlash(curPath) + '/' + extPath;
-    }
-    //
-    if (!await fileExists(curPath))
-        return session.socket.write(buildTemplate(451));
-    //
-    let targetLs: [string, fType][] = [];
-    //
-    /*console.info(curPath);
-    const cDir = await fs.stat(curPath);
-    targetLs.push([basename(curPath), stat2FType(cDir, 'c')]);
-    //
-    let pPath = dirname(curPath);
-    console.info(pPath);
-    if (pPath.length) {
-        const pDir = await fs.stat(pPath);
-        targetLs.push([basename(pPath), stat2FType(pDir, 'p')]);
-    }*/
-    //
-    const ls = await fs.readdir(curPath);
-    // console.info(ls);
-    for (let i = 0; i < ls.length; i++) {
-        const f = ls[i];
-        const fPath = curPath + '/' + f;
-        // console.info(fPath);
-        const fStat = await fs.stat(fPath);
-        targetLs.push([f, stat2FType(fStat)]);
-    }
-    for (let i = 0; i < targetLs.length; i++) {
-        const f = targetLs[i];
-        // session.passive.socket.uncork()
-        await syncWriteSocket(session.passive.socket, fType2Str(f[0], f[1]) + "\r\n");
+    const subLs = await fp.ls(curNode.id);
+    for (let i = 0; i < subLs.length; i++) {
+        const isDir = subLs[i].type == 'directory';
+        const f: fType = {
+            type: isDir ? 'dir' : 'file',
+            perm: isDir ? 'cdeflmp' : 'dfr',
+            modify: subLs[i].time_create.replace(/[T\s\:\-]/, ''),
+        }
+        await syncWriteSocket(
+            session.passive.socket,
+            fType2Str(subLs[i].title, f) + "\r\n"
+        );
     }
     session.passive.socket.end(() => {
         session.socket.write(buildTemplate(226));

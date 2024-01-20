@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import {get as getConfig} from "../ServerConfig";
 import * as fs from 'fs/promises';
+import {CreateReadStreamOptions} from 'fs/promises';
 import * as fsNP from 'fs';
 import {ReadStream} from 'fs';
 import {col_file, col_node, col_tag_group, type_file} from '../../share/Database';
@@ -34,11 +35,11 @@ async function getNodeByIdOrNode(inVal: col_node | number | bigint): Promise<col
 }
 
 //util
-async function relPath2node(relPath: string): Promise<col_node[] | false> {
+async function relPath2node(relPath: string, prefix?: col_node[]): Promise<col_node[] | false> {
     let nPathArr = relPath.replace(/\/$/, '').split(/\//);
     nPathArr = nPathArr.filter(n => !!n.length);
     // console.info(relPath, nPathArr);
-    const nodeList = [rootNode];
+    const nodeList = prefix ? prefix : [rootNode];
     if (nPathArr.length > 0)
         for (let i1 = 0; i1 < nPathArr.length; i1++) {
             // console.info(nodeList[i1].id, nPathArr[i1]);
@@ -50,6 +51,14 @@ async function relPath2node(relPath: string): Promise<col_node[] | false> {
             nodeList.push(curNode);
         }
     return nodeList;
+}
+
+async function node2relPath(nodeId: number | col_node) {
+    const node = await getNodeByIdOrNode(nodeId);
+    const nodeLs = await new NodeModel().whereIn('id', node.list_node).select();
+    let arr: string[] = [];
+    nodeLs.forEach(node => arr.push(node.title));
+    return '/' + arr.join('/');
 }
 
 async function getUUID(): Promise<string> {
@@ -200,18 +209,21 @@ async function mkdir(dirId: number, name: string, allowDuplicate: boolean = fals
 }
 
 //file
-async function get(nodeId: number | col_node, from: number, to: number): Promise<ReadStream> {
+async function get(nodeId: number | col_node, from?: number, to?: number): Promise<ReadStream> {
     const node = await getNodeByIdOrNode(nodeId);
     const file = await (new FileModel).where('id', node.index_file_id.raw).first();
     const relPath = getRelPathByFile(file);
     const fullPath = getConfig().path.local + relPath;
     //
     console.info(fullPath, from, to);
-    return fsNP.createReadStream(fullPath, {
+    const options: (BufferEncoding | CreateReadStreamOptions) = {
         autoClose: true,
-        // encoding: 'binary',
-        start: from, end: to
-    });
+    };
+    if (from && to) {
+        options.start = from;
+        options.end = to;
+    }
+    return fsNP.createReadStream(fullPath, options);
 }
 
 async function touch(path: string): Promise<false> {
@@ -528,7 +540,9 @@ async function checkOrphanFile(fileId: number): Promise<number> {
 }
 
 export {
+    getNodeByIdOrNode,
     relPath2node,
+    node2relPath,
     getRelPathByFile,
     getUUID,
     checksum,

@@ -1,9 +1,8 @@
-import {ReadStream, WriteStream} from "fs";
+import * as fsNP from "fs";
+import {ReadStream} from "fs";
 import {IncomingMessage, ServerResponse} from "http";
 import {get as getConfig} from "../ServerConfig";
-import * as fs from 'fs/promises';
 import ErrorCode from "../lib/ErrorCode";
-import * as fsNP from 'fs';
 
 //@see https://github.com/OpenMarshal/npm-WebDAV-Server/blob/master/src/server/v2/webDAVServer/StartStop.ts#L30
 export function getRequestBuffer(req: IncomingMessage, res: ServerResponse): Promise<Buffer> {
@@ -39,7 +38,8 @@ export function getRequestFile(req: IncomingMessage, res: ServerResponse): Promi
         const reqTmpFilePath = `${getConfig().path.temp}/${(new Date()).valueOf()}_${Math.random()}`;
         // const ws = fs.createWriteStream(reqTmpFilePath, { encoding: "binary", highWaterMark: 32 * 1024 * 1024, });
         const ws = fsNP.createWriteStream(reqTmpFilePath, {
-            encoding: "binary",
+            autoClose: true,
+            // encoding: "binary",
             flags: 'w+',
             mode: 0o666,
         });

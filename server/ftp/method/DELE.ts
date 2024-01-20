@@ -1,13 +1,13 @@
 import {SessionDef} from "../types";
-import {buildTemplate, fileExists, getAbsolutePath, getRelPath} from "../Lib";
-import fs from "node:fs/promises";
+import {buildTemplate, getRelPath} from "../Lib";
+import * as fp from "../../lib/FileProcessor";
 
 export async function execute(session: SessionDef, buffer: Buffer) {
-    const filePath = getRelPath(session, buffer.toString());
-    const absTargetPath = getAbsolutePath(filePath);
-    if (!await fileExists(absTargetPath)) {
+    const fNode = await getRelPath(session, buffer.toString());
+    //
+    if (!fNode) {
         return session.socket.write(buildTemplate(451));
     }
-    await fs.rm(absTargetPath);
+    await fp.rm(fNode.id);
     return session.socket.write(buildTemplate(250));
 }

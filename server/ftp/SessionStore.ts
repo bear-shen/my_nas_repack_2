@@ -22,7 +22,10 @@ export default {
             time: (new Date()).valueOf(),
             tls: false,
             passive: null,
-            curPath: '/',
+            // curPath: '/',
+            curNode: {
+                id: 0, title: 'root', status: 1, type: 'directory',
+            },
             // curNode: 0,
         };
         sessionStore.set(idKey, session);

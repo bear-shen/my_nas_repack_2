@@ -1,10 +1,10 @@
 import {SessionDef} from "../types";
-import {buildTemplate, fileExists, getAbsolutePath, getRelPath} from "../Lib";
+import {buildTemplate, getRelPath} from "../Lib";
 
 export async function execute(session: SessionDef, buffer: Buffer) {
-    const filePath = getRelPath(session, buffer.toString());
-    if (!await fileExists(getAbsolutePath(filePath)))
+    const curNode = await getRelPath(session, buffer.toString());
+    if (!curNode)
         return session.socket.write(buildTemplate(451));
-    session.ext_rnfr = filePath;
+    session.ext_rnfr = curNode.id;
     return session.socket.write(buildTemplate(350));
 }

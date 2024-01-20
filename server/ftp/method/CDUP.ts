@@ -1,10 +1,12 @@
 import {SessionDef} from "../types";
-import {buildTemplate, dirname, rtrimSlash} from "../Lib";
+import {buildTemplate} from "../Lib";
+import * as fp from "../../lib/FileProcessor";
 
 export async function execute(session: SessionDef, buffer: Buffer) {
-    session.curPath = dirname(rtrimSlash(session.curPath));
-    if (!session.curPath.length) {
-        session.curPath = '/';
+    if (!session.curNode.id) {
+        return session.socket.write(buildTemplate(250));
     }
+    const pNode = await fp.getNodeByIdOrNode(session.curNode.id_parent);
+    session.curNode = pNode;
     return session.socket.write(buildTemplate(250));
 }

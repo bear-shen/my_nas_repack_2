@@ -1,23 +1,42 @@
 import {SessionDef} from "../types";
-import {buildTemplate, getAbsolutePath, getRelPath, socket2writeStream, syncWriteSocket, waitForPassiveSocket} from "../Lib";
-import fsNp from "node:fs";
+import {basename, buildTemplate, dirname, getRelPath, socket2writeStream, syncWriteSocket, waitForPassiveSocket} from "../Lib";
+import fsNP from "fs";
+import Config from "../Config";
+import * as fp from "../../lib/FileProcessor";
+import QueueModel from "../../model/QueueModel";
 
 export async function execute(session: SessionDef, buffer: Buffer) {
     await waitForPassiveSocket(session);
     await syncWriteSocket(session.socket, buildTemplate(150));
     //
-    const filePath = getRelPath(session, buffer.toString());
+    const targetPath = buffer.toString();
+    const targetFileName = basename(targetPath);
+    const targetDir = await getRelPath(session, dirname(targetPath));
     //
-    const ws = fsNp.createWriteStream(
-        getAbsolutePath(filePath), {
-            autoClose: true,
-            // encoding: 'binary',
-            flags: 'w+',
-            mode: 0o666,
-        });
+    const reqTmpFilePath = `${Config.path.temp}/${(new Date()).valueOf()}_${Math.random()}`;
+    const ws = fsNP.createWriteStream(reqTmpFilePath, {
+        autoClose: true,
+        // encoding: "binary",
+        flags: 'w+',
+        mode: 0o666,
+    });
     await socket2writeStream(session.passive.socket, ws);
     ws.close();
+    const putRes = await fp.put(reqTmpFilePath, targetDir, targetFileName);
+    if (putRes) {
+        (new QueueModel()).insert({
+            type: 'file/build',
+            payload: {id: putRes.id},
+            status: 1,
+        });
+        (new QueueModel()).insert({
+            type: 'file/buildIndex',
+            payload: {id: putRes.id},
+            status: 1,
+        });
+    }
     if (session.passive && session.passive.socket)
         session.passive.socket.end();
     session.socket.write(buildTemplate(226));
 }
+

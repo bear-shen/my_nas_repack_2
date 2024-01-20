@@ -1,9 +1,13 @@
 import * as tls from "tls";
 import {ConnectionOptions} from "tls";
 import fs from "node:fs";
+import os from "os";
 
 const Config = {
     root: 'E:/t',
+    path: {
+        temp: `${os.tmpdir()}/tosho_tmp_${process.pid}`,
+    },
     account: [
         {name: 'loli', password: 'con'},
     ],
