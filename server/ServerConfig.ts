@@ -2,6 +2,7 @@ import os from 'os';
 import {type_file} from '../share/Database';
 import fs from "fs";
 import {conn} from "./lib/SQL";
+import tls, {ConnectionOptions} from "tls";
 // import SettingModel from "./model/SettingModel";
 
 const BaseConfig = {
@@ -53,6 +54,24 @@ const BaseConfig = {
         'b3sum',
         // 'openssl md5 -r',
     ],
+    ftp: {
+        port: 2121,
+        host: '0.0.0.0',
+        pasv: [12000, 15000],
+        tls: true,
+        tlsConfig: {
+            key: fs.readFileSync(`${__dirname}/../../../cert/cirno_ftp.key`),
+            cert: fs.readFileSync(`${__dirname}/../../../cert/cirno_ftp.crt`),
+            ca: [fs.readFileSync(`${__dirname}/../../../cert/rootCA.crt`),],
+            isServer: true,
+            // requestCert: true,
+            // requestOCSP: true,
+            // rejectUnauthorized: false,
+            checkServerIdentity: (): null => {
+                return null;
+            },
+        } as tls.TlsOptions & ConnectionOptions,
+    },
     /*parser: {
         //@see https://slhck.info/video/2017/02/24/vbr-settings.html
         i_cover: {

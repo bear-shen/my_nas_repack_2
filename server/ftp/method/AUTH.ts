@@ -1,7 +1,7 @@
 import {SessionDef} from "../types";
 import {buildTemplate, dataProcessor} from "../Lib";
-import Config from "../Config";
 import * as tls from "tls";
+import {get as getConfig} from "../../ServerConfig";
 
 /**
  * AUTH TLS
@@ -9,10 +9,12 @@ import * as tls from "tls";
  * */
 export async function execute(session: SessionDef, buffer: Buffer) {
     const crypto = buffer.toString();
-    if (crypto != 'TLS' || !Config.tls) return session.socket.write(buildTemplate(504));
+    const config = getConfig();
+    if (crypto != 'TLS' || !config.ftp.tls) return session.socket.write(buildTemplate(504));
+    const certConfig = getConfig('ftp.cert');
     session.tls = true;
     session.socket.write(buildTemplate(234));
-    session.socket = new tls.TLSSocket(session.socket, Config.tlsConfig);
+    session.socket = new tls.TLSSocket(session.socket, certConfig);
     session.socket.on('connect', () => {
         console.info('socket:ssl:connect');
     });

@@ -55,9 +55,13 @@ async function relPath2node(relPath: string, prefix?: col_node[]): Promise<col_n
 
 async function node2relPath(nodeId: number | col_node) {
     const node = await getNodeByIdOrNode(nodeId);
+    if (!node || !node.list_node || !node.list_node.length) {
+        return '/';
+    }
     const nodeLs = await new NodeModel().whereIn('id', node.list_node).select();
     let arr: string[] = [];
-    nodeLs.forEach(node => arr.push(node.title));
+    nodeLs.forEach(sub => arr.push(sub.title));
+    arr.push(node.title);
     return '/' + arr.join('/');
 }
 

@@ -1,8 +1,5 @@
 import {SessionDef} from "../types";
 import {buildTemplate, createPasvServer} from "../Lib";
-import Config from "../Config";
-import {Server, Socket} from "net";
-import net from "node:net";
 
 /**
  * 5:32:47    响应:    227 Entering Passive Mode (172,22,112,1,82,8)

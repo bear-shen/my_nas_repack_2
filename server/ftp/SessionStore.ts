@@ -24,7 +24,7 @@ export default {
             passive: null,
             // curPath: '/',
             curNode: {
-                id: 0, title: 'root', status: 1, type: 'directory',
+                id: 0, title: 'root', status: 1, type: 'directory', list_node: [],
             },
             // curNode: 0,
         };

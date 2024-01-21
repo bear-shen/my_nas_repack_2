@@ -1,10 +1,8 @@
 import {DropArgument, Server, Socket} from "net";
 import {SessionDef} from "./types";
-import Route from "./Route";
 import SessionStore from "./SessionStore";
-import Config from "./Config";
 import {buildTemplate, dataProcessor} from "./Lib";
-import * as tls from "tls";
+import {get as getConfig, loadConfig} from "../ServerConfig";
 
 const net = require("node:net");
 
@@ -12,9 +10,15 @@ const net = require("node:net");
 const server: Server = net.createServer({}, async (socket: Socket) => {
     console.info('server:createServer');
 });
-server.listen(Config.port, Config.host, async () => {
-    console.info('server:listeningListener');
+
+loadConfig().then(() => {
+    const config = getConfig();
+    server.listen(config.ftp.port, config.ftp.host, async () => {
+        console.info('server:listeningListener');
+    });
+    console.info('server now listen on:', config.ftp.port);
 });
+
 server.on('error', async (err: Error) => {
     console.info('server:error', err);
 });
@@ -42,7 +46,7 @@ server.on('connection', async (socket: Socket) => {
     });
     socket.on("data", async (buffer: Buffer) => {
         console.info('socket:data');
-        dataProcessor(session,buffer);
+        dataProcessor(session, buffer);
     });
 });
 server.on('drop', async (data?: DropArgument) => {

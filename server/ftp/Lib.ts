@@ -1,5 +1,5 @@
 import {SessionDef} from "./types";
-import Config from "./Config";
+import MessageDef from "./MessageDef";
 import {Server, Socket} from "net";
 import {ReadStream, WriteStream} from "fs";
 import net from "node:net";
@@ -8,6 +8,10 @@ import * as tls from "tls";
 import * as fp from "../lib/FileProcessor";
 import {relPath2node} from "../lib/FileProcessor";
 import {col_node} from "../../share/Database";
+import UserModel from "../model/UserModel";
+import {get as getConfig} from "../ServerConfig";
+
+const md5 = require('md5');
 
 function dataProcessor(session: SessionDef, buffer: Buffer) {
     if (typeof buffer == 'string') {
@@ -40,29 +44,24 @@ async function login(session: SessionDef) {
     const pass = session.pass;
     let matchUn = false;
     let matchPw = false;
-    console.info(name, pass);
-    console.info(Config.account);
-    Config.account.forEach(account => {
-        if (account.name != name) return;
-        matchUn = true;
-        if (account.password != pass) return;
-        matchPw = true;
-    });
-    // return matchUn && matchPw;
-    if (matchUn && matchPw) {
-        session.login = true;
-    }
-    return session.login;
+    // console.info(name, pass);
+
+    const ifExs = await (new UserModel).where('name', name).or().where('mail', name).first();
+    // console.info(ifExs, md5(md5(pass)));
+    if (!ifExs) return false;
+    if (ifExs.password !== md5(md5(pass))) return false;
+    session.login = true;
+    return true;
 }
 
 
 function buildTemplate(code: number, ...param: (string | number)[]) {
     const key = '_' + code;
-    if (!Config.messageTemplate[key]) {
+    if (!MessageDef[key]) {
         console.error('invalid msg code:', code, 'param:', param.join(' , '));
         return '';
     }
-    let s = Config.messageTemplate[key];
+    let s = MessageDef[key];
     if (!param.length) return s;
     param.forEach((p, i) => s = s.replace('{' + i + '}', p.toString()));
     return s;
@@ -108,8 +107,9 @@ const sessionStore = new Map<Buffer, Buffer>();
 function createPasvServer(session: SessionDef) {
     return new Promise<any>(async (resolve, reject) => {
         if (session.passive && session.passive.server) session.passive.server.close();
+        const config = getConfig();
         let validPort = 0;
-        for (let i = Config.pasv_min; i <= Config.pasv_max; i++) {
+        for (let i = config.ftp.pasv[0]; i <= config.ftp.pasv[1]; i++) {
             if (pasvPortSet.has(i)) continue;
             if (!await isPortAvailable(i)) continue;
             validPort = i;
@@ -117,7 +117,7 @@ function createPasvServer(session: SessionDef) {
         }
         pasvPortSet.add(validPort);
         console.info(session.tls);
-        const server: Server = session.tls ? tls.createServer(Config.tlsConfig, async (socket: Socket) => {
+        const server: Server = session.tls ? tls.createServer(config.ftp.tlsConfig, async (socket: Socket) => {
             console.info('PASV:server.createServer', validPort);
         }) : net.createServer({}, async (socket: Socket) => {
             console.info('PASV:server.createServer', validPort);
@@ -186,7 +186,7 @@ function createPasvServer(session: SessionDef) {
         server.on('tlsClientError', (...args) => {
             console.info('PASV:server:tlsClientError', args ? args[0] : null);
         })
-        server.listen(validPort, Config.host, async () => {
+        server.listen(validPort, config.ftp.host, async () => {
             console.info('PASV:server.listeningListener', validPort);
             resolve(true);
         });
@@ -277,9 +277,9 @@ async function getRelPath(session: SessionDef, fileName: string): Promise<col_no
     return nodeLs[nodeLs.length - 1];
 }
 
-function getAbsolutePath(relPath: string) {
-    return rtrimSlash(Config.root) + '/' + ltrimSlash(relPath);
-}
+// function getAbsolutePath(relPath: string) {
+//     return rtrimSlash(MessageDef.root) + '/' + ltrimSlash(relPath);
+// }
 
 export {
     dataProcessor,
@@ -296,5 +296,5 @@ export {
     socket2writeStream,
     fileExists,
     getRelPath,
-    getAbsolutePath,
+    // getAbsolutePath,
 };

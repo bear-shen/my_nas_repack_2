@@ -1,19 +1,20 @@
 import {SessionDef} from "../types";
 import {basename, buildTemplate, dirname, getRelPath, socket2writeStream, syncWriteSocket, waitForPassiveSocket} from "../Lib";
 import fsNP from "fs";
-import Config from "../Config";
 import * as fp from "../../lib/FileProcessor";
 import QueueModel from "../../model/QueueModel";
+import {get as getConfig} from "../../ServerConfig";
 
 export async function execute(session: SessionDef, buffer: Buffer) {
     await waitForPassiveSocket(session);
     await syncWriteSocket(session.socket, buildTemplate(150));
+    const config = getConfig();
     //
     const targetPath = buffer.toString();
     const targetFileName = basename(targetPath);
     const targetDir = await getRelPath(session, dirname(targetPath));
     //
-    const reqTmpFilePath = `${Config.path.temp}/${(new Date()).valueOf()}_${Math.random()}`;
+    const reqTmpFilePath = `${config.path.temp}/${(new Date()).valueOf()}_${Math.random()}`;
     const ws = fsNP.createWriteStream(reqTmpFilePath, {
         autoClose: true,
         // encoding: "binary",
