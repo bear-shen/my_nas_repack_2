@@ -12,7 +12,15 @@ export async function execute(session: SessionDef, buffer: Buffer) {
     //
     const targetPath = buffer.toString();
     const targetFileName = basename(targetPath);
+    const ifExs = await getRelPath(session, targetPath);
+    if (ifExs) {
+        return session.socket.write(buildTemplate(452));
+    }
+    // console.info(dirname(targetPath));
     const targetDir = await getRelPath(session, dirname(targetPath));
+    if (!targetDir) {
+        return session.socket.write(buildTemplate(452));
+    }
     //
     const reqTmpFilePath = `${config.path.temp}/${(new Date()).valueOf()}_${Math.random()}`;
     const ws = fsNP.createWriteStream(reqTmpFilePath, {

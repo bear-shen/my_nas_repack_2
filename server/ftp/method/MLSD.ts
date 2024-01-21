@@ -43,6 +43,11 @@ export async function execute(session: SessionDef, buffer: Buffer) {
             perm: isDir ? 'cdeflmp' : 'dfr',
             modify: subLs[i].time_create.replace(/[T\s\:\-]/, ''),
         }
+        if (!isDir) {
+            const size = subLs[i]?.file?.raw?.size;
+            if (size)
+                f.size = size;
+        }
         await syncWriteSocket(
             session.passive.socket,
             fType2Str(subLs[i].title, f) + "\r\n"

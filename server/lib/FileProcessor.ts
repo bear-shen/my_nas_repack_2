@@ -38,6 +38,7 @@ async function getNodeByIdOrNode(inVal: col_node | number | bigint): Promise<col
 async function relPath2node(relPath: string, prefix?: col_node[]): Promise<col_node[] | false> {
     let nPathArr = relPath.replace(/\/$/, '').split(/\//);
     nPathArr = nPathArr.filter(n => !!n.length);
+    // console.info('================== relPath2node');
     // console.info(relPath, nPathArr);
     const nodeList = prefix ? prefix : [rootNode];
     if (nPathArr.length > 0)
@@ -50,6 +51,7 @@ async function relPath2node(relPath: string, prefix?: col_node[]): Promise<col_n
             if (!curNode) return false;
             nodeList.push(curNode);
         }
+    // console.info(nodeList);
     return nodeList;
 }
 
@@ -219,7 +221,7 @@ async function get(nodeId: number | col_node, from?: number, to?: number): Promi
     const relPath = getRelPathByFile(file);
     const fullPath = getConfig().path.local + relPath;
     //
-    console.info(fullPath, from, to);
+    // console.info(fullPath, from, to);
     const options: (BufferEncoding | CreateReadStreamOptions) = {
         autoClose: true,
     };

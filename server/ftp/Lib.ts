@@ -80,7 +80,7 @@ function rtrimSlash(str: string) {
 function dirname(str: string) {
     str = rtrimSlash(str);
     let offset = str.lastIndexOf('/');
-    if (offset === -1) return str;
+    if (offset === -1) return '';
     return str.substring(0, offset);
 }
 
@@ -268,11 +268,13 @@ async function fileExists(path: string) {
 async function getRelPath(session: SessionDef, fileName: string): Promise<col_node | null> {
     const isAbsolutePath = fileName.indexOf('/') === 0;
     let nodeLs: col_node[] | false = [];
+    // console.info(session.curNode);
     if (!isAbsolutePath) {
         nodeLs = await relPath2node(fileName, [session.curNode]);
     } else {
         nodeLs = await relPath2node(fileName);
     }
+    // console.info(nodeLs);
     if (!nodeLs || !nodeLs.length) return null;
     return nodeLs[nodeLs.length - 1];
 }
