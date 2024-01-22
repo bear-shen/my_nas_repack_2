@@ -46,7 +46,7 @@ async function relPath2node(relPath: string, prefix?: col_node[]): Promise<col_n
             // console.info(nodeList[i1].id, nPathArr[i1]);
             if (!nPathArr[i1].length) continue;
             // ORM.dumpSql = true;
-            const curNode = await (new NodeModel).where('id_parent', nodeList[i1].id).where('title', nPathArr[i1]).first();
+            const curNode = await (new NodeModel).where('id_parent', nodeList[i1].id).where('title', titleFilter(nPathArr[i1])).first();
             // console.info(curNode);
             if (!curNode) return false;
             nodeList.push(curNode);
@@ -60,9 +60,11 @@ async function node2relPath(nodeId: number | col_node) {
     if (!node || !node.list_node || !node.list_node.length) {
         return '/';
     }
-    const nodeLs = await new NodeModel().whereIn('id', node.list_node).select();
+    const nodeLs = await new NodeModel().whereIn('id', node.list_node).select(['id', 'title', 'id_parent']);
+    let map: Map<number, string> = new Map();
+    nodeLs.forEach(sub => map.set(sub.id, sub.title));
     let arr: string[] = [];
-    nodeLs.forEach(sub => arr.push(sub.title));
+    node.list_node.forEach(sId => arr.push(map.get(sId)));
     arr.push(node.title);
     return '/' + arr.join('/');
 }
