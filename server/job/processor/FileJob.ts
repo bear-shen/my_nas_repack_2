@@ -311,29 +311,23 @@ class FileJob {
         // }
         // console.info(2);
         // return ;
-        const fileNodeIdList = [];
-        const dirNodeIdList = [];
+        const targetNodeList: col_node[] = [];
         if (curNode.type === 'directory') {
-            dirNodeIdList.push(curNode.id);
+            // dirNodeIdList.push(curNode.id);
             await (new NodeModel).whereRaw('find_in_set( ? ,list_node)', curNode.id).update({status: -1});
             const subNodeList = await (new NodeModel)
                 .whereRaw('find_in_set( ? ,list_node)', curNode.id)
-                .select(['id', 'type',]);
-            subNodeList.forEach(node => {
-                if (node.type === 'directory')
-                    dirNodeIdList.push(node.id);
-                else
-                    fileNodeIdList.push(node.id);
-            });
-        } else {
-            fileNodeIdList.push(curNode.id);
+                .select(['id', 'type', "index_file_id"]);
+            subNodeList.forEach(node => targetNodeList.push(node));
         }
-        console.info(`delete dir node:${dirNodeIdList.join(',')}`);
-        console.info(`delete file node:${fileNodeIdList.join(',')}`);
-        if (dirNodeIdList.length)
-            await (new NodeModel()).whereIn('id', dirNodeIdList).delete();
-        if (fileNodeIdList.length)
-            await deleteNodeForever(fileNodeIdList);
+        targetNodeList.push(curNode);
+        console.info(`delete node:${targetNodeList.length}`);
+        // console.info(`delete dir node:${dirNodeIdList.join(',')}`);
+        // console.info(`delete file node:${Array.from(fileNodeIdSet).join(',')}`);
+        // if (dirNodeIdList.length)
+        //     await (new NodeModel()).whereIn('id', dirNodeIdList).delete();
+        // if (fileNodeIdSet.size)
+        await deleteNodeForever(targetNodeList);
     }
 }
 
@@ -352,20 +346,20 @@ async function cascadeCover(nodeId: number) {
     }
 }
 
-async function deleteNodeForever(nodeIdList: number[]) {
-    const nodeLs = await (new NodeModel()).whereIn('id', nodeIdList).select();
+async function deleteNodeForever(nodeLs: col_node[]) {
     const fileIdSet = new Set<number>;
     for (let i1 = 0; i1 < nodeLs.length; i1++) {
         const node = nodeLs[i1];
         // console.info(node);
-        for (const key in node.index_file_id) {
-            const fileId = node.index_file_id[key];
-            if (fileIdSet.has(fileId)) continue;
-            fileIdSet.add(fileId);
-            const ifExs = await fp.checkOrphanFile(fileId);
-            if (ifExs > 1) continue;
-            await fp.rmReal(fileId);
-        }
+        if (node.index_file_id)
+            for (const key in node.index_file_id) {
+                const fileId = node.index_file_id[key];
+                if (fileIdSet.has(fileId)) continue;
+                fileIdSet.add(fileId);
+                const ifExs = await fp.checkOrphanFile(fileId);
+                if (ifExs > 1) continue;
+                await fp.rmReal(fileId);
+            }
         await (new NodeModel()).where('id', node.id).delete();
     }
 }
