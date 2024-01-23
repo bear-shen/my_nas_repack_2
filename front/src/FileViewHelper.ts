@@ -116,7 +116,10 @@ export class opModule {
 
     public setList(list: api_node_col[]) {
         this.nodeList.value = list;
-        this.reloadOffset(undefined)
+        setTimeout(() =>
+                this.reloadOffset(undefined),
+            timeoutDef.offsetDebounce
+        )
     }
 
     public selecting = false;

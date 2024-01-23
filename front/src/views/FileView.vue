@@ -229,7 +229,9 @@ const modeKey = localConfigure.listen(
 
 function setMode(mode: string) {
   localConfigure.set("file_view_mode", mode);
-  if (opModule) opModule.setList(nodeList.value);
+  const preList = nodeList.value;
+  nodeList.value = [];
+  if (opModule) opModule.setList(preList);
 }
 
 //
