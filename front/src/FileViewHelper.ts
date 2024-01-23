@@ -43,7 +43,7 @@ export class opModule {
     public route: RouteLocationNormalizedLoaded;
     public router: Router;
     public contentDOM: HTMLElement;
-    public emitGo: (type: string, code: any) => any;
+    public emitGo: (type: string, code?: any) => any;
     //这个其实没有用，而且切换路由的时候需要手动更新
     // 因为是直接赋值的 queryData = Object.assign({
     // public queryData: { [key: string]: any }
@@ -58,7 +58,7 @@ export class opModule {
             router: Router,
             contentDOM: HTMLElement,
             getList: () => any,
-            emitGo: (type: string, code: any) => any,
+            emitGo: (type: string, code?: any) => any,
             // queryData: { [key: string]: any },
         }
     ) {
@@ -783,7 +783,7 @@ export class opFunctionModule {
             formData.set('title', node.title ?? '');
             formData.set('description', node.description ?? '');
             const res = await query<api_file_mov_resp>('file/mod', formData);
-            if (opModuleVal) opModuleVal.emitGo("go", 'reload');
+            if (opModuleVal) opModuleVal.emitGo( 'reload');
         }
         node._renaming = !node._renaming;
         setTimeout(() => {
@@ -852,7 +852,7 @@ export class opFunctionModule {
                             formData.set('node_id', `${node.id}`);
                             formData.set('target_id', `${node.id}`);
                             const res = await query<api_file_mov_req>('file/mov', formData);
-                            if (opModuleVal) opModuleVal.emitGo("go", 'reload');
+                            if (opModuleVal) opModuleVal.emitGo('reload');
                         }
                     },
                 },
@@ -908,7 +908,8 @@ export class opFunctionModule {
         const formData = new FormData();
         formData.set('id', `${node.id}`);
         const res = await query<api_file_delete_resp>('file/delete', formData);
-        if (opModuleVal) opModuleVal.emitGo("go", 'reload');
+        console.info(opModuleVal);
+        if (opModuleVal) opModuleVal.emitGo('reload');
         return res;
     }
 
@@ -949,7 +950,7 @@ export class opFunctionModule {
         const formData = new FormData();
         formData.set('id', `${node.id}`);
         const res = await query<api_file_delete_resp>('file/delete_forever', formData);
-        if (opModuleVal) opModuleVal.emitGo("go", 'reload');
+        if (opModuleVal) opModuleVal.emitGo('reload');
         return res;
     }
 
