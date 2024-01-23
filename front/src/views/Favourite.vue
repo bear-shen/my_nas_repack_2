@@ -169,7 +169,7 @@ async function detach() {
 async function attach() {
 }
 
-function emitGo(type: string, code: number) {
+function emitGo(type: string, code?: number) {
   // console.info("emitGo", type, code);
   switch (type) {
     case "reload":

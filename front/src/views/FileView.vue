@@ -1,48 +1,48 @@
-<script setup lang="ts">
-import type {Ref} from "vue";
+<script setup lang='ts'>
+import type { Ref } from 'vue'
 // import {routes} from "@/router/index";
-import {onMounted, onUnmounted, ref} from "vue";
-import {onBeforeRouteUpdate, useRoute, useRouter,} from "vue-router";
-import {useLocalConfigureStore} from "@/stores/localConfigure";
-import {query} from "@/Helper";
-import type {opModule as opModuleClass} from "@/FileViewHelper";
-import * as fHelper from "@/FileViewHelper";
-import {manualSort} from "@/FileViewHelper";
-import GenFunc from "../../../share/GenFunc";
-import type {api_file_list_req, api_file_list_resp, api_file_mkdir_req, api_file_mkdir_resp, api_node_col,} from "../../../share/Api";
-import {useModalStore} from "@/stores/modalStore";
-import FileItem from "@/components/FileItem.vue";
+import { onMounted, onUnmounted, ref } from 'vue'
+import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
+import { useLocalConfigureStore } from '@/stores/localConfigure'
+import { query } from '@/Helper'
+import type { opModule as opModuleClass } from '@/FileViewHelper'
+import * as fHelper from '@/FileViewHelper'
+import { manualSort } from '@/FileViewHelper'
+import GenFunc from '../../../share/GenFunc'
+import type { api_file_list_req, api_file_list_resp, api_file_mkdir_req, api_file_mkdir_resp, api_node_col } from '../../../share/Api'
+import { useModalStore } from '@/stores/modalStore'
+import FileItem from '@/components/FileItem.vue'
 
-const modalStore = useModalStore();
-const contentDOM: Ref<HTMLElement | null> = ref(null);
+const modalStore = useModalStore()
+const contentDOM: Ref<HTMLElement | null> = ref(null)
 //
 // const z = { a: FileItem };
 // console.info(z);
-const router = useRouter();
-const route = useRoute();
+const router = useRouter()
+const route = useRoute()
 const def = {
   fileType: [
-    "any",
-    "directory",
-    "file",
-    "audio",
-    "video",
-    "image",
-    "binary",
-    "text",
-    "pdf",
+    'any',
+    'directory',
+    'file',
+    'audio',
+    'video',
+    'image',
+    'binary',
+    'text',
+    'pdf'
   ],
   sort: {
-    id_asc: "id ↑",
-    id_desc: "id ↓",
-    name_asc: "name ↑",
-    name_desc: "name ↓",
-    crt_asc: "crt time ↑",
-    crt_desc: "crt time ↓",
-    upd_asc: "upd time ↑",
-    upd_desc: "upd time ↓",
-    rate_asc: "rate ↑",
-    rate_desc: "rate ↓",
+    id_asc: 'id ↑',
+    id_desc: 'id ↓',
+    name_asc: 'name ↑',
+    name_desc: 'name ↓',
+    crt_asc: 'crt time ↑',
+    crt_desc: 'crt time ↓',
+    upd_asc: 'upd time ↑',
+    upd_desc: 'upd time ↓',
+    rate_asc: 'rate ↑',
+    rate_desc: 'rate ↓'
   },
   rate: {
     '0': '&#xe69f;&#xe69f;&#xe69f;&#xe69f;&#xe69f;',
@@ -55,21 +55,21 @@ const def = {
     '7': '&#xe69e;&#xe69e;&#xe69e;&#xe6b6;&#xe69f;',
     '8': '&#xe69e;&#xe69e;&#xe69e;&#xe69e;&#xe69f;',
     '9': '&#xe69e;&#xe69e;&#xe69e;&#xe69e;&#xe6b6;',
-    '10': '&#xe69e;&#xe69e;&#xe69e;&#xe69e;&#xe69e;',
+    '10': '&#xe69e;&#xe69e;&#xe69e;&#xe69e;&#xe69e;'
   },
-  listType: ["detail", "text", "img"],
-};
+  listType: ['detail', 'text', 'img']
+}
 let queryData: api_file_list_req = {
-  mode: "directory",
-  pid: "0",
-  keyword: "",
-  tag_id: "",
-  node_type: "",
-  cascade_dir: "",
-  with: "",
-  group: "",
-  rate: "",
-};
+  mode: 'directory',
+  pid: '0',
+  keyword: '',
+  tag_id: '',
+  node_type: '',
+  cascade_dir: '',
+  with: '',
+  group: '',
+  rate: ''
+}
 // let usePid = false;
 //
 // defineProps<{
@@ -88,66 +88,66 @@ watch(route, async (to: RouteLocationNormalizedLoaded) => {
   });
 }); */
 onBeforeRouteUpdate(async (to) => {
-  console.info('onBeforeRouteUpdate', to);
+  console.info('onBeforeRouteUpdate', to)
   queryData = Object.assign({
-    mode: "directory",
-    pid: "0",
-    keyword: "",
-    tag_id: "",
-    node_type: "",
-    cascade_dir: "",
-    with: "",
-    group: "",
-    rate: "",
-  } as api_file_list_req, GenFunc.copyObject(to.query));
-  await getList();
-});
+    mode: 'directory',
+    pid: '0',
+    keyword: '',
+    tag_id: '',
+    node_type: '',
+    cascade_dir: '',
+    with: '',
+    group: '',
+    rate: ''
+  } as api_file_list_req, GenFunc.copyObject(to.query))
+  await getList()
+})
 
 //
-let crumbList: Ref<api_node_col[]> = ref([]);
-let nodeList: Ref<api_node_col[]> = ref([]);
-let opModule: opModuleClass;
+let crumbList: Ref<api_node_col[]> = ref([])
+let nodeList: Ref<api_node_col[]> = ref([])
+let opModule: opModuleClass
 // onMounted(async () => {
 // getList();
 // });
 async function getList() {
-  console.info('getList', route.name);
-  crumbList.value = [];
-  nodeList.value = [];
+  console.info('getList', route.name)
+  crumbList.value = []
+  nodeList.value = []
   switch (route.name) {
     default:
-      break;
+      break
     case 'Recycle':
-      queryData.group = 'deleted';
-      break;
+      queryData.group = 'deleted'
+      break
     case 'Favourite':
-      queryData.group = 'favourite';
-      break;
+      queryData.group = 'favourite'
+      break
   }
-  const res = await query<api_file_list_resp>("file/get", queryData);
-  if (!res) return;
+  const res = await query<api_file_list_resp>('file/get', queryData)
+  if (!res) return
   // console.info(res);
-  crumbList.value = res.path;
-  nodeList.value = sortList(res.list, sortVal.value);
-  if (opModule) opModule.setList(nodeList.value);
+  crumbList.value = res.path
+  nodeList.value = sortList(res.list, sortVal.value)
+  if (opModule) opModule.setList(nodeList.value)
   // console.info(crumbList);
-  return {crumb: crumbList.value, node: nodeList.value};
+  return { crumb: crumbList.value, node: nodeList.value }
 }
 
 function addFolder() {
-  let pid = 0;
-  let title = 'root';
+  let pid = 0
+  let title = 'root'
   if (crumbList.value.length) {
-    let curNode = crumbList.value[crumbList.value.length - 1];
+    let curNode = crumbList.value[crumbList.value.length - 1]
     if (curNode) {
-      pid = curNode.id ?? 0;
-      title = curNode.title ?? 'root';
+      pid = curNode.id ?? 0
+      title = curNode.title ?? 'root'
     }
   }
   modalStore.set({
     title: `mkdir | ${title}`,
     alpha: false,
-    key: "",
+    key: '',
     single: false,
     w: 400,
     h: 100,
@@ -161,41 +161,41 @@ function addFolder() {
     form: [
       {
         label: 'title',
-        type: 'text',
+        type: 'text'
       }
     ],
     callback: {
       submit: async (modal) => {
         // console.info(modal);
-        const formData = modal.content.form;
-        const targetTitle = formData[0].value;
+        const formData = modal.content.form
+        const targetTitle = formData[0].value
         // console.info(targetTitle)
-        if (!targetTitle) return true;
-        const res = await query<api_file_mkdir_resp>("file/mkdir", {
+        if (!targetTitle) return true
+        const res = await query<api_file_mkdir_resp>('file/mkdir', {
           title: targetTitle,
-          pid: `${pid}`,
-        } as api_file_mkdir_req);
-        getList();
-        if (!res) return;
-      },
-    },
-  });
+          pid: `${pid}`
+        } as api_file_mkdir_req)
+        getList()
+        if (!res) return
+      }
+    }
+  })
 }
 
 function addFile() {
-  let pid = 0;
-  let title = 'root';
+  let pid = 0
+  let title = 'root'
   if (crumbList.value.length) {
-    let curNode = crumbList.value[crumbList.value.length - 1];
+    let curNode = crumbList.value[crumbList.value.length - 1]
     if (curNode) {
-      pid = curNode.id ?? 0;
-      title = curNode.title ?? 'root';
+      pid = curNode.id ?? 0
+      title = curNode.title ?? 'root'
     }
   }
   modalStore.set({
     title: `upload | ${title}`,
     alpha: false,
-    key: "",
+    key: '',
     single: false,
     w: 400,
     h: 200,
@@ -209,31 +209,31 @@ function addFile() {
     // text: "this is text",
     component: [
       {
-        componentName: "uploader",
+        componentName: 'uploader',
         data: {
           pid: pid,
-          emitGo: emitGo,
-        },
-      },
-    ],
-  });
+          emitGo: emitGo
+        }
+      }
+    ]
+  })
 }
 
 //
-const localConfigure = useLocalConfigureStore();
-let mode: Ref<string> = ref(localConfigure.get("file_view_mode") ?? "detail");
+const localConfigure = useLocalConfigureStore()
+let mode: Ref<string> = ref(localConfigure.get('file_view_mode') ?? 'detail')
 const modeKey = localConfigure.listen(
-  "file_view_mode",
+  'file_view_mode',
   (v) => (mode.value = v)
-);
+)
 
 function setMode(mode: string) {
-  localConfigure.set("file_view_mode", mode);
-  if (opModule) opModule.setList(nodeList.value);
+  localConfigure.set('file_view_mode', mode)
+  if (opModule) opModule.setList(nodeList.value)
 }
 
 //
-let sortVal: Ref<string> = ref(localConfigure.get("file_view_sort") ?? "name_asc");
+let sortVal: Ref<string> = ref(localConfigure.get('file_view_sort') ?? 'name_asc')
 // const sortKey = localConfigure.listen(
 //   "file_view_sort",
 //   (v) => {
@@ -245,33 +245,33 @@ let sortVal: Ref<string> = ref(localConfigure.get("file_view_sort") ?? "name_asc
 // );
 
 function setSort(sort: string) {
-  console.info('setSort', sort);
-  localConfigure.set("file_view_sort", sort);
-  const preList = nodeList.value;
-  nodeList.value = [];
+  console.info('setSort', sort)
+  localConfigure.set('file_view_sort', sort)
+  const preList = nodeList.value
+  nodeList.value = []
   setTimeout(() => {
-    nodeList.value = sortList(preList, sortVal.value);
-    if (opModule) opModule.setList(nodeList.value);
-  }, fHelper.timeoutDef.sort);
+    nodeList.value = sortList(preList, sortVal.value)
+    if (opModule) opModule.setList(nodeList.value)
+  }, fHelper.timeoutDef.sort)
 }
 
 function sortList(list: api_node_col[], sort: string) {
-  list = manualSort(list, sort);
-  return list;
+  list = manualSort(list, sort)
+  return list
 }
 
 //
 function search() {
-  const tQuery = GenFunc.copyObject(queryData);
+  const tQuery = GenFunc.copyObject(queryData)
   if (crumbList.value.length) {
     tQuery.pid =
-      crumbList.value[crumbList.value.length - 1].id?.toString() ?? "";
+      crumbList.value[crumbList.value.length - 1].id?.toString() ?? ''
     // } else {
     //   delete tQuery.pid;
   }
-  tQuery.mode = 'search';
+  tQuery.mode = 'search'
   // console.info(tQuery);
-  console.info(!queryData.node_type || queryData.node_type == 'any' || !queryData.rate);
+  console.info(!queryData.node_type || queryData.node_type == 'any' || !queryData.rate)
   if (
     !queryData.keyword
     && (
@@ -279,110 +279,110 @@ function search() {
     )
     && !queryData.rate
   ) {
-    return opModule.go({pid: queryData.pid, mode: 'directory',});
+    return opModule.go({ pid: queryData.pid, mode: 'directory' })
   }
-  console.info(tQuery);
+  console.info(tQuery)
   router.push({
     path: route.path,
-    query: tQuery,
-  });
+    query: tQuery
+  })
 }
 
-function emitGo(type: string, code: number) {
-  // console.info("emitGo", type, code);
+function emitGo(type: string, code?: number) {
+  console.info('emitGo', type, code)
   switch (type) {
-    case "reload":
-      getList();
-      break;
-    case "tag":
-      opModule.go({tag_id: `${code}`, mode: 'tag'});
-      break;
-    case "node":
-      let node;
+    case 'reload':
+      getList()
+      break
+    case 'tag':
+      opModule.go({ tag_id: `${code}`, mode: 'tag' })
+      break
+    case 'node':
+      let node
       for (let i1 = 0; i1 < nodeList.value.length; i1++) {
-        if (nodeList.value[i1].id !== code) continue;
-        node = nodeList.value[i1];
-        break;
+        if (nodeList.value[i1].id !== code) continue
+        node = nodeList.value[i1]
+        break
       }
-      if (!node) break;
+      if (!node) break
       switch (node.type) {
-        case "directory":
-          opModule.go({pid: `${node.id}`, mode: 'directory'});
-          break;
+        case 'directory':
+          opModule.go({ pid: `${node.id}`, mode: 'directory' })
+          break
         default:
-          fHelper.popupDetail(GenFunc.copyObject(queryData), node.id ?? 0);
-          break;
+          fHelper.popupDetail(GenFunc.copyObject(queryData), node.id ?? 0)
+          break
       }
-      break;
+      break
   }
 }
 
 
 onMounted(async () => {
-  console.info('onMounted');
-  localConfigure.release("file_view_mode", modeKey);
-  Object.assign(queryData, GenFunc.copyObject(route.query));
+  console.info('onMounted')
+  localConfigure.release('file_view_mode', modeKey)
+  Object.assign(queryData, GenFunc.copyObject(route.query))
   opModule = new fHelper.opModule({
     route: route,
     router: router,
     // nodeList: nodeList,
     getList: getList,
     contentDOM: contentDOM.value as HTMLElement,
-    emitGo: emitGo,
+    emitGo: emitGo
     // queryData: queryData,
-  });
-  await getList();
-  opModule.reloadScroll();
+  })
+  await getList()
+  opModule.reloadScroll()
   // if (contentDOM.value) {
   //   contentDOM.value.addEventListener("scroll", lazyLoad);
   // }
   // reloadOffset(undefined, fHelper.timeoutDef.offsetDebounce);
   // (contentDOM.value as HTMLElement).addEventListener("scroll", scrollEvt);
-});
+})
 onUnmounted(() => {
-  opModule.destructor();
+  opModule.destructor()
   // if (contentDOM.value) {
   //   contentDOM.value.removeEventListener("scroll", lazyLoad);
   // }
-});
+})
 
 </script>
 
 <template>
-  <div class="fr_content">
-    <div class="content_meta">
-      <div class="crumb" v-if="crumbList.length">
-        <a dir="ltr"
-           class="item"
-           v-for="(node, nodeIndex) in crumbList"
-           :key="nodeIndex"
+  <div class='fr_content'>
+    <div class='content_meta'>
+      <div class='crumb' v-if='crumbList.length'>
+        <a dir='ltr'
+           class='item'
+           v-for='(node, nodeIndex) in crumbList'
+           :key='nodeIndex'
            @click="opModule.go({ pid: `${node?.id}`,mode:'directory' })"
-           :title="node.title"
+           :title='node.title'
         >{{ node.title }}</a>
       </div>
-      <div class="search">
+      <div class='search'>
         <label>
-          <span>Title : </span><input type="text" v-model="queryData.keyword"/>
+          <span>Title : </span><input type='text' v-model='queryData.keyword' />
         </label>
         <label>
           <span>Type : </span>
-          <select v-model="queryData.node_type">
-            <option v-for="type in def.fileType">{{ type }}</option>
+          <select v-model='queryData.node_type'>
+            <option v-for='type in def.fileType'>{{ type }}</option>
           </select>
         </label>
         <label>
           <span>Rate : </span>
-          <select class="sysIcon" v-model="queryData.rate">
-            <option v-for="(type,key) in def.rate" :value="key" v-html="type"></option>
+          <select class='sysIcon' v-model='queryData.rate'>
+            <option v-for='(type,key) in def.rate' :value='key' v-html='type'></option>
           </select>
         </label>
-        <label v-if="crumbList.length">
+        <label v-if='crumbList.length'>
           <span>Cascade : </span>
-          <input type="checkbox" v-model="(queryData.cascade_dir as any)" id="FV_S_CB"
-                 :true-value="1"
-                 false-value=""
+          <input type='checkbox' v-model='(queryData.cascade_dir as any)' id='FV_S_CB'
+                 :true-value='1'
+                 false-value=''
           />
-          <label for="FV_S_CB"></label>
+          <label for='FV_S_CB'></label>
         </label>
         <!--      <label>
               <input
@@ -395,50 +395,50 @@ onUnmounted(() => {
               <label for="content_directory_directory_only_checkbox">Fav</label>
             </label>-->
         <label>
-          <button class="sysIcon sysIcon_search" @click="search"></button>
+          <button class='sysIcon sysIcon_search' @click='search'></button>
         </label>
       </div>
-      <div class="display">
-        <template v-if="opModule &&opModule.showSelectionOp">
+      <div class='display'>
+        <template v-if='opModule &&opModule.showSelectionOp'>
           <a @click="opModule.bathOp('browser')">OP</a>
           <a @click="opModule.bathOp('favourite')">FAV</a>
           <a @click="opModule.bathOp('rename')">RN</a>
           <a @click="opModule.bathOp('move')">MV</a>
           <a v-if="route.name!=='Recycle'" @click="opModule.bathOp('delete')">DEL</a>
           <a v-if="route.name==='Recycle'" @click="opModule.bathOp('delete_forever')">rDEL</a>
-          <a class="sysIcon sysIcon_fengefu"></a>
+          <a class='sysIcon sysIcon_fengefu'></a>
         </template>
-        <a class="sysIcon sysIcon_addfolder" @click="addFolder"></a>
-        <a class="sysIcon sysIcon_addfile" @click="addFile"></a>
-        <a class="sysIcon sysIcon_fengefu"></a>
+        <a class='sysIcon sysIcon_addfolder' @click='addFolder'></a>
+        <a class='sysIcon sysIcon_addfile' @click='addFile'></a>
+        <a class='sysIcon sysIcon_fengefu'></a>
         <label>
           <span>Sort : </span>
-          <select v-model="sortVal" @change="setSort(sortVal)">
-            <option v-for="(sortItem, key) in def.sort" :value="key">
+          <select v-model='sortVal' @change='setSort(sortVal)'>
+            <option v-for='(sortItem, key) in def.sort' :value='key'>
               {{ sortItem }}
             </option>
           </select>
         </label>
-        <a class="sysIcon sysIcon_fengefu"></a>
+        <a class='sysIcon sysIcon_fengefu'></a>
         <a
-          v-for="type in def.listType"
+          v-for='type in def.listType'
           :class="[
             'sysIcon',
             `sysIcon_listType_${type}`,
             { active: mode === type },
           ]"
-          @click="setMode(type)"
+          @click='setMode(type)'
         ></a>
       </div>
     </div>
-    <div :class="['content_detail', `mode_${mode}`]" ref="contentDOM">
+    <div :class="['content_detail', `mode_${mode}`]" ref='contentDOM'>
       <FileItem
-        v-for="(node, nodeIndex) in nodeList"
-        :key="nodeIndex"
-        :node="node"
-        :index="nodeIndex"
-        :selected="false"
-        @go="emitGo"
+        v-for='(node, nodeIndex) in nodeList'
+        :key='nodeIndex'
+        :node='node'
+        :index='nodeIndex'
+        :selected='false'
+        @go='emitGo'
       ></FileItem>
       <!--      @on-select="emitSelect"-->
     </div>
@@ -448,7 +448,7 @@ onUnmounted(() => {
   </div>
 </template>
 
-<style scoped lang="scss">
+<style scoped lang='scss'>
 @import "../assets/variables";
 .fr_content {
   display: flex;
