@@ -1,16 +1,16 @@
 <script setup lang='ts'>
-import type { Ref } from 'vue'
+import type {Ref} from 'vue'
 // import {routes} from "@/router/index";
-import { onMounted, onUnmounted, ref } from 'vue'
-import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
-import { useLocalConfigureStore } from '@/stores/localConfigure'
-import { query } from '@/Helper'
-import type { opModule as opModuleClass } from '@/FileViewHelper'
+import {onMounted, onUnmounted, ref} from 'vue'
+import {onBeforeRouteUpdate, useRoute, useRouter} from 'vue-router'
+import {useLocalConfigureStore} from '@/stores/localConfigure'
+import {query} from '@/Helper'
+import type {opModule as opModuleClass} from '@/FileViewHelper'
 import * as fHelper from '@/FileViewHelper'
-import { manualSort } from '@/FileViewHelper'
+import {manualSort} from '@/FileViewHelper'
 import GenFunc from '../../../share/GenFunc'
-import type { api_file_list_req, api_file_list_resp, api_file_mkdir_req, api_file_mkdir_resp, api_node_col } from '../../../share/Api'
-import { useModalStore } from '@/stores/modalStore'
+import type {api_file_list_req, api_file_list_resp, api_file_mkdir_req, api_file_mkdir_resp, api_node_col} from '../../../share/Api'
+import {useModalStore} from '@/stores/modalStore'
 import FileItem from '@/components/FileItem.vue'
 
 const modalStore = useModalStore()
@@ -131,7 +131,7 @@ async function getList() {
   nodeList.value = sortList(res.list, sortVal.value)
   if (opModule) opModule.setList(nodeList.value)
   // console.info(crumbList);
-  return { crumb: crumbList.value, node: nodeList.value }
+  return {crumb: crumbList.value, node: nodeList.value}
 }
 
 function addFolder() {
@@ -229,7 +229,9 @@ const modeKey = localConfigure.listen(
 
 function setMode(mode: string) {
   localConfigure.set('file_view_mode', mode)
-  if (opModule) opModule.setList(nodeList.value)
+  const preList = nodeList.value;
+  nodeList.value = [];
+  if (opModule) opModule.setList(preList);
 }
 
 //
@@ -279,7 +281,7 @@ function search() {
     )
     && !queryData.rate
   ) {
-    return opModule.go({ pid: queryData.pid, mode: 'directory' })
+    return opModule.go({pid: queryData.pid, mode: 'directory'})
   }
   console.info(tQuery)
   router.push({
@@ -295,7 +297,7 @@ function emitGo(type: string, code?: number) {
       getList()
       break
     case 'tag':
-      opModule.go({ tag_id: `${code}`, mode: 'tag' })
+      opModule.go({tag_id: `${code}`, mode: 'tag'})
       break
     case 'node':
       let node
@@ -307,7 +309,7 @@ function emitGo(type: string, code?: number) {
       if (!node) break
       switch (node.type) {
         case 'directory':
-          opModule.go({ pid: `${node.id}`, mode: 'directory' })
+          opModule.go({pid: `${node.id}`, mode: 'directory'})
           break
         default:
           fHelper.popupDetail(GenFunc.copyObject(queryData), node.id ?? 0)
@@ -362,7 +364,7 @@ onUnmounted(() => {
       </div>
       <div class='search'>
         <label>
-          <span>Title : </span><input type='text' v-model='queryData.keyword' />
+          <span>Title : </span><input type='text' v-model='queryData.keyword'/>
         </label>
         <label>
           <span>Type : </span>
