@@ -103,7 +103,7 @@ async function checksum(file: col_file): Promise<string> {
 }
 
 function getRelPathByFile(file: col_file) {
-    const path = `/${file.uuid.substring(0, 1)}/${file.uuid.substring(1, 3)}/${file.uuid.substring(3)}.${file.suffix}`;
+    const path = `/${file.uuid.substring(0, 1)}/${file.uuid.substring(1, 3)}/${file.uuid.substring(3)}${file.suffix&&file.suffix.length?'.'+file.suffix:''}`;
     return path;
 }
 
