@@ -331,7 +331,7 @@ function parseTime(t: number) {
       color: map_get($colors, input_button_font);
       width: 150px;
       //      padding: 0 $fontSize * 0.5;
-      border-right: $fontSize * 0.5 solid map_get($colors, input_button_bk);
+      border-right: 1px solid map_get($colors, input_button_bk);
       height: $fontSize * 1.5;
       line-height: $fontSize * 1.5;
       position: relative;

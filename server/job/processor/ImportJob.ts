@@ -5,11 +5,14 @@ import * as lfp from "../../lib/LocalFileProcessor";
 import util from "util";
 import {api_local_file_statement} from "../../../share/Api";
 import QueueModel from "../../model/QueueModel";
+import {get as getConfig} from "../../ServerConfig";
 
 const exec = util.promisify(require('child_process').exec);
 
+let importerTitleFilter: string[] = [];
 export default class {
     static async run(payload: { [key: string]: any }): Promise<any> {
+        importerTitleFilter = getConfig().import_ignore;
         const src = payload.sourceDir.replace(/\/$/, '');
         const targetId = payload.targetNodeId;
         let importRoot = await (new NodeModel).where('id', targetId).first();
@@ -111,6 +114,7 @@ async function scanLoop(src: string): Promise<api_local_file_statement[]> {
     const subTLs = [] as api_local_file_statement[];
     const targetLs = [];
     for (let i1 = 0; i1 < curLs.length; i1++) {
+        if (importerTitleFilter.indexOf(curLs[i1].name) !== -1) continue;
         if (curLs[i1].isDir) {
             const subLs = await scanLoop(curLs[i1].path);
             subLs.forEach(item => subTLs.push(item));

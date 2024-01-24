@@ -225,8 +225,10 @@ const BaseConfig = {
             ],
         },
     },
-    import_ignore:[
-      'thumbs.db',
+    import_ignore: [
+        'thumbs.db',
+        'desktop.ini',
+        '_MACOSX',
     ],
 };
 
