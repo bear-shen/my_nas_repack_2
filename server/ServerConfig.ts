@@ -225,6 +225,9 @@ const BaseConfig = {
             ],
         },
     },
+    import_ignore:[
+      'thumbs.db',
+    ],
 };
 
 fs.mkdirSync(

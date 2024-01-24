@@ -293,7 +293,8 @@ function parseTime(t: number) {
           @ended="onEnd"
           @timeupdate="onTimeUpdate"
         >
-          <source :src="`${props.curNode.file?.normal?.path}?filename=${props.curNode.title}`" />
+          <source v-if='props.curNode.file?.normal?.path' :src="`${props.curNode.file?.normal?.path}?filename=${props.curNode.title}`" />
+          <source v-else :src="`${props.curNode.file?.raw?.path}?filename=${props.curNode.title}`" />
         </audio>
       </template>
     </div>

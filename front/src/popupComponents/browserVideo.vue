@@ -262,7 +262,7 @@ function loadSubtitle() {
   const subNode = [] as (api_node_col & { label?: string })[];
   props.nodeList.forEach(node => {
     if (node.type !== 'subtitle') return;
-    if (!node.file?.normal?.path) return;
+    if (!(node.file?.normal?.path||node.file?.raw?.path)) return;
     let aftStr = node.title?.substring(preStr.length);
     // console.info(aftStr);
     if (node.title?.indexOf(preStr) === 0) subNode.push(Object.assign({label: aftStr}, node));
@@ -354,7 +354,8 @@ function toggleSubtitle(index: number) {
           @ended="onEnd"
           @timeupdate="onTimeUpdate"
         >
-          <source :src="`${props.curNode.file?.normal?.path}?filename=${props.curNode.title}`"/>
+          <source v-if='props.curNode.file?.normal?.path' :src="`${props.curNode.file?.normal?.path}?filename=${props.curNode.title}`" />
+          <source v-else :src="`${props.curNode.file?.raw?.path}?filename=${props.curNode.title}`" />
           <template v-for="(subtitle,index) in subtitleList">
             <track :default="subtitleIndex==index?true:false"
                    :src="subtitle.file?.normal?.path" kind="subtitles"
