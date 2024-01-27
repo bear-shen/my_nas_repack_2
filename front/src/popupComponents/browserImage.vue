@@ -296,7 +296,7 @@ function setZoom(e?: WheelEvent, dir?: number) {
     <slot name="navigator"></slot>
     <div class="content" ref="contentDOM">
       <!-- {{ props.curNode.title }} -->
-      <span class="sysIcon sysIcon_sync" v-if="!imgLayout.loaded"></span>
+      <span class="loader sysIcon sysIcon_sync" v-if="!imgLayout.loaded"></span>
       <img
         v-if="showImg"
         :data-ref-node-id="props.curNode.id"
@@ -335,24 +335,6 @@ function setZoom(e?: WheelEvent, dir?: number) {
 }
 .modal_browser.image {
   .content {
-    .sysIcon {
-      font-size: $fontSize*10;
-      //display: block;
-      text-align: center;
-      z-index: 1;
-      color: map-get($colors, font);
-      height: 100%;
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .sysIcon::before {
-      display: block;
-      animation: rotateAnimate 5s infinite linear;
-      $blurSize: $fontSize ;
-      text-shadow: 0 0 $blurSize black;
-    }
     img {
       position: absolute;
       width: 100%;

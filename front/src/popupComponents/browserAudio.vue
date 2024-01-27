@@ -1,13 +1,9 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, type Ref, watch } from "vue";
-import type { ModalConstruct, ModalStruct } from "../modal";
-import { queryDemo, query } from "@/Helper";
-import type { api_node_col, api_file_list_resp } from "../../../share/Api";
-import smp_file_list_resp from "../../../share/sampleApi/smp_file_list_resp";
+import {onMounted, onUnmounted, ref, type Ref, watch} from "vue";
+import type {ModalStruct} from "../modal";
+import type {api_node_col} from "../../../share/Api";
 import GenFunc from "../../../share/GenFunc";
-import { useEventStore } from "@/stores/event";
-import { useLocalConfigureStore } from "@/stores/localConfigure";
-import type {col_node} from "../../../share/Database";
+import {useLocalConfigureStore} from "@/stores/localConfigure";
 
 const localConfigure = useLocalConfigureStore();
 const props = defineProps<{
@@ -26,6 +22,12 @@ const emits = defineEmits(["nav"]);
 const contentDOM: Ref<HTMLElement | null> = ref(null);
 const timelineDOM: Ref<HTMLElement | null> = ref(null);
 const mediaDOM: Ref<HTMLAudioElement | null> = ref(null);
+const resPath: Ref<string> = ref('');
+if (props.curNode?.file?.normal?.path) {
+  resPath.value = `${props.curNode.file?.normal?.path}?filename=${props.curNode.title}`;
+} else {
+  resPath.value = `${props.curNode.file?.raw?.path}?filename=${props.curNode.title}`
+}
 
 // const playModes = ["queue", "loop", "single", "shuffle"];
 
@@ -41,18 +43,19 @@ const mediaMeta = ref({
   //
   play: false,
   show: true,
+  loading: true,
   loop: localConfigure.get("browser_play_mode") === "single",
 });
 const modeKey = localConfigure.listen("browser_play_mode", (v) =>
-  Object.assign(mediaMeta.value, { loop: v === "single" })
+  Object.assign(mediaMeta.value, {loop: v === "single"})
 );
 const volumeKey = localConfigure.listen("browser_play_volume", (v) =>
-  Object.assign(mediaMeta.value, { volume: v })
+  Object.assign(mediaMeta.value, {volume: v})
 );
 
-function onInitMeta() {
+function onInit() {
   const dom = mediaDOM.value;
-  if (!dom || dom.readyState !== 4) return setTimeout(onInitMeta, 50);
+  if (!dom || dom.readyState !== 4) return setTimeout(onInit, 50);
   const meta = mediaMeta.value;
   const target = {
     time: 0,
@@ -63,8 +66,26 @@ function onInitMeta() {
   dom.volume = meta.mute ? 0 : meta.volume / 100;
   //
   contentDOM.value?.addEventListener("wheel", wheelListener);
-  document.addEventListener("keydown", keymap);
 }
+
+function onCanplay(e: Event) {
+  document.addEventListener("keydown", keymap);
+  Object.assign(mediaMeta.value, {loading: false});
+}
+
+function onRelease(reboot: boolean = true) {
+  document.removeEventListener("wheel", wheelListener);
+  document.removeEventListener("keydown", keymap);
+  resPath.value = '';
+  if (reboot)
+    setTimeout(() => {
+      Object.assign(mediaMeta.value, {
+        show: false,
+        loading: true,
+      });
+    })
+}
+
 function togglePlay() {
   const dom = mediaDOM.value;
   if (!dom) return;
@@ -74,8 +95,9 @@ function togglePlay() {
   } else {
     dom.play();
   }
-  Object.assign(mediaMeta.value, { play: !meta.play });
+  Object.assign(mediaMeta.value, {play: !meta.play});
 }
+
 function onEnd(e: Event) {
   console.info("onEnd", e);
   const dom = mediaDOM.value;
@@ -88,7 +110,8 @@ function onEnd(e: Event) {
   }
   emits("nav", props.curIndex + 1);
 }
-onMounted(() => {
+
+onMounted(async () => {
 });
 /* watch(props, async (to) => {
   if (to.curNode.id === imgLayout.value.loaded) return;
@@ -99,11 +122,18 @@ onMounted(() => {
   loadImageRes();
 }); */
 //
-const eventStore = useEventStore();
+// const eventStore = useEventStore();
 
 watch(() => props.curNode, async (to) => {
-  Object.assign(mediaMeta.value, { show: false });
-  setTimeout(() => Object.assign(mediaMeta.value, { show: true }), 50);
+  onRelease();
+  setTimeout(() => {
+    if (props.curNode?.file?.normal?.path) {
+      resPath.value = `${to.file?.normal?.path}?filename=${to.title}`;
+    } else {
+      resPath.value = `${to.file?.raw?.path}?filename=${to.title}`
+    }
+    Object.assign(mediaMeta.value, {show: true});
+  }, 50);
 });
 // let changeEvtKey = eventStore.listen(
 //   `modal_browser_change_${props.modalData.nid}`,
@@ -113,15 +143,11 @@ watch(() => props.curNode, async (to) => {
 //   }
 // );
 onUnmounted(() => {
-  document.removeEventListener("wheel", wheelListener);
-  document.removeEventListener("keydown", keymap);
-  // eventStore.release(
-  //   `modal_browser_change_${props.modalData.nid}`,
-  //   changeEvtKey
-  // );
+  onRelease(false);
   localConfigure.release("browser_play_mode", modeKey);
   localConfigure.release("browser_play_volume", volumeKey);
 });
+
 function onTimeUpdate(e: Event) {
   const dom = mediaDOM.value;
   if (!dom) return;
@@ -136,6 +162,7 @@ const dragData = {
   w: 0,
   orgX: 0,
 };
+
 function onDragging(e: MouseEvent) {
   const dom = mediaDOM.value;
   if (!dom) return;
@@ -143,7 +170,7 @@ function onDragging(e: MouseEvent) {
   if (!timeline) return;
   document.addEventListener("mousemove", mouseMoveListener);
   document.addEventListener("mouseup", mouseUpListener);
-  // console.info(e);
+  // console.info(e, timelineDOM, dom);
   // const layout = imgLayout.value;
   const t = {
     active: true,
@@ -151,12 +178,16 @@ function onDragging(e: MouseEvent) {
     w: timeline.clientWidth,
     orgX: GenFunc.nodeOffsetX(timeline),
   };
+  // console.info(t);
   Object.assign(dragData, t);
   const delta = (t.x - t.orgX) / t.w;
+  // console.info(delta);
+  // return;
   dom.currentTime = dom.duration * delta;
   // console.info("onDragging");
   // console.info(e);
 }
+
 function mouseMoveListener(e: MouseEvent) {
   // console.info("mouseMoveListener");
   e.preventDefault();
@@ -165,18 +196,20 @@ function mouseMoveListener(e: MouseEvent) {
   //
   const dom = mediaDOM.value;
   if (!dom) return;
-  Object.assign(dragData, { x: e.clientX });
+  Object.assign(dragData, {x: e.clientX});
   let delta = (dragData.x - dragData.orgX) / dragData.w;
   if (delta > 1) delta = 1;
   if (delta < 0) delta = 0;
   dom.currentTime = dom.duration * delta;
 }
+
 function mouseUpListener() {
   // console.info("mouseUpListener");
-  Object.assign(dragData, { active: false });
+  Object.assign(dragData, {active: false});
   document.removeEventListener("mousemove", mouseMoveListener);
   document.removeEventListener("mouseup", mouseUpListener);
 }
+
 function wheelListener(e: WheelEvent) {
   const dom = mediaDOM.value;
   if (!dom) return;
@@ -188,6 +221,7 @@ function wheelListener(e: WheelEvent) {
   // Object.assign(mediaMeta.value, { volume: volume });
   localConfigure.set("browser_play_volume", volume);
 }
+
 function keymap(e: KeyboardEvent) {
   if ((e.target as HTMLElement).tagName !== "BODY") return;
   if (!props.modalData.layout.active) return;
@@ -197,10 +231,10 @@ function keymap(e: KeyboardEvent) {
       togglePlay();
       break;
     case "ArrowUp":
-      wheelListener({ deltaY: -1 } as WheelEvent);
+      wheelListener({deltaY: -1} as WheelEvent);
       break;
     case "ArrowDown":
-      wheelListener({ deltaY: 1 } as WheelEvent);
+      wheelListener({deltaY: 1} as WheelEvent);
       break;
     case "ArrowLeft":
     case "ArrowRight":
@@ -211,8 +245,11 @@ function keymap(e: KeyboardEvent) {
         time: dom.currentTime,
       });
       break;
+    case "Enter":
+      break;
   }
 }
+
 function parseTime(t: number) {
   const d = {
     h: "" + Math.floor(t / 3600),
@@ -261,7 +298,7 @@ function parseTime(t: number) {
               :style="{
                 left: (100 * mediaMeta.time) / mediaMeta.duration + '%',
               }"
-              >|</span
+            >|</span
             >
           </div>
         </div>
@@ -273,6 +310,9 @@ function parseTime(t: number) {
     <slot name="navigator"></slot>
     <div class="content" ref="contentDOM" @click="togglePlay">
       <!-- {{ props.curNode.title }} -->
+      <template v-if="mediaMeta.loading">
+        <span class="loader sysIcon sysIcon_sync"></span>
+      </template>
       <template v-if="mediaMeta.show">
         <img
           v-if="props.curNode.file?.cover"
@@ -288,14 +328,15 @@ function parseTime(t: number) {
         ></span>
         <audio
           ref="mediaDOM"
+          preload="metadata"
           :data-item-id="props.curNode.id"
           :poster="props.curNode.file?.cover?.path"
-          @loadedmetadata="onInitMeta()"
+          @loadedmetadata="onInit"
+          @canplay="onCanplay"
           @ended="onEnd"
           @timeupdate="onTimeUpdate"
         >
-          <source v-if='props.curNode.file?.normal?.path' :src="`${props.curNode.file?.normal?.path}?filename=${props.curNode.title}`" />
-          <source v-else :src="`${props.curNode.file?.raw?.path}?filename=${props.curNode.title}`" />
+          <source :src="resPath"/>
         </audio>
       </template>
     </div>

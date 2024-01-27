@@ -575,7 +575,7 @@ function setRater(rateVal: string) {
     }
   }
   .pagination {
-    z-index: 1;
+    z-index: 5;
     pointer-events: none;
     width: 100%;
     height: 100%;
@@ -644,6 +644,24 @@ function setRater(rateVal: string) {
       }
     }
   }
+}
+.loader.sysIcon {
+  font-size: $fontSize*10;
+  //display: block;
+  text-align: center;
+  z-index: 1;
+  color: map-get($colors, font);
+  height: 100%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.loader.sysIcon::before {
+  display: block;
+  animation: rotateAnimate 5s infinite linear;
+  $blurSize: $fontSize ;
+  text-shadow: 0 0 $blurSize black;
 }
 .modal_browser.base {
   .content {

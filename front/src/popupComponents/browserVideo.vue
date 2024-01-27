@@ -4,6 +4,7 @@ import type {ModalStruct} from "../modal";
 import type {api_node_col} from "../../../share/Api";
 import GenFunc from "../../../share/GenFunc";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
+import type {col_file, col_file_with_path} from "../../../share/Database";
 
 const localConfigure = useLocalConfigureStore();
 const props = defineProps<{
@@ -22,6 +23,12 @@ const emits = defineEmits(["nav"]);
 const contentDOM: Ref<HTMLElement | null> = ref(null);
 const timelineDOM: Ref<HTMLElement | null> = ref(null);
 const mediaDOM: Ref<HTMLVideoElement | null> = ref(null);
+const resPath: Ref<string> = ref('');
+if (props.curNode?.file?.normal?.path) {
+  resPath.value = `${props.curNode.file?.normal?.path}?filename=${props.curNode.title}`;
+} else {
+  resPath.value = `${props.curNode.file?.raw?.path}?filename=${props.curNode.title}`
+}
 
 // const playModes = ["queue", "loop", "single", "shuffle"];
 
@@ -36,7 +43,8 @@ const mediaMeta = ref({
   mute: false,
   //
   play: false,
-  show: false,
+  show: true,
+  loading: true,
   loop: localConfigure.get("browser_play_mode") === "single",
 });
 const modeKey = localConfigure.listen("browser_play_mode", (v) =>
@@ -46,9 +54,9 @@ const volumeKey = localConfigure.listen("browser_play_volume", (v) =>
   Object.assign(mediaMeta.value, {volume: v})
 );
 
-function onInitMeta() {
+function onInit() {
   const dom = mediaDOM.value;
-  if (!dom || dom.readyState !== 4) return setTimeout(onInitMeta, 50);
+  if (!dom || dom.readyState !== 4) return setTimeout(onInit, 50);
   const meta = mediaMeta.value;
   const target = {
     time: 0,
@@ -59,8 +67,26 @@ function onInitMeta() {
   dom.volume = meta.mute ? 0 : meta.volume / 100;
   //
   contentDOM.value?.addEventListener("wheel", wheelListener);
-  document.addEventListener("keydown", keymap);
 }
+
+function onCanplay(e: Event) {
+  document.addEventListener("keydown", keymap);
+  Object.assign(mediaMeta.value, {loading: false});
+}
+
+function onRelease(reboot:boolean=true) {
+  document.removeEventListener("wheel", wheelListener);
+  document.removeEventListener("keydown", keymap);
+  resPath.value = '';
+  if(reboot)
+  setTimeout(() => {
+    Object.assign(mediaMeta.value, {
+      show: false,
+      loading: true,
+    });
+  })
+}
+
 
 function togglePlay() {
   const dom = mediaDOM.value;
@@ -114,7 +140,16 @@ async function beforeInit() {
 // const eventStore = useEventStore();
 
 watch(() => props.curNode, async (to) => {
+  onRelease();
   beforeInit();
+  setTimeout(() => {
+    if (props.curNode?.file?.normal?.path) {
+      resPath.value = `${to.file?.normal?.path}?filename=${to.title}`;
+    } else {
+      resPath.value = `${to.file?.raw?.path}?filename=${to.title}`
+    }
+    Object.assign(mediaMeta.value, {show: true});
+  }, 50);
 });
 // let changeEvtKey = eventStore.listen(
 //   `modal_browser_change_${props.modalData.nid}`,
@@ -124,12 +159,7 @@ watch(() => props.curNode, async (to) => {
 //   }
 // );
 onUnmounted(() => {
-  document.removeEventListener("wheel", wheelListener);
-  document.removeEventListener("keydown", keymap);
-  // eventStore.release(
-  //   `modal_browser_change_${props.modalData.nid}`,
-  //   changeEvtKey
-  // );
+  onRelease(false);
   localConfigure.release("browser_play_mode", modeKey);
   localConfigure.release("browser_play_volume", volumeKey);
 });
@@ -263,7 +293,7 @@ function loadSubtitle() {
   const subNode = [] as (api_node_col & { label?: string })[];
   props.nodeList.forEach(node => {
     if (node.type !== 'subtitle') return;
-    if (!(node.file?.normal?.path||node.file?.raw?.path)) return;
+    if (!(node.file?.normal?.path || node.file?.raw?.path)) return;
     let aftStr = node.title?.substring(preStr.length);
     // console.info(aftStr);
     if (node.title?.indexOf(preStr) === 0) subNode.push(Object.assign({label: aftStr}, node));
@@ -334,6 +364,9 @@ function toggleSubtitle(index: number) {
     <slot name="navigator"></slot>
     <div class="content" ref="contentDOM" @click="togglePlay">
       <!-- {{ props.curNode.title }} -->
+      <template v-if="mediaMeta.loading">
+        <span class="loader sysIcon sysIcon_sync"></span>
+      </template>
       <template v-if="mediaMeta.show">
         <!-- <img
           v-if="props.curNode.file?.cover"
@@ -349,17 +382,18 @@ function toggleSubtitle(index: number) {
         ></span> -->
         <video
           ref="mediaDOM"
+          preload="metadata"
           :data-item-id="props.curNode.id"
           :poster="props.curNode.file?.cover?.path"
-          @loadedmetadata="onInitMeta()"
+          @loadedmetadata="onInit"
+          @canplay="onCanplay"
           @ended="onEnd"
           @timeupdate="onTimeUpdate"
         >
-          <source v-if='props.curNode.file?.normal?.path' :src="`${props.curNode.file?.normal?.path}?filename=${props.curNode.title}`" />
-          <source v-else :src="`${props.curNode.file?.raw?.path}?filename=${props.curNode.title}`" />
+          <source :src="resPath"/>
           <template v-for="(subtitle,index) in subtitleList">
             <track :default="subtitleIndex==index?true:false"
-                   :src="subtitle.file?.normal?.path" kind="subtitles"
+                   :src="(subtitle.file?.normal as col_file_with_path).path" kind="subtitles"
                    :srclang="subtitle.label" :label="subtitle.label"
             />
           </template>
