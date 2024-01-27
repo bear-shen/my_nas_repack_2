@@ -61,6 +61,9 @@ function onInitMeta() {
   Object.assign(mediaMeta.value, target);
   if (meta.play) dom.play();
   dom.volume = meta.mute ? 0 : meta.volume / 100;
+  //
+  contentDOM.value?.addEventListener("wheel", wheelListener);
+  document.addEventListener("keydown", keymap);
 }
 function togglePlay() {
   const dom = mediaDOM.value;
@@ -86,8 +89,6 @@ function onEnd(e: Event) {
   emits("nav", props.curIndex + 1);
 }
 onMounted(() => {
-  contentDOM.value?.addEventListener("wheel", wheelListener);
-  document.addEventListener("keydown", keymap);
 });
 /* watch(props, async (to) => {
   if (to.curNode.id === imgLayout.value.loaded) return;

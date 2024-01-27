@@ -57,6 +57,9 @@ function onInitMeta() {
   Object.assign(mediaMeta.value, target);
   if (meta.play) dom.play();
   dom.volume = meta.mute ? 0 : meta.volume / 100;
+  //
+  contentDOM.value?.addEventListener("wheel", wheelListener);
+  document.addEventListener("keydown", keymap);
 }
 
 function togglePlay() {
@@ -86,8 +89,6 @@ function onEnd(e: Event) {
 
 onMounted(async () => {
   await beforeInit();
-  contentDOM.value?.addEventListener("wheel", wheelListener);
-  document.addEventListener("keydown", keymap);
 });
 
 async function beforeInit() {
@@ -110,16 +111,16 @@ async function beforeInit() {
   loadImageRes();
 }); */
 //
+// const eventStore = useEventStore();
 
 watch(() => props.curNode, async (to) => {
   beforeInit();
 });
-// const eventStore = useEventStore();
 // let changeEvtKey = eventStore.listen(
 //   `modal_browser_change_${props.modalData.nid}`,
 //   (data) => {
-//     console.info('modal_browser_change_');
-//     beforeInit();
+//     Object.assign(mediaMeta.value, { show: false });
+//     setTimeout(() => Object.assign(mediaMeta.value, { show: true }), 50);
 //   }
 // );
 onUnmounted(() => {
@@ -398,7 +399,7 @@ function toggleSubtitle(index: number) {
       color: map_get($colors, input_button_font);
       width: 150px;
       //      padding: 0 $fontSize * 0.5;
-      //border-right: $fontSize * 0.5 solid map_get($colors, input_button_bk);
+      border-right: 1px solid map_get($colors, input_button_bk);
       height: $fontSize * 1.5;
       line-height: $fontSize * 1.5;
       position: relative;
