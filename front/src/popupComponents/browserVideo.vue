@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import {onMounted, onUnmounted, ref, type Ref, watch} from "vue";
+import {onBeforeUnmount, onMounted, ref, type Ref, watch} from "vue";
 import type {ModalStruct} from "../modal";
 import type {api_node_col} from "../../../share/Api";
 import GenFunc from "../../../share/GenFunc";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
-import type {col_file, col_file_with_path} from "../../../share/Database";
+import type {col_file_with_path} from "../../../share/Database";
 
 const localConfigure = useLocalConfigureStore();
 const props = defineProps<{
@@ -43,7 +43,7 @@ const mediaMeta = ref({
   mute: false,
   //
   play: false,
-  show: true,
+  // show: true,
   loading: true,
   loop: localConfigure.get("browser_play_mode") === "single",
 });
@@ -74,17 +74,19 @@ function onCanplay(e: Event) {
   Object.assign(mediaMeta.value, {loading: false});
 }
 
-function onRelease(reboot:boolean=true) {
+function onRelease(reboot: boolean = true) {
   document.removeEventListener("wheel", wheelListener);
   document.removeEventListener("keydown", keymap);
   resPath.value = '';
-  if(reboot)
-  setTimeout(() => {
+  // console.info('onRelease', mediaDOM.value);
+  if (mediaDOM.value) mediaDOM.value?.load();
+  if (reboot)
+    // setTimeout(() => {
     Object.assign(mediaMeta.value, {
-      show: false,
+      // show: false,
       loading: true,
     });
-  })
+  // })
 }
 
 
@@ -115,17 +117,18 @@ function onEnd(e: Event) {
 
 onMounted(async () => {
   await beforeInit();
+  if (mediaDOM.value) mediaDOM.value?.load();
 });
 
 async function beforeInit() {
   // console.info('beforeInit');
-  Object.assign(mediaMeta.value, {show: false});
+  // Object.assign(mediaMeta.value, {show: false});
   subtitleList.value = [];
   loadSubtitle();
   // video的dom更新需要删了才能刷新
-  setTimeout(() => {
-    Object.assign(mediaMeta.value, {show: true});
-  }, 50);
+  // setTimeout(() => {
+  // Object.assign(mediaMeta.value, {show: true});
+  // }, 50);
 }
 
 /* watch(props, async (to) => {
@@ -142,14 +145,15 @@ async function beforeInit() {
 watch(() => props.curNode, async (to) => {
   onRelease();
   beforeInit();
-  setTimeout(() => {
-    if (props.curNode?.file?.normal?.path) {
-      resPath.value = `${to.file?.normal?.path}?filename=${to.title}`;
-    } else {
-      resPath.value = `${to.file?.raw?.path}?filename=${to.title}`
-    }
-    Object.assign(mediaMeta.value, {show: true});
-  }, 50);
+  if (props.curNode?.file?.normal?.path) {
+    resPath.value = `${to.file?.normal?.path}?filename=${to.title}`;
+  } else {
+    resPath.value = `${to.file?.raw?.path}?filename=${to.title}`
+  }
+  // setTimeout(() => {
+  if (mediaDOM.value) mediaDOM.value?.load();
+  // Object.assign(mediaMeta.value, {show: true});
+  // });
 });
 // let changeEvtKey = eventStore.listen(
 //   `modal_browser_change_${props.modalData.nid}`,
@@ -158,7 +162,7 @@ watch(() => props.curNode, async (to) => {
 //     setTimeout(() => Object.assign(mediaMeta.value, { show: true }), 50);
 //   }
 // );
-onUnmounted(() => {
+onBeforeUnmount(() => {
   onRelease(false);
   localConfigure.release("browser_play_mode", modeKey);
   localConfigure.release("browser_play_volume", volumeKey);
@@ -367,38 +371,38 @@ function toggleSubtitle(index: number) {
       <template v-if="mediaMeta.loading">
         <span class="loader sysIcon sysIcon_sync"></span>
       </template>
-      <template v-if="mediaMeta.show">
-        <!-- <img
-          v-if="props.curNode.file?.cover"
-          :src="props.curNode.file?.cover?.path"
-        />
-        <span
-          v-else
-          :class="['listIcon', `listIcon_file_${props.curNode.type}`]"
-          :style="{
-            fontSize: props.modalData.layout.h * 0.5 + 'px',
-            lineHeight: props.modalData.layout.h * 0.8 + 'px',
-          }"
-        ></span> -->
-        <video
-          ref="mediaDOM"
-          preload="metadata"
-          :data-item-id="props.curNode.id"
-          :poster="props.curNode.file?.cover?.path"
-          @loadedmetadata="onInit"
-          @canplay="onCanplay"
-          @ended="onEnd"
-          @timeupdate="onTimeUpdate"
-        >
-          <source :src="resPath"/>
-          <template v-for="(subtitle,index) in subtitleList">
-            <track :default="subtitleIndex==index?true:false"
-                   :src="(subtitle.file?.normal as col_file_with_path).path" kind="subtitles"
-                   :srclang="subtitle.label" :label="subtitle.label"
-            />
-          </template>
-        </video>
-      </template>
+      <!--      <template v-if="mediaMeta.show">-->
+      <!-- <img
+        v-if="props.curNode.file?.cover"
+        :src="props.curNode.file?.cover?.path"
+      />
+      <span
+        v-else
+        :class="['listIcon', `listIcon_file_${props.curNode.type}`]"
+        :style="{
+          fontSize: props.modalData.layout.h * 0.5 + 'px',
+          lineHeight: props.modalData.layout.h * 0.8 + 'px',
+        }"
+      ></span> -->
+      <video
+        ref="mediaDOM"
+        preload="metadata"
+        :data-item-id="props.curNode.id"
+        :poster="props.curNode.file?.cover?.path"
+        @loadedmetadata="onInit"
+        @canplay="onCanplay"
+        @ended="onEnd"
+        @timeupdate="onTimeUpdate"
+      >
+        <source :src="resPath"/>
+        <template v-for="(subtitle,index) in subtitleList">
+          <track :default="subtitleIndex==index?true:false"
+                 :src="(subtitle.file?.normal as col_file_with_path).path" kind="subtitles"
+                 :srclang="subtitle.label" :label="subtitle.label"
+          />
+        </template>
+      </video>
+      <!--      </template>-->
     </div>
   </div>
 </template>
