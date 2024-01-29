@@ -2,7 +2,7 @@
 import {onMounted, onUnmounted, ref, type Ref, watch} from "vue";
 import type {ModalStruct} from "../modal";
 import type {api_node_col} from "../../../share/Api";
-import GenFunc from "../../../share/GenFunc";
+import GenFunc from "@/GenFunc";
 import {useEventStore} from "@/stores/event";
 
 const props = defineProps<{

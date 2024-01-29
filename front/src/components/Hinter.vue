@@ -1,7 +1,7 @@
 <script setup lang="ts">
 //https://www.jb51.net/article/246976.htm
 import {onMounted, ref, type Ref, watch} from "vue";
-import GenFunc from "../../../share/GenFunc";
+import GenFunc from "@/GenFunc";
 
 type valType = any & { _sel?: boolean };
 

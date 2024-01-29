@@ -4,7 +4,7 @@ import {onMounted, onUnmounted, ref} from "vue";
 import type {ModalStruct} from "@/modal";
 import type {api_file_bath_rename_resp, api_node_col} from "../../../share/Api";
 import {useModalStore} from "@/stores/modalStore";
-import GenFunc from "../../../share/GenFunc";
+import GenFunc from "@/GenFunc";
 import {query} from "@/Helper";
 import {manualSort} from "@/FileViewHelper";
 

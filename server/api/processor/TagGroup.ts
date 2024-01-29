@@ -3,7 +3,7 @@ import {Fields} from 'formidable';
 import {IncomingMessage, ServerResponse} from 'http';
 import {ParsedForm} from '../types';
 import NodeModel from '../../model/NodeModel';
-import GenFunc from '../../../share/GenFunc';
+import GenFunc from '../../lib/GenFunc';
 import type {col_node, col_tag, col_tag_group} from '../../../share/Database';
 import TagGroupModel from '../../model/TagGroupModel';
 import FileModel from '../../model/FileModel';

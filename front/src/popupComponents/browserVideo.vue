@@ -2,7 +2,7 @@
 import {onBeforeUnmount, onMounted, ref, type Ref, watch} from "vue";
 import type {ModalStruct} from "../modal";
 import type {api_node_col} from "../../../share/Api";
-import GenFunc from "../../../share/GenFunc";
+import GenFunc from "@/GenFunc";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import type {col_file_with_path} from "../../../share/Database";
 

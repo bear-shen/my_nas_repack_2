@@ -7,7 +7,7 @@ import type {api_favourite_attach_resp, api_favourite_group_list_resp, api_file_
 
 import type {ModalConstruct} from "@/modal";
 import {query} from "@/Helper";
-import GenFunc from "../../share/GenFunc";
+import GenFunc from "@/GenFunc";
 import {useModalStore} from "@/stores/modalStore";
 import type {RouteLocationNormalizedLoaded, Router} from "vue-router";
 import {useLocalConfigureStore} from "@/stores/localConfigure";

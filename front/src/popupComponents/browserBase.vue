@@ -3,8 +3,7 @@ import {onMounted, ref, type Ref} from "vue";
 import type {ModalConstruct, ModalStruct} from "../modal";
 import {queryDemo, query} from "@/Helper";
 import type {api_node_col, api_file_list_resp} from "../../../share/Api";
-import smp_file_list_resp from "../../../share/sampleApi/smp_file_list_resp";
-import GenFunc from "../../../share/GenFunc";
+import GenFunc from "@/GenFunc";
 
 const props = defineProps<{
   data: { [key: string]: any };

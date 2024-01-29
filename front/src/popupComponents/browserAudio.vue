@@ -2,7 +2,7 @@
 import {onBeforeUnmount, onMounted, ref, type Ref, watch} from "vue";
 import type {ModalStruct} from "../modal";
 import type {api_node_col} from "../../../share/Api";
-import GenFunc from "../../../share/GenFunc";
+import GenFunc from "@/GenFunc";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 
 const localConfigure = useLocalConfigureStore();
@@ -129,7 +129,7 @@ onMounted(async () => {
 
 watch(() => props.curNode, async (to) => {
   onRelease();
-  beforeInit();
+  // beforeInit();
   if (props.curNode?.file?.normal?.path) {
     resPath.value = `${to.file?.normal?.path}?filename=${to.title}`;
   } else {

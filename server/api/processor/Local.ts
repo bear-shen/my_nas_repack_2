@@ -11,7 +11,7 @@ import {
     api_local_rm_req, api_local_mv_req, api_local_cp_req,
 } from '../../../share/Api';
 import NodeModel from '../../model/NodeModel';
-import GenFunc from '../../../share/GenFunc';
+import GenFunc from '../../lib/GenFunc';
 import {col_node, col_tag} from '../../../share/Database';
 import TagModel from '../../model/TagModel';
 import TagGroupModel from '../../model/TagGroupModel';

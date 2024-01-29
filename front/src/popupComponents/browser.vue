@@ -5,7 +5,7 @@ import type {ModalStruct} from "@/modal";
 import {query} from "@/Helper";
 import {manualSort, opFunctionModule} from "@/FileViewHelper";
 import type {api_file_list_req, api_file_list_resp, api_node_col} from "../../../share/Api";
-import GenFunc from "../../../share/GenFunc";
+import GenFunc from "@/GenFunc";
 import browserBaseVue from "./browserBase.vue";
 import browserImageVue from "./browserImage.vue";
 import browserAudioVue from "./browserAudio.vue";

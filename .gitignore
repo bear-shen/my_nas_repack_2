@@ -42,3 +42,7 @@ server/archive
 /resource/
 /file
 /file/*
+/front/tsconfig.app.tsbuildinfo
+/front/tsconfig.node.tsbuildinfo
+/front/tsconfig.tsbuildinfo
+/front/vite.config.d.ts

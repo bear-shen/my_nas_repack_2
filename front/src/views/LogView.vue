@@ -5,7 +5,7 @@ import {onMounted, onUnmounted, ref} from "vue";
 import {onBeforeRouteUpdate, useRoute, useRouter,} from "vue-router";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {query} from "@/Helper";
-import GenFunc from "../../../share/GenFunc";
+import GenFunc from "@/GenFunc";
 import type {api_queue_col, api_queue_list_req, api_queue_list_resp,} from "../../../share/Api";
 // import {useModalStore} from "@/stores/modalStore";
 

@@ -1,15 +1,18 @@
 {
-  "extends": "@vue/tsconfig/tsconfig.dom.json",
-  "include": ["env.d.ts", "src/**/*", "src/**/*.vue", "src/*.vue"],
   "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+	"module"   : "NodeNext",
+	"composite": true,
+	"noEmit"   : true
   },
-  "references": [
-    {
-      "path": "./tsconfig.config.json"
-    }
+  "files"          : [
+  ],
+  "include"        : [
+  ],
+  "references"     : [
+	{
+	  "path": "./tsconfig.node.json"
+	}, {
+	  "path": "./tsconfig.app.json"
+	}
   ]
 }

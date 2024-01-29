@@ -3,7 +3,7 @@ import {Fields} from 'formidable';
 import {IncomingMessage, ServerResponse} from 'http';
 import {ParsedForm} from '../types';
 import NodeModel from '../../model/NodeModel';
-import GenFunc from '../../../share/GenFunc';
+import GenFunc from '../../lib/GenFunc';
 import FileModel from '../../model/FileModel';
 import * as fp from "../../lib/FileProcessor";
 import ORM from "../../lib/ORM";

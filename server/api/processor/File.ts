@@ -24,7 +24,7 @@ import type {
     api_node_col
 } from '../../../share/Api';
 import NodeModel from '../../model/NodeModel';
-import GenFunc from '../../../share/GenFunc';
+import GenFunc from '../../lib/GenFunc';
 import {col_node, col_tag} from '../../../share/Database';
 import TagModel from '../../model/TagModel';
 import TagGroupModel from '../../model/TagGroupModel';
