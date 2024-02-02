@@ -146,6 +146,7 @@ function getType(suffix: string): type_file {
 }
 
 async function checkName(dirId: number, name: string) {
+    name=titleFilter(name);
     return await (new NodeModel).where('id_parent', dirId).where('title', name).first();
 }
 
@@ -407,7 +408,6 @@ async function rmReal(fileId: number | col_file) {
         fileInfo = await (new FileModel()).where('id', fileId).first();
     else
         fileInfo = fileId as col_file;
-    // console.info(fileInfo);
     // if (!fileInfo) throw new Error('file not found');
     if (!fileInfo) return false;
     const targetPath = getConfig().path.local + getRelPathByFile(fileInfo);
@@ -416,6 +416,15 @@ async function rmReal(fileId: number | col_file) {
     } catch (e: any) {
         // console.info(e);
         console.info(`dir not exists ${targetPath}`);
+        await (new FileModel()).where('id', fileInfo.id).delete();
+        return;
+    }
+    try {
+        await fs.access(targetPath);
+    } catch (e: any) {
+        // console.info(e);
+        console.info(`file not exists ${targetPath}`);
+        await (new FileModel()).where('id', fileInfo.id).delete();
         return;
     }
     // console.info(threadId, targetPath);
@@ -427,7 +436,7 @@ async function rmReal(fileId: number | col_file) {
         let dirLs = await fs.readdir(dirPath);
         // if (!dirLs) continue;
         if (!dirLs.length) {
-            await fs.rmdir(dirPath)
+            await fs.rmdir(dirPath);
         }
         dirPath = getDir(dirPath);
     }
@@ -537,7 +546,7 @@ async function buildIndex(nodeId: number | col_node, cascade: boolean = false) {
 }
 
 function titleFilter(title: string) {
-    return title.replaceAll(/[\^'/,\r\n\t\\:*?"|<>]/igm, ' ');
+    return title.replaceAll(/[\\\/:*?"<>|\r\n\t]/igm, ' ').trim();
 }
 
 async function checkOrphanFile(fileId: number): Promise<number> {

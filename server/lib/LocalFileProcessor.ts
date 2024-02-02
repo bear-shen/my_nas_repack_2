@@ -69,6 +69,7 @@ async function statFromStat(relPath: string, isFullPath?: boolean): Promise<api_
             'statFromStat:',
             (e as Error).message,
             (e as Error).name,
+            // (e as Error).stack,
         )
     }
     return;

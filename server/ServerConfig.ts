@@ -60,9 +60,9 @@ const BaseConfig = {
         pasv: [12000, 15000],
         tls: true,
         tlsConfig: {
-            key: fs.readFileSync(`${__dirname}/../../../cert/cirno_ftp.key`),
-            cert: fs.readFileSync(`${__dirname}/../../../cert/cirno_ftp.crt`),
-            ca: [fs.readFileSync(`${__dirname}/../../../cert/rootCA.crt`),],
+            key: fs.readFileSync(`${__dirname}/../../cert/cirno_ftp.key`),
+            cert: fs.readFileSync(`${__dirname}/../../cert/cirno_ftp.crt`),
+            ca: [fs.readFileSync(`${__dirname}/../../cert/rootCA.crt`),],
             isServer: true,
             // requestCert: true,
             // requestOCSP: true,
