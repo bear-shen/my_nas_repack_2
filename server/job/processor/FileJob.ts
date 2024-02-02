@@ -105,8 +105,12 @@ class FileJob {
                     for (let i1 = 0; i1 < subArr.length; i1++) {
                         let ffStr = subArr[i1].ffStr;
                         let subTitle = subArr[i1].subTitle;
+                        let ifSuffix = node.title.lastIndexOf('.');
+                        if (!ifSuffix || ifSuffix == -1) ifSuffix = 0;
+                        if (node.title.length - ifSuffix > 5) ifSuffix = 0;
+                        if (node.title.length - ifSuffix < 1) ifSuffix = 0;
                         const subNodeTitle = `${
-                            node.title.replace(/\..+?$/i, '')
+                            ifSuffix ? node.title.substring(0, ifSuffix) : node.title
                         }.${
                             subTitle
                         }.${
