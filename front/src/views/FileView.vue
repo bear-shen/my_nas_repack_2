@@ -580,5 +580,6 @@ onUnmounted(() => {
 .content_detail.mode_text {
   display: table;
   width: 100%;
+  height: auto;
 }
 </style>
