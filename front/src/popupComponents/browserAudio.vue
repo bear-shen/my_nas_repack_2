@@ -54,6 +54,7 @@ const volumeKey = localConfigure.listen("browser_play_volume", (v) =>
 );
 
 function onInit() {
+  console.info('onInit');
   const dom = mediaDOM.value;
   if (!dom || dom.readyState !== 4) return setTimeout(onInit, 50);
   const meta = mediaMeta.value;
@@ -69,6 +70,7 @@ function onInit() {
 }
 
 function onCanplay(e: Event) {
+  console.info('onCanplay');
   document.addEventListener("keydown", keymap);
   Object.assign(mediaMeta.value, {loading: false});
 }

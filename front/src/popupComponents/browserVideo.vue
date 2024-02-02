@@ -96,7 +96,6 @@ function togglePlay() {
   const dom = mediaDOM.value;
   if (!dom) return;
   const meta = mediaMeta.value;
-  console.info('togglePlay', dom, meta);
   if (meta.play) {
     dom.pause();
   } else {
