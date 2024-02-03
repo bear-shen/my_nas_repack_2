@@ -256,9 +256,10 @@ modalStore.handleEvent("set", (modal: ModalConstruct) => {
   modalList.value.set(curModal.nid, curModal);
   toggleActive(curModal.nid);
   checkAlpha();
+  return curModal;
 });
 modalStore.handleEvent("close", (nid: string) => {
-  close(nid);
+  return close(nid);
 });
 
 function toggleActive(nid: string) {
@@ -332,6 +333,7 @@ function close(nid: string) {
   if (!modal.layout.allow_escape) return;
   modalList.value.delete(nid);
   checkAlpha();
+  return modal;
 }
 
 const eventStore = useEventStore();

@@ -4,7 +4,6 @@
 import type {Ref} from "vue";
 import {ref,} from "vue";
 import type {api_favourite_attach_resp, api_favourite_group_list_resp, api_file_bath_delete_resp, api_file_bath_move_req, api_file_bath_move_resp, api_file_checksum_resp, api_file_cover_resp, api_file_delete_resp, api_file_list_req, api_file_mov_req, api_file_mov_resp, api_file_rebuild_resp, api_node_col, api_rate_attach_resp, api_tag_list_resp} from "../../share/Api";
-
 import type {ModalConstruct} from "@/modal";
 import {query} from "@/Helper";
 import GenFunc from "@/GenFunc";
@@ -12,6 +11,7 @@ import {useModalStore} from "@/stores/modalStore";
 import type {RouteLocationNormalizedLoaded, Router} from "vue-router";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {useContextStore} from "@/stores/useContext";
+import {FileStreamDownloader} from "@/FileStreamDownloader";
 
 // const router = useRouter();
 // const route = useRoute();
@@ -117,9 +117,9 @@ export class opModule {
     public setList(list: api_node_col[]) {
         this.nodeList.value = list;
         setTimeout(() => {
-            // console.info('setList',list);
-              this.reloadOffset(undefined);
-          },
+                // console.info('setList',list);
+                this.reloadOffset(undefined);
+            },
             timeoutDef.offsetDebounce
         )
     }
@@ -401,6 +401,51 @@ export class opModule {
                     link.setAttribute('download', title)
                     link.click();
                     // });
+                },
+            },
+            {
+                title: 'Download Selected',
+                auth: isBath ? 'guest' : (
+                    nodeLs[0].type == 'directory' ? 'guest' : 'none'
+                ),
+                method: async (e: MouseEvent) => {
+                    console.info('DownloadSelected', e);
+                    console.info(this, nodeLs);
+                    if (!opModuleVal || !opModuleVal.modalStore) return;
+                    //
+
+                    const fd = new FileStreamDownloader(nodeLs);
+                    //
+                    const resRef: Ref<string> = ref('downloading 0/0 (0%)');
+                    const modal = opModuleVal.modalStore.set({
+                        title: fd.title,
+                        alpha: false,
+                        key: "",
+                        single: false,
+                        w: 400,
+                        h: 150,
+                        minW: 400,
+                        minH: 150,
+                        // h: 160,
+                        allow_resize: true,
+                        allow_move: true,
+                        allow_fullscreen: false,
+                        auto_focus: true,
+                        text: resRef,
+                    } as ModalConstruct);
+                    await fd.prepare();
+                    const intervalKey = setInterval(() => {
+                        const cur = fd.downFile + fd.downCur;
+                        const tt = fd.downTotal;
+                        const percent = Math.round(10000 * cur / tt) / 100 + '%';
+                        modal.content.text.value = `downloading ${cur}/${tt} (${percent})`;
+                        // console.info('setInterval', modal.content.text, fd)
+                    }, 500);
+                    await fd.download();
+                    await fd.build();
+                    await fd.complete();
+                    clearInterval(intervalKey);
+                    opModuleVal.modalStore.close(modal.nid);
                 },
             },
             {
@@ -785,7 +830,7 @@ export class opFunctionModule {
             formData.set('title', node.title ?? '');
             formData.set('description', node.description ?? '');
             const res = await query<api_file_mov_resp>('file/mod', formData);
-            if (opModuleVal) opModuleVal.emitGo( 'reload');
+            if (opModuleVal) opModuleVal.emitGo('reload');
         }
         node._renaming = !node._renaming;
         setTimeout(() => {

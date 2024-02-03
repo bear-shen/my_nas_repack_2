@@ -1,4 +1,6 @@
 //return true to keep
+import type {Ref} from "vue";
+
 export type ModalCallbackFunc = (modal: ModalStruct) => Promise<true | any> | void;
 
 export type ModalFormConstruct<K> = {
@@ -39,7 +41,7 @@ export type ModalLayout = {
     fullscreen: boolean;
 }
 export type ModalContent = {
-    text: string;
+    text: string | Ref<string>;
     form: Array<ModalFormConstruct>;
     component: Array<ModalComponentConstruct>;
 };
@@ -86,7 +88,7 @@ export type ModalConstruct = {
     //
     fullscreen?: boolean | false;
     // content
-    text?: string;
+    text?: string | Ref<string>;
     form?: Array<ModalFormConstruct> | ModalFormConstruct;
     component?:
         Array<ModalComponentConstruct | string>

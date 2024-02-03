@@ -12,8 +12,7 @@
   },
   "dependencies": {
     "@tsconfig/node20": "^20.1.2",
-    "@types/archiver": "^6.0.2",
-    "archiver": "^6.0.1",
+    "jszip": "^3.10.1",
     "pinia": "^2.1.7",
     "vite": "^5.0.12",
     "vue": "^3.4.15",
