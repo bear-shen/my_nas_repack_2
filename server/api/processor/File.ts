@@ -25,7 +25,7 @@ import type {
 } from '../../../share/Api';
 import NodeModel from '../../model/NodeModel';
 import GenFunc from '../../lib/GenFunc';
-import {col_node, col_tag} from '../../../share/Database';
+import {col_file, col_node, col_tag} from '../../../share/Database';
 import TagModel from '../../model/TagModel';
 import TagGroupModel from '../../model/TagGroupModel';
 import FileModel from '../../model/FileModel';
@@ -36,6 +36,7 @@ import FavouriteModel from "../../model/FavouriteModel";
 import RateModel from "../../model/RateModel";
 import FavouriteGroupModel from "../../model/FavouriteGroupModel";
 import fs from "node:fs/promises";
+import {splitQuery} from "../../lib/ModelHelper";
 
 export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_list_resp> {
@@ -174,11 +175,9 @@ export default class {
         });
         //收藏夹
         if (nodeIdSet.size) {
-            const favList = await (new FavouriteModel)
-                .where('id_user', data.uid)
-                .whereIn('id_node', Array.from(nodeIdSet))
-                .where('status', 1)
-                .select();
+            const favList = await splitQuery(FavouriteModel, Array.from(nodeIdSet), (orm) => {
+                orm.where('id_user', data.uid).where('status', 1)
+            });
             const favMap = new Map<number, number[]>();
             favList.forEach(fav => {
                 let arr = favMap.get(fav.id_node);
@@ -195,10 +194,9 @@ export default class {
         }
         //评级
         if (nodeIdSet.size) {
-            const rateList = await (new RateModel)
-                .where('id_user', data.uid)
-                .whereIn('id_node', Array.from(nodeIdSet))
-                .select();
+            const rateList = await splitQuery(RateModel, Array.from(nodeIdSet), (orm) => {
+                orm.where('id_user', data.uid)
+            });
             const rateMap = new Map<number, number>();
             rateList.forEach(rate => {
                 rateMap.set(rate.id_node, rate.rate);
@@ -247,7 +245,7 @@ export default class {
             });
         }
         if (withConf.indexOf('file') !== -1 && fileIdSet.size) {
-            const fileLs = await (new FileModel).whereIn('id', Array.from(fileIdSet)).select();
+            const fileLs: col_file[] = await splitQuery(FileModel, Array.from(fileIdSet));
             const fileMap = GenFunc.toMap(fileLs, 'id');
             // const tagGroupIdSet = new Set();
             nodeLs.forEach(node => {
@@ -266,11 +264,9 @@ export default class {
         const parentMap = new Map<number, col_node>();
         if (withConf.indexOf('crumb') !== -1) {
             if (parentIdSet.size) {
-                const parentLs = await new NodeModel()
-                    .whereIn('id', Array.from(parentIdSet))
-                    .select([
-                        'id', 'title', 'status', 'type',
-                    ]);
+                const parentLs = await splitQuery(NodeModel, Array.from(parentIdSet), undefined, [
+                    'id', 'title', 'status', 'type',
+                ]);
                 parentLs.forEach(node => {
                     parentMap.set(node.id, node);
                 });

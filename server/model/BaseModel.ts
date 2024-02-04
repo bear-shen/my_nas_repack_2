@@ -90,7 +90,7 @@ class BaseModel<field> extends ORM {
         return super.whereNull(key as string);
     }
 
-    whereIn(key: keyof field | string, arr: string[] | number[]): this {
+    whereIn(key: keyof field | string, arr: (string | number)[]): this {
         return super.whereIn(key as string, arr);
     }
 

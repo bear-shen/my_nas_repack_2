@@ -228,7 +228,7 @@ class ORM {
         return this;
     }
 
-    whereIn(key: string, arr: string[] | number[]): this {
+    whereIn(key: string, arr: (string | number)[]): this {
         const sArr = [];
         for (let i = 0; i < arr.length; i++) {
             sArr.push('?');
