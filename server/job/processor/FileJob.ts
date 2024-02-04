@@ -368,6 +368,15 @@ async function deleteNodeForever(nodeLs: col_node[]) {
     }
 }
 
+async function execSharp(file: col_file, type: string,): Promise<col_file | boolean> {
+    /*@todo
+     * sharp跑了一下分发现性能确实有提升但是提升的有限
+     * 本来以为是cli跑ff需要频繁启动耗时导致的慢
+     * 但是看来也就没有太大的改进，不过这是wsl下的成绩，windows下可能影响会较大
+     */
+    return false;
+}
+
 
 async function execFFmpeg(file: col_file, type: string,): Promise<col_file | boolean> {
     const filePath = getConfig().path.local + fp.getRelPathByFile(file);

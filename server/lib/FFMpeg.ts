@@ -84,7 +84,7 @@ async function subtitleStr(meta: ffMeta): Promise<boolean | Map<string, string>>
             }
         }
         let str = `[execMask.program]
--i [execMask.resource]
+-y -i [execMask.resource]
 ${multiCount ? `-map 0:${i1}` : ''}
 [execMask.target]`.replaceAll(/[\r\n]+/gm, "  ");
         resMap.set(lang, str);
@@ -253,9 +253,8 @@ async function videoStr(meta: ffMeta): Promise<string | boolean> {
         return true;
         // return {video: true, subtitle: subMap};
     }
-    let str = `[execMask.program]
--hide_banner -hwaccel auto -y
--i [execMask.resource]
+    let str = `[execMask.program] -hwaccel auto
+-y -i [execMask.resource]
 ${(tranRate || tranVCodec || tranLength) ? videoConf.ff_encoder : '-c:v copy'}
 ${tranLength ? `-s ${Math.round(tranLength ? w * videoConf.length / maxLen : w)}x${Math.round(tranLength ? h * videoConf.length / maxLen : h)}` : ''}
 ${(audioIndex !== -1) && (tranRate || tranACodec) ? audioConf.ff_encoder : '-c:a copy'}
@@ -330,8 +329,7 @@ async function audioStr(meta: ffMeta): Promise<string | boolean> {
         return true;
     }
     let str = `[execMask.program]
--hide_banner -hwaccel auto -y
--i [execMask.resource]
+-y -i [execMask.resource]
 ${(tranContainer || tranRate || tranACodec) ? audioConf.ff_encoder : '-c:a copy'}
 -map 0:${audioIndex} 
 [execMask.target]`.replaceAll(/[\r\n]+/gm, "  ");
@@ -448,7 +446,7 @@ async function imageStr(meta: ffMeta, level: 'cover' | 'preview' | 'image'): Pro
         return true;
     }
     let str = `[execMask.program]
--i [execMask.resource]
+-y -i [execMask.resource]
 -ss ${hasImage ? 0 : Math.round(Math.min(duration * 0.2, 20))}
 -vframes 1
 ${(tranSize || tranLength || tranType || tranStreams) ? imgConf.ff_encoder : '-c:v copy'}
