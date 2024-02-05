@@ -1212,11 +1212,11 @@ export class opFunctionModule {
         return res;
     }
 
-    public static async op_rate(rateVal: number, onSelNode: api_node_col) {
+    public static async op_rate(rateVal: number, onSelNode?: api_node_col) {
         //
         if (!opModuleVal) return;
         let selRes: { nodeLs: api_node_col[], idSet: Set<number> } = opModuleVal.getSelected();
-        if (!selRes.idSet.size) {
+        if (onSelNode && !selRes.idSet.size) {
             selRes.idSet.add(onSelNode);
             selRes.nodeLs.push(onSelNode);
         }
