@@ -20,7 +20,6 @@ const orgZoomLevel = [0.1, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 2];
 
 const contentDOM: Ref<HTMLElement | null> = ref(null);
 const imgDOM: Ref<HTMLImageElement | null> = ref(null);
-const showImg: Ref<boolean> = ref(true);
 const imgLayout = ref({
   loaded: 0,
   w: 0,
@@ -79,14 +78,15 @@ let resizingEvtKey = eventStore.listen(
 watch(() => props.curNode, async (to) => {
   console.info('onMod props.curNode');
   //非得这样切一下不然不刷新
-  showImg.value = false;
-  setTimeout(() => {
-    showImg.value = true;
+  // showImg.value = false;
+  // setTimeout(() => {
+  //   showImg.value = true;
+  imgDOM.value?.decode();
     imgLayout.value.loaded = 0;
     // setTimeout(() => {
     //   loadImageRes();
     // }, 0)
-  }, 0)
+  // }, 0)
 });
 
 onUnmounted(() => {
@@ -298,7 +298,6 @@ function setZoom(e?: WheelEvent, dir?: number) {
       <!-- {{ props.curNode.title }} -->
       <span class="loader sysIcon sysIcon_sync" v-if="!imgLayout.loaded"></span>
       <img
-        v-if="showImg"
         :data-ref-node-id="props.curNode.id"
         :src="`${props.curNode.file?.normal?.path}?filename=${props.curNode.title}`"
         @mousedown="onDragging"
