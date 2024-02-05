@@ -60,7 +60,7 @@ onMounted(() => {
     prepStar();
     //
     if (props.node)
-      await opFunctionModule.op_rate(preValue.value);
+      await opFunctionModule.op_rate(preValue.value, props.node);
     else
       emits('update:modelValue', preValue.value);
   });
