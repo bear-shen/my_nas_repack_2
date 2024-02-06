@@ -82,10 +82,10 @@ watch(() => props.curNode, async (to) => {
   // setTimeout(() => {
   //   showImg.value = true;
   imgDOM.value?.decode();
-    imgLayout.value.loaded = 0;
-    // setTimeout(() => {
-    //   loadImageRes();
-    // }, 0)
+  imgLayout.value.loaded = 0;
+  // setTimeout(() => {
+  //   loadImageRes();
+  // }, 0)
   // }, 0)
 });
 

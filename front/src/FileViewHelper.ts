@@ -15,6 +15,7 @@ import {FileStreamDownloader} from "@/FileStreamDownloader";
 
 // const router = useRouter();
 // const route = useRoute();
+import * as scrollLogStore from '@/persistenceStore/scrollLog';
 
 export const timeoutDef = {
     sort: 50,
@@ -27,8 +28,8 @@ export const timeoutDef = {
 };
 
 let opModuleVal: null | opModule;
-const scrollLogKey = 'tosho_scroll_log';
-const scrollLog: Map<string, number[]> = new Map<string, number[]>();
+// const scrollLogKey = 'tosho_scroll_log';
+// const scrollLog: Map<string, number[]> = new Map<string, number[]>();
 
 /*
 *
@@ -88,15 +89,16 @@ export class opModule {
         addEventListener('mouseup', this.mouseUpEvt);
         addEventListener('keydown', this.keymap);
         addEventListener("resize", this.reloadOffset);
-        const ifScrLogExs = localStorage.getItem(scrollLogKey);
-        if (ifScrLogExs) {
-            let log = JSON.parse(ifScrLogExs);
-            let indS = log.length - 100;
-            indS = indS > 0 ? indS : 0;
-            for (let i1 = indS; i1 < log.length; i1++) {
-                scrollLog.set(log[i1][0], log[i1][1]);
-            }
-        }
+
+        // const ifScrLogExs = localStorage.getItem(scrollLogKey);
+        // if (ifScrLogExs) {
+        //     let log = JSON.parse(ifScrLogExs);
+        //     let indS = log.length - 100;
+        //     indS = indS > 0 ? indS : 0;
+        //     for (let i1 = indS; i1 < log.length; i1++) {
+        //         scrollLog.set(log[i1][0], log[i1][1]);
+        //     }
+        // }
         this.contentDOM.addEventListener("scroll", this.scrollEvt);
         opModuleVal = this;
     }
@@ -762,8 +764,16 @@ export class opModule {
     }
 
     public saveScroll() {
-        // console.warn('this.saveScroll()');
-        const path = this.route.fullPath;
+        // console.warn('this.saveScroll()', this.route);
+        const query = this.route.query ?? {};
+        const key = [
+            this.route.path,
+            query.mode ? query.mode:'',
+            query.pid ? query.pid:'',
+            query.id ? query.id:'',
+            query.id ? query.id:'',
+            query.tag_id ? query.tag_id:'',
+        ].join(':');
         // console.info(path, this.contentDOM.scrollTop);
         const offset = [
             this.contentDOM.scrollTop,
@@ -771,20 +781,24 @@ export class opModule {
         ];
         //更新路由的时候会产生一个offset为0的scroll事件，直接跳过0
         if (!offset[0] && !offset[1]) return;
-        scrollLog.set(path, offset);
         GenFunc.debounce(() => {
-            localStorage.setItem(scrollLogKey,
-                JSON.stringify(
-                    Array.from(scrollLog)
-                )
-            );
+            scrollLogStore.set(key, offset);
         }, 500, 'debounce_reloadScroll');
     }
 
-    public reloadScroll() {
+    public async  reloadScroll() {
         // console.warn('this.reloadScroll()');
-        const path = this.route.fullPath;
-        const ifLogExs = scrollLog.get(path);
+        const query = this.route.query ?? {};
+        const key = [
+            this.route.path,
+            query.mode ? query.mode:'',
+            query.pid ? query.pid:'',
+            query.id ? query.id:'',
+            query.id ? query.id:'',
+            query.tag_id ? query.tag_id:'',
+        ].join(':');
+        // const path = this.route.fullPath;
+        const ifLogExs =await scrollLogStore.get(key);
         if (!ifLogExs) return;
         // console.info(path, ifLogExs);
         this.contentDOM.scrollTop = ifLogExs[0];

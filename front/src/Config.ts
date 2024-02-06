@@ -1,4 +1,3 @@
-
 export default {
     apiPath: '/api/',
     fileTypes: [
@@ -10,4 +9,5 @@ export default {
         'directory',
         'pdf',
     ],
+    indexedDBName: 'tosho_db',
 }
