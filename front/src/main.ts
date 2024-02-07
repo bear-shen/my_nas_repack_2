@@ -8,9 +8,14 @@ import './assets/basic.scss';
 import '@/assets/fonts/sysIcon/iconfont.css';
 import '@/assets/fonts/listIcon/iconfont.css';
 
-const app = createApp(App)
+import * as scrollLogStore from '@/persistenceStore/scrollLog';
+
+scrollLogStore.init();
+
+const app = createApp(App);
 
 app.use(createPinia())
 app.use(router)
 
 app.mount('#app')
+
