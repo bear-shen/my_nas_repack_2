@@ -615,7 +615,7 @@ function setRater(rateVal: string) {
     position: relative;
   }
   .base {
-    z-index: 5;
+    z-index: 10;
     width: 100%;
     bottom: 0;
     display: flex;
