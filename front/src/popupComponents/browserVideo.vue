@@ -54,7 +54,7 @@ const volumeKey = localConfigure.listen("browser_play_volume", (v) =>
   Object.assign(mediaMeta.value, {volume: v})
 );
 
-function onInit() {
+function onInit():any {
   console.info('onInit');
   const dom = mediaDOM.value;
   if(!dom)return ;
@@ -406,6 +406,25 @@ function toggleSubtitle(index: number) {
           />
         </template>
       </video>
+<!--      @focus="console.info('focus',$event)"
+      @auxclick="console.info('auxclick',$event)"
+      @contextlost="console.info('contextlost',$event)"
+      @contextrestored="console.info('contextrestored',$event)"
+      @cuechange="console.info('cuechange',$event)"
+      @emptied="console.info('emptied',$event)"
+      @error="console.info('error',$event)"
+      @durationchange="console.info('durationchange',$event)"
+      @drop="console.info('drop',$event)"
+      @focusin="console.info('focusin',$event)"
+      @focusout="console.info('focusout',$event)"
+      @progress="console.info('progress',$event)"
+      @ratechange="console.info('ratechange',$event)"
+      @reset="console.info('reset',$event)"
+      @securitypolicyviolation="console.info('securitypolicyviolation',$event)"
+      @slotchange="console.info('slotchange',$event)"
+      @stalled="console.info('stalled',$event)"
+      @suspend="console.info('suspend',$event)"
+      @waiting="console.info('waiting',$event)"-->
       <!--      </template>-->
     </div>
   </div>
