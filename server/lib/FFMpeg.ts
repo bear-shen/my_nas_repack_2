@@ -138,27 +138,39 @@ async function videoStr(meta: ffMeta): Promise<string | boolean> {
         videoIndex = i1;
         break;
     }
-    //
+    //多音轨的时候
+    // 一个无标签就用无标签
+    // 多个无标签就用无标签第一个
+    // 全部有标签就根据语言顺序选第一个
+    // 全部有标签但是都不符合标签就选第一个
     if (multiAudio) {
-        const langLs = new Map<number, string>;
+        const langMap = new Map<number, string>;
+        const noTagAudSet = new Set<number>;
+
         for (let i1 = 0; i1 < meta.streams.length; i1++) {
             if (meta.streams[i1].codec_type != 'audio') continue;
             //音轨的话没有标签就不管
-            if (!(meta.streams[i1].tags.language && meta.streams[i1].tags.language.length)) continue;
-            langLs.set(i1, meta.streams[i1].tags.language);
+            if (!(meta.streams[i1].tags.language && meta.streams[i1].tags.language.length)) {
+                noTagAudSet.add(i1);
+                continue;
+            }
+            langMap.set(i1, meta.streams[i1].tags.language);
         }
-        // let validCount = 0;
-        // langLs.forEach((lang) => {
-        //     validCount += lang.length ? 1 : 0;
-        // });
-        if (langLs.size) {
+        if (noTagAudSet.size) {
+            const noTagAudArr = Array.from(noTagAudSet);
+            audioIndex = noTagAudArr[0];
+        } else if (langMap.size) {
+            const langArr = Array.from(langMap);
             for (let i1 = 0; i1 < audioConf.priority_kw.length; i1++) {
                 const kw = audioConf.priority_kw[i1];
                 let ifMatch = -1;
-                langLs.forEach((lang, ind) => {
-                    if (ifMatch !== -1) return;
-                    if (lang.toLowerCase().indexOf(kw) !== -1) ifMatch = ind;
-                });
+                for (let i2 = 0; i2 < langArr.length; i2++) {
+                    const [ind, lang] = langArr[i2];
+                    if (lang.toLowerCase().indexOf(kw) !== -1) {
+                        ifMatch = ind;
+                        break;
+                    }
+                }
                 if (ifMatch !== -1) {
                     audioIndex = ifMatch;
                     break;
