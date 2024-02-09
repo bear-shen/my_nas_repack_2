@@ -235,9 +235,10 @@ const GenFunc = {
         );
     },
     toMap: function <K extends { [key: string]: any }>(input: K[], key: keyof K, caller?: (item: K) => any): Map<string | number, K> {
-        const target = new Map();
+        const target:Map<string | number, K> = new Map();
         input.forEach(item => {
             if (caller) caller(item);
+            // if(target.get(item[key]))console.info(item[key]);
             target.set(item[key], item);
         })
         return target;

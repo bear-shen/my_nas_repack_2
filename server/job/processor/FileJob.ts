@@ -280,8 +280,15 @@ class FileJob {
         else
             node = await (new NodeModel()).where('id', nodeId).first();
         //
-        if (!node) return;
-        if (!node.index_file_id.raw) return;
+        // console.info(node);
+        if (!node) {
+            // console.info('no node');
+            return;
+        }
+        if (!node.index_file_id.raw) {
+            // console.info('no node.index_file_id.raw');
+            return;
+        }
         const rawId = node.index_file_id.raw;
         for (const key in node.index_file_id) {
             if (key === 'raw') continue;
@@ -289,12 +296,14 @@ class FileJob {
             if (fileId === rawId) continue;
             const ifExs = await fp.checkOrphanFile(fileId);
             if (ifExs > 1) continue;
-            // await fp.rmReal(fileId);
+            await fp.rmReal(fileId);
         }
+        // console.info(node.index_file_id,rawId);
         // return;
         await (new NodeModel()).where('id', nodeId).update({
-            index_file_id: {raw: node.index_file_id.raw},
+            index_file_id: {raw: rawId},
         });
+        // console.info('to build');
         await FileJob.build(payload);
     }
 
