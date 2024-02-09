@@ -244,9 +244,11 @@ export default class {
                 });
             });
         }
+        // console.info(withConf.indexOf('file'),fileIdSet.size);
         if (withConf.indexOf('file') !== -1 && fileIdSet.size) {
             const fileLs: col_file[] = await splitQuery(FileModel, Array.from(fileIdSet));
             const fileMap = GenFunc.toMap(fileLs, 'id');
+            // console.info(fileLs.length,fileMap.size);
             // const tagGroupIdSet = new Set();
             nodeLs.forEach(node => {
                 node.file = {};

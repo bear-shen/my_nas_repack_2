@@ -425,9 +425,10 @@ const sortVal: Ref<string> = ref(localConfigure.get("browser_list_sort") ?? "nam
   }
 );*/
 
-function setSort(val: string) {
-  console.info('setSort', val);
-  sortVal.value = val;
+function setSort(evt:Event) {
+  console.info('setSort', sortVal.value,evt);
+  (evt.target as HTMLInputElement)?.blur();
+  // sortVal.value = val;
   const orgLs = vNodeList.value;
   vNodeList.value = [];
   sortList(orgLs, sortVal.value);
@@ -440,7 +441,7 @@ function setSort(val: string) {
 function sortList<K extends api_node_col>(list: K[], sort: string) {
   list = manualSort(list, sort);
   curIndex.value = locateCurNode(list, curNode.value);
-  localConfigure.set("browser_list_sort", sortVal)
+  localConfigure.set("browser_list_sort", sortVal.value)
   return list;
 }
 
@@ -510,7 +511,7 @@ function setRater(rateVal: string) {
           </option>
         </select>
         <br>
-        <select v-model="sortVal" @change="setSort(sortVal)">
+        <select v-model="sortVal" @change="setSort($event)">
           <option v-for="(sortItem, key) in def.sort" :value="key">
             {{ sortItem }}
           </option>
