@@ -2,7 +2,7 @@ import {SessionDef} from "../types";
 import {buildTemplate} from "../Lib";
 
 export async function execute(session: SessionDef, buffer: Buffer) {
-    const cmd = buffer.toString();
+    const cmd = buffer.toString().toUpperCase();
     const cmdArr = cmd.split(' ');
     if (!cmdArr || !cmdArr[0])
         session.socket.write(buildTemplate(504));

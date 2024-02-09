@@ -36,6 +36,7 @@ export async function execute(session: SessionDef, buffer: Buffer) {
         curNode = nodeArr[nodeArr.length - 1];
     }
     const subLs = await fp.ls(curNode.id);
+    //
     for (let i = 0; i < subLs.length; i++) {
         const isDir = subLs[i].type == 'directory';
         const f: fType = {

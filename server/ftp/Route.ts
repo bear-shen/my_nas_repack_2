@@ -24,6 +24,7 @@ const Route: { [key: string]: (session: SessionDef, buffer: Buffer) => any } = {
     AUTH: require('./method/AUTH').execute,
     PBSZ: require('./method/PBSZ').execute,
     PROT: require('./method/PROT').execute,
+    SITE: require('./method/SITE').execute,
     // APPE: require('./method/APPE').execute,
     // STOU: require('./method/STOU').execute,
     // ALLO: require('./method/ALLO').execute,

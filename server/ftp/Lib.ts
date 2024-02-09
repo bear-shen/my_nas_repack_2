@@ -19,14 +19,14 @@ function dataProcessor(session: SessionDef, buffer: Buffer) {
     }
     // console.info(data.toString());
     let methodName = '';
-    let st = 0;
+    // let st = 0;
     // console.info(buffer.toString());
     // console.info(typeof buffer);
     // console.info(buffer.length);
     for (let i = 0; i < 5; i++) {
         let char = buffer.readInt8(i);
-        st = i;
-        if (char == 32 || char == 0x0d || char == 0x0a) break;
+        // st = i;
+        if (char == 0x20 || char == 0x0d || char == 0x0a) break;
         methodName += String.fromCharCode(char);
     }
     console.info(methodName);
