@@ -13,6 +13,9 @@ let importerTitleFilter: string[] = [];
 export default class {
     static async run(payload: { [key: string]: any }): Promise<any> {
         importerTitleFilter = getConfig().import_ignore;
+        for (let i1 = 0; i1 < importerTitleFilter.length; i1++) {
+            importerTitleFilter[i1]=importerTitleFilter[i1].toLowerCase();
+        }
         const src = payload.sourceDir.replace(/\/$/, '');
         const targetId = payload.targetNodeId;
         let importRoot = await (new NodeModel).where('id', targetId).first();
@@ -114,7 +117,7 @@ async function scanLoop(src: string): Promise<api_local_file_statement[]> {
     const subTLs = [] as api_local_file_statement[];
     const targetLs = [];
     for (let i1 = 0; i1 < curLs.length; i1++) {
-        if (importerTitleFilter.indexOf(curLs[i1].name) !== -1) continue;
+        if (importerTitleFilter.indexOf(curLs[i1].name.toLowerCase()) !== -1) continue;
         if (curLs[i1].isDir) {
             const subLs = await scanLoop(curLs[i1].path);
             subLs.forEach(item => subTLs.push(item));

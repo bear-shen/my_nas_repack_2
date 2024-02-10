@@ -348,10 +348,16 @@ let resizing = {
   modal: null as ModalStruct | null,
 };
 
-function onResizeStart(modalNid: string, e: MouseEvent) {
+
+let pointerId = 0;
+
+function onResizeStart(modalNid: string, e: MouseEvent | PointerEvent) {
   // console.info('onResizeStart', modalNid, e);
   e.preventDefault();
   e.stopPropagation();
+  if (e.pointerId) {
+    pointerId = e.pointerId;
+  }
   // console.info("onResizeStart", e);
   resizing.x = e.clientX;
   resizing.y = e.clientY;
@@ -369,16 +375,17 @@ function onResizeStart(modalNid: string, e: MouseEvent) {
   resizing.modalH = resizing.modal.layout.h;
   document.addEventListener("mouseup", onResizeEnd);
   document.addEventListener("mousemove", onResizing);
-  // document.addEventListener("mouseenter", onResizeEnd);
-  // document.addEventListener("mouseleave", onResizeEnd);
-  // document.addEventListener("mouseout", onResizeEnd);
-  // document.addEventListener("mouseover", onResizeEnd);
+  document.addEventListener("pointercancel", onResizeEnd);
+  document.addEventListener("pointermove", onResizing);
+  //
 }
 
-function onResizing(e: MouseEvent) {
+function onResizing(e: MouseEvent | PointerEvent) {
+  // console.info('onResizing', e);
   e.preventDefault();
   // e.stopPropagation();
   if (!resizing.modal) return;
+  if (!e.pointerId && pointerId != e.pointerId) return;
   // console.info(e.type);
   const d = {x: e.clientX - resizing.x, y: e.clientY - resizing.y};
   const t = {
@@ -463,12 +470,17 @@ function onResizing(e: MouseEvent) {
   );
 }
 
-function onResizeEnd(e: MouseEvent) {
+function onResizeEnd(e: MouseEvent | PointerEvent) {
+  // console.info('onResizeEnd', e);
   e.preventDefault();
   e.stopPropagation();
+  if (!e.pointerId && pointerId != e.pointerId) return;
   // console.info(e.type);
   document.removeEventListener("mouseup", onResizeEnd);
   document.removeEventListener("mousemove", onResizing);
+  document.removeEventListener("pointercancel", onResizeEnd);
+  document.removeEventListener("pointermove", onResizing);
+  pointerId = 0;
 }
 
 //return true to keep
@@ -648,6 +660,7 @@ function keymap(e: KeyboardEvent) {
 
       <div class="modal_header"
            @mousedown="onResizeStart(modal.nid, $event)"
+           @pointerdown="onResizeStart(modal.nid, $event)"
            @dblclick="modal.layout.fullscreen?resetWindow(modal.nid):fullscreen(modal.nid)"
       >
         <div class="modal_title">
@@ -774,7 +787,9 @@ function keymap(e: KeyboardEvent) {
       </div>
       <div class="modal_border"
            v-if="modal.layout.allow_resize"
-           @mousedown="onResizeStart(modal.nid, $event)">
+           @mousedown="onResizeStart(modal.nid, $event)"
+           @pointerdown="onResizeStart(modal.nid, $event)"
+      >
         <div class="c_l"></div>
         <div class="c_r"></div>
         <div class="c_t"></div>

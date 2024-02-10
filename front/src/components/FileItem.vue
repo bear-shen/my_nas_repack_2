@@ -139,12 +139,14 @@ function emp(e: Event) {
         <template v-if="node.status">
           <div v-if="node.file?.cover && node._in_screen" class="thumb"
                @dblclick="op_dblclick"
+               @pointerdown="op_dblclick"
                @click="op_click"
           >
             <img :src="node.file?.cover.path"/>
           </div>
           <div v-else
                @dblclick="op_dblclick"
+               @pointerdown="op_dblclick"
                @click="op_click"
                :class="['thumb', 'listIcon', `listIcon_file_${node.type}`]"
           ></div>
@@ -222,6 +224,7 @@ function emp(e: Event) {
       <template v-if="node.status">
         <div v-if="node.file?.cover && node._in_screen" class="thumb"
              @dblclick="op_dblclick"
+             @pointerdown="op_dblclick"
              @click="op_click"
         >
           <img :src="node.file?.cover.path"/>
@@ -230,6 +233,7 @@ function emp(e: Event) {
           v-else
           :class="['thumb', 'listIcon', `listIcon_file_${node.type}`]"
           @dblclick="op_dblclick"
+          @pointerdown="op_dblclick"
           @click="op_click"
         ></div>
         <!--        <p class="title" @click="op_dblclick">{{ node.title }}</p>-->
@@ -251,6 +255,7 @@ function emp(e: Event) {
     <template v-else-if="mode === 'text'">
       <p class="type"
          @dblclick="op_dblclick"
+         @pointerdown="op_dblclick"
          @click="op_click"
       >
         <span
@@ -260,6 +265,7 @@ function emp(e: Event) {
       </p>
       <p class="title"
          @dblclick="op_dblclick"
+         @pointerdown="op_dblclick"
          @click="op_click"
          :title="node.title"
       >{{ node.title }}</p>
