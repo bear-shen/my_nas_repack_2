@@ -287,7 +287,7 @@ function emitNav(index: number) {
 
 function isValidNode(node: api_node_col) {
   // const node = nodeList.value[nextIndex];
-  console.info([node.type, filterVal.value, def.ignoreFileType.indexOf(node.type ?? 'directory')]);
+  // console.info([node.type, filterVal.value, def.ignoreFileType.indexOf(node.type ?? 'directory')]);
   const rate = parseInt(rateVal.value) ?? 0;
   if ((node.rate ?? 0) < rate) {
     return false;

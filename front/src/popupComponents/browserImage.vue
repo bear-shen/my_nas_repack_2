@@ -68,6 +68,11 @@ onMounted(() => {
   });
   // loadImageRes(props.curNode.id ?? 0);
   // loadImageRes();
+  document.addEventListener("mouseup", onMouseUp);
+  document.addEventListener("mousemove", onMouseMove);
+  document.addEventListener("pointerleave", onMouseUp);
+  document.addEventListener("pointermove", onMouseMove);
+  document.addEventListener("wheel", setZoom);
 });
 //
 const eventStore = useEventStore();
@@ -95,6 +100,11 @@ onUnmounted(() => {
   //   `modal_browser_change_${props.modalData.nid}`,
   //   changeEvtKey
   // );
+  document.removeEventListener("mouseup", onMouseUp);
+  document.removeEventListener("mousemove", onMouseMove);
+  document.removeEventListener("pointerleave", onMouseUp);
+  document.removeEventListener("pointermove", onMouseMove);
+  document.removeEventListener("wheel", setZoom);
 });
 
 async function fitImg() {
@@ -156,7 +166,7 @@ function onDragging(e: MouseEvent) {
   // console.info(e);
 }
 
-document.addEventListener("mousemove", function (e: MouseEvent) {
+function onMouseMove(e: MouseEvent) {
   e.preventDefault();
   // e.stopPropagation();
   if (!dragData.active) return;
@@ -167,11 +177,11 @@ document.addEventListener("mousemove", function (e: MouseEvent) {
   };
   // Object.assign(dragData, d);
   Object.assign(imgLayout.value, d);
-});
-document.addEventListener("mouseup", function () {
+}
+
+function onMouseUp(e: MouseEvent) {
   dragData.active = false;
-});
-document.addEventListener("wheel", setZoom);
+}
 
 function setZoom(e?: WheelEvent, dir?: number) {
   // console.info();
@@ -301,6 +311,7 @@ function setZoom(e?: WheelEvent, dir?: number) {
         :data-ref-node-id="props.curNode.id"
         :src="`${props.curNode.file?.normal?.path}?filename=${props.curNode.title}`"
         @mousedown="onDragging"
+        @pointerdown="onDragging"
         @dblclick="fitImg"
         @load="loadImageRes"
         :style="
@@ -335,6 +346,7 @@ function setZoom(e?: WheelEvent, dir?: number) {
 .modal_browser.image {
   .content {
     img {
+      touch-action: none;
       position: absolute;
       width: 100%;
       left: 0;

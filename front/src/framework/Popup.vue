@@ -357,6 +357,7 @@ function onResizeStart(modalNid: string, e: MouseEvent | PointerEvent) {
   e.stopPropagation();
   if (e.pointerId) {
     pointerId = e.pointerId;
+    (e.target as HTMLElement).hasPointerCapture(e.pointerId);
   }
   // console.info("onResizeStart", e);
   resizing.x = e.clientX;
@@ -375,9 +376,11 @@ function onResizeStart(modalNid: string, e: MouseEvent | PointerEvent) {
   resizing.modalH = resizing.modal.layout.h;
   document.addEventListener("mouseup", onResizeEnd);
   document.addEventListener("mousemove", onResizing);
-  document.addEventListener("pointercancel", onResizeEnd);
+  // document.addEventListener("pointercancel", onResizeEnd);
+  document.addEventListener("pointerleave", onResizeEnd);
   document.addEventListener("pointermove", onResizing);
   //
+
 }
 
 function onResizing(e: MouseEvent | PointerEvent) {
@@ -478,7 +481,8 @@ function onResizeEnd(e: MouseEvent | PointerEvent) {
   // console.info(e.type);
   document.removeEventListener("mouseup", onResizeEnd);
   document.removeEventListener("mousemove", onResizing);
-  document.removeEventListener("pointercancel", onResizeEnd);
+  // document.removeEventListener("pointercancel", onResizeEnd);
+  document.removeEventListener("pointerleave", onResizeEnd);
   document.removeEventListener("pointermove", onResizing);
   pointerId = 0;
 }
@@ -822,6 +826,7 @@ function keymap(e: KeyboardEvent) {
   }
 }
 .modal_dom {
+  touch-action: none;
   pointer-events: all;
   $controllerWidth: $fontSize * 0.5;
   font-size: $fontSize;
