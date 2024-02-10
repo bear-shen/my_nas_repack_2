@@ -33,7 +33,7 @@ const Route: { [key: string]: (session: SessionDef, buffer: Buffer) => any } = {
     // QUIT: require('./method/QUIT').execute,
     // REST: require('./method/REST').execute,
     // PORT: require('./method/PORT').execute,
-    // LIST: require('./method/MLSD').execute,
+    LIST: require('./method/LIST').execute,
     // NLST: require('./method/NLST').execute,
     // STRU: require('./method/STRU').execute,
     // MODE: require('./method/MODE').execute,

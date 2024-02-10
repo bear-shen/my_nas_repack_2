@@ -29,6 +29,7 @@ function dataProcessor(session: SessionDef, buffer: Buffer) {
         if (char == 0x20 || char == 0x0d || char == 0x0a) break;
         methodName += String.fromCharCode(char);
     }
+    methodName=methodName.toUpperCase();
     console.info(methodName);
     if (!Route[methodName]) {
         session.socket.write(buildTemplate(504));
