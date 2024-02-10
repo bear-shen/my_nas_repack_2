@@ -69,6 +69,7 @@ const def = {
     'subtitle',
   ] as type_file[],
 };
+const isMobile = window.navigator.userAgent.toLowerCase().indexOf('mobile') !== -1;
 const regComponentLs = {
   audio: browserAudioVue,
   video: browserVideoVue,
@@ -425,8 +426,8 @@ const sortVal: Ref<string> = ref(localConfigure.get("browser_list_sort") ?? "nam
   }
 );*/
 
-function setSort(evt:Event) {
-  console.info('setSort', sortVal.value,evt);
+function setSort(evt: Event) {
+  console.info('setSort', sortVal.value, evt);
   (evt.target as HTMLInputElement)?.blur();
   // sortVal.value = val;
   const orgLs = vNodeList.value;
@@ -533,7 +534,7 @@ function setRater(rateVal: string) {
       </div>
     </template>
     <template v-slot:navigator>
-      <div class="pagination">
+      <div :class="{pagination:1,isMobile:isMobile}">
         <div class="left" @click="goNav(curIndex,-1)">
           <span class="sysIcon sysIcon_arrowleft"></span>
         </div>
@@ -605,6 +606,11 @@ function setRater(rateVal: string) {
     }
     .right {
       right: 0;
+    }
+  }
+  .pagination.isMobile {
+    .left,.right{
+      opacity: 1;
     }
   }
   .content {
