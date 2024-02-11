@@ -70,7 +70,7 @@ onMounted(() => {
   // loadImageRes();
   document.addEventListener("mouseup", onMouseUp);
   document.addEventListener("mousemove", onMouseMove);
-  document.addEventListener("pointerleave", onMouseUp);
+  document.addEventListener("pointerup", onMouseUp);
   document.addEventListener("pointermove", onMouseMove);
   document.addEventListener("wheel", setZoom);
 });
@@ -102,7 +102,7 @@ onUnmounted(() => {
   // );
   document.removeEventListener("mouseup", onMouseUp);
   document.removeEventListener("mousemove", onMouseMove);
-  document.removeEventListener("pointerleave", onMouseUp);
+  document.removeEventListener("pointerup", onMouseUp);
   document.removeEventListener("pointermove", onMouseMove);
   document.removeEventListener("wheel", setZoom);
 });

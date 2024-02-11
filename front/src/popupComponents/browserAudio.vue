@@ -34,6 +34,7 @@ if (props.curNode?.file?.normal?.path) {
 const mediaMeta = ref({
   // ready: false,
   duration: 0,
+  buffered: 0,
   time: 0,
   //
   volume: localConfigure.get("browser_play_volume")
@@ -53,10 +54,11 @@ const volumeKey = localConfigure.listen("browser_play_volume", (v) =>
   Object.assign(mediaMeta.value, {volume: v})
 );
 
-function onInit() {
+function onInit(): any {
   console.info('onInit');
   const dom = mediaDOM.value;
-  if (!dom || dom.readyState !== 4) return setTimeout(onInit, 50);
+  if (!dom) return;
+  if (dom.readyState !== 4) return setTimeout(onInit, 50);
   const meta = mediaMeta.value;
   const target = {
     time: 0,
@@ -71,6 +73,7 @@ function onInit() {
 
 function onCanplay(e: Event) {
   console.info('onCanplay');
+  if (!mediaDOM.value) return;
   document.addEventListener("keydown", keymap);
   Object.assign(mediaMeta.value, {loading: false});
 }
@@ -116,7 +119,9 @@ function onEnd(e: Event) {
 }
 
 onMounted(async () => {
+  // await beforeInit();
   if (mediaDOM.value) mediaDOM.value?.load();
+  bufferTimer = setInterval(modBuffered, 100);
 });
 /* watch(props, async (to) => {
   if (to.curNode.id === imgLayout.value.loaded) return;
@@ -153,14 +158,27 @@ onBeforeUnmount(() => {
   onRelease(false);
   localConfigure.release("browser_play_mode", modeKey);
   localConfigure.release("browser_play_volume", volumeKey);
+  clearInterval(bufferTimer);
 });
+
+let bufferTimer = 0;
+
+function modBuffered() {
+  if (!mediaDOM || !mediaDOM.value) return;
+  if (!mediaDOM.value.buffered || !mediaDOM.value.buffered.length) return;
+  Object.assign(mediaMeta.value, {
+    buffered: mediaDOM.value.buffered.end(mediaDOM.value.buffered.length - 1),
+  });
+}
 
 function onTimeUpdate(e: Event) {
   const dom = mediaDOM.value;
   if (!dom) return;
+  // GenFunc.debounce(() => {
   Object.assign(mediaMeta.value, {
     time: dom.currentTime,
   });
+  // }, 100);
 }
 
 const dragData = {
@@ -170,13 +188,17 @@ const dragData = {
   orgX: 0,
 };
 
-function onDragging(e: MouseEvent) {
+let pointerId = 0;
+
+function onDragging(e: PointerEvent) {
+  if (pointerId) return;
   const dom = mediaDOM.value;
   if (!dom) return;
   const timeline = timelineDOM.value;
   if (!timeline) return;
-  document.addEventListener("mousemove", mouseMoveListener);
-  document.addEventListener("mouseup", mouseUpListener);
+  pointerId = e.pointerId;
+  document.addEventListener("pointermove", pointerMoveListener);
+  document.addEventListener("pointerup", pointerUpListener);
   // console.info(e, timelineDOM, dom);
   // const layout = imgLayout.value;
   const t = {
@@ -191,12 +213,16 @@ function onDragging(e: MouseEvent) {
   // console.info(delta);
   // return;
   dom.currentTime = dom.duration * delta;
+  Object.assign(mediaMeta.value, {
+    time: dom.currentTime,
+  });
   // console.info("onDragging");
   // console.info(e);
 }
 
-function mouseMoveListener(e: MouseEvent) {
-  // console.info("mouseMoveListener");
+function pointerMoveListener(e: PointerEvent) {
+  if (e.pointerId != pointerId) return;
+  // console.info("pointerMoveListener");
   e.preventDefault();
   e.stopPropagation();
   if (!dragData.active) return;
@@ -208,13 +234,18 @@ function mouseMoveListener(e: MouseEvent) {
   if (delta > 1) delta = 1;
   if (delta < 0) delta = 0;
   dom.currentTime = dom.duration * delta;
+  Object.assign(mediaMeta.value, {
+    time: dom.currentTime,
+  });
 }
 
-function mouseUpListener() {
-  // console.info("mouseUpListener");
+function pointerUpListener(e: PointerEvent) {
+  if (e.pointerId != pointerId) return;
+  pointerId = 0;
+  // console.info("pointerUpListener");
   Object.assign(dragData, {active: false});
-  document.removeEventListener("mousemove", mouseMoveListener);
-  document.removeEventListener("mouseup", mouseUpListener);
+  document.removeEventListener("pointermove", pointerMoveListener);
+  document.removeEventListener("pointerup", pointerUpListener);
 }
 
 function wheelListener(e: WheelEvent) {
@@ -300,13 +331,17 @@ function parseTime(t: number) {
             <!-- {{ parseTime(mediaMeta.duration) }} -->
             {{ parseTime(mediaMeta.time) }}
           </button>
-          <div :class="['audio_bar']" @mousedown="onDragging" ref="timelineDOM">
-            <span
+          <div :class="['audio_bar']" @pointerdown="onDragging" ref="timelineDOM">
+            <span class="duration"
               :style="{
                 left: (100 * mediaMeta.time) / mediaMeta.duration + '%',
               }"
-            >|</span
-            >
+            ></span>
+            <span class="buffer"
+                  :style="{
+                width: (100 * mediaMeta.buffered) / mediaMeta.duration + '%',
+              }"
+            ></span>
           </div>
         </div>
       </div>
@@ -374,20 +409,26 @@ function parseTime(t: number) {
     button::before {
       padding-right: $fontSize * 0.125;
     }
-    div {
+    .audio_bar {
+      touch-action: none;
       display: inline-block;
-      background-color: map_get($colors, input_button_bk);
-      color: map_get($colors, input_button_font);
+      //background-color: map_get($colors, input_button_bk);
+      color: map_get($colors, font_sub_active);
       width: 150px;
       //      padding: 0 $fontSize * 0.5;
-      border-right: 1px solid map_get($colors, input_button_bk);
+      border-right: 1px solid map_get($colors, font_sub_active);
       height: $fontSize * 1.5;
       line-height: $fontSize * 1.5;
       position: relative;
       &::before {
-        border-bottom: 1px solid;
+        border-bottom: $fontSize*0.25 solid map_get($colors, font_sub);
         content: "";
-        height: $fontSize * 0.75;
+      }
+      span.buffer {
+        border-bottom: $fontSize*0.25 solid map_get($colors, font_sub_active);
+      }
+      &::before, span.buffer {
+        height: $fontSize * 0.625;
         display: block;
         position: absolute;
         //        width: calc(100% - $fontSize);
@@ -395,7 +436,9 @@ function parseTime(t: number) {
         width: 100%;
         left: 0;
       }
-      span {
+      span.duration {
+        border-right: 1px solid map_get($colors, font_sub_active);
+        height: 100%;
         position: absolute;
         left: 0;
       }

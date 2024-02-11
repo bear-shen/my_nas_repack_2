@@ -377,7 +377,7 @@ function onResizeStart(modalNid: string, e: MouseEvent | PointerEvent) {
   document.addEventListener("mouseup", onResizeEnd);
   document.addEventListener("mousemove", onResizing);
   // document.addEventListener("pointercancel", onResizeEnd);
-  document.addEventListener("pointerleave", onResizeEnd);
+  document.addEventListener("pointerup", onResizeEnd);
   document.addEventListener("pointermove", onResizing);
   //
 
@@ -482,7 +482,7 @@ function onResizeEnd(e: MouseEvent | PointerEvent) {
   document.removeEventListener("mouseup", onResizeEnd);
   document.removeEventListener("mousemove", onResizing);
   // document.removeEventListener("pointercancel", onResizeEnd);
-  document.removeEventListener("pointerleave", onResizeEnd);
+  document.removeEventListener("pointerup", onResizeEnd);
   document.removeEventListener("pointermove", onResizing);
   pointerId = 0;
 }
