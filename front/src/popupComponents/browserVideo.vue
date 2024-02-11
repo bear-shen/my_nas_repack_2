@@ -123,7 +123,7 @@ function onEnd(e: Event) {
 onMounted(async () => {
   await beforeInit();
   if (mediaDOM.value) mediaDOM.value?.load();
-  bufferTimer = setInterval(modBuffered, 100);
+  bufferTimer = setInterval(modBuffered, 200);
 });
 
 async function beforeInit() {
@@ -180,8 +180,15 @@ let bufferTimer = 0;
 function modBuffered() {
   if (!mediaDOM || !mediaDOM.value) return;
   if (!mediaDOM.value.buffered || !mediaDOM.value.buffered.length) return;
+  let end = 0;
+  for (let i1 = 0; i1 < mediaDOM.value.buffered.length; i1++) {
+    const val = mediaDOM.value.buffered.end(i1);
+    if (mediaMeta.value.time > val) continue;
+    end = val;
+    break;
+  }
   Object.assign(mediaMeta.value, {
-    buffered: mediaDOM.value.buffered.end(mediaDOM.value.buffered.length - 1),
+    buffered: end,
   });
 }
 
