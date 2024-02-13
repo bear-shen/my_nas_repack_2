@@ -175,11 +175,13 @@ function emp(e: Event) {
                 class="title editing"
                 :auto-focus="true"
                 @mousedown.stop="emp"
+                @pointerdown.stop="emp"
               ></content-editable>
               <content-editable
                 v-model="node.description"
                 class="editing"
                 @mousedown.stop="emp"
+                @pointerdown.stop="emp"
               ></content-editable>
               <button :class="['active','sysIcon', 'sysIcon_save']" @click="opFunctionModule.op_rename(node)">SAVE</button>
             </template>
@@ -223,6 +225,7 @@ function emp(e: Event) {
             :submit="tag_add"
             :parse-text="tag_parse"
             @mousedown.stop="emp"
+            @pointerdown.stop="emp"
           ></hinter>
           <button :class="['active','sysIcon', 'sysIcon_save']" @click="opFunctionModule.op_tag(node)">SAVE</button>
         </div>

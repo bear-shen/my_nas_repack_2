@@ -484,10 +484,11 @@ onUnmounted(() => {
     line-height: $fontSize * 1.5;
     //margin-bottom: $fontSize;
     * {
-      height: $fontSize * 1.5;
+      //height: $fontSize * 1.5;
       line-height: $fontSize * 1.5;
       padding-top: 0;
       padding-bottom: 0;
+      vertical-align: top;
     }
     > * {
       display: inline-block;
@@ -495,6 +496,11 @@ onUnmounted(() => {
     }
     label {
       margin-right: $fontSize;
+      height: $fontSize * 1.5;
+      width: $fontSize * 1.5;
+      padding: 0;
+      text-align: center;
+      line-height: $fontSize * 1.25;
     }
     input,
     button,

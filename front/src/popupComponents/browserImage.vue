@@ -68,10 +68,10 @@ onMounted(() => {
   });
   // loadImageRes(props.curNode.id ?? 0);
   // loadImageRes();
-  document.addEventListener("mouseup", onMouseUp);
-  document.addEventListener("mousemove", onMouseMove);
-  document.addEventListener("pointerup", onMouseUp);
-  document.addEventListener("pointermove", onMouseMove);
+  // document.addEventListener("mouseup", onPointerUp);
+  // document.addEventListener("mousemove", onPointerMove);
+  document.addEventListener("pointerup", onPointerUp);
+  document.addEventListener("pointermove", onPointerMove);
   document.addEventListener("wheel", setZoom);
 });
 //
@@ -100,10 +100,10 @@ onUnmounted(() => {
   //   `modal_browser_change_${props.modalData.nid}`,
   //   changeEvtKey
   // );
-  document.removeEventListener("mouseup", onMouseUp);
-  document.removeEventListener("mousemove", onMouseMove);
-  document.removeEventListener("pointerup", onMouseUp);
-  document.removeEventListener("pointermove", onMouseMove);
+  // document.removeEventListener("mouseup", onPointerUp);
+  // document.removeEventListener("mousemove", onPointerMove);
+  document.removeEventListener("pointerup", onPointerUp);
+  document.removeEventListener("pointermove", onPointerMove);
   document.removeEventListener("wheel", setZoom);
 });
 
@@ -152,8 +152,13 @@ let dragData = {
   orgY: 0,
 };
 
-function onDragging(e: MouseEvent) {
+let pointerId = 0;
+
+function onDragging(e: PointerEvent) {
   if (!props.modalData.layout.active) return;
+  // console.info(e);
+  if (!e.pointerId) return;
+  pointerId = e.pointerId;
   const layout = imgLayout.value;
   const t = {
     active: true,
@@ -166,8 +171,9 @@ function onDragging(e: MouseEvent) {
   // console.info(e);
 }
 
-function onMouseMove(e: MouseEvent) {
+function onPointerMove(e: PointerEvent) {
   e.preventDefault();
+  if (e.pointerId !== pointerId) return;
   // e.stopPropagation();
   if (!dragData.active) return;
   const layout = imgLayout.value;
@@ -179,8 +185,10 @@ function onMouseMove(e: MouseEvent) {
   Object.assign(imgLayout.value, d);
 }
 
-function onMouseUp(e: MouseEvent) {
+function onPointerUp(e: PointerEvent) {
+  if (e.pointerId !== pointerId) return;
   dragData.active = false;
+  pointerId = 0;
 }
 
 function setZoom(e?: WheelEvent, dir?: number) {
@@ -310,7 +318,6 @@ function setZoom(e?: WheelEvent, dir?: number) {
       <img
         :data-ref-node-id="props.curNode.id"
         :src="`${props.curNode.file?.normal?.path}?filename=${props.curNode.title}`"
-        @mousedown="onDragging"
         @pointerdown="onDragging"
         @dblclick="fitImg"
         @load="loadImageRes"
