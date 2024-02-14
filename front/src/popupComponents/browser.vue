@@ -10,6 +10,7 @@ import browserBaseVue from "./browserBase.vue";
 import browserImageVue from "./browserImage.vue";
 import browserAudioVue from "./browserAudio.vue";
 import browserVideoVue from "./browserVideo.vue";
+import browserTextVue from "./browserText.vue";
 import browserPDFVue from "./browserPDF.vue";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {useEventStore} from "@/stores/event";
@@ -75,6 +76,7 @@ const regComponentLs = {
   video: browserVideoVue,
   image: browserImageVue,
   pdf: browserPDFVue,
+  text: browserTextVue,
   base: browserBaseVue,
 } as { [key: string]: any };
 
@@ -609,7 +611,7 @@ function setRater(rateVal: string) {
     }
   }
   .pagination.isMobile {
-    .left,.right{
+    .left, .right {
       opacity: 1;
     }
   }

@@ -12,6 +12,7 @@ import GenFunc from '@/GenFunc'
 import type {api_file_list_req, api_file_list_resp, api_file_mkdir_req, api_file_mkdir_resp, api_node_col} from '../../../share/Api'
 import {useModalStore} from '@/stores/modalStore'
 import FileItem from '@/components/FileItem.vue'
+import Config from "@/Config";
 
 const modalStore = useModalStore()
 const contentDOM: Ref<HTMLElement | null> = ref(null)
@@ -256,7 +257,7 @@ function setSort(sort: string) {
   setTimeout(() => {
     nodeList.value = sortList(preList, sortVal.value)
     if (opModule) opModule.setList(nodeList.value)
-  }, fHelper.timeoutDef.sort)
+  }, Config.timeouts.sort)
 }
 
 function sortList(list: api_node_col[], sort: string) {

@@ -16,16 +16,7 @@ import {FileStreamDownloader} from "@/FileStreamDownloader";
 // const router = useRouter();
 // const route = useRoute();
 import * as scrollLogStore from '@/persistenceStore/scrollLog';
-
-export const timeoutDef = {
-    sort: 50,
-    selectEvt: 50,
-    clearEvt: 100,
-    //zzz
-    scrollEvt: 100,
-    offsetDebounce: 50,
-    // offsetUIDebounce: 500,
-};
+import Config from "@/Config";
 
 let opModuleVal: null | opModule;
 // const scrollLogKey = 'tosho_scroll_log';
@@ -122,7 +113,7 @@ export class opModule {
                 // console.info('setList',list);
                 this.reloadOffset(undefined);
             },
-            timeoutDef.offsetDebounce
+            Config.timeouts.offsetDebounce
         )
     }
 
@@ -347,7 +338,7 @@ export class opModule {
             this.selectingOffset = [[0, 0,], [0, 0,],];
             this.preSelectedNodeIndexSet.clear();
             this.selectingKeyDef = '';
-        }, timeoutDef.selectEvt);
+        }, Config.timeouts.selectEvt);
     }
 
     public contextMenuEvt(e: MouseEvent) {
@@ -613,7 +604,7 @@ export class opModule {
             item._selected = false;
         });
         this.showSelectionOp.value = false;
-        // }, timeoutDef.clearEvt);
+        // }, Config.timeouts.clearEvt);
     }
 
     public async bathOp(mode: string) {
@@ -704,7 +695,7 @@ export class opModule {
         if (!loaded) return this.reloadOffset_timer = setTimeout(() => {
                 this.reloadOffset_count += 1;
                 this.reloadOffset(e);
-            }, timeoutDef.offsetDebounce
+            }, Config.timeouts.offsetDebounce
         );
         //
         // 这边因为布局的关系offsetParent直接就是body，不需要过度优化
@@ -760,7 +751,7 @@ export class opModule {
             // console.info('this.scrollEvt()');
             this.saveScroll();
             this.reloadLazyLoad();
-        }, timeoutDef.scrollEvt, `debounce_scroll_view`);
+        }, Config.timeouts.scrollEvt, `debounce_scroll_view`);
     }
 
     public saveScroll() {
@@ -768,11 +759,11 @@ export class opModule {
         const query = this.route.query ?? {};
         const key = [
             this.route.path,
-            query.mode ? query.mode:'',
-            query.pid ? query.pid:'',
-            query.id ? query.id:'',
-            query.id ? query.id:'',
-            query.tag_id ? query.tag_id:'',
+            query.mode ? query.mode : '',
+            query.pid ? query.pid : '',
+            query.id ? query.id : '',
+            query.id ? query.id : '',
+            query.tag_id ? query.tag_id : '',
         ].join(':');
         // console.info(path, this.contentDOM.scrollTop);
         const offset = [
@@ -783,22 +774,22 @@ export class opModule {
         if (!offset[0] && !offset[1]) return;
         GenFunc.debounce(() => {
             scrollLogStore.set(key, offset);
-        }, 500, 'debounce_reloadScroll');
+        }, Config.timeouts.scrollSave, 'debounce_scroll_save');
     }
 
-    public async  reloadScroll() {
+    public async reloadScroll() {
         // console.warn('this.reloadScroll()');
         const query = this.route.query ?? {};
         const key = [
             this.route.path,
-            query.mode ? query.mode:'',
-            query.pid ? query.pid:'',
-            query.id ? query.id:'',
-            query.id ? query.id:'',
-            query.tag_id ? query.tag_id:'',
+            query.mode ? query.mode : '',
+            query.pid ? query.pid : '',
+            query.id ? query.id : '',
+            query.id ? query.id : '',
+            query.tag_id ? query.tag_id : '',
         ].join(':');
         // const path = this.route.fullPath;
-        const ifLogExs =await scrollLogStore.get(key);
+        const ifLogExs = await scrollLogStore.get(key);
         if (!ifLogExs) return;
         // console.info(path, ifLogExs);
         this.contentDOM.scrollTop = ifLogExs[0];

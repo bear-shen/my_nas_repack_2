@@ -33,7 +33,7 @@ const BaseConfig = {
         video: ['mp4', 'avi', 'mkv', 'm4a', '3gp', 'flv', 'hlv', 'rm', 'rmvb',],
         audio: ['wav', 'flac', 'mp3', 'aac',],
         image: ['jpg', 'png', 'jpeg', 'tif', 'tiff', 'bmp', 'gif', 'webp',],
-        text: ['txt', 'html', 'json',],
+        text: ['txt', 'html', 'json', 'sql', 'csv', 'htm', 'conf', 'md', 'log',],
         subtitle: ['vtt', 'ass', 'ssa', 'sub', 'srt', 'pjs',],
         pdf: ['pdf',],
     } as { [key: type_file | string]: Array<any> },
