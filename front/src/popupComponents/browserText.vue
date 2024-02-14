@@ -96,8 +96,7 @@ onBeforeUnmount(() => {
     <div class="content">
       <div class="textContent"
            ref="contentDOM"
-           v-html="content"
-      ></div>
+      >{{content}}</div>
     </div>
   </div>
 </template>

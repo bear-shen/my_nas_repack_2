@@ -1,3 +1,8 @@
+// with ecosystem.config.js:
+//  pm2 start
+// manual:
+//  pm2 start npm --name server -- run serve
+//  pm2 delete tosho_server
 module.exports = {
   apps: [
     {
