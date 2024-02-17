@@ -1330,10 +1330,10 @@ export function manualSort<K extends api_node_col>(list: K[], sort: string) {
                 vb = b[sortType[0]];
                 break;
             case 'title':
-                a?.crumb_node?.forEach(node => ca.push(node.title));
-                b?.crumb_node?.forEach(node => cb.push(node.title));
-                ca.push(a.title);
-                cb.push(b.title);
+                a?.crumb_node?.forEach(node => ca.push(node.title?.toLowerCase()));
+                b?.crumb_node?.forEach(node => cb.push(node.title?.toLowerCase()));
+                ca.push(a.title?.toLowerCase());
+                cb.push(b.title?.toLowerCase());
                 va = ca.join(' ');
                 vb = cb.join(' ');
                 break;

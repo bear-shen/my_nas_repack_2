@@ -64,6 +64,8 @@ export default class {
                         'like',
                         `%${request.keyword.trim()}%`
                     );
+                    //搜索的时候节点短的在前，姑且先这么定义
+                    model.order('CHAR_LENGTH(list_node)','asc');
                 }
                 break;
             case 'tag':
