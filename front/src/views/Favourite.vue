@@ -210,7 +210,7 @@ async function node_hint(text: string): Promise<api_node_col[] | false> {
     mode: "search",
     node_type: "directory",
     keyword: text,
-    with: 'none',
+    with: 'crumb',
     limit: '20',
   };
   const res = await query<api_file_list_resp>("file/get", queryData);
@@ -546,6 +546,27 @@ function delTag(groupIndex: number, tagIndex: number) {
     //justify-content: space-around;
     justify-content: left;
     align-content: flex-start;
+  }
+  @media (max-width: $fontSize*50) {
+    display: block;
+    .list_fav_group {
+      width: 100%;
+      height: 30%;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      .tag_group {
+        min-width: $fontSize*15;
+        max-width: 30%;
+      }
+    }
+    .list_fav {
+      width: 100%;
+      height: 70%;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+    }
   }
 }
 </style>

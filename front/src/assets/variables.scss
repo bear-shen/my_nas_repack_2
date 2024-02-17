@@ -49,8 +49,8 @@ $hinterIndex: 250;
 $colorDef_bk: hsla(210, 10%, 20%, 1);
 $colorDef_font: rgb(197, 197, 197);
 $colorDef_button: hsla(210, 20%, 10%, 1);
-$colorDef_positive: rgb(77, 77, 77);
-$colorDef_negative: rgb(26, 26, 26);
+$colorDef_positive: hsla(0, 0%, 60%,1);
+$colorDef_negative: hsla(0, 0%, 40%,1);
 $colors: (
   //内容背景
         bk:$colorDef_bk,

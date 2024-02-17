@@ -1221,10 +1221,12 @@ export class opFunctionModule {
         //
         if (!opModuleVal) return;
         let selRes: { nodeLs: api_node_col[], idSet: Set<number> } = opModuleVal.getSelected();
+        // console.info(selRes);
         if (onSelNode && !selRes.idSet.size) {
-            selRes.idSet.add(onSelNode);
+            selRes.idSet.add(onSelNode.id);
             selRes.nodeLs.push(onSelNode);
         }
+        // console.info(selRes);
         selRes.nodeLs.forEach(node => {
             node.rate = rateVal;
         });

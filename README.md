@@ -6,9 +6,11 @@ support tagging, favourite, and user group
 
 -- --
 
-support protocol ftp, webdav
+protocol supported: ftp, webdav
 
 mysql, nginx, ffmpeg required
+
+php optional
 
 -- --
 

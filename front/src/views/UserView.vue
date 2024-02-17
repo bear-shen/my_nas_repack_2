@@ -32,7 +32,7 @@ onMounted(async () => {
 });
 
 onBeforeRouteUpdate(async (to) => {
-  console.info(to);
+  // console.info(to);
   queryData.id = to.query.id ?? '';
   // queryData.keyword = to.query.keyword as string ?? '';
   // queryData.is_del = to.query.is_del as string ?? '';
@@ -79,7 +79,7 @@ async function getUserList() {
   //   user.alt_text = user.alt?.join(',');
   // });
   userList.value = res;
-  console.info(userList);
+  // console.info(userList);
 }
 
 //
@@ -109,7 +109,7 @@ async function modGroup(index: number) {
 }
 
 async function delGroup(index: number) {
-  console.info(index);
+  // console.info(index);
   const group = groupList.value.splice(index, 1)[0];
   if (!group.id) return;
   const res = await query<api_user_group_mod_resp>("user_group/del", {

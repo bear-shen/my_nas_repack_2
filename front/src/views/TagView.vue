@@ -250,7 +250,7 @@ async function modTag(index: number) {
 
 <template>
   <div class="fr_content view_tag" ref="contentDOM">
-    <div class="list_tag_group" v-if="groupList && groupList.length">
+    <div class="list_tag_group">
       <div :class="{
         tag_group:true,
         tag_group_add:true,
@@ -260,61 +260,63 @@ async function modTag(index: number) {
       >
         <span class="sysIcon sysIcon_plus-square-o"></span>
       </div>
-      <div v-for="(group,index) in groupList"
-           :key="`tagView_group_${group.ext_key?group.ext_key:group.id}`"
-           :class="{
+      <template v-if="groupList && groupList.length">
+        <div v-for="(group,index) in groupList"
+             :key="`tagView_group_${group.ext_key?group.ext_key:group.id}`"
+             :class="{
         active:curGroupIndex===index,
         tag_group:true,
         edit:group.edit,
         }"
-      >
-        <template v-if="!group.edit">
-          <div class="title">
-            <div @click="checkGroup(index)">{{ group.title }}</div>
-            <div class="operator">
-              <span class="sysIcon sysIcon_edit" @click="modGroup(index)"></span>
-              <span class="sysIcon sysIcon_delete" @click="delGroup(index)"></span>
+        >
+          <template v-if="!group.edit">
+            <div class="title">
+              <div @click="checkGroup(index)">{{ group.title }}</div>
+              <div class="operator">
+                <span class="sysIcon sysIcon_edit" @click="modGroup(index)"></span>
+                <span class="sysIcon sysIcon_delete" @click="delGroup(index)"></span>
+              </div>
             </div>
-          </div>
-          <div @click="checkGroup(index)" class="description">{{ group.description }}</div>
-          <div @click="checkGroup(index)" class="node">
-            <template v-if="group.node && group.node.crumb_node">
+            <div @click="checkGroup(index)" class="description">{{ group.description }}</div>
+            <div @click="checkGroup(index)" class="node">
+              <template v-if="group.node && group.node.crumb_node">
           <span v-for="sub in group.node.crumb_node">
             {{ sub.title }}
           </span>
-            </template>
-            <span>{{ group.node?.title }}</span>
-          </div>
-          <!--          <div class="operator">-->
-          <!--          <div class="sort">-->
-          <!--            {{ group.sort }}-->
-          <!--          </div>-->
-          <!--          <div class="operate">-->
-          <!--          </div>-->
-          <!--          </div>-->
-        </template>
-        <template v-else>
-          <content-editable class="title" v-model="group.title" :auto-focus="true"></content-editable>
-          <content-editable class="description" v-model="group.description"></content-editable>
-          <hinter
-            class="node"
-            :get-list="node_hint"
-            :submit="node_submit"
-            :parse-text="node_parse"
-            v-model="group.node"
-            :meta="index"
-          ></hinter>
-          <div class="operator">
-            <content-editable class="sort" v-model="group.sort"></content-editable>
-            <!--          <div class="operate">-->
-            <div>
-              <span class="sysIcon sysIcon_save" @click="modGroup(index)"></span>
-              <span class="sysIcon sysIcon_delete" @click="delGroup(index)"></span>
+              </template>
+              <span>{{ group.node?.title }}</span>
             </div>
+            <!--          <div class="operator">-->
+            <!--          <div class="sort">-->
+            <!--            {{ group.sort }}-->
             <!--          </div>-->
-          </div>
-        </template>
-      </div>
+            <!--          <div class="operate">-->
+            <!--          </div>-->
+            <!--          </div>-->
+          </template>
+          <template v-else>
+            <content-editable class="title" v-model="group.title" :auto-focus="true"></content-editable>
+            <content-editable class="description" v-model="group.description"></content-editable>
+            <hinter
+              class="node"
+              :get-list="node_hint"
+              :submit="node_submit"
+              :parse-text="node_parse"
+              v-model="group.node"
+              :meta="index"
+            ></hinter>
+            <div class="operator">
+              <content-editable class="sort" v-model="group.sort"></content-editable>
+              <!--          <div class="operate">-->
+              <div>
+                <span class="sysIcon sysIcon_save" @click="modGroup(index)"></span>
+                <span class="sysIcon sysIcon_delete" @click="delGroup(index)"></span>
+              </div>
+              <!--          </div>-->
+            </div>
+          </template>
+        </div>
+      </template>
     </div>
     <div class="list_tag">
       <div :class="{
@@ -510,8 +512,33 @@ async function modTag(index: number) {
         content: 'A: ';
       }
     }
-    .tag:hover {
+    .tag:hover, .tag.active {
       background-color: map-get($colors, bk_active);
+    }
+  }
+  @media (max-width: $fontSize*50) {
+    display: block;
+    .list_tag_group {
+      width: 100%;
+      height: 30%;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      .tag_group {
+        min-width: $fontSize*15;
+        max-width: 30%;
+      }
+    }
+    .list_tag {
+      width: 100%;
+      height: 70%;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      .tag {
+        min-width: $fontSize*15;
+        max-width: 30%;
+      }
     }
   }
 }
