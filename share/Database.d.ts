@@ -1,4 +1,4 @@
-import {api_file_list_req, api_file_list_resp, api_node_col} from "./Api";
+import {api_file_list_req} from "./Api";
 
 export type type_file = 'audio' | 'video' |
     'image' | 'binary' |
@@ -57,11 +57,16 @@ export type col_user_group = {
     description?: string,
     admin?: 0 | 1,
     status?: 0 | 1,
-    auth?: Array<{
-        id_node: number;
-        allow_r: boolean | number,
-        allow_w: boolean | number,
-    }>,
+    auth?: {
+        allow: ({
+            id: number,
+            title: number,
+        } & col_node)[],
+        deny: ({
+            id: number,
+            title: number,
+        } & col_node)[],
+    },
     time_create?: string,
     time_update?: string,
 }

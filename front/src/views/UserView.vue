@@ -7,8 +7,10 @@ import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {query} from "@/Helper";
 import GenFunc from "@/GenFunc";
 import type {api_user_col, api_user_del_resp, api_user_group_col, api_user_group_list_req, api_user_group_list_resp, api_user_group_mod_req, api_user_group_mod_resp, api_user_list_req, api_user_list_resp, api_user_mod_resp,} from "../../../share/Api";
+import {api_file_list_req, api_file_list_resp, api_node_col} from "../../../share/Api";
 // import {useModalStore} from "@/stores/modalStore";
 import ContentEditable from "@/components/ContentEditable.vue";
+import Hinter from "@/components/Hinter.vue";
 
 //
 const localConfigure = useLocalConfigureStore();
@@ -123,17 +125,82 @@ async function addGroup() {
   curLs.unshift({
     title: '',
     description: '',
-    auth: [],
+    auth: {
+      allow: [],
+      deny: [],
+    },
     admin: 0,
     status: 1,
     edit: true,
     ext_key: (new Date()).valueOf(),
     user: [],
-  });
+  } as api_user_group_col);
   // setTimeout(() => {
   //   groupList.value = curLs;
   //   console.info(groupList.value);
   // }, 20);
+}
+
+async function addAuth(groupIndex: number) {
+  console.info('addAuth');
+  const group = groupList.value[groupIndex];
+  if (!group.auth) group.auth = {};
+  if (!group.auth.deny) group.auth.deny = [];
+  group.auth.deny.push({
+    id: 0, title: 'root', status: 1, type: 'directory', crumb_node: [],
+  });
+  // console.info(group);
+}
+
+async function delAuth(groupIndex: number, authIndex: number) {
+  console.info('delAuth');
+  const group = groupList.value[groupIndex];
+  if (!group.auth) group.auth = {};
+  if (!group.auth.deny) group.auth.deny = [];
+  group.auth.deny.splice(authIndex, 1);
+  groupList.value[groupIndex] = group;
+  // console.info(group);
+}
+
+
+async function node_hint(text: string): Promise<api_node_col[] | false> {
+  console.info('node_hint');
+  let queryData: api_file_list_req = {
+    mode: "search",
+    node_type: "directory",
+    keyword: text,
+    with: 'none',
+    limit: '20',
+  };
+  const res = await query<api_file_list_resp>("file/get", queryData);
+  if (!res) return false;
+  // console.info(res)
+  if ('root'.indexOf(text) !== -1) {
+    res.list.unshift({
+      id: 0, title: 'root', status: 1, type: 'directory', crumb_node: [],
+    });
+  }
+  return res.list;
+}
+
+function node_submit(item: api_node_col, indexLs: number[]) {
+  console.info('node_add', item, indexLs);
+  const groupIndex = indexLs[0];
+  const authIndex = indexLs[1];
+  const group = groupList.value[groupIndex];
+  group.auth.deny[authIndex] = item;
+}
+
+function node_parse(item: api_node_col) {
+  console.info('node_parse');
+  if (!item) return '';
+  const treeMap = [] as string[];
+  item.crumb_node?.forEach(crumb => {
+    if (crumb.title)
+      treeMap.push(crumb.title);
+  });
+  if (item.title) treeMap.push(item.title);
+  return `/ ${treeMap.join(' / ')}`;
 }
 
 function goGroup(groupIndex: number) {
@@ -236,6 +303,22 @@ async function modUser(index: number) {
         <template v-else>
           <content-editable class="title" v-model="group.title" :auto-focus="true"></content-editable>
           <content-editable class="description" v-model="group.description"></content-editable>
+          <dl class="auth">
+            <dt>denyDir</dt>
+            <template v-if="group.auth">
+              <dd v-for="(authNode,authIndex) in group.auth.deny" :key="`userView_group_${group.ext_key?group.ext_key:group.id}_${authIndex}`">
+                <hinter
+                  :get-list="node_hint"
+                  :submit="node_submit"
+                  :parse-text="node_parse"
+                  :model-value="authNode"
+                  :meta="[index,authIndex]"
+                ></hinter>
+                <span class="sysIcon sysIcon_delete" @click="delAuth(index,authIndex)"></span>
+              </dd>
+            </template>
+            <dd class="pointer add" @click="addAuth(index)">+</dd>
+          </dl>
           <div class="operator">
             <input type="checkbox" v-model="(group.status as any)"
                    :id="`UV_G_CB_S_${group.ext_key?group.ext_key:group.id}`"
@@ -353,8 +436,9 @@ async function modUser(index: number) {
       &:hover, &.active {
         background-color: map-get($colors, bar_meta_active);
       }
-      > div {
+      > * {
         font-size: $fontSize;
+        line-height: $fontSize*1.5;
         color: map-get($colors, font_sub);
       }
       .title {
@@ -381,10 +465,10 @@ async function modUser(index: number) {
         width: $fontSize*5;
       }
       &.edit {
-        .title, .description, .sort {
+        > .content_editor, dl {
           padding: 0 $fontSize*0.5;
         }
-        .title, .description, .operator, .hinter > div, .content_editor {
+        > .content_editor, dl, > div {
           display: block;
           background-color: map-get($colors, bar_meta_active);
         }
@@ -405,6 +489,29 @@ async function modUser(index: number) {
             &::after {
               content: '';
             }
+          }
+        }
+        .auth dt {
+          color: map-get($colors, font);
+        }
+        .auth .add{
+          text-indent: 0.5em;
+          color: map-get($colors, font);
+          text-align: center;
+          width: 100%;
+          &:hover{
+            background-color: map-get($colors, bk_active);
+          }
+        }
+        .auth dd {
+          display: flex;
+          justify-content: space-between;
+          > * {
+            vertical-align: bottom;
+            line-height: 24px;
+          }
+          .hinter {
+            width: 90%;
           }
         }
       }
