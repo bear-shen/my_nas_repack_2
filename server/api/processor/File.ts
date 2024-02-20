@@ -37,6 +37,9 @@ import RateModel from "../../model/RateModel";
 import FavouriteGroupModel from "../../model/FavouriteGroupModel";
 import fs from "node:fs/promises";
 import {splitQuery} from "../../lib/ModelHelper";
+import UserModel from "../../model/UserModel";
+import UserGroupModel from "../../model/UserGroupModel";
+import ORM from "../../lib/ORM";
 
 export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_list_resp> {
@@ -49,6 +52,15 @@ export default class {
             list: [] as api_node_col[],
         };
         const model = new NodeModel();
+        //
+        const user = await (new UserModel).where('id', data.uid).first();
+        const userGroup = await (new UserGroupModel).where('id', user.id_group).first();
+        const userAuth = userGroup.auth;
+        userAuth.deny.forEach(node => {
+            model.not().whereRaw('find_in_set( ? ,list_node)', node.id)
+                .where('id', '<>', node.id)
+        });
+        //
         switch (request.mode) {
             default:
             case 'directory':
@@ -65,7 +77,7 @@ export default class {
                         `%${request.keyword.trim()}%`
                     );
                     //搜索的时候节点短的在前，姑且先这么定义
-                    model.order('CHAR_LENGTH(list_node)','asc');
+                    model.order('CHAR_LENGTH(list_node)', 'asc');
                 }
                 break;
             case 'tag':
@@ -151,6 +163,9 @@ export default class {
         }
         // console.info(model.l)
         // ORM.dumpSql = true;
+        // console.info(model._dataset);
+        // console.info(model._dataset.query);
+        // console.info(model._dataset.queryPos);
         const nodeLs: api_node_col[] = await model.select();
         // ORM.dumpSql = false;
         // console.info(nodeLs);

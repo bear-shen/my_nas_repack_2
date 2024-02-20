@@ -245,15 +245,18 @@ class ORM {
     _makeWhere(queryArr?: Array<queryDefinition>): string {
         if (!queryArr) queryArr = JSON.parse(JSON.stringify(this._dataset.query)) as Array<queryDefinition>;
         // console.info(queryArr);
-        //trim
-        const index = 0;
+        //因为trim了头尾的operator，所以需要单独记录开头的not，否则无法查询
+        const prependNot: string[] = [];
+        //删除前后的多余query
         for (let i = 0; i < queryArr.length; i++) {
             // console.info('n', i);
             if (queryArr[i].type !== 'operator') break;
+            if (queryArr[i].data.indexOf('not') !== -1) {
+                prependNot.push('not');
+            }
             queryArr.splice(i, 1);
             i -= 1;
         }
-        // console.info(queryArr);
         for (let i = queryArr.length - 1; i > 0; i--) {
             // console.info('r', i);
             if (queryArr[i].type !== 'operator') break;
@@ -266,6 +269,10 @@ class ORM {
         // console.info(this._dataset);
         // console.info(queryArr);
         let strArr = [];
+        //这么写不大好看，但是总归能用
+        if (prependNot.length) {
+            strArr.push(prependNot);
+        }
         for (let i = 0; i < queryArr.length; i++) {
             // console.info(queryArr[i]);
             switch (queryArr[i].type) {
