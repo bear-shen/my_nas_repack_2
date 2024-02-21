@@ -354,6 +354,7 @@ class ORM {
         if (this._dataset.offset || this._dataset.limit) {
             sqlPart.limit = `${this._dataset.limit} offset ${this._dataset.offset}`;
         }
+        // console.info(this._dataset.binds.where);
         //
         sqlPart.table = sqlPart.table.length ? `from ${sqlPart.table}` : '';
         sqlPart.where = sqlPart.where.length ? `where ${sqlPart.where}` : '';
@@ -376,7 +377,7 @@ ${sqlPart.limit}`.trim();
         if (ORM.dumpSql)
             console.info(sql, this._dataset.binds.full);
         const [rows, fields] = await conn().execute(sql, this._dataset.binds.full);
-
+        // console.info(this._dataset.binds.full[0],(rows as RowDataPacket[])[0]);
         return rows;
     }
 

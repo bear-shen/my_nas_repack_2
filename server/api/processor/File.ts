@@ -107,7 +107,7 @@ export default class {
                 model.whereRaw('find_in_set(?,list_tag_id)', tagId)
             )
         }
-        if (request.pid) {
+        if (request.pid && request.group!='deleted') {
             target.path = await buildCrumb(parseInt(request.pid));
             if (request.cascade_dir)
                 model.whereRaw('find_in_set(?,list_node)', request.pid);
@@ -246,9 +246,16 @@ export default class {
         }
         // console.info(withConf.indexOf('file'),fileIdSet.size);
         if (withConf.indexOf('file') !== -1 && fileIdSet.size) {
+            // console.info('249');
             const fileLs: col_file[] = await splitQuery(FileModel, Array.from(fileIdSet));
             const fileMap = GenFunc.toMap(fileLs, 'id');
-            // console.info(fileLs.length,fileMap.size);
+            // console.info(fileIdSet.size,fileLs.length,fileMap.size);
+            // let i=0;
+            // fileIdSet.forEach((fileId)=>{
+            //     i++;
+            //     if(fileMap.get(fileId))return;
+            //     console.info(fileId,' not found',i);
+            // })
             // const tagGroupIdSet = new Set();
             nodeLs.forEach(node => {
                 node.file = {};
@@ -256,6 +263,9 @@ export default class {
                     if (!Object.prototype.hasOwnProperty.call(node.index_file_id, key)) continue;
                     const fileId = node.index_file_id[key];
                     const file = fileMap.get(fileId);
+                    // if(node.id==1263512){
+                    //     console.info(node,fileId,file);
+                    // }
                     if (!file) continue;
                     node.file[key] = file;
                     node.file[key].path = (getConfig()).path.api + fp.getRelPathByFile(file);
