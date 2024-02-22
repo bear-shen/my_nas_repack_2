@@ -13,9 +13,11 @@ class BaseModel<field> extends ORM {
     }
 
     async select(column?: (keyof field)[] | string[]): Promise<field[]> {
-        const res = await super.select(column as string[]);
+        let res = await super.select(column as string[]);
+        if(!res.length)return [];
+        res=JSON.parse(JSON.stringify(res));
         for (let i = 0; i < res.length; i++) {
-            res[i] = JSON.parse(JSON.stringify(res[i]));
+            // res[i] = JSON.parse(JSON.stringify(res[i]));
             for (const key in res[i]) {
                 if (!Object.prototype.hasOwnProperty.call(res[i], key)) continue;
                 if (this[`_col_get_${key}` as string as keyof BaseModel<field>]) {

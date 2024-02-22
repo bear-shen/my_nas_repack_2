@@ -469,6 +469,16 @@ export class opModule {
                 },
             },
             {
+                title: 'Recover',
+                auth: inRecycle ? 'user' : 'none',
+                method: (e: MouseEvent) => {
+                    console.info('Recover', e);
+                    //recover是delete重做一次
+                    if (isBath) opFunctionModule.op_bath_delete(idSet, nodeLs,true);
+                    else opFunctionModule.op_bath_delete(nodeLs[0],[],true);
+                },
+            },
+            {
                 title: 'Delete Forever',
                 auth: inRecycle ? 'user' : 'none',
                 method: (e: MouseEvent) => {
@@ -719,6 +729,7 @@ export class opModule {
             // console.warn(node, node._offsets);
             // console.info(node.id, node._dom, node._offsets);
         });
+        // console.info(this.nodeList);
         this.scrollEvt(e as Event);
     }
 
@@ -965,10 +976,10 @@ export class opFunctionModule {
         return res;
     }
 
-    public static async op_bath_delete(idSet: Set<number>, nodeLs?: api_node_col[]) {
+    public static async op_bath_delete(idSet: Set<number>, nodeLs?: api_node_col[],isRecover?:boolean=false) {
         if (!opModuleVal) return;
         opModuleVal.modalStore.set({
-            title: `confirm to delete ${idSet.size} files`,
+            title: `confirm to ${isRecover?'recover':'delete'} ${idSet.size} files`,
             alpha: false,
             key: "",
             single: false,
@@ -981,7 +992,7 @@ export class opFunctionModule {
             allow_move: true,
             allow_fullscreen: false,
             auto_focus: true,
-            text: "conform to delete",
+            text: "conform to "+(isRecover?'recover':'delete'),
             callback: {
                 confirm: async (modal) => {
                     // console.info(modal);

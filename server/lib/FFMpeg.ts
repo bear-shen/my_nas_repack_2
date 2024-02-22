@@ -150,7 +150,7 @@ async function videoStr(meta: ffMeta): Promise<string | boolean> {
         for (let i1 = 0; i1 < meta.streams.length; i1++) {
             if (meta.streams[i1].codec_type != 'audio') continue;
             //音轨的话没有标签就不管
-            if (!(meta.streams[i1].tags.language && meta.streams[i1].tags.language.length)) {
+            if (!meta.streams[i1]?.tags?.language.length) {
                 noTagAudSet.add(i1);
                 continue;
             }
