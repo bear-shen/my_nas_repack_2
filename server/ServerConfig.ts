@@ -203,7 +203,7 @@ const BaseConfig = {
             quality: 1.5,  //+- 110
             format: 'aac',
             codec_lib: 'aac',
-            allow_codec: ['flac', 'mp3', 'aac', 'wav', 'vorbis', 'ogg', 'pcm', 'opus',],
+            allow_codec: ['flac', 'mp3', 'aac', 'wav', 'vorbis', 'ogg',  'opus',],
             allow_container: ['flac', 'mp3', 'aac', 'wav', 'vorbis', 'ogg',],
             // allow_rate: 120 * 1000,
             allow_rate: 1024 * 1024 * 1 / 8,
