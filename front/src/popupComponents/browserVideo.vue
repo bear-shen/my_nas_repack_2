@@ -439,10 +439,18 @@ function toggleSubtitle(index: number) {
       >
         <source :src="resPath"/>
         <template v-for="(subtitle,index) in subtitleList">
-          <track :default="subtitleIndex==index?true:false"
-                 :src="(subtitle.file?.normal as col_file_with_path).path" kind="subtitles"
-                 :srclang="subtitle.label" :label="subtitle.label"
-          />
+          <template v-if="subtitle.file?.normal">
+            <track :default="subtitleIndex==index?true:false"
+                   :src="(subtitle.file.normal as col_file_with_path).path" kind="subtitles"
+                   :srclang="subtitle.label" :label="subtitle.label"
+            />
+          </template>
+          <template v-else>
+            <track :default="subtitleIndex==index?true:false"
+                   :src="(subtitle.file.raw as col_file_with_path).path" kind="subtitles"
+                   :srclang="subtitle.label" :label="subtitle.label"
+            />
+          </template>
         </template>
       </video>
       <!--      @focus="console.info('focus',$event)"
