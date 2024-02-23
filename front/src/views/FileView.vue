@@ -196,8 +196,8 @@ function addFile() {
   modalStore.set({
     title: `upload | ${title}`,
     alpha: false,
-    key: '',
-    single: false,
+    key: `FileView_addFile_${pid}`,
+    single: true,
     w: 400,
     h: 200,
     minW: 400,
@@ -324,9 +324,9 @@ function emitGo(type: string, code?: number) {
 
 
 onMounted(async () => {
-  console.info('onMounted')
-  localConfigure.release('file_view_mode', modeKey)
-  Object.assign(queryData, GenFunc.copyObject(route.query))
+  console.info('onMounted');
+  localConfigure.release('file_view_mode', modeKey);
+  Object.assign(queryData, GenFunc.copyObject(route.query));
   opModule = new fHelper.opModule({
     route: route,
     router: router,
@@ -335,26 +335,63 @@ onMounted(async () => {
     contentDOM: contentDOM.value as HTMLElement,
     emitGo: emitGo
     // queryData: queryData,
-  })
-  await getList()
-  opModule.reloadScroll()
+  });
+  await getList();
+  opModule.reloadScroll();
+  document.addEventListener("keydown", keymap);
   // if (contentDOM.value) {
   //   contentDOM.value.addEventListener("scroll", lazyLoad);
   // }
   // reloadOffset(undefined, fHelper.timeoutDef.offsetDebounce);
   // (contentDOM.value as HTMLElement).addEventListener("scroll", scrollEvt);
-})
+});
 onUnmounted(() => {
-  opModule.destructor()
+  opModule.destructor();
+  document.removeEventListener("keydown", keymap);
   // if (contentDOM.value) {
   //   contentDOM.value.removeEventListener("scroll", lazyLoad);
   // }
-})
+});
 
+function keymap(e: KeyboardEvent) {
+  console.info(e);
+  //这俩快捷键基本没占用，屏蔽target反而很麻烦
+  // if ((e.target as HTMLElement).tagName !== "BODY") return;
+  if (!(crumbList.value.length || queryData.pid)) return;
+  const keyMap = [];
+  if (e.ctrlKey) keyMap.push('ctrl');
+  if (e.shiftKey) keyMap.push('shift');
+  keyMap.push(e.code);
+  switch (keyMap.join('_')) {
+    default:
+      return;
+      break;
+    case 'ctrl_KeyU':
+      if (opModule && opModule.showSelectionOp) {
+        e.preventDefault();
+        addFile();
+      }
+      break;
+    case 'ctrl_KeyM':
+      if (opModule && opModule.showSelectionOp) {
+        e.preventDefault();
+        addFolder();
+      }
+      break;
+  }
+}
+
+function onDragover(e: DragEvent) {
+  // console.info(e);
+  if (!(crumbList.value.length || queryData.pid)) return;
+  e.stopPropagation();
+  e.preventDefault();
+  addFile();
+}
 </script>
 
 <template>
-  <div class='fr_content'>
+  <div class='fr_content' @dragover="onDragover">
     <div class='content_meta'>
       <div class='crumb' v-if='crumbList.length'>
         <a dir='ltr'
@@ -413,9 +450,11 @@ onUnmounted(() => {
           <a v-if="route.name==='Recycle'" @click="opModule.bathOp('delete_forever')">rDEL</a>
           <a class='sysIcon sysIcon_fengefu'></a>
         </template>
-        <a class='sysIcon sysIcon_addfolder' @click='addFolder'></a>
-        <a class='sysIcon sysIcon_addfile' @click='addFile'></a>
-        <a class='sysIcon sysIcon_fengefu'></a>
+        <template v-if="crumbList.length || queryData.pid=='0'">
+          <a class='sysIcon sysIcon_addfolder' @click='addFolder'></a>
+          <a class='sysIcon sysIcon_addfile' @click='addFile'></a>
+          <a class='sysIcon sysIcon_fengefu'></a>
+        </template>
         <label>
           <span>Sort : </span>
           <select v-model='sortVal' @change='setSort(sortVal)'>

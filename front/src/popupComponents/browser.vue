@@ -550,6 +550,17 @@ function setRater(rateVal: string) {
 
 <style lang="scss">
 @import "../assets/variables";
+@keyframes rotateAnimate {
+  0% {
+    transform: rotate(0);
+  }
+  50% {
+    transform: rotate(180deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
 .modal_browser {
   width: 100%;
   height: 100%;

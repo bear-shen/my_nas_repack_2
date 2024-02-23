@@ -252,9 +252,24 @@ window.addEventListener("resize", (e) => {
 });
 const modalStore = useModalStore();
 modalStore.handleEvent("set", (modal: ModalConstruct) => {
-  const curModal = buildModal(modal);
-  modalList.value.set(curModal.nid, curModal);
-  toggleActive(curModal.nid);
+  //
+  let exsNid = 0;
+  let curModal = null;
+  if (modal.single) {
+    modalList.value.forEach((value, key, map) => {
+      if (value.base.key != modal.key) return;
+      exsNid = key;
+      curModal = value;
+    });
+  }
+  //
+  if (exsNid) {
+    toggleActive(exsNid);
+  } else {
+    curModal = buildModal(modal);
+    modalList.value.set(curModal.nid, curModal);
+    toggleActive(curModal.nid);
+  }
   checkAlpha();
   return curModal;
 });
