@@ -1,9 +1,8 @@
-import type {api_node_col, api_user_login_req, api_user_login_resp} from "../../share/Api";
+import type {api_user_login_req, api_user_login_resp} from "../../share/Api";
 import Config from "./Config";
 
 import {useModalStore} from "@/stores/modalStore";
 import {useUserStore} from "@/stores/userStore";
-
 
 
 export function queryDemo<K>(
@@ -149,4 +148,38 @@ export function print() {
     // console.info(calee, ...arguments);
     // console.info(calee.codePointAt(0)%8, ...arguments);
     // console.log("%cThis is a green text", "color:green");
+}
+
+export function mayTyping(target: HTMLElement | null | undefined) {
+    if (!target) return false;
+    let dom = target;
+    while (true) {
+        if (dom.tagName === 'BODY') return false;
+        if (dom.tagName === 'HTML') return false;
+        if (dom.tagName === 'TEXTAREA') return true;
+        if (dom.tagName === 'INPUT') {
+            switch ((dom as HTMLInputElement).type) {
+                case 'input':
+                case 'date':
+                case 'datetime':
+                case 'datetime-local':
+                case 'file':
+                case 'number':
+                case 'password':
+                case 'radio':
+                case 'search':
+                case 'text':
+                case 'time':
+                case 'tel':
+                case 'url':
+                    return true;
+                    break;
+            }
+        }
+        if (dom.contentEditable && dom.contentEditable.toLowerCase() === 'true')
+            return true;
+        if (!dom.parentElement) return false;
+        dom = dom.parentElement;
+    }
+    return false;
 }

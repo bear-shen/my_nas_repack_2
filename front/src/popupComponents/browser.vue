@@ -2,7 +2,7 @@
 import type {Ref} from "vue";
 import {onMounted, onUnmounted, ref} from "vue";
 import type {ModalStruct} from "@/modal";
-import {query} from "@/Helper";
+import {mayTyping, query} from "@/Helper";
 import {manualSort, opFunctionModule} from "@/FileViewHelper";
 import type {api_file_list_req, api_file_list_resp, api_node_col} from "../../../share/Api";
 import GenFunc from "@/GenFunc";
@@ -327,7 +327,7 @@ function modTitle() {
 
 async function keymap(e: KeyboardEvent) {
   // console.info(e);
-  if ((e.target as HTMLElement).tagName !== "BODY") return;
+  if (mayTyping(e.target)) return;
   if (!props.modalData.layout.active) return;
   // console.info(e);
   let dirNode, parentLsQ, parentLs, len, curParentIndex, targetNode, retryCount;

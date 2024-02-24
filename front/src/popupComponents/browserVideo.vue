@@ -5,6 +5,7 @@ import type {api_node_col} from "../../../share/Api";
 import GenFunc from "@/GenFunc";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import type {col_file_with_path} from "../../../share/Database";
+import {mayTyping} from "@/Helper";
 
 const localConfigure = useLocalConfigureStore();
 const props = defineProps<{
@@ -282,7 +283,7 @@ function wheelListener(e: WheelEvent) {
 }
 
 function keymap(e: KeyboardEvent) {
-  if ((e.target as HTMLElement).tagName !== "BODY") return;
+  if (mayTyping(e.target)) return;
   if (!props.modalData.layout.active) return;
   // console.info(e);
   switch (e.key) {

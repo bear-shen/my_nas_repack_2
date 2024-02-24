@@ -4,7 +4,7 @@ import type {ModalStruct} from "../modal";
 import type {api_node_col} from "../../../share/Api";
 import type {col_file_with_path} from "../../../share/Database";
 import GenFunc from "@/GenFunc";
-import * as scrollLogStore from "@/persistenceStore/scrollLog";
+import * as kvStore from "@/IndexedKVStore";
 import Config from "@/Config";
 
 const props = defineProps<{
@@ -42,7 +42,7 @@ async function scrollEvt(e: Event) {
     if (!offset[0] && !offset[1]) return;
     const key = `browser:${props.curNode.id}`;
     GenFunc.debounce(() => {
-      scrollLogStore.set(key, offset);
+      kvStore.set('scroll_log', key, offset);
     }, Config.timeouts.scrollSave, 'debounce_scroll_save');
   }, Config.timeouts.scrollEvt, `debounce_scroll_view`);
 }
@@ -52,7 +52,7 @@ async function reloadScroll() {
   contentDOM.value.scrollTop = 0;
   contentDOM.value.scrollLeft = 0;
   const key = `browser:${props.curNode.id}`;
-  const ifLogExs = await scrollLogStore.get(key);
+  const ifLogExs = await kvStore.get('scroll_log', key);
   if (!ifLogExs) return;
   contentDOM.value.scrollTop = ifLogExs[0];
   contentDOM.value.scrollLeft = ifLogExs[1];
@@ -96,7 +96,8 @@ onBeforeUnmount(() => {
     <div class="content">
       <div class="textContent"
            ref="contentDOM"
-      >{{content}}</div>
+      >{{ content }}
+      </div>
     </div>
   </div>
 </template>

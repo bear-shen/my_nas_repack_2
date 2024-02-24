@@ -15,7 +15,7 @@ import {FileStreamDownloader} from "@/FileStreamDownloader";
 
 // const router = useRouter();
 // const route = useRoute();
-import * as scrollLogStore from '@/persistenceStore/scrollLog';
+import * as kvStore from '@/IndexedKVStore';
 import Config from "@/Config";
 
 let opModuleVal: null | opModule;
@@ -784,7 +784,7 @@ export class opModule {
         //更新路由的时候会产生一个offset为0的scroll事件，直接跳过0
         if (!offset[0] && !offset[1]) return;
         GenFunc.debounce(() => {
-            scrollLogStore.set(key, offset);
+            kvStore.set('scroll_log',key, offset);
         }, Config.timeouts.scrollSave, 'debounce_scroll_save');
     }
 
@@ -800,7 +800,7 @@ export class opModule {
             query.tag_id ? query.tag_id : '',
         ].join(':');
         // const path = this.route.fullPath;
-        const ifLogExs = await scrollLogStore.get(key);
+        const ifLogExs = await kvStore.get('scroll_log',key);
         if (!ifLogExs) return;
         // console.info(path, ifLogExs);
         this.contentDOM.scrollTop = ifLogExs[0];

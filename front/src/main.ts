@@ -8,9 +8,8 @@ import './assets/basic.scss';
 import '@/assets/fonts/sysIcon/iconfont.css';
 import '@/assets/fonts/listIcon/iconfont.css';
 
-import * as scrollLogStore from '@/persistenceStore/scrollLog';
-
-scrollLogStore.init();
+import * as kvStore from '@/IndexedKVStore';
+kvStore.init();
 
 const app = createApp(App);
 

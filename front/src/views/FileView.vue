@@ -354,7 +354,7 @@ onUnmounted(() => {
 });
 
 function keymap(e: KeyboardEvent) {
-  console.info(e);
+  // console.info(e);
   //这俩快捷键基本没占用，屏蔽target反而很麻烦
   // if ((e.target as HTMLElement).tagName !== "BODY") return;
   if (!(crumbList.value.length || queryData.pid)) return;

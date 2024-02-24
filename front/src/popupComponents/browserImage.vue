@@ -4,6 +4,8 @@ import type {ModalStruct} from "../modal";
 import type {api_node_col} from "../../../share/Api";
 import GenFunc from "@/GenFunc";
 import {useEventStore} from "@/stores/event";
+import {mayTyping} from "@/Helper";
+import * as kvStore from '@/IndexedKVStore';
 
 const props = defineProps<{
   data: {
@@ -26,6 +28,7 @@ const imgLayout = ref({
   h: 0,
   x: 0,
   y: 0,
+  rotate: 0,
   ratio: 0,
   ratioTxt: "0 %",
   orgW: 0,
@@ -36,7 +39,7 @@ function onload(e: any) {
   console.info("onload", e);
 }
 
-function loadImageRes(): any {
+async function loadImageRes(): any {
   const dom = imgDOM.value;
   if (!dom) return;
   if (!dom.complete) {
@@ -47,12 +50,15 @@ function loadImageRes(): any {
   //以dom为基准矫正
   // if (dom.getAttribute("data-ref-node-id") !== `${curNodeId}`)
   //   return setTimeout(loadImageRes.bind(null, curNodeId), 50);
+
+  const curR = await kvStore.get('image_rotate', props.curNode.id);
   Object.assign(imgLayout.value, {
     loaded: props.curNode.id,
     orgH: dom.naturalHeight,
     orgW: dom.naturalWidth,
+    rotate: curR,
   });
-  fitImg();
+  await fitImg();
 }
 
 onMounted(() => {
@@ -63,6 +69,7 @@ onMounted(() => {
     h: 0,
     x: 0,
     y: 0,
+    rotate: 0,
     orgW: 0,
     orgH: 0,
   });
@@ -73,6 +80,7 @@ onMounted(() => {
   document.addEventListener("pointerup", onPointerUp);
   document.addEventListener("pointermove", onPointerMove);
   document.addEventListener("wheel", setZoom);
+  document.addEventListener("keydown", keymap);
 });
 //
 const eventStore = useEventStore();
@@ -105,6 +113,7 @@ onUnmounted(() => {
   document.removeEventListener("pointerup", onPointerUp);
   document.removeEventListener("pointermove", onPointerMove);
   document.removeEventListener("wheel", setZoom);
+  document.removeEventListener("keydown", keymap);
 });
 
 async function fitImg() {
@@ -120,8 +129,9 @@ async function fitImg() {
   //因为上面用的layout所以会导致一个偏差，没想到有什么好办法，直接减掉算了
   domH -= 16;
   const layout = imgLayout.value;
-  const wRatio = domW / layout.orgW;
-  const hRatio = domH / layout.orgH;
+  const r90 = layout.rotate % 180 !== 0;
+  const wRatio = domW / (r90 ? layout.orgH : layout.orgW);
+  const hRatio = domH / (r90 ? layout.orgW : layout.orgH);
   //
   const target = {
     w: 0,
@@ -284,6 +294,42 @@ function setZoom(e?: WheelEvent, dir?: number) {
   target.ratioTxt = Math.round(ratio * 1000) / 10 + " %";
   Object.assign(imgLayout.value, target);
 }
+
+
+function keymap(e: KeyboardEvent) {
+  if (mayTyping(e.target)) return;
+  if (!props.modalData.layout.active) return;
+  console.info(e);
+  switch (e.code) {
+    case "KeyQ":
+      setRotate(-90);
+      break;
+    case "KeyE":
+      setRotate(90);
+      break;
+  }
+}
+
+function setRotate(deg) {
+  let layout = {
+    rotate: imgLayout.value.rotate,
+    // orgH: imgLayout.value.orgH,
+    // orgW: imgLayout.value.orgW,
+  };
+  let curR = layout.rotate + deg;
+  while (curR < 0) curR += 360;
+  while (curR < 0) curR += 360;
+  layout.rotate = curR;
+  // if (deg % 180 !== 0) {
+  //   let t = layout.orgH;
+  //   layout.orgH = layout.orgW;
+  //   layout.orgW = t;
+  // }
+  kvStore.set('image_rotate', props.curNode.id, curR);
+  Object.assign(imgLayout.value, layout);
+  console.info(layout);
+  fitImg();
+}
 </script>
 
 <template>
@@ -328,6 +374,7 @@ function setZoom(e?: WheelEvent, dir?: number) {
                 height: imgLayout.h + 'px',
                 left: imgLayout.x + 'px',
                 top: imgLayout.y + 'px',
+                rotate: imgLayout.rotate + 'deg',
               }
             : {}
         "

@@ -1,6 +1,9 @@
 import Config from "@/Config";
 
-const storeName = 'scroll_log';
+const storeNameLs = [
+    'scroll_log',
+    'image_rotate',
+];
 
 export let req: IDBOpenDBRequest | null = null;
 export let db: IDBDatabase | null = null;
@@ -10,7 +13,7 @@ export let db: IDBDatabase | null = null;
 export function init() {
     // return;
     req = window.indexedDB.open(Config.indexedDBName, 1);
-    // console.info('init', req);
+    console.info('init', req);
     req.onerror = (evt) => {
         // console.info('onerror', evt);
     };
@@ -35,25 +38,29 @@ function buildStore(evt: IDBVersionChangeEvent) {
         // db.transaction('versionchange');
         // const transaction = req.transaction().oncomplete = (ev) => {
         //     console.info(ev);
-        const store = db.createObjectStore(storeName, {
-            // autoIncrement: true,
-            keyPath: 'key',
-        });
-        // store.createIndex('index', 'key', {
-        //     unique: true,
-        // });
-        // };
-        store.transaction.oncomplete = (evt: Event) => {
-            resolve();
+        for (let i1 = 0; i1 < storeNameLs.length; i1++) {
+            const storeName=storeNameLs[i1];
+            const store = db.createObjectStore(storeName, {
+                // autoIncrement: true,
+                keyPath: 'key',
+            });
+            // store.createIndex('index', 'key', {
+            //     unique: true,
+            // });
+            // };
+            store.transaction.oncomplete = (evt: Event) => {
+                // resolve();
+            }
         }
     })
 }
 
-export function get(key) {
+export function get(storeName: string, key: string | number) {
     return new Promise(resolve => {
         if (!db) return;
         // if (!store) return;
         // console.info(db);
+        console.info(storeName, key);
         const req = db.transaction([storeName], 'readonly')
             .objectStore(storeName)
             .get(key);
@@ -70,7 +77,7 @@ export function get(key) {
     });
 }
 
-export function set(key: string, val: any) {
+export function set(storeName: string, key: string | number, val: any) {
     return new Promise(resolve => {
         if (!db) return;
         // if (!store) return;
