@@ -6,6 +6,8 @@ import GenFunc from "@/GenFunc";
 import {useEventStore} from "@/stores/event";
 import {mayTyping} from "@/Helper";
 import * as kvStore from '@/IndexedKVStore';
+// import piexif from 'piexif-ts';
+
 
 const props = defineProps<{
   data: {
@@ -39,14 +41,18 @@ function onload(e: any) {
   console.info("onload", e);
 }
 
-async function loadImageRes(): any {
+async function loadImageRes(e: Event): any {
   const dom = imgDOM.value;
   if (!dom) return;
   if (!dom.complete) {
     // return setTimeout(loadImageRes.bind(null, curNodeId), 50);
     return setTimeout(loadImageRes, 50);
   }
-  // console.info("loadImageRes");
+  // const arrayBuffer = await (await fetch(props.curNode.file.normal?.path)).arrayBuffer();
+  // const exif = piexif.load(arrayBuffer);
+  // console.info(exif);
+
+  // console.info("loadImageRes",e);
   //以dom为基准矫正
   // if (dom.getAttribute("data-ref-node-id") !== `${curNodeId}`)
   //   return setTimeout(loadImageRes.bind(null, curNodeId), 50);
@@ -318,7 +324,7 @@ function setRotate(deg) {
   };
   let curR = layout.rotate + deg;
   while (curR < 0) curR += 360;
-  while (curR < 0) curR += 360;
+  while (curR > 360) curR -= 360;
   layout.rotate = curR;
   // if (deg % 180 !== 0) {
   //   let t = layout.orgH;

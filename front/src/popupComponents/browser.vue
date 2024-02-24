@@ -333,17 +333,25 @@ async function keymap(e: KeyboardEvent) {
   let dirNode, parentLsQ, parentLs, len, curParentIndex, targetNode, retryCount;
   switch (e.key) {
     case "ArrowLeft":
+      e.preventDefault();
+      e.stopPropagation();
       if (["audio", "video"].indexOf(curNode.value.type ?? "") !== -1) return;
       goNav(curIndex.value, -1);
       break;
     case "ArrowRight":
+      e.preventDefault();
+      e.stopPropagation();
       if (["audio", "video"].indexOf(curNode.value.type ?? "") !== -1) return;
       goNav(curIndex.value, +1);
       break;
     case "PageUp":
+      e.preventDefault();
+      e.stopPropagation();
       goNav(curIndex.value, -1);
       break;
     case "PageDown":
+      e.preventDefault();
+      e.stopPropagation();
       goNav(curIndex.value, +1);
       break;
     case '[':
