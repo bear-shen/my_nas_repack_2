@@ -56,10 +56,12 @@ export default class {
         const user = await (new UserModel).where('id', data.uid).first();
         const userGroup = await (new UserGroupModel).where('id', user.id_group).first();
         const userAuth = userGroup.auth;
-        userAuth.deny.forEach(node => {
-            model.not().whereRaw('find_in_set( ? ,list_node)', node.id)
-                .where('id', '<>', node.id)
-        });
+        if(userAuth && userAuth.deny) {
+            userAuth.deny.forEach(node => {
+                model.not().whereRaw('find_in_set( ? ,list_node)', node.id)
+                  .where('id', '<>', node.id)
+            })
+        }
         //
         switch (request.mode) {
             default:
