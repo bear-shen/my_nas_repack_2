@@ -123,12 +123,17 @@ export default class {
                 model.whereRaw('find_in_set(?,list_tag_id)', tagId)
             )
         }
-        if (request.pid && request.group!='deleted') {
-            target.path = await buildCrumb(parseInt(request.pid));
+        let crumbPid=-1;
+        if (request.pid && request.group!='deleted')crumbPid=parseInt(request.pid);
+        // if(request.mode=='id_iterate' && request.keyword.indexOf(',')===-1){
+        //     crumbPid=parseInt(request.keyword);
+        // }
+        if(crumbPid!==-1){
+            target.path = await buildCrumb(crumbPid);
             if (request.cascade_dir)
-                model.whereRaw('find_in_set(?,list_node)', request.pid);
+                model.whereRaw('find_in_set(?,list_node)', crumbPid);
             else
-                model.where('id_parent', request.pid);
+                model.where('id_parent', crumbPid);
         }
         if (request.node_type) {
             switch (request.node_type) {

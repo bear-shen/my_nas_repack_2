@@ -43,6 +43,7 @@ function onload(e: any) {
 
 async function loadImageRes(e: Event): any {
   const dom = imgDOM.value;
+  // console.info('here')
   if (!dom) return;
   if (!dom.complete) {
     // return setTimeout(loadImageRes.bind(null, curNodeId), 50);
@@ -100,7 +101,7 @@ watch(() => props.curNode, async (to) => {
   // showImg.value = false;
   // setTimeout(() => {
   //   showImg.value = true;
-  imgDOM.value?.decode();
+  // imgDOM.value?.decode();
   imgLayout.value.loaded = 0;
   // setTimeout(() => {
   //   loadImageRes();
@@ -305,7 +306,7 @@ function setZoom(e?: WheelEvent, dir?: number) {
 function keymap(e: KeyboardEvent) {
   if (mayTyping(e.target)) return;
   if (!props.modalData.layout.active) return;
-  console.info(e);
+  // console.info(e);
   switch (e.code) {
     case "KeyQ":
       setRotate(-90);

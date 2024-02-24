@@ -381,6 +381,7 @@ async function keymap(e: KeyboardEvent) {
       } while (--retryCount > 0);
       break;
     case ']':
+      // console.info(crumbList.value);
       if (!crumbList.value.length) return;
       // const crumbLs = await getParent();
       // if (!crumbLs.path || !crumbLs.path.length) return;

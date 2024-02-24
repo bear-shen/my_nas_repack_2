@@ -1150,8 +1150,13 @@ export class opFunctionModule {
         let query: api_file_list_req = {};
         //按文件夹排序需要crumb
         query.with = 'crumb,file';
-        query.mode = 'id_iterate';
-        query.keyword = idArr.join(',');
+        if(idArr.length==1){
+            query.mode = 'directory';
+            query.pid = idArr[0];
+        }else{
+            query.mode = 'id_iterate';
+            query.keyword = idArr.join(',');
+        }
         // if (idSet.size > 1) {
         // let query = GenFunc.copyObject(this.queryData);
         popupDetail(query, idArr[0]);
