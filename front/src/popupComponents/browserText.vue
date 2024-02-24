@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import {onBeforeUnmount, onMounted, ref, Ref, watch} from "vue";
+import {onBeforeUnmount, onMounted, ref, watch} from "vue";
+import type {Ref} from "vue";
 import type {ModalStruct} from "../modal";
 import type {api_node_col} from "../../../share/Api";
 import type {col_file_with_path} from "../../../share/Database";
