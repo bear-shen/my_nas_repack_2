@@ -190,7 +190,7 @@ function emp(e: Event) {
               <!--            <p class="title" @click="op_dblclick">{{ node.title }}</p>-->
               <p class="time">
                 <rater :node="node" v-model="node.rate"></rater>
-                <span :title="`C:${node.time_create}\r\nU:${node.time_update}`">{{ (node.time_update ?? '').substring(0, 10) }}</span>
+                <span :title="`C:${node.time_create}\r\nU:${node.time_update}`">{{ (node.time_create ?? '').substring(0, 10) }}</span>
               </p>
               <p v-if="node.description">{{ node.description }}</p>
             </template>
@@ -198,7 +198,7 @@ function emp(e: Event) {
           <template v-else>
             <p class="title">{{ node.title }}</p>
             <p><span v-for="crumb in node.crumb_node"> / {{ crumb.title }}</span></p>
-            <p>{{ node.time_update }}</p>
+            <p>{{ node.time_create }}</p>
             <p v-if="node.description">{{ node.description }}</p>
           </template>
         </div>
@@ -247,7 +247,7 @@ function emp(e: Event) {
         ></div>
         <!--        <p class="title" @click="op_dblclick">{{ node.title }}</p>-->
         <p class="title" :title="node.title">{{ node.title }}</p>
-        <p>{{ node.time_update }}</p>
+        <p>{{ node.time_create }}</p>
       </template>
       <template v-else>
         <div v-if="node.file?.cover && node._in_screen" class="thumb">
@@ -258,7 +258,7 @@ function emp(e: Event) {
           :class="['thumb', 'listIcon', `listIcon_file_${node.type}`]"
         ></div>
         <p class="title" :title="node.title">{{ node.title }}</p>
-        <p>{{ node.time_update }}</p>
+        <p>{{ node.time_create }}</p>
       </template>
     </template>
     <template v-else-if="mode === 'text'">
@@ -277,7 +277,7 @@ function emp(e: Event) {
          :title="node.title"
       >{{ node.title }}</p>
       <!--        <p class="title" @click="op_dblclick">{{ node.title }}</p>-->
-      <p class="time">{{ node.time_update }}</p>
+      <p class="time">{{ node.time_create }}</p>
     </template>
   </div>
 </template>

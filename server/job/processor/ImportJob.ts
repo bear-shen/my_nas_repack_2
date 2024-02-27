@@ -14,7 +14,7 @@ export default class {
     static async run(payload: { [key: string]: any }): Promise<any> {
         importerTitleFilter = getConfig().import_ignore;
         for (let i1 = 0; i1 < importerTitleFilter.length; i1++) {
-            importerTitleFilter[i1]=importerTitleFilter[i1].toLowerCase();
+            importerTitleFilter[i1] = importerTitleFilter[i1].toLowerCase();
         }
         const src = payload.sourceDir.replace(/\/$/, '');
         const targetId = payload.targetNodeId;
@@ -46,6 +46,10 @@ export default class {
             const parentNode = await mkParentNode(parentDirname, importRoot);
             const targetNode = await fp.mkdir(parentNode.id, item.name);
             if (!targetNode) continue;
+            (new NodeModel).where('id', targetNode.id).update({
+                time_create: item.timeCreated.slice(0, 19).replace('T', ' '),
+                time_update: item.timeModified.slice(0, 19).replace('T', ' '),
+            });
             (new QueueModel).insert({
                 type: 'file/buildIndex',
                 payload: {id: targetNode.id},
@@ -66,6 +70,10 @@ export default class {
             // if (ifDup) continue;
             const targetNode = await fp.put(item.path, parentNode, item.name, true);
             if (!targetNode) continue;
+            (new NodeModel).where('id', targetNode.id).update({
+                time_create: item.timeCreated.slice(0, 19).replace('T', ' '),
+                time_update: item.timeModified.slice(0, 19).replace('T', ' '),
+            });
             (new QueueModel).insert({
                 type: 'file/build',
                 payload: {id: targetNode.id},
