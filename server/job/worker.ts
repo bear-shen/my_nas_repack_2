@@ -38,8 +38,12 @@ async function run() {
         }
         try {
             const job = jobs[ifExs.type];
-            await job(ifExs.payload);
-            await setStatus(ifExs.id, 0, 'success');
+            const result = await job(ifExs.payload);
+            await setStatus(ifExs.id, 0,
+                result ?
+                    (typeof result === 'string') ?
+                        result : JSON.stringify(result) : 'success'
+            );
         } catch (error) {
             console.info(error);
             let errMsg = error && error.name && error.message ? `${error.name}:${error.message}` : JSON.parse(error);

@@ -605,7 +605,7 @@ function onDragover(e: DragEvent) {
   //height: 90vh;
   overflow: auto;
   height: 100%;
-  @include smallScroll();
+  //@include smallScroll();
 }
 .content_detail.mode_detail {
   //columns: $fontSize * 20 6;

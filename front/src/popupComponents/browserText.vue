@@ -111,7 +111,7 @@ onBeforeUnmount(() => {
     margin: $fontSize auto;
     word-break: break-all;
     white-space: pre-wrap;
-    @include smallScroll();
+    //@include smallScroll();
     overflow: auto;
     height: calc(100% - $fontSize * 5);
   }

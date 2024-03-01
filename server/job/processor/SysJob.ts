@@ -13,6 +13,7 @@ class SysJob {
         const fullPath = config.path.local;
         const fileSet = await scanDir(fullPath, true);
         const pathLs = Array.from(fileSet);
+        const rmLs=[];
         // console.info(pathLs);
         for (let i1 = 0; i1 < pathLs.length; i1++) {
             let path = pathLs[i1];
@@ -25,16 +26,18 @@ class SysJob {
             if (file) continue;
             // const stat = await fs.stat(path);
             console.info('rm:', path);
+            rmLs.push('rm:'+ path);
             await fs.rm(path);
             do {
                 path = await fp.getDir(path);
                 const subLs = await fs.readdir(path);
                 if (subLs.length) break;
                 console.info('rmdir:', path);
+                rmLs.push('rmdir:'+ path);
                 await fs.rmdir(path);
             } while (path.length > fullPath.length + 1);
         }
-        return;
+        return rmLs;
     }
 
     static async exec(payload: { [key: string]: any }): Promise<any> {

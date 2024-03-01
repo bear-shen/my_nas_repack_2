@@ -377,7 +377,7 @@ async function modTag(index: number) {
     width: $fontSize*20;
     background-color: map-get($colors, bar_meta);
     height: 100%;
-    @include smallScroll();
+    //@include smallScroll();
     overflow-y: scroll;
     .tag_group_add {
       span {
@@ -457,7 +457,7 @@ async function modTag(index: number) {
   .list_tag {
     width: calc(100% - $fontSize * 20);
     //height: 100%;
-    @include smallScroll();
+    //@include smallScroll();
     overflow-y: scroll;
     > div {
       font-size: $fontSize;

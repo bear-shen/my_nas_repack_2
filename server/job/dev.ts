@@ -4,14 +4,16 @@ import { loadConfig } from '../ServerConfig'
 import ExtJob from './processor/ExtJob'
 import fsNP from 'fs'
 import { ls } from '../lib/LocalFileProcessor'
+import StatisticsJob from "./processor/StatisticsJob";
 
 console.info('job dev init')
 
 
 loadConfig().then(async () => {
   console.info('start')
-  let path = 'D:\\exos\\db_eros\\hun\\作品合集 78842939 KASABUTA'
-  console.info(await ls(path))
+  // let path = 'D:\\exos\\db_eros\\hun\\作品合集 78842939 KASABUTA'
+  // console.info(await ls(path))
+  await StatisticsJob.node({});
   // path = 'D:\\exos\\db_eros\\hun\\作品合集 78842939 KASABUTA\\20230217 232200_ご主人様、ご自由にお使いください。💕'
   // console.info(fsNP.statSync(path))
   // await SysJob.scanOrphanFile({});

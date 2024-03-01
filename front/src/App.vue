@@ -54,7 +54,7 @@ const containerDef = {};
   height: calc(100% - $headerPad - $footerPad);
   background-color: map-get($colors, bk);
   width: calc(100vw - $navWidth);
-  @include smallScroll();
+  //@include smallScroll();
   overflow: auto;
 }
 .fr_footer {

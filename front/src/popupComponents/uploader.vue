@@ -130,7 +130,7 @@ function remove(index: number) {
   .upload_list {
     height: calc(100% - $fontSize * 2);
     overflow: auto;
-    @include smallScroll();
+    //@include smallScroll();
     > div {
       @include fillAvailable(width);
       //width: calc(100% - $fontSize * 0.5);

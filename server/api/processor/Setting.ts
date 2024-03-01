@@ -1,6 +1,6 @@
 import {IncomingMessage, ServerResponse} from 'http';
 import {ParsedForm} from '../types';
-import {api_setting_del_req, api_setting_del_resp, api_setting_list_req, api_setting_list_resp, api_setting_mod_req, api_setting_mod_resp,} from '../../../share/Api';
+import {api_setting_col, api_setting_del_req, api_setting_del_resp, api_setting_list_req, api_setting_list_resp, api_setting_mod_req, api_setting_mod_resp,} from '../../../share/Api';
 import SettingModel from "../../model/SettingModel";
 import {loadConfig} from "../../ServerConfig";
 import {conn} from "../../lib/SQL";
@@ -11,13 +11,18 @@ export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_setting_list_resp> {
         const request = data.fields as api_setting_list_req;
         const model = new SettingModel();
-        const list = await model.order('id', 'desc').select() as any[];
-        const target: api_setting_list_resp = [];
+        const list = await model.order('id', 'desc').select();
+        const target: api_setting_col & { value: string }[] = [];
         for (let i1 = 0; i1 < list.length; i1++) {
             const row = list[i1];
-            row.value = JSON.stringify(list[i1].value);
+            // console.info(row);
+            if (row.name.indexOf('_t_') === 0) continue;
+            target.push(Object.assign(
+                row,
+                {value: JSON.stringify(row.value)}
+            ))
         }
-        return list;
+        return target;
     };
 
     async del(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_setting_del_resp> {
@@ -56,11 +61,28 @@ export default class {
         return request;
     };
 
-    async scan_orphan_files(){
+    async scan_orphan_files() {
         (new QueueModel).insert({
             type: 'sys/scanOrphanFile',
             payload: {},
             status: 1,
         });
     }
+
+    async set_node_stat() {
+        (new QueueModel).insert({
+            type: 'statistics/node',
+            payload: {},
+            status: 1,
+        });
+    }
+
+    async get_node_stat() {
+        const ifExs = await (new SettingModel()).where('name', '_t_stat_node').first();
+        if (!ifExs) return null;
+        // console.info(ifExs);
+        return ifExs.value;
+    }
+
+
 };

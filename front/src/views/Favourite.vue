@@ -427,7 +427,7 @@ function delTag(groupIndex: number, tagIndex: number) {
     width: $fontSize*20;
     background-color: map-get($colors, bar_meta);
     height: 100%;
-    @include smallScroll();
+    //@include smallScroll();
     overflow-y: scroll;
     .fav_group_add {
       span {
@@ -538,7 +538,7 @@ function delTag(groupIndex: number, tagIndex: number) {
     width: calc(100% - $fontSize * 20);
     height: 100%;
     overflow: auto;
-    @include smallScroll();
+    //@include smallScroll();
     //columns: $fontSize * 20 6;
     //column-gap: 0;
     display: flex;

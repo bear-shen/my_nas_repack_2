@@ -422,3 +422,17 @@ export type api_rate_attach_req = {
 
 export type api_rate_attach_resp = col_node;
 
+export type api_statistics_node = {
+    suffix: { suffix: string, size: number, count: number }[],
+    directory: {
+        id: number,
+        title: string,
+        path: string,
+        nodes: { count: number, },
+        files: { count: number, size: number, },
+        raw: { count: number, size: number, },
+        normal: { count: number, size: number, },
+        preview: { count: number, size: number, },
+        cover: { count: number, size: number, },
+    }[],
+};

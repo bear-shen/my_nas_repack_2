@@ -194,7 +194,7 @@ async function keydownEvt(e: KeyboardEvent): Promise<boolean> {
     max-height: $fontSize*10;
     overflow: auto;
     position: relative;
-    @include smallScroll();
+    //@include smallScroll();
     font-size: $fontSize*0.8;
     > div {
       @include fillAvailable(width);

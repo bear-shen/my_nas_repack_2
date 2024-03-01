@@ -952,7 +952,7 @@ function keymap(e: KeyboardEvent) {
     }
   }
   .modal_content {
-    @include smallScroll();
+    //@include smallScroll();
     overflow: auto;
     height: calc(100% - $fontSize);
   }
@@ -1014,13 +1014,13 @@ function keymap(e: KeyboardEvent) {
 }
 .modal_dom table {
   width: 100%;
-  tr td {
+  tr td, tr th {
     text-align: center;
   }
-  tr td:first-child {
+  tr td:first-child, tr th:first-child {
     text-align: left;
   }
-  tr td:last-child {
+  tr td:last-child, tr th:last-child {
     text-align: right;
   }
 }

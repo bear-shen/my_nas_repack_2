@@ -422,7 +422,7 @@ async function modUser(index: number) {
     width: $fontSize*20;
     background-color: map-get($colors, bar_meta);
     height: 100%;
-    @include smallScroll();
+    //@include smallScroll();
     overflow-y: scroll;
     .user_group_add {
       span {
@@ -523,7 +523,7 @@ async function modUser(index: number) {
   .list_user {
     width: calc(100% - $fontSize * 20);
     //height: 100%;
-    @include smallScroll();
+    //@include smallScroll();
     overflow-y: scroll;
     > div {
       font-size: $fontSize;
