@@ -177,6 +177,7 @@ async function btn_nodeStatistics() {
   const res = await query<api_statistics_node>("setting/get_node_stat", {});
   // console.info(res);
   let statHtml = '';
+  let invalid = false;
   if (res) {
     let sTable: string[] = [];
     res.suffix.sort((a, b) => {
@@ -233,15 +234,16 @@ ${dTable.join('')}
 </div>`;
   } else {
     statHtml = 'not valid';
+    invalid = true;
   }
   const modalStore = useModalStore();
   modalStore.set({
     title: "success",
     text: statHtml,
-    w: statHtml == 'not valid' ? 400 : 768,
-    h: statHtml == 'not valid' ? 120 : 690,
-    minW: statHtml == 'not valid' ? 400 : 768,
-    minH: statHtml == 'not valid' ? 120 : 690,
+    w: invalid ? 400 : 768,
+    h: invalid ? 120 : 690,
+    minW: invalid ? 400 : 768,
+    minH: invalid ? 120 : 690,
     allow_resize: false,
     callback: {
       refresh: async function (modal) {

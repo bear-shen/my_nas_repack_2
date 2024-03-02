@@ -334,7 +334,7 @@ function setRotate(deg) {
   // }
   kvStore.set('image_rotate', props.curNode.id, curR);
   Object.assign(imgLayout.value, layout);
-  console.info(layout);
+  // console.info(layout);
   fitImg();
 }
 </script>
