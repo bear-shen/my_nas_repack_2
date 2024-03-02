@@ -266,10 +266,12 @@ export class opModule {
                 break;
         }
         this.nodeList.value.forEach((node, index) => {
-            let selected = false;
-            if (selIndexLs.has(index)) selected = true;
-            if (this.preSelectedNodeIndexSet.has(index)) selected = true;
-            node._selected = selected;
+            let selected: number = 0;
+            if (this.preSelectedNodeIndexSet.has(index)) selected += 1;
+            if (selIndexLs.has(index)) selected += 1;
+            // if (node._selected && selected) selected = false;
+            node._selected = selected === 1;
+            // console.info(node._selected);
         });
         this.lastSelectIndex = newSelectIndex;
         //只要选中就显示吧
@@ -311,10 +313,11 @@ export class opModule {
         // console.info(selIndexLs);
         const selIndexLs = this.getSelection(this.selectingOffset);
         this.nodeList.value.forEach((node, index) => {
-            let selected = false;
-            if (selIndexLs.has(index)) selected = true;
-            if (this.preSelectedNodeIndexSet.has(index)) selected = true;
-            node._selected = selected;
+            let selected: number = 0;
+            if (this.preSelectedNodeIndexSet.has(index)) selected += 1;
+            if (selIndexLs.has(index)) selected += 1;
+            // if (node._selected && selected) selected = false;
+            node._selected = selected === 1;
             // console.info(node._selected);
         });
         //lastSelectIndex计算
@@ -474,8 +477,8 @@ export class opModule {
                 method: (e: MouseEvent) => {
                     console.info('Recover', e);
                     //recover是delete重做一次
-                    if (isBath) opFunctionModule.op_bath_delete(idSet, nodeLs,true);
-                    else opFunctionModule.op_bath_delete(nodeLs[0],[],true);
+                    if (isBath) opFunctionModule.op_bath_delete(idSet, nodeLs, true);
+                    else opFunctionModule.op_bath_delete(nodeLs[0], [], true);
                 },
             },
             {
@@ -784,7 +787,7 @@ export class opModule {
         //更新路由的时候会产生一个offset为0的scroll事件，直接跳过0
         if (!offset[0] && !offset[1]) return;
         GenFunc.debounce(() => {
-            kvStore.set('scroll_log',key, offset);
+            kvStore.set('scroll_log', key, offset);
         }, Config.timeouts.scrollSave, 'debounce_scroll_save');
     }
 
@@ -800,7 +803,7 @@ export class opModule {
             query.tag_id ? query.tag_id : '',
         ].join(':');
         // const path = this.route.fullPath;
-        const ifLogExs = await kvStore.get('scroll_log',key);
+        const ifLogExs = await kvStore.get('scroll_log', key);
         if (!ifLogExs) return;
         // console.info(path, ifLogExs);
         this.contentDOM.scrollTop = ifLogExs[0];
@@ -976,10 +979,10 @@ export class opFunctionModule {
         return res;
     }
 
-    public static async op_bath_delete(idSet: Set<number>, nodeLs?: api_node_col[],isRecover?:boolean=false) {
+    public static async op_bath_delete(idSet: Set<number>, nodeLs?: api_node_col[], isRecover?: boolean = false) {
         if (!opModuleVal) return;
         opModuleVal.modalStore.set({
-            title: `confirm to ${isRecover?'recover':'delete'} ${idSet.size} files`,
+            title: `confirm to ${isRecover ? 'recover' : 'delete'} ${idSet.size} files`,
             alpha: false,
             key: "",
             single: false,
@@ -992,7 +995,7 @@ export class opFunctionModule {
             allow_move: true,
             allow_fullscreen: false,
             auto_focus: true,
-            text: "conform to "+(isRecover?'recover':'delete'),
+            text: "conform to " + (isRecover ? 'recover' : 'delete'),
             callback: {
                 confirm: async (modal) => {
                     // console.info(modal);
@@ -1150,10 +1153,10 @@ export class opFunctionModule {
         let query: api_file_list_req = {};
         //按文件夹排序需要crumb
         query.with = 'crumb,file';
-        if(idArr.length==1){
+        if (idArr.length == 1) {
             query.mode = 'directory';
             query.pid = idArr[0];
-        }else{
+        } else {
             query.mode = 'id_iterate';
             query.keyword = idArr.join(',');
         }
