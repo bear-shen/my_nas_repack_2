@@ -3,12 +3,12 @@ INSERT INTO `user` VALUES (1, 1, 'admin', 'admin@hentai.gov', 'c3284d0f94606de1f
 --
 INSERT INTO `user_group` VALUES (1, 'admin', 'admin group', 1, 1, '{\"allow\":[],\"deny\":[]}', '2020-11-08 03:47:11', '2024-02-20 17:03:59');
 --
-INSERT INTO `settings` VALUES (12, 'suffix.video', '[\"mp4\",\"avi\",\"mkv\",\"m4a\",\"3gp\",\"flv\",\"hlv\",\"rm\",\"rmvb\"]\n', 1, '2024-03-02 19:45:39', '2024-03-02 19:45:41');
-INSERT INTO `settings` VALUES (13, 'suffix.audio', '[\"wav\",\"flac\",\"mp3\",\"aac\"]\n', 1, '2024-03-02 19:45:52', '2024-03-02 19:47:16');
-INSERT INTO `settings` VALUES (14, 'suffix.image', '[\"jpg\",\"png\",\"jpeg\",\"tif\",\"tiff\",\"bmp\",\"gif\",\"webp\"]\n', 1, '2024-03-02 19:45:54', '2024-03-02 19:47:13');
-INSERT INTO `settings` VALUES (15, 'suffix.text', '[\"txt\",\"html\",\"json\",\"sql\",\"csv\",\"htm\",\"conf\",\"md\",\"log\"]\n', 1, '2024-03-02 19:45:56', '2024-03-02 19:47:20');
-INSERT INTO `settings` VALUES (16, 'suffix.subtitle', '[\"vtt\",\"ass\",\"ssa\",\"sub\",\"srt\",\"pjs\"]\n', 1, '2024-03-02 19:46:10', '2024-03-02 19:47:24');
-INSERT INTO `settings` VALUES (17, 'suffix.pdf', '[\"pdf\"]\n', 1, '2024-03-02 19:46:17', '2024-03-02 19:47:25');
+INSERT INTO `settings` VALUES (12, 'suffix.video', '[\"mp4\",\"avi\",\"mkv\",\"m4a\",\"3gp\",\"flv\",\"hlv\",\"rm\",\"rmvb\"]', 1, '2024-03-02 19:45:39', '2024-03-02 19:45:41');
+INSERT INTO `settings` VALUES (13, 'suffix.audio', '[\"wav\",\"flac\",\"mp3\",\"aac\"]', 1, '2024-03-02 19:45:52', '2024-03-02 19:47:16');
+INSERT INTO `settings` VALUES (14, 'suffix.image', '[\"jpg\",\"png\",\"jpeg\",\"tif\",\"tiff\",\"bmp\",\"gif\",\"webp\"]', 1, '2024-03-02 19:45:54', '2024-03-02 19:47:13');
+INSERT INTO `settings` VALUES (15, 'suffix.text', '[\"txt\",\"html\",\"json\",\"sql\",\"csv\",\"htm\",\"conf\",\"md\",\"log\"]', 1, '2024-03-02 19:45:56', '2024-03-02 19:47:20');
+INSERT INTO `settings` VALUES (16, 'suffix.subtitle', '[\"vtt\",\"ass\",\"ssa\",\"sub\",\"srt\",\"pjs\"]', 1, '2024-03-02 19:46:10', '2024-03-02 19:47:24');
+INSERT INTO `settings` VALUES (17, 'suffix.pdf', '[\"pdf\"]', 1, '2024-03-02 19:46:17', '2024-03-02 19:47:25');
 INSERT INTO `settings` VALUES (18, 'import_ignore', '[\"thumbs.db\",\"_MACOSX\",\"desktop.ini\"]', 1, '2024-03-02 19:59:02', '2024-03-02 19:59:02');
 INSERT INTO `settings` VALUES (19, 'parser.ffProgram', '\"ffmpeg -v quiet -hide_banner\"', 1, '2024-03-02 20:05:42', '2024-03-02 20:08:55');
 INSERT INTO `settings` VALUES (20, 'parser.subtitle.format', '\"vtt\"', 1, '2024-03-02 20:08:54', '2024-03-02 20:10:11');
