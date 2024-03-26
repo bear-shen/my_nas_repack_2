@@ -41,6 +41,7 @@ export function query<K>(
             if (xhr.status >= 400)
                 return throwError(`${xhr.status}:${xhr.statusText}`);
             const res = JSON.parse(xhr.responseText);
+            console.info(res);
             switch (res.code) {
                 case 10:
                     throwLogin();
@@ -65,9 +66,10 @@ export function query<K>(
         if (user && user.token) xhr.setRequestHeader('Auth-Token', user.token);
         xhr.send(formData);
     })
-};
+}
 
 export function throwLogin() {
+    console.info('throwLogin');
     const modalStore = useModalStore();
     modalStore.set({
         title: "login required",

@@ -1,5 +1,5 @@
 //return true to keep
-import type {Ref} from "vue";
+import type { Ref, UnwrapRef } from 'vue'
 
 export type ModalCallbackFunc = (modal: ModalStruct) => Promise<true | any> | void;
 
@@ -41,7 +41,7 @@ export type ModalLayout = {
     fullscreen: boolean;
 }
 export type ModalContent = {
-    text: Ref<string>;
+    text: Ref;
     form: Array<ModalFormConstruct>;
     component: Array<ModalComponentConstruct>;
 };

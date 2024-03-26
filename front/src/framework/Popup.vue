@@ -24,6 +24,7 @@ const modalList = ref(new Map<string, ModalStruct>());
 const gap = 20;
 
 function buildModal(modal: ModalConstruct): ModalStruct {
+  // console.info('buildModal');
   const diffStamp = Math.floor((new Date().valueOf() - initTimestamp) / 100);
   const iw = window.innerWidth;
   const ih = window.innerHeight;
@@ -258,7 +259,7 @@ window.addEventListener("resize", (e) => {
 const modalStore = useModalStore();
 modalStore.handleEvent("set", (modal: ModalConstruct) => {
   //
-  let exsNid = "0";
+  let exsNid = null;
   let curModal = null;
   if (modal.single) {
     modalList.value.forEach((value, key, map) => {
@@ -272,7 +273,7 @@ modalStore.handleEvent("set", (modal: ModalConstruct) => {
     toggleActive(exsNid);
   } else {
     curModal = buildModal(modal);
-    modalList.value.set(curModal.nid, curModal);
+    modalList.value.set(curModal.nid, curModal as ModalStruct);
     toggleActive(curModal.nid);
   }
   checkAlpha();
