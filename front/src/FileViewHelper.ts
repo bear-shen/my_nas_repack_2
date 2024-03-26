@@ -306,12 +306,12 @@ export class opModule {
     }
 
     public mouseMoveEvt(e: MouseEvent) {
+        // console.info('mouseMoveEvt', this.selecting);
         if (!this.selecting) return;
         // console.info(e);
         //有时候click会触发到mousemove事件，做个防抖
         this.selectingMovEvtCount += 1;
         if (this.selectingMovEvtCount < 10) return;
-        // console.info('mouseMoveEvt', this.selecting);
         e.preventDefault();
         this.selectingOffset[1] = [e.x + (this.contentDOM?.scrollLeft ?? 0), e.y + (this.contentDOM?.scrollTop ?? 0),];
         // console.info(selIndexLs);
@@ -1249,7 +1249,7 @@ export class opFunctionModule {
         let selRes: { nodeLs: api_node_col[], idSet: Set<number> } = opModuleVal.getSelected();
         // console.info(selRes);
         if (onSelNode && !selRes.idSet.size) {
-            selRes.idSet.add(onSelNode.id*1);
+            selRes.idSet.add(onSelNode?.id??0);
             selRes.nodeLs.push(onSelNode);
         }
         // console.info(selRes);

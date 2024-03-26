@@ -293,6 +293,7 @@ function emp(e: Event) {
 <style scoped lang="scss">
 @import "../assets/variables";
 .node_node {
+  //touch-action: none;
   &:hover, &.select {
     background-color: map-get($colors, bk_active);
   }
