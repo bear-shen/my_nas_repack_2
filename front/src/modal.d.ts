@@ -41,7 +41,7 @@ export type ModalLayout = {
     fullscreen: boolean;
 }
 export type ModalContent = {
-    text: string | Ref<string>;
+    text: Ref<string>;
     form: Array<ModalFormConstruct>;
     component: Array<ModalComponentConstruct>;
 };
@@ -55,8 +55,7 @@ export type ModalCallbackConstruct = {
     key: string;
     name: string;
     func: ModalCallbackFunc;
-}
-    ;
+};
 export type ModalStruct = {
     //nid的作用是映射map
     nid: string;
@@ -65,7 +64,7 @@ export type ModalStruct = {
     content: ModalContent;
     callback: Array<ModalCallbackConstruct>;
     closed: boolean;
-}
+};
 export type ModalConstruct = {
     // base
     title: string;

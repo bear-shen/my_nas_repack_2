@@ -8,6 +8,7 @@ import Browser from "@/popupComponents/browser.vue";
 import Locator from "@/popupComponents/locator.vue";
 import Uploader from "@/popupComponents/uploader.vue";
 import RenameUtil from "@/popupComponents/renameUtil.vue";
+import type {Ref} from "vue";
 
 const componentDefs = {
   helloWorld: HelloWorldVue,
@@ -27,7 +28,7 @@ function buildModal(modal: ModalConstruct): ModalStruct {
   const iw = window.innerWidth;
   const ih = window.innerHeight;
   // console.info(diffStamp);
-  const target = {
+  const target:ModalStruct = {
     nid: "",
     base: {
       title: modal.title ?? "",
@@ -52,13 +53,13 @@ function buildModal(modal: ModalConstruct): ModalStruct {
       fullscreen: false,
     },
     content: {
-      text: "",
+      text: ref(""),
       form: [],
       component: [],
     },
     callback: [],
     closed: false,
-  } as ModalStruct;
+  };
   target.nid = (diffStamp + Math.random()).toString(32);
   console.info(diffStamp, target.nid);
   //layout
@@ -79,8 +80,12 @@ function buildModal(modal: ModalConstruct): ModalStruct {
   layout.fullscreen = modal.fullscreen ?? false;
   Object.assign(target.layout, layout);
   // content
-  if (modal.text) {
-    target.content.text = modal.text;
+  if (modal.text){
+    if(typeof modal.text==="string") {
+      target.content.text.value = modal.text;
+    }else {
+      target.content.text= modal.text;
+    }
   }
   if (modal.form) {
     if (Array.isArray(modal.form)) {
@@ -253,7 +258,7 @@ window.addEventListener("resize", (e) => {
 const modalStore = useModalStore();
 modalStore.handleEvent("set", (modal: ModalConstruct) => {
   //
-  let exsNid = 0;
+  let exsNid = "0";
   let curModal = null;
   if (modal.single) {
     modalList.value.forEach((value, key, map) => {
@@ -366,7 +371,7 @@ let resizing = {
 
 let pointerId = 0;
 
-function onResizeStart(modalNid: string, e: MouseEvent | PointerEvent) {
+function onResizeStart(modalNid: string, e: PointerEvent) {
   // console.info('onResizeStart', modalNid, e);
   e.preventDefault();
   e.stopPropagation();
@@ -398,12 +403,12 @@ function onResizeStart(modalNid: string, e: MouseEvent | PointerEvent) {
 
 }
 
-function onResizing(e: MouseEvent | PointerEvent) {
+function onResizing(e: PointerEvent) {
   // console.info('onResizing', e);
   e.preventDefault();
   // e.stopPropagation();
   if (!resizing.modal) return;
-  if (!e.pointerId && pointerId != e.pointerId) return;
+  if (!e.pointerId || pointerId != e.pointerId) return;
   // console.info(e.type);
   const d = {x: e.clientX - resizing.x, y: e.clientY - resizing.y};
   const t = {
@@ -488,11 +493,11 @@ function onResizing(e: MouseEvent | PointerEvent) {
   );
 }
 
-function onResizeEnd(e: MouseEvent | PointerEvent) {
+function onResizeEnd(e: PointerEvent) {
   // console.info('onResizeEnd', e);
   e.preventDefault();
   e.stopPropagation();
-  if (!e.pointerId && pointerId != e.pointerId) return;
+  if (!e.pointerId || pointerId != e.pointerId) return;
   // console.info(e.type);
   // document.removeEventListener("mouseup", onResizeEnd);
   // document.removeEventListener("mousemove", onResizing);

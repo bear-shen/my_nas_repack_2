@@ -117,7 +117,7 @@ async function op_dblclick(evt: MouseEvent) {
 
 let lastClick = (new Date()).valueOf();
 
-async function op_click(evt: MouseEvent | PointerEvent) {
+async function op_click(evt: PointerEvent) {
   // console.info('op_click', evt);
   const now = (new Date()).valueOf();
   const delta = now - lastClick;

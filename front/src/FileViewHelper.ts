@@ -131,8 +131,8 @@ export class opModule {
     public lastSelectIndex = -1;
 
     //
-    public reloadOffset_timer = 0;
-    public reloadOffset_count = 0;
+    public reloadOffset_timer:number|ReturnType<typeof setTimeout> = 0;
+    public reloadOffset_count :number= 0;
 
     /**
      * 仅仅在内容页面中启用多选
@@ -482,7 +482,7 @@ export class opModule {
                     console.info('Recover', e);
                     //recover是delete重做一次
                     if (isBath) opFunctionModule.op_bath_delete(idSet, nodeLs, true);
-                    else opFunctionModule.op_bath_delete(nodeLs[0], [], true);
+                    else opFunctionModule.op_delete(nodeLs[0], true);
                 },
             },
             {
@@ -709,11 +709,14 @@ export class opModule {
             if (!node._dom) loaded = false;
         });
         clearTimeout(this.reloadOffset_timer);
-        if (!loaded) return this.reloadOffset_timer = setTimeout(() => {
-                this.reloadOffset_count += 1;
-                this.reloadOffset(e);
-            }, Config.timeouts.offsetDebounce
-        );
+        if (!loaded) {
+            this.reloadOffset_timer = setTimeout(() => {
+                  this.reloadOffset_count += 1
+                  this.reloadOffset(e)
+              }, Config.timeouts.offsetDebounce
+            );
+            return;
+        }
         //
         // 这边因为布局的关系offsetParent直接就是body，不需要过度优化
         // console.info('resize');
@@ -807,11 +810,11 @@ export class opModule {
             query.tag_id ? query.tag_id : '',
         ].join(':');
         // const path = this.route.fullPath;
-        const ifLogExs = await kvStore.get('scroll_log', key);
+        const ifLogExs:number[] = await kvStore.get('scroll_log', key) as unknown as number[];
         if (!ifLogExs) return;
         // console.info(path, ifLogExs);
-        this.contentDOM.scrollTop = ifLogExs[0];
-        this.contentDOM.scrollLeft = ifLogExs[1];
+        this.contentDOM.scrollTop = ifLogExs[0]??0;
+        this.contentDOM.scrollLeft = ifLogExs[1]??0;
     }
 
     public reloadLazyLoad() {
@@ -974,7 +977,7 @@ export class opFunctionModule {
         } as ModalConstruct);
     }
 
-    public static async op_delete(node: api_node_col) {
+    public static async op_delete(node: api_node_col, isRecover: boolean = false) {
         const formData = new FormData();
         formData.set('id', `${node.id}`);
         const res = await query<api_file_delete_resp>('file/delete', formData);
@@ -983,7 +986,7 @@ export class opFunctionModule {
         return res;
     }
 
-    public static async op_bath_delete(idSet: Set<number>, nodeLs?: api_node_col[], isRecover?: boolean = false) {
+    public static async op_bath_delete(idSet: Set<number>, nodeLs?: api_node_col[], isRecover: boolean = false) {
         if (!opModuleVal) return;
         opModuleVal.modalStore.set({
             title: `confirm to ${isRecover ? 'recover' : 'delete'} ${idSet.size} files`,
@@ -1159,7 +1162,7 @@ export class opFunctionModule {
         query.with = 'crumb,file';
         if (idArr.length == 1) {
             query.mode = 'directory';
-            query.pid = idArr[0];
+            query.pid = `${idArr[0]}`;
         } else {
             query.mode = 'id_iterate';
             query.keyword = idArr.join(',');
@@ -1246,7 +1249,7 @@ export class opFunctionModule {
         let selRes: { nodeLs: api_node_col[], idSet: Set<number> } = opModuleVal.getSelected();
         // console.info(selRes);
         if (onSelNode && !selRes.idSet.size) {
-            selRes.idSet.add(onSelNode.id);
+            selRes.idSet.add(onSelNode.id*1);
             selRes.nodeLs.push(onSelNode);
         }
         // console.info(selRes);
