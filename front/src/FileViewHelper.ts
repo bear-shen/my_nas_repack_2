@@ -75,9 +75,12 @@ export class opModule {
         this.reloadOffset = this.reloadOffset.bind(this);
         this.scrollEvt = this.scrollEvt.bind(this);
         addEventListener('contextmenu', this.contextMenuEvt);
-        addEventListener('mousedown', this.mouseDownEvt);
-        addEventListener('mousemove', this.mouseMoveEvt);
-        addEventListener('mouseup', this.mouseUpEvt);
+        // addEventListener('mousedown', this.mouseDownEvt);
+        // addEventListener('mousemove', this.mouseMoveEvt);
+        // addEventListener('mouseup', this.mouseUpEvt);
+        addEventListener('pointerdown', this.mouseDownEvt);
+        addEventListener('pointermove', this.mouseMoveEvt);
+        addEventListener('pointerup', this.mouseUpEvt);
         addEventListener('keydown', this.keymap);
         addEventListener("resize", this.reloadOffset);
 
@@ -280,7 +283,7 @@ export class opModule {
     }
 
     public rightMouseDownEvt(e: MouseEvent) {
-        console.info('rightMouseDownEvt');
+        // console.info('rightMouseDownEvt');
         //定义一下：
         //如果在当前已经选择的文件上右键，弹出已选文件的右键菜单
         //如果在未选择的文件上右键，选择当前文件再弹出菜单
@@ -304,10 +307,11 @@ export class opModule {
 
     public mouseMoveEvt(e: MouseEvent) {
         if (!this.selecting) return;
+        // console.info(e);
         //有时候click会触发到mousemove事件，做个防抖
         this.selectingMovEvtCount += 1;
         if (this.selectingMovEvtCount < 10) return;
-        // console.info('mouseMoveEvt', selecting);
+        // console.info('mouseMoveEvt', this.selecting);
         e.preventDefault();
         this.selectingOffset[1] = [e.x + (this.contentDOM?.scrollLeft ?? 0), e.y + (this.contentDOM?.scrollTop ?? 0),];
         // console.info(selIndexLs);

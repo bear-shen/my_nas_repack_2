@@ -39,7 +39,6 @@ import fs from "node:fs/promises";
 import {splitQuery} from "../../lib/ModelHelper";
 import UserModel from "../../model/UserModel";
 import UserGroupModel from "../../model/UserGroupModel";
-import ORM from "../../lib/ORM";
 
 export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_list_resp> {
@@ -56,10 +55,10 @@ export default class {
         const user = await (new UserModel).where('id', data.uid).first();
         const userGroup = await (new UserGroupModel).where('id', user.id_group).first();
         const userAuth = userGroup.auth;
-        if(userAuth && userAuth.deny) {
+        if (userAuth && userAuth.deny) {
             userAuth.deny.forEach(node => {
                 model.not().whereRaw('find_in_set( ? ,list_node)', node.id)
-                  .where('id', '<>', node.id)
+                    .where('id', '<>', node.id)
             })
         }
         //
@@ -123,12 +122,12 @@ export default class {
                 model.whereRaw('find_in_set(?,list_tag_id)', tagId)
             )
         }
-        let crumbPid=-1;
-        if (request.pid && request.group!='deleted')crumbPid=parseInt(request.pid);
+        let crumbPid = -1;
+        if (request.pid && request.group != 'deleted') crumbPid = parseInt(request.pid);
         // if(request.mode=='id_iterate' && request.keyword.indexOf(',')===-1){
         //     crumbPid=parseInt(request.keyword);
         // }
-        if(crumbPid!==-1){
+        if (crumbPid !== -1) {
             target.path = await buildCrumb(crumbPid);
             if (request.cascade_dir)
                 model.whereRaw('find_in_set(?,list_node)', crumbPid);
@@ -182,7 +181,7 @@ export default class {
         const parentIdSet = new Set<number>();
         const nodeIdSet = new Set<number>();
         nodeLs.forEach(node => {
-            node.rate = Math.round(Math.random() * 10);
+            // node.rate = Math.round(Math.random() * 10);
             nodeIdSet.add(node.id);
             node.list_tag_id.forEach(tagId => {
                 tagIdSet.add(tagId);
@@ -220,7 +219,7 @@ export default class {
         if (nodeIdSet.size) {
             const rateList = await splitQuery(RateModel, Array.from(nodeIdSet), (orm) => {
                 orm.where('id_user', data.uid)
-            });
+            }, ['id_node','rate'], 'id_node');
             const rateMap = new Map<number, number>();
             rateList.forEach(rate => {
                 rateMap.set(rate.id_node, rate.rate);

@@ -389,8 +389,8 @@ function onResizeStart(modalNid: string, e: MouseEvent | PointerEvent) {
   resizing.modalY = resizing.modal.layout.y;
   resizing.modalW = resizing.modal.layout.w;
   resizing.modalH = resizing.modal.layout.h;
-  document.addEventListener("mouseup", onResizeEnd);
-  document.addEventListener("mousemove", onResizing);
+  // document.addEventListener("mouseup", onResizeEnd);
+  // document.addEventListener("mousemove", onResizing);
   // document.addEventListener("pointercancel", onResizeEnd);
   document.addEventListener("pointerup", onResizeEnd);
   document.addEventListener("pointermove", onResizing);
@@ -494,8 +494,8 @@ function onResizeEnd(e: MouseEvent | PointerEvent) {
   e.stopPropagation();
   if (!e.pointerId && pointerId != e.pointerId) return;
   // console.info(e.type);
-  document.removeEventListener("mouseup", onResizeEnd);
-  document.removeEventListener("mousemove", onResizing);
+  // document.removeEventListener("mouseup", onResizeEnd);
+  // document.removeEventListener("mousemove", onResizing);
   // document.removeEventListener("pointercancel", onResizeEnd);
   document.removeEventListener("pointerup", onResizeEnd);
   document.removeEventListener("pointermove", onResizing);
@@ -676,9 +676,8 @@ function keymap(e: KeyboardEvent) {
       }"
       @click="toggleActive(modal.nid)"
     >
-
+<!--      @mousedown="onResizeStart(modal.nid, $event)"-->
       <div class="modal_header"
-           @mousedown="onResizeStart(modal.nid, $event)"
            @pointerdown="onResizeStart(modal.nid, $event)"
            @dblclick="modal.layout.fullscreen?resetWindow(modal.nid):fullscreen(modal.nid)"
       >
@@ -804,9 +803,10 @@ function keymap(e: KeyboardEvent) {
         <!-- <HelloWorld msg="123" /> -->
         <!-- </div> -->
       </div>
+<!--      @mousedown="onResizeStart(modal.nid, $event)"-->
       <div class="modal_border"
            v-if="modal.layout.allow_resize"
-           @mousedown="onResizeStart(modal.nid, $event)"
+
            @pointerdown="onResizeStart(modal.nid, $event)"
       >
         <div class="c_l"></div>

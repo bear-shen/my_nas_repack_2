@@ -104,10 +104,6 @@ function tag_parse(item: api_tag_col) {
   return `${item.group.title} : ${item.title}`;
 }
 
-//双击会触发两次单击，按照m￥的理论只能自己做
-//https://learn.microsoft.com/en-us/dotnet/desktop/winforms/input-mouse/how-to-distinguish-between-clicks-and-double-clicks?view=netdesktop-7.0
-//但是好像。。。也没啥影响
-let lastClick = (new Date()).valueOf();
 
 async function op_dblclick(evt: MouseEvent) {
   console.info('op_dblclick', props.node.id, evt);
@@ -115,7 +111,18 @@ async function op_dblclick(evt: MouseEvent) {
   go('node', props.node.id);
 }
 
+//双击会触发两次单击，按照m￥的理论只能自己做
+//dblclick不能覆盖pointer的情况，所以还是要单独实现
+//https://learn.microsoft.com/en-us/dotnet/desktop/winforms/input-mouse/how-to-distinguish-between-clicks-and-double-clicks?view=netdesktop-7.0
+
+let lastClick = (new Date()).valueOf();
+
 async function op_click(evt: MouseEvent | PointerEvent) {
+  // console.info('op_click', evt);
+  const now = (new Date()).valueOf();
+  const delta = now - lastClick;
+  lastClick = now;
+  // return;
   // console.info(evt);
   switch (evt?.pointerType) {
     default:
@@ -123,7 +130,8 @@ async function op_click(evt: MouseEvent | PointerEvent) {
     case 'pen':
       break;
     case 'touch':
-      await op_dblclick(evt);
+      if (delta < 300)
+        await op_dblclick(evt);
       break;
   }
   // click事件放到fileView做，这边不处理了
