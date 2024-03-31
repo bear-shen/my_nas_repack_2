@@ -46,3 +46,5 @@ server/archive
 /front/tsconfig.node.tsbuildinfo
 /front/tsconfig.tsbuildinfo
 /front/vite.config.d.ts
+/Dockerfile.zzz
+/doc.md

@@ -1,0 +1,14 @@
+<form>
+  <input type="file" id="file" />
+  <button type="button" onclick="submit">submit</button>
+</form>
+<script>
+  function submit() {
+    const fileDOM = document.getElementById("file");
+    if (!fileDOM.files && !fileDOM.files.length) return;
+    const file = fileDOM.files[0];
+    const xmlHttp = new XMLHttpRequest();
+    xmlHttp.open("PUT", location.href + file.name, true);
+    xmlHttp.send(file);
+  }
+</script>
