@@ -1,4 +1,3 @@
-import os from 'os';
 import {type_file} from '../share/Database';
 import fs from "fs";
 import {conn} from "./lib/SQL";
@@ -25,7 +24,7 @@ const BaseConfig = {
     db: {
         host: '127.0.0.1',
         port: 3306,
-        database: 'toshokan',
+        database: 'toshokan2',
         account: 'root',
         password: 'root',
     },
@@ -39,12 +38,20 @@ const BaseConfig = {
     } as { [key: type_file | string]: Array<any> },
     //
     path: {
-        temp: `${os.tmpdir()}/tosho_tmp_${process.pid}`,
-        local: process.cwd() + '/../../file',
-        api: '/file',
+        // temp: `${os.tmpdir()}/tosho_tmp_${process.pid}`,
+        root: '/home/file',
+        api: '/api',
         webdav: '/webdav',
-        root_local: '',
-        // root_local: '/',
+        //prefix_文件夹追加在root之后，路径和源文件夹同步
+        prefix_temp: '_t_',
+        prefix_preview: '_',
+        prefix_normal: '__',
+        prefix_cover: '___',
+        //通过prefix自动构建
+        temp: '',
+        preview: '',
+        normal: '',
+        cover: '',
     },
     //hashFunction: process.cwd() + '/binary/b3sum_linux_x64_bin --no-names {fileName}',
     checksum: [
@@ -139,10 +146,26 @@ const BaseConfig = {
     ] as string[],
 };
 
-fs.mkdirSync(
-    BaseConfig.path.temp,
-    {recursive: true, mode: 0o777}
-);
+try {
+    BaseConfig.path.temp = BaseConfig.path.root + '/' + BaseConfig.path.prefix_temp;
+    fs.mkdirSync(BaseConfig.path.temp, {recursive: true, mode: 0o777});
+} catch (e) {
+}
+try {
+    BaseConfig.path.cover = BaseConfig.path.root + '/' + BaseConfig.path.prefix_cover;
+    fs.mkdirSync(BaseConfig.path.cover, {recursive: true, mode: 0o777});
+} catch (e) {
+}
+try {
+    BaseConfig.path.preview = BaseConfig.path.root + '/' + BaseConfig.path.prefix_preview;
+    fs.mkdirSync(BaseConfig.path.preview, {recursive: true, mode: 0o777});
+} catch (e) {
+}
+try {
+    BaseConfig.path.normal = BaseConfig.path.root + '/' + BaseConfig.path.prefix_normal;
+    fs.mkdirSync(BaseConfig.path.normal, {recursive: true, mode: 0o777});
+} catch (e) {
+}
 
 export let loaded = false;
 export let serverConfig = {};

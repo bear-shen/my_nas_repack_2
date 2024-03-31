@@ -11,22 +11,19 @@ export type col_node = {
     type?: type_file,
     title?: string,
     description?: string,
-    status?: 0 | 1 | -1,//recycle normal deleted
-    building?: 0 | 1 | -1,//complete waiting  error
-    //节点树
-    list_node?: number[],
-    //标签
-    list_tag_id?: number[],
-    //文件
-    index_file_id?: {
-        preview?: number,
-        normal?: number,
-        cover?: number,
-        raw?: number,
-        [key: string]: number | undefined,
+    node_id_list?: number[],
+    node_path?: string,
+    file_index?: {
+        preview?: { size: number, checksum: string[], },
+        normal?: { size: number, checksum: string[], },
+        cover?: { size: number, checksum: string[], },
+        raw?: { size: number, checksum: string[], },
+        [key: string]: { size: number, checksum: string[], },
     },
-    //节点索引
-    index_node?: {
+    status?: number,
+    building?: number,
+    tag_id_list?: [],
+    node_index?: {
         title: string,
         description: string,
         tag: string[],
