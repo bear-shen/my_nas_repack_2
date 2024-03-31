@@ -6,6 +6,7 @@ import * as fs from 'fs/promises';
 
 
 export const selNodeCol = [
+    'id',
     'id_parent',
     'type',
     'title',
@@ -34,7 +35,7 @@ export async function get(input: string | number | col_node): Promise<null | col
         case 'bigint':
         case 'number':
             if (input == 0) return rootNode;
-            const node = await (new NodeModel).where('id', input).first();
+            const node = await (new NodeModel).where('id', input).first(selNodeCol);
             return node;
             break;
         case 'string':
@@ -69,13 +70,17 @@ export async function rm(srcNode: string | number | col_node) {
 export async function rmReal(srcNode: string | number | col_node) {
     const cur = await get(srcNode);
     if (!cur) throw new Error('node not found');
+    // console.info(cur);
     if (cur.type === "directory") {
         const subLs = await ls(cur);
+        // console.info(subLs);
+        // return;
         for (let i1 = 0; i1 < subLs.length; i1++) {
             await rmReal(subLs[i1]);
         }
     }
-    const curPath = cur.node_path + '/' + cur.title;
+    // return;
+    const curPath = mkLocalPath(mkRelPath(cur));
     await fs.rm(curPath, {recursive: true, force: true});
     await (new NodeModel).where('id', cur.id).delete();
 }

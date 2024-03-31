@@ -3,6 +3,7 @@
 import {loadConfig} from '../ServerConfig'
 // import ExtJob from './processor/ExtJob'
 // import StatisticsJob from "./processor/StatisticsJob";
+import * as fp from "../lib/FileProcessor";
 
 console.info('job dev init')
 
@@ -20,6 +21,9 @@ loadConfig().then(async () => {
     // await fp.mv(1,5,'dev15');
     // await fp.mv(5, 1);
     // await fp.mv(1,0);
+    // await fp.rmReal(1);
+    // await fp.rmReal(2);
+    await fp.rm(6);
 
     //
     // let path = 'D:\\exos\\db_eros\\hun\\作品合集 78842939 KASABUTA'
