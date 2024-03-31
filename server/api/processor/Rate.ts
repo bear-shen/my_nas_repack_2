@@ -8,7 +8,7 @@ import RateModel from "../../model/RateModel";
 export default class {
     async attach(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<null | api_rate_attach_resp> {
         const request = data.fields as api_rate_attach_req;
-        const nodeIdArr = request.list_node.split(',');
+        const nodeIdArr = request.node_id_list.split(',');
         // console.info(nodeIdArr);
         for (let i1 = 0; i1 < nodeIdArr.length; i1++) {
             const id = nodeIdArr[i1];

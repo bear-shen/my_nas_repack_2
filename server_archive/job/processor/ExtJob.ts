@@ -19,7 +19,7 @@ class ExtJob {
         let nodeLs: col_node[] = [];
         if (root.type === 'directory') {
             nodeLs = await (new NodeModel)
-                .whereRaw('find_in_set(?,list_node)', root.id)
+                .whereRaw('find_in_set(?,node_id_list)', root.id)
                 .select();
         } else {
             nodeLs = [root];

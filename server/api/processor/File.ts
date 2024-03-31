@@ -25,12 +25,10 @@ import type {
 } from '../../../share/Api';
 import NodeModel from '../../model/NodeModel';
 import GenFunc from '../../lib/GenFunc';
-import {col_file, col_node, col_tag} from '../../../share/Database';
+import {col_node, col_tag} from '../../../share/Database';
 import TagModel from '../../model/TagModel';
 import TagGroupModel from '../../model/TagGroupModel';
-import FileModel from '../../model/FileModel';
 import * as fp from "../../lib/FileProcessor";
-import {get as getConfig} from "../../ServerConfig";
 import QueueModel from "../../model/QueueModel";
 import FavouriteModel from "../../model/FavouriteModel";
 import RateModel from "../../model/RateModel";
@@ -57,7 +55,7 @@ export default class {
         const userAuth = userGroup.auth;
         if (userAuth && userAuth.deny) {
             userAuth.deny.forEach(node => {
-                model.not().whereRaw('find_in_set( ? ,list_node)', node.id)
+                model.not().whereRaw('find_in_set( ? ,node_id_list)', node.id)
                     .where('id', '<>', node.id)
             })
         }
@@ -78,7 +76,7 @@ export default class {
                         `%${request.keyword.trim()}%`
                     );
                     //搜索的时候节点短的在前，姑且先这么定义
-                    model.order('CHAR_LENGTH(list_node)', 'asc');
+                    model.order('CHAR_LENGTH(node_id_list)', 'asc');
                 }
                 break;
             case 'tag':
@@ -93,7 +91,7 @@ export default class {
                     //这样有性能问题，但是没想到什么好办法
                     //考虑到还是书多，所以还是只看 parent
                     // idList.forEach(id =>
-                    //     model.or().whereRaw('find_in_set(?,list_node)', id)
+                    //     model.or().whereRaw('find_in_set(?,node_id_list)', id)
                     // );
                 });
                 break;
@@ -130,7 +128,7 @@ export default class {
         if (crumbPid !== -1) {
             target.path = await buildCrumb(crumbPid);
             if (request.cascade_dir)
-                model.whereRaw('find_in_set(?,list_node)', crumbPid);
+                model.whereRaw('find_in_set(?,node_id_list)', crumbPid);
             else
                 model.where('id_parent', crumbPid);
         }
@@ -144,7 +142,6 @@ export default class {
                     break;
                 case 'file':
                     model.where('type', '!=', 'directory');
-                    break;
                     break;
             }
         }
@@ -186,12 +183,12 @@ export default class {
             node.tag_id_list.forEach(tagId => {
                 tagIdSet.add(tagId);
             });
-            for (const key in node.index_file_id) {
-                if (!Object.prototype.hasOwnProperty.call(node.index_file_id, key)) continue;
-                const fileId = node.index_file_id[key];
-                fileIdSet.add(fileId);
-            }
-            node.list_node.forEach(nodeId => {
+            // for (const key in node.index_file_id) {
+            //     if (!Object.prototype.hasOwnProperty.call(node.index_file_id, key)) continue;
+            //     const fileId = node.index_file_id[key];
+            //     fileIdSet.add(fileId);
+            // }
+            node.node_id_list.forEach(nodeId => {
                 if (nodeId) parentIdSet.add(nodeId);
             });
             node.is_file = node.type === 'directory' ? 0 : 1;
@@ -219,7 +216,7 @@ export default class {
         if (nodeIdSet.size) {
             const rateList = await splitQuery(RateModel, Array.from(nodeIdSet), (orm) => {
                 orm.where('id_user', data.uid)
-            }, ['id_node','rate'], 'id_node');
+            }, ['id_node', 'rate'], 'id_node');
             const rateMap = new Map<number, number>();
             rateList.forEach(rate => {
                 rateMap.set(rate.id_node, rate.rate);
@@ -267,34 +264,6 @@ export default class {
                 });
             });
         }
-        // console.info(withConf.indexOf('file'),fileIdSet.size);
-        if (withConf.indexOf('file') !== -1 && fileIdSet.size) {
-            // console.info('249');
-            const fileLs: col_file[] = await splitQuery(FileModel, Array.from(fileIdSet));
-            const fileMap = GenFunc.toMap(fileLs, 'id');
-            // console.info(fileIdSet.size,fileLs.length,fileMap.size);
-            // let i=0;
-            // fileIdSet.forEach((fileId)=>{
-            //     i++;
-            //     if(fileMap.get(fileId))return;
-            //     console.info(fileId,' not found',i);
-            // })
-            // const tagGroupIdSet = new Set();
-            nodeLs.forEach(node => {
-                node.file = {};
-                for (const key in node.index_file_id) {
-                    if (!Object.prototype.hasOwnProperty.call(node.index_file_id, key)) continue;
-                    const fileId = node.index_file_id[key];
-                    const file = fileMap.get(fileId);
-                    // if(node.id==1263512){
-                    //     console.info(node,fileId,file);
-                    // }
-                    if (!file) continue;
-                    node.file[key] = file;
-                    node.file[key].path = (getConfig()).path.api + fp.getRelPathByFile(file);
-                }
-            });
-        }
         //
         const parentMap = new Map<number, col_node>();
         if (withConf.indexOf('crumb') !== -1) {
@@ -311,7 +280,7 @@ export default class {
             });
             nodeLs.forEach(node => {
                 node.crumb_node = [];
-                node.list_node.forEach(nodeId => {
+                node.node_id_list.forEach(nodeId => {
                     const parentNode = parentMap.get(nodeId);
                     if (parentNode) {
                         node.crumb_node.push(parentNode);
@@ -447,7 +416,7 @@ export default class {
         //     fileIdSet.add(curNode.index_file_id[type]);
         // }
         // if (curNode.type === 'directory') {
-        //     const cascadeNode = await (new NodeModel).whereRaw('find_in_set( ? ,list_node)', curNode.id).select([
+        //     const cascadeNode = await (new NodeModel).whereRaw('find_in_set( ? ,node_id_list)', curNode.id).select([
         //         'id',
         //         'title',
         //         'type',
@@ -609,7 +578,7 @@ async function buildCrumb(pid: number): Promise<col_node[]> {
     const curNode = await model.where('id', pid).first();
     //tree这个是.path下面的，with_crumb是单独节点的
     if (!curNode) return [];
-    const treeNodeIdLs = curNode.list_node;
+    const treeNodeIdLs = curNode.node_id_list;
     const treeNodeLs = await (new NodeModel).whereIn('id', treeNodeIdLs).select();
     const treeNodeMap = GenFunc.toMap(treeNodeLs, 'id');
     const targetLs: col_node[] = [];
@@ -621,7 +590,7 @@ async function buildCrumb(pid: number): Promise<col_node[]> {
                 id_parent: -1,
                 type: 'directory',
                 status: 1,
-                list_node: [],
+                node_id_list: [],
             });
         } else {
             const node = treeNodeMap.get(id);

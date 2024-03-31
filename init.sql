@@ -109,7 +109,7 @@ CREATE TABLE `node`
     `description`   text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci                                                                        NOT NULL DEFAULT '',
     `status`        tinyint(1)                                                                                                                   NOT NULL DEFAULT 1 COMMENT '1 normal 0 recycle -1 delete',
     `building`      tinyint(1)                                                                                                                   NOT NULL DEFAULT 1 COMMENT '0 complete 1 waiting  -1 error',
-    `list_node`     text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci                                                                        NOT NULL DEFAULT '' COMMENT 'node tree, ex: node1,node2,node3 ',
+    `node_id_list`     text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci                                                                        NOT NULL DEFAULT '' COMMENT 'node tree, ex: node1,node2,node3 ',
     `list_tag_id`   text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci                                                                        NOT NULL DEFAULT '' COMMENT 'tag ls, ex: tag1,tag2,tag3',
     `index_file_id` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin                                                                           NOT NULL CHECK (json_valid(`index_file_id`)) COMMENT '{origin:file1,raw:file2,preview:file3}',
     `index_node`    longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin                                                                           NOT NULL CHECK (json_valid(`index_node`)) COMMENT '{title:\"\",description:\"\",tag:[\"\",\"\",],}',

@@ -6,7 +6,6 @@ import NodeModel from '../../model/NodeModel';
 import GenFunc from '../../lib/GenFunc';
 import type {col_node, col_tag, col_tag_group} from '../../../share/Database';
 import TagGroupModel from '../../model/TagGroupModel';
-import FileModel from '../../model/FileModel';
 import * as fp from "../../lib/FileProcessor";
 import ORM from "../../lib/ORM";
 import {ResultSetHeader} from "mysql2";
@@ -44,15 +43,15 @@ export default class {
             id_parent: -1,
             type: 'directory',
             status: 1,
-            list_node: [],
+            node_id_list: [],
         })
         if (nodeIdSet.size) {
             const nodeLs = await (new NodeModel()).whereIn('id', Array.from(nodeIdSet)).select();
             const subNodeIdLs = new Set<number>();
             nodeLs.forEach(node => {
                 nodeMap.set(node.id, node);
-                if (node.list_node)
-                    node.list_node.forEach(nodeId => {
+                if (node.node_id_list)
+                    node.node_id_list.forEach(nodeId => {
                         if (nodeId) subNodeIdLs.add(nodeId);
                     })
             });
@@ -67,8 +66,8 @@ export default class {
             tagGroup.node = nodeMap.get(tagGroup.id_node);
             if (!tagGroup.node) return;
             tagGroup.node.crumb_node = [];
-            if (tagGroup.node.list_node)
-                tagGroup.node.list_node.forEach(nodeId => {
+            if (tagGroup.node.node_id_list)
+                tagGroup.node.node_id_list.forEach(nodeId => {
                     const node = nodeMap.get(nodeId);
                     tagGroup.node.crumb_node.push({
                         id: node.id,

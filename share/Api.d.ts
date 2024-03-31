@@ -382,7 +382,7 @@ export type api_favourite_attach_req = {
 export type api_favourite_attach_resp = col_favourite;
 
 export type api_favourite_bath_attach_req = {
-    list_node?: string,
+    node_id_list?: string,
     list_group?: string,
 } & { [key: string]: any };
 
@@ -416,7 +416,7 @@ export type api_favourite_group_mod_req = {
 export type api_favourite_group_mod_resp = api_favourite_group_mod_req;
 
 export type api_rate_attach_req = {
-    list_node?: string,
+    node_id_list?: string,
     rate?: string,
 } & { [key: string]: any };
 

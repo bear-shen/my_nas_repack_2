@@ -48,7 +48,7 @@ export default class {
                         id_parent: -1,
                         type: 'directory',
                         status: 1,
-                        list_node: [],
+                        node_id_list: [],
                     };
                 }
                 favGroup.node = node;

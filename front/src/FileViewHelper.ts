@@ -1145,7 +1145,7 @@ export class opFunctionModule {
                     // console.info(modal)
                     const groupIdLs = modal.content.form[0].value.join(',');
                     await query<api_favourite_attach_resp>("favourite/bath_attach", {
-                        list_node: Array.from(idSet),
+                        node_id_list: Array.from(idSet),
                         list_group: groupIdLs,
                     });
                 },
@@ -1257,7 +1257,7 @@ export class opFunctionModule {
             node.rate = rateVal;
         });
         const formData = new FormData();
-        formData.set('list_node', Array.from(selRes.idSet).join(','));
+        formData.set('node_id_list', Array.from(selRes.idSet).join(','));
         formData.set('rate', `${rateVal}`);
         const res = await query<api_rate_attach_resp>('rate/attach', formData);
     }

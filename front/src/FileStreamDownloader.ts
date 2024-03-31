@@ -81,9 +81,9 @@ export class FileStreamDownloader {
         }
         this.nodeList.sort((a, b) => {
             let kA = a.type === 'directory' ? '0' : '1';
-            a.list_node.forEach(id => kA += id.toString().padStart(15, '0'))
+            a.node_id_list.forEach(id => kA += id.toString().padStart(15, '0'))
             let kB = b.type === 'directory' ? '0' : '1';
-            b.list_node.forEach(id => kB += id.toString().padStart(15, '0'))
+            b.node_id_list.forEach(id => kB += id.toString().padStart(15, '0'))
             return kA > kB;
         });
         this.nodeList.forEach(node => this.downTotal += node.file?.raw?.size ?? 0);

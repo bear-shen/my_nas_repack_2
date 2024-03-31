@@ -134,7 +134,7 @@ class FileJob {
                                 // description: description,
                                 status: 1,
                                 building: 1,
-                                list_node: node.list_node,
+                                node_id_list: node.node_id_list,
                                 tag_id_list: [],
                                 index_file_id: {raw: nFileInfo.id, normal: nFileInfo.id,},
                                 index_node: {},
@@ -327,9 +327,9 @@ class FileJob {
         const targetNodeList: col_node[] = [];
         if (curNode.type === 'directory') {
             // dirNodeIdList.push(curNode.id);
-            await (new NodeModel).whereRaw('find_in_set( ? ,list_node)', curNode.id).update({status: -1});
+            await (new NodeModel).whereRaw('find_in_set( ? ,node_id_list)', curNode.id).update({status: -1});
             const subNodeList = await (new NodeModel)
-                .whereRaw('find_in_set( ? ,list_node)', curNode.id)
+                .whereRaw('find_in_set( ? ,node_id_list)', curNode.id)
                 .select(['id', 'type', "index_file_id"]);
             subNodeList.forEach(node => targetNodeList.push(node));
         }
@@ -347,7 +347,7 @@ class FileJob {
 async function cascadeCover(nodeId: number) {
     const node = await (new NodeModel()).where('id', nodeId).first();
     if (!node.index_file_id?.cover) return;
-    const nodeLs = node.list_node.reverse();
+    const nodeLs = node.node_id_list.reverse();
     for (let i1 = 0; i1 < nodeLs.length; i1++) {
         if (!nodeLs[i1]) break;
         const pNode = await (new NodeModel()).where('id', nodeLs[i1]).first();

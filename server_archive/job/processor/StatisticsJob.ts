@@ -18,7 +18,7 @@ class Statistics {
                 directory: {
                     nodes: `select count(id) as count
                             from node
-                            where FIND_IN_SET('[id]', list_node);`,
+                            where FIND_IN_SET('[id]', node_id_list);`,
                     files: `select count(id) as count, sum(size) as size
                             from file
                             where id in (select distinct JSON_EXTRACT(node.index_file_id, case jt.rowid when 1 then '$.raw' when 2 then '$.normal' when 3 then '$.preview' else '$.cover' end)
@@ -27,31 +27,31 @@ class Statistics {
                                                   '["raw","normal","preview","cover"]',
                                                   '$[*]' columns (rowid for ordinality, jKey varchar(20) path '$[*]')
                                                   ) as jt
-                                         where FIND_IN_SET('[id]', node.list_node))
+                                         where FIND_IN_SET('[id]', node.node_id_list))
                     ;`,
                     raw: `select count(id) as count, sum(size) as size
                           from file
                           where id in (select distinct JSON_VALUE(index_file_id, '$.raw')
                                        from node
-                                       where FIND_IN_SET('[id]', list_node))
+                                       where FIND_IN_SET('[id]', node_id_list))
                     ;`,
                     normal: `select count(id) as count, sum(size) as size
                              from file
                              where id in (select distinct JSON_VALUE(index_file_id, '$.normal')
                                           from node
-                                          where FIND_IN_SET('[id]', list_node))
+                                          where FIND_IN_SET('[id]', node_id_list))
                     ;`,
                     preview: `select count(id) as count, sum(size) as size
                               from file
                               where id in (select distinct JSON_VALUE(index_file_id, '$.preview')
                                            from node
-                                           where FIND_IN_SET('[id]', list_node))
+                                           where FIND_IN_SET('[id]', node_id_list))
                     ;`,
                     cover: `select count(id) as count, sum(size) as size
                             from file
                             where id in (select distinct JSON_VALUE(index_file_id, '$.cover')
                                          from node
-                                         where FIND_IN_SET('[id]', list_node))
+                                         where FIND_IN_SET('[id]', node_id_list))
                     ;`,
                 }
             }

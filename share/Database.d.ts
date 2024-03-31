@@ -22,7 +22,7 @@ export type col_node = {
     },
     status?: number,
     building?: number,
-    tag_id_list?: [],
+    tag_id_list?: number[],
     node_index?: {
         title: string,
         description: string,

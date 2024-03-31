@@ -55,7 +55,7 @@ export default class {
     async bath_attach(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_favourite_bath_attach_resp> {
         const request = data.fields as api_favourite_bath_attach_req;
         const groupArr = request.list_group.split(',');
-        const nodeArr = request.list_node.split(',');
+        const nodeArr = request.node_id_list.split(',');
         const nodeLs = await (new NodeModel()).whereIn('id', nodeArr).select();
         await (new FavouriteModel())
             .where('id_user', data.uid)
