@@ -144,8 +144,8 @@ foreach ($tagLs as $tagInfo) {
     $tagIdLs[] = (string)intval($ifTagExs['id']);
 }
 //exit();
-if (!empty($curNode['list_tag_id'])) {
-    $preTagLs = explode(',', $curNode['list_tag_id']);
+if (!empty($curNode['tag_id_list'])) {
+    $preTagLs = explode(',', $curNode['tag_id_list']);
     foreach ($preTagLs as $tagId) {
         if (empty($tagId)) continue;
         $tagIdLs[] = (string)intval($tagId);
@@ -155,7 +155,7 @@ if (!empty($curNode['list_tag_id'])) {
 //exit();
 $tagIdLs = array_keys(array_flip($tagIdLs));
 ORM::table('node')->where('id', $curNode['id'])->update([
-    'list_tag_id' => implode(',', $tagIdLs)
+    'tag_id_list' => implode(',', $tagIdLs)
 ]);
 ORM::table('queue')->insert([
     'type'    => 'file/rebuildIndex',

@@ -95,7 +95,7 @@ export default class {
             tagSet.add(tag);
         })
         await (new NodeModel()).where('id', request.id_node).update({
-            list_tag_id: Array.from(tagSet),
+            tag_id_list: Array.from(tagSet),
         });
         await (new QueueModel).insert({
             type: 'file/rebuildIndex',

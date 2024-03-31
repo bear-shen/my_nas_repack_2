@@ -119,7 +119,7 @@ export default class {
         }
         if (request.tag_id) {
             request.tag_id.split(',').forEach(tagId =>
-                model.whereRaw('find_in_set(?,list_tag_id)', tagId)
+                model.whereRaw('find_in_set(?,tag_id_list)', tagId)
             )
         }
         let crumbPid = -1;
@@ -183,7 +183,7 @@ export default class {
         nodeLs.forEach(node => {
             // node.rate = Math.round(Math.random() * 10);
             nodeIdSet.add(node.id);
-            node.list_tag_id.forEach(tagId => {
+            node.tag_id_list.forEach(tagId => {
                 tagIdSet.add(tagId);
             });
             for (const key in node.index_file_id) {
@@ -250,8 +250,8 @@ export default class {
             nodeLs.forEach(node => {
                 node.tag = [];
                 const iTagGroupIdSet = new Set<number>();
-                if (!node.list_tag_id.length) return;
-                node.list_tag_id.forEach(tagId => {
+                if (!node.tag_id_list.length) return;
+                node.tag_id_list.forEach(tagId => {
                     const tag = tagMap.get(tagId);
                     iTagGroupIdSet.add(tag.id_group);
                 });
@@ -260,7 +260,7 @@ export default class {
                     const tagLs: col_tag[] = [];
                     tagMap.forEach(tag => {
                         if (tag.id_group !== tagGroup.id) return;
-                        if (node.list_tag_id.indexOf(tag.id) === -1) return;
+                        if (node.tag_id_list.indexOf(tag.id) === -1) return;
                         tagLs.push(tag);
                     });
                     node.tag.push(Object.assign(tagGroup, {sub: tagLs}));

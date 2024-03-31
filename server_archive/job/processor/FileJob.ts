@@ -135,7 +135,7 @@ class FileJob {
                                 status: 1,
                                 building: 1,
                                 list_node: node.list_node,
-                                list_tag_id: [],
+                                tag_id_list: [],
                                 index_file_id: {raw: nFileInfo.id, normal: nFileInfo.id,},
                                 index_node: {},
                             } as col_node;
@@ -244,8 +244,8 @@ class FileJob {
         else
             node = await (new NodeModel()).where('id', nodeId).first();
         node.index_node.tag = [];
-        if (node.list_tag_id.length) {
-            const tagLs = await (new TagModel).whereIn('id', node.list_tag_id).select();
+        if (node.tag_id_list.length) {
+            const tagLs = await (new TagModel).whereIn('id', node.tag_id_list).select();
             if (tagLs.length) {
                 const tagGroupIdSet = new Set<number>;
                 tagLs.forEach(tag => {
