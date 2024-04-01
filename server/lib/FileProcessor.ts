@@ -126,14 +126,15 @@ export async function mv(
 ) {
     const cur = await get(srcNode);
     if (!cur) throw new Error('node not found');
-    const target = await get(targetDir);
-    if (!target) throw new Error('parentNode not found');
-    if (target.node_id_list.indexOf(cur.id) !== -1)
-        throw new Error('cannot mv to subNode');
     //
     const localPath = mkLocalPath(mkRelPath(cur), 'raw');
     const ifExs = await ifLocalFileExists(localPath);
     if (!ifExs) throw new Error('local node not found');
+    //
+    const target = await get(targetDir);
+    if (!target) throw new Error('parentNode not found');
+    if (target.node_id_list.indexOf(cur.id) !== -1)
+        throw new Error('cannot mv to subNode');
     //
     const targetDirPath = mkRelPath(target);
     const targetDirLocalPath = mkLocalPath(targetDirPath, 'raw');
@@ -195,8 +196,20 @@ export async function mkdir(
     return ifExs;
 }
 
-export function mkRelPath(node: col_node) {
+export function mkRelPath(node: col_node, withPrefix?: 'temp' | 'preview' | 'normal' | 'cover' | 'raw') {
+    const pathConfig = getConfig('path');
+    let pathPrefix = '';
+    switch (withPrefix) {
+        default:
+            break;
+        case 'preview':
+        case 'normal':
+        case 'cover':
+            pathPrefix = pathConfig['prefix_' + withPrefix] + '/';
+            break;
+    }
     const nodePath =
+        pathPrefix +
         //去/
         (node.node_path.length ? node.node_path + '/' : '') +
         //去root
@@ -236,6 +249,49 @@ export async function ifTitleExist(parent: string | number | col_node, title: st
     const parentNode = await get(parent);
     if (!parentNode) throw new Error('parentNode not found');
     return await (new NodeModel).where('id_parent', parentNode.id).where('title', title).first();
+}
+
+export async function buildNodeRelPath(nodeList: col_node[]) {
+    const relNodeIdSet = new Set<number>();
+    for (let i1 = 0; i1 < nodeList.length; i1++) {
+        const node = nodeList[i1];
+        if (node.file_index.rel) relNodeIdSet.add(node.file_index.rel);
+    }
+    if (relNodeIdSet.size) {
+        const relNodeMap = new Map<number, col_node>();
+        const relNodeLs = await (new NodeModel).whereIn('id', Array.from(relNodeIdSet)).select();
+        relNodeLs.forEach(relNode => {
+            relNodeMap.set(relNode.id, relNode);
+        });
+        //
+        for (let i1 = 0; i1 < nodeList.length; i1++) {
+            const node = nodeList[i1];
+            if (node.file_index.rel) {
+                const relNodeId = <number>node.file_index.rel;
+                if (!relNodeMap.has(relNodeId)) continue;
+                node.file_index = relNodeMap.get(relNodeId).file_index;
+            }
+        }
+    }
+    for (let i1 = 0; i1 < nodeList.length; i1++) {
+        const node = nodeList[i1];
+        for (const typeKey in node.file_index) {
+            switch (typeKey) {
+                case 'rel':
+                    break;
+                case 'cover':
+                case 'preview':
+                case 'normal':
+                case 'raw':
+                    node.file_index[typeKey].path = mkRelPath(node, typeKey);
+                    break;
+            }
+        }
+    }
+    return nodeList;
+}
+
+export function match() {
 }
 
 //---------------------- helper ----------------------

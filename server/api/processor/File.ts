@@ -226,15 +226,16 @@ export default class {
                 node.rate = ifExs;
             });
         }
-        //
+        //配置
         let withConf = ['file', 'tag', 'crumb']
+        // console.info(withConf);
         if (request.with && request.with.length) {
             withConf = request.with.split(',');
             if (withConf.indexOf('none') !== -1) {
                 withConf = [];
             }
         }
-        // console.info(withConf);
+        //标签
         if (withConf.indexOf('tag') !== -1 && tagIdSet.size) {
             // console.info(Array.from(tagIdSet));
             const tagLs = await (new TagModel).whereIn('id', Array.from(tagIdSet)).select();
@@ -264,7 +265,7 @@ export default class {
                 });
             });
         }
-        //
+        //面包屑
         const parentMap = new Map<number, col_node>();
         if (withConf.indexOf('crumb') !== -1) {
             if (parentIdSet.size) {
@@ -288,6 +289,9 @@ export default class {
                 });
             });
         }
+        if (withConf.indexOf('file') !== -1) {
+            await fp.buildNodeRelPath(nodeLs);
+        }
         target.list = nodeLs;
         // nodeLs.forEach(item => target.list.push(item));
         // nodeLs.forEach(item => target.list.push(item));
@@ -309,7 +313,7 @@ export default class {
 
     async mov(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<any> {
         const request = data.fields as api_file_mov_req;
-        const fromNode = await (new NodeModel()).where('id', request.node_id).first();
+        // const fromNode = await (new NodeModel()).where('id', request.node_id).first();
         await fp.mv(parseInt(request.node_id), parseInt(request.target_id));
         (new QueueModel).insert({
             type: 'file/rebuildIndex',
@@ -392,12 +396,8 @@ export default class {
 
     async delete(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<false | api_file_delete_resp> {
         const request = data.fields as api_file_delete_req;
-        const curNode = await new NodeModel().where('id', request.id).first();
-        if (!curNode) return;
-        await new NodeModel().where('id', curNode.id).update({
-            status: curNode.status ? 0 : 1,
-        });
-        return curNode;
+        await fp.rm(parseInt(request.id));
+        return;
     }
 
     async delete_forever(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<false | api_file_delete_resp> {

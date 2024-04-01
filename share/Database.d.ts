@@ -14,12 +14,16 @@ export type col_node = {
     node_id_list?: number[],
     node_path?: string,
     file_index?: {
-        //
-        cover?: { size: number, checksum: string[], } | number | null,
-        preview?: { size: number, checksum: string[], } | number | null,
-        normal?: { size: number, checksum: string[], } | number | null,
-        raw?: { size: number, checksum: string[], } | number | null,
-        [key: string]: { size: number, checksum: string[], } | number | null,
+        //这样
+        //rel赋值时为映射的文件id，替换整个file_index
+        //因为只替换一次因此也应该避免迭代
+        //具体的类型实现前端自己进行
+        rel?: number,
+        cover?: { size: number, checksum: string[], path?: string },
+        preview?: { size: number, checksum: string[], path?: string },
+        normal?: { size: number, checksum: string[], path?: string },
+        raw?: { size: number, checksum: string[], path?: string },
+        // [key: string]: { size: number, checksum: string[], path?: string },
     },
     status?: number,
     building?: number,
