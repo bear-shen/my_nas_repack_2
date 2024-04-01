@@ -7,7 +7,7 @@ import File from "./processor/File";
 import User from "./processor/User";
 import Tag from "./processor/Tag";
 import TagGroup from "./processor/TagGroup";
-import Local from "./processor/Local";
+// import Local from "./processor/Local";
 import UserGroup from "./processor/UserGroup";
 import Setting from "./processor/Setting";
 import Log from "./processor/Log";
@@ -24,7 +24,7 @@ const controllers: { [key: string]: any } = {
     favourite_group: FavouriteGroup,
     user: User,
     user_group: UserGroup,
-    local: Local,
+    // local: Local,
     log: Log,
     setting: Setting,
     rate: Rate,

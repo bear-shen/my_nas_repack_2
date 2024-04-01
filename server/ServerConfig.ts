@@ -43,7 +43,7 @@ const BaseConfig = {
         api: '/api',
         webdav: '/webdav',
         //prefix_文件夹追加在root之后，路径和源文件夹同步
-        prefix_temp: '_t_',
+        prefix_temp: '__t',
         prefix_preview: '_',
         prefix_normal: '__',
         prefix_cover: '___',

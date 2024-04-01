@@ -380,12 +380,12 @@ export default class {
         if (!curNode) return;
         const curPNode = await new NodeModel().where('id', curNode.id_parent).first();
         if (!curPNode) return;
-        const coverId = curNode.index_file_id.cover;
+        const coverId = curNode.file_index.cover;
         if (!coverId) return;
+        const fileIndex = curNode.file_index;
+        fileIndex.cover = coverId;
         await new NodeModel().where('id', curNode.id_parent).update({
-            index_file_id: {
-                cover: coverId,
-            },
+            file_index: fileIndex,
         });
         return curNode;
     }
@@ -512,13 +512,11 @@ export default class {
             const id = parseInt(fileId);
             const curNode = await new NodeModel().where('id', id).first();
             if (!curNode) continue;
-            for (const key in curNode.index_file_id) {
-                await (new QueueModel).insert({
-                    type: 'file/checksum',
-                    payload: {id: curNode.index_file_id[key]},
-                    status: 1,
-                });
-            }
+            await (new QueueModel).insert({
+                type: 'file/checksum',
+                payload: {id: curNode.id},
+                status: 1,
+            });
         }
     }
 

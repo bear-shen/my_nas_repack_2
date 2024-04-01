@@ -14,11 +14,12 @@ export type col_node = {
     node_id_list?: number[],
     node_path?: string,
     file_index?: {
-        preview?: { size: number, checksum: string[], },
-        normal?: { size: number, checksum: string[], },
-        cover?: { size: number, checksum: string[], },
-        raw?: { size: number, checksum: string[], },
-        [key: string]: { size: number, checksum: string[], },
+        //
+        cover?: { size: number, checksum: string[], } | number | null,
+        preview?: { size: number, checksum: string[], } | number | null,
+        normal?: { size: number, checksum: string[], } | number | null,
+        raw?: { size: number, checksum: string[], } | number | null,
+        [key: string]: { size: number, checksum: string[], } | number | null,
     },
     status?: number,
     building?: number,

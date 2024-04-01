@@ -67,7 +67,7 @@ loadConfig().then(() => {
     server.listen(config.port.api);
     console.info('server now listen on:', config.port.api);
     console.info('temp dir:', config.path.temp);
-    console.info('file dir:', config.path.local);
+    console.info('file dir:', config.path.root);
 });
 
 function parseForm(req: IncomingMessage): Promise<ParsedForm> {

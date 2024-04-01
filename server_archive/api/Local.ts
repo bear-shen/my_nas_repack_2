@@ -15,9 +15,7 @@ import GenFunc from '../../lib/GenFunc';
 import {col_node, col_tag} from '../../../share/Database';
 import TagModel from '../../model/TagModel';
 import TagGroupModel from '../../model/TagGroupModel';
-import FileModel from '../../model/FileModel';
 import * as fp from "../../lib/FileProcessor";
-import * as lfp from "../../lib/LocalFileProcessor";
 import QueueModel from "../../model/QueueModel";
 
 export default class {

@@ -17,6 +17,7 @@ async function check(url: URL, req: IncomingMessage): Promise<number | true | fa
     // console.info(req.headers);
     if (!req.headers['auth-token']) return false;
     const ifExs = await (new AuthModel).where('token', req.headers['auth-token']).order('id', 'desc').first();
+    // console.info(ifExs);
     if (!ifExs) return false;
     //
     return ifExs.uid;

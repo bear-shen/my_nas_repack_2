@@ -1,16 +1,8 @@
-import {Fields} from 'formidable';
 // import PersistentFile from 'formidable';
 import {IncomingMessage, ServerResponse} from 'http';
 import {ParsedForm} from '../types';
-import NodeModel from '../../model/NodeModel';
-import GenFunc from '../../lib/GenFunc';
-import FileModel from '../../model/FileModel';
-import * as fp from "../../lib/FileProcessor";
-import ORM from "../../lib/ORM";
-import {ResultSetHeader} from "mysql2";
 import type {api_user_group_del_req, api_user_group_del_resp, api_user_group_list_req, api_user_group_list_resp, api_user_group_mod_req, api_user_group_mod_resp} from "../../../share/Api";
 import UserGroupModel from "../../model/UserGroupModel";
-import UserModel from "../../model/UserModel";
 
 export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_user_group_list_req> {

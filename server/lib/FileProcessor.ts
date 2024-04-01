@@ -21,7 +21,41 @@ export const selNodeCol = [
     'time_update',
 ];
 
-export async function put() {
+export async function put(tmpLocalFilePath: string, parent: string | number | col_node, fileName: string) {
+    const parentNode = await get(parent);
+    if (!parentNode) throw new Error('parentNode not found');
+    if (parentNode.type !== 'directory') throw new Error('parentNode is not a directory');
+    //
+    const title = titleFilter(fileName);
+    const type = getType(getSuffix(title))
+    //
+    const upd: col_node = {
+        type: type,
+        title: title,
+        description: '',
+        id_parent: parentNode.id,
+        node_id_list: [...parentNode.node_id_list, parentNode.id],
+        node_path: mkRelPath(parentNode),
+        file_index: {
+            raw: {size: 0, checksum: []}
+        },
+        status: 1,
+        building: 1,
+    };
+    const ifExs = await ifTitleExist(parentNode, title);
+    //
+    const targetLocalPath = mkLocalPath(mkRelPath(upd));
+    await rename(tmpLocalFilePath, targetLocalPath);
+    //
+    if (ifExs) {
+        await (new NodeModel).where('id', ifExs.id).update(upd);
+        upd.id = ifExs.id;
+    } else {
+        await (new NodeModel).insert(upd);
+        upd.id = await (new NodeModel).lastInsertId();
+    }
+    //
+    return upd;
 }
 
 export async function ls(input: string | number | col_node) {
@@ -67,6 +101,7 @@ export async function rm(srcNode: string | number | col_node) {
     });
 }
 
+//@todo 关联文件未处理
 export async function rmReal(srcNode: string | number | col_node) {
     const cur = await get(srcNode);
     if (!cur) throw new Error('node not found');
@@ -97,12 +132,12 @@ export async function mv(
         throw new Error('cannot mv to subNode');
     //
     const localPath = mkLocalPath(mkRelPath(cur), 'raw');
-    const ifExs = await ifFileExists(localPath);
+    const ifExs = await ifLocalFileExists(localPath);
     if (!ifExs) throw new Error('local node not found');
     //
     const targetDirPath = mkRelPath(target);
     const targetDirLocalPath = mkLocalPath(targetDirPath, 'raw');
-    const ifTargetExs = await ifFileExists(targetDirLocalPath);
+    const ifTargetExs = await ifLocalFileExists(targetDirLocalPath);
     if (!ifTargetExs) throw new Error('local target dir not found');
     //
     const upd: col_node = {
@@ -118,21 +153,7 @@ export async function mv(
     let targetNodeLocalPath = mkLocalPath(upd.node_path + '/' + (upd.title ? upd.title : cur.title));
     // console.info('mv to', localPath, targetNodeLocalPath, upd);
     // return;
-    let hasErr;
-    try {
-        await fs.rename(localPath, targetNodeLocalPath);
-    } catch (e) {
-        hasErr = e;
-    }
-    if (hasErr) {
-        try {
-            await fs.cp(localPath, targetNodeLocalPath, {recursive: true, force: true});
-            await fs.rm(localPath, {recursive: true, force: true});
-        } catch (e) {
-            hasErr = false;
-        }
-    }
-    if (hasErr) throw hasErr;
+    await rename(localPath, targetNodeLocalPath);
     //
     await (new NodeModel).where('id', cur.id).update(upd);
 }
@@ -151,7 +172,7 @@ export async function mkdir(
         'raw'
     );
     //
-    if (!await ifFileExists(localPath)) {
+    if (!await ifLocalFileExists(localPath)) {
         await fs.mkdir(localPath, {recursive: true, mode: 0o666});
     }
     let newNode: col_node = {}
@@ -184,7 +205,7 @@ export function mkRelPath(node: col_node) {
     return nodePath;
 }
 
-export async function ifFileExists(localPath: string) {
+export async function ifLocalFileExists(localPath: string) {
     try {
         await fs.access(localPath);
         return true;
@@ -218,6 +239,30 @@ export async function ifTitleExist(parent: string | number | col_node, title: st
 }
 
 //---------------------- helper ----------------------
+export async function rename(srcPath: string, targetPath: string) {
+    let hasErr;
+    //
+    hasErr = null;
+    try {
+        await fs.rename(srcPath, targetPath);
+        return true;
+    } catch (e) {
+        hasErr = e;
+    }
+    //
+    hasErr = null;
+    try {
+        await fs.cp(srcPath, targetPath, {recursive: true, force: true});
+        await fs.rm(srcPath, {recursive: true, force: true});
+        return true;
+    } catch (e) {
+        hasErr = false;
+    }
+    //
+    if (hasErr) throw hasErr;
+    return true;
+}
+
 
 const rootNode: col_node = {
     id: 0,
@@ -282,7 +327,7 @@ export function getType(suffix: string): type_file {
 }
 
 function titleFilter(title: string) {
-    return title.replace(/[\\\/:*?"<>|\r\n\t]/igm, ' ').trim();
+    return title.replace(/[\\\/:*?"<>|\r\n\t\s]+/igm, ' ').trim();
 }
 
 export function pathFilter(path: string) {
