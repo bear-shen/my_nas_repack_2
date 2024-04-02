@@ -161,13 +161,11 @@ class FileJob {
             building: ifErr ? -1 : 0,
         });
         await cascadeCover(node.id);
-        for (const fileKey in node.file_index) {
-            await (new QueueModel).insert({
-                type: 'file/checksum',
-                payload: {id: node.file_index[fileKey], reload: true},
-                status: 1,
-            });
-        }
+        await (new QueueModel).insert({
+            type: 'file/checksum',
+            payload: {id: node.id, reload: true},
+            status: 1,
+        });
     }
 
     /**
