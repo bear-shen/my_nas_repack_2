@@ -116,8 +116,18 @@ export async function rmReal(srcNode: string | number | col_node) {
         }
     }
     // return;
-    const curPath = mkLocalPath(mkRelPath(cur));
-    await fs.rm(curPath, {recursive: true, force: true});
+    //
+    for (const key in cur.file_index) {
+        switch (key) {
+            case 'preview':
+            case 'normal':
+            case 'cover':
+            case 'raw':
+                const curPath = mkLocalPath(mkRelPath(cur, key));
+                await fs.rm(curPath, {recursive: true, force: true});
+                break;
+        }
+    }
     await (new NodeModel).where('id', cur.id).delete();
 }
 
@@ -130,23 +140,32 @@ export async function mv(
     //
     const localPath = mkLocalPath(mkRelPath(cur, 'raw'));
     const ifExs = await ifLocalFileExists(localPath);
-    console.info(localPath, ifExs);
+    // console.info(localPath, ifExs);
     if (!ifExs) throw new Error('local node not found');
     //不输入target的时候只进行重命名，这个用于批量处理
     if (targetDir == -1) {
         if (!targetTitle) throw new Error('no title');
+        //
         const upd: col_node = {
             title: titleFilter(targetTitle),
-        }
-        //
-        let targetNodeLocalPath = mkLocalPath(mkRelPath({
-            id: cur.id,
-            title: upd.title,
             node_path: cur.node_path,
-        }));
+        };
+        // let targetNodeLocalPath = mkLocalPath(mkRelPath(upd));
         // console.info('mv to', localPath, targetNodeLocalPath, upd);
         // return;
-        await rename(localPath, targetNodeLocalPath);
+        for (const key in cur.file_index) {
+            switch (key) {
+                case 'preview':
+                case 'normal':
+                case 'cover':
+                case 'raw':
+                    let curNodeLocalPath = mkLocalPath(mkRelPath(cur, key));
+                    let targetNodeLocalPath = mkLocalPath(mkRelPath(upd, key));
+                    await rename(curNodeLocalPath, targetNodeLocalPath);
+                    break;
+            }
+        }
+        // await rename(localPath, targetNodeLocalPath);
         //
         await (new NodeModel).where('id', cur.id).update(upd);
         return;
@@ -170,12 +189,22 @@ export async function mv(
         upd.title = titleFilter(targetTitle);
         if (!upd.title) throw new Error('invalid title');
         upd.description = targetDescription;
+    } else {
+        upd.title = cur.title;
     }
     //
-    let targetNodeLocalPath = mkLocalPath(upd.node_path + '/' + (upd.title ? upd.title : cur.title));
-    // console.info('mv to', localPath, targetNodeLocalPath, upd);
-    // return;
-    await rename(localPath, targetNodeLocalPath);
+    for (const key in cur.file_index) {
+        switch (key) {
+            case 'preview':
+            case 'normal':
+            case 'cover':
+            case 'raw':
+                let curNodeLocalPath = mkLocalPath(mkRelPath(cur, key));
+                let targetNodeLocalPath = mkLocalPath(mkRelPath(upd, key));
+                await rename(curNodeLocalPath, targetNodeLocalPath);
+                break;
+        }
+    }
     //
     await (new NodeModel).where('id', cur.id).update(upd);
 }

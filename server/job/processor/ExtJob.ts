@@ -7,6 +7,7 @@ import {RequestOptions} from "https";
 import http from "http";
 import {col_node} from "../../../share/Database";
 import QueueModel from "../../model/QueueModel";
+import fs from "node:fs/promises";
 
 const exec = util.promisify(require('child_process').exec);
 
@@ -26,18 +27,22 @@ class ExtJob {
         }
         for (let i1 = 0; i1 < nodeLs.length; i1++) {
             const node = nodeLs[i1];
-            if (!node.index_file_id) continue;
-            if (!node.index_file_id.raw) continue;
-            if (!node.index_file_id.normal) continue;
-            if (node.index_file_id.normal === node.index_file_id.raw) continue;
-            const rawFId = node.index_file_id.raw;
-            node.index_file_id.raw = node.index_file_id.normal;
-            await (new NodeModel).where('id', node.id).update({
-                index_file_id: node.index_file_id,
+            if (!node.file_index) continue;
+            if (!node.file_index.raw) continue;
+            if (!node.file_index.normal) continue;
+            const rawLocalPath = fp.mkLocalPath(fp.mkRelPath(node));
+            await fs.rm(rawLocalPath, {
+                // recursive:true,
+                force: true,
             });
-            const ifExs = await fp.checkOrphanFile(rawFId)
-            if (ifExs) continue;
-            await fp.rmReal(rawFId);
+            const targetIndex=node.file_index;
+            delete targetIndex.raw;
+            await (new NodeModel).where('id', node.id).update({
+                file_index:targetIndex,
+            });
+            // const ifExs = await fp.checkOrphanFile(rawFId)
+            // if (ifExs) continue;
+            // await fp.rmReal(rawFId);
         }
         return;
     }

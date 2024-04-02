@@ -1,6 +1,5 @@
 import NodeModel from '../../model/NodeModel';
-import {col_file, col_node, col_tag_group} from '../../../share/Database';
-import FileModel from '../../model/FileModel';
+import {col_node, col_tag_group} from '../../../share/Database';
 import * as fp from "../../lib/FileProcessor";
 import * as FFMpeg from '../../lib/FFMpeg';
 import {get as getConfig} from "../../ServerConfig";
@@ -35,7 +34,7 @@ class FileJob {
         // const rawFilePath = Config.path.local + fp.getRelPathByFile(rawFile);
         // const conf = Config.parser;
         //
-        let parsedFile: col_file | boolean;
+        let parsedFile: col_node | boolean;
         // console.info(node);
         switch (node.type) {
             case 'audio':
@@ -119,7 +118,7 @@ class FileJob {
                         const ifDup = await (new NodeModel()).where('id_parent', node.id_parent).where('title', subNodeTitle).first();
                         if (ifDup) continue;
                         //
-                        let nFileInfo: col_file;
+                        let nFileInfo: col_node;
                         try {
                             const tmpFilePath = await genTmpPath(parserConfig.format);
                             const exeStr = parseFFStr(ffStr, filePath, tmpFilePath);
@@ -214,7 +213,7 @@ class FileJob {
     static async checksum(payload: { [key: string]: any }): Promise<any> {
         const fileId = payload.id;
         const ifReload = payload.reload;
-        let file: col_file;
+        let file: col_node;
         if (typeof fileId === 'object')
             file = fileId;
         else
@@ -377,7 +376,7 @@ async function deleteNodeForever(nodeLs: col_node[]) {
     }
 }
 
-async function execSharp(file: col_file, type: string,): Promise<col_file | boolean> {
+async function execSharp(file: col_node, type: string,): Promise<col_node | boolean> {
     /*@todo
      * sharp跑了一下分发现性能确实有提升但是提升的有限
      * 本来以为是cli跑ff需要频繁启动耗时导致的慢
@@ -387,7 +386,7 @@ async function execSharp(file: col_file, type: string,): Promise<col_file | bool
 }
 
 
-async function execFFmpeg(file: col_file, type: string,): Promise<col_file | boolean> {
+async function execFFmpeg(file: col_node, type: string,): Promise<col_node | boolean> {
     const filePath = getConfig().path.local + fp.getRelPathByFile(file);
     const meta = await FFMpeg.loadMeta(filePath);
     // console.info('===============================');
@@ -427,7 +426,7 @@ async function execFFmpeg(file: col_file, type: string,): Promise<col_file | boo
     }
     if (typeof ffStr === 'boolean') return ffStr;
     // let format = conf.audio.format;
-    let nFileInfo: col_file;
+    let nFileInfo: col_node;
     // console.info(ffStr,);
     try {
         const tmpFilePath = await genTmpPath(parserConfig.format);
@@ -443,7 +442,7 @@ async function execFFmpeg(file: col_file, type: string,): Promise<col_file | boo
 }
 
 async function genTmpPath(suffix: string) {
-    const uuid = await fp.getUUID();
+    const uuid = fp.uuid();
     return getConfig().path.temp + '/t_' + uuid + '.' + suffix;
 }
 
