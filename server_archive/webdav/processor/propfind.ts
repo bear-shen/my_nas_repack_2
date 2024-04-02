@@ -38,7 +38,7 @@ export default async function (req: IncomingMessage, res: ServerResponse) {
     let depth = Number.parseInt(req.headers.depth ? req.headers.depth as string : '0');
     // console.info(depth);
     let fileLs = [] as (fp.FileStat & { relPath: string })[];
-    let dirPath = fp.getDir(relPath);
+    let dirPath = fp.dirname(relPath);
     for (let i1 = 0; i1 <= depth; i1++) {
         if (i1 === 0) {
             const fi = await fp.stat(curNode);

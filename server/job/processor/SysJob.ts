@@ -29,7 +29,7 @@ class SysJob {
             rmLs.push('rm:'+ path);
             await fs.rm(path);
             do {
-                path = await fp.getDir(path);
+                path = await fp.dirname(path);
                 const subLs = await fs.readdir(path);
                 if (subLs.length) break;
                 console.info('rmdir:', path);

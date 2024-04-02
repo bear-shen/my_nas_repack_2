@@ -18,7 +18,7 @@ export default async function (req: IncomingMessage, res: ServerResponse) {
     const targetRelPath = getRelPath((req.headers.destination as string), req.headers.host, res);
     if (!targetRelPath) return;
     const targetName = fp.getName(targetRelPath);
-    const targetDirPath = fp.getDir(targetRelPath);
+    const targetDirPath = fp.dirname(targetRelPath);
     const targetDirNodeLs = await fp.relPath2node(targetDirPath);
     if (!targetDirNodeLs) return respCode(404, res);
     const targetDirNode = targetDirNodeLs[targetDirNodeLs.length - 1];

@@ -1,6 +1,8 @@
 import {SessionDef} from "../types";
 import {basename, buildTemplate, dirname, getRelPath} from "../Lib";
 import * as fp from "../../lib/FileProcessor";
+import {dirname} from "../../lib/FileProcessor";
+import {basename} from "../../../server/lib/FileProcessor";
 
 export async function execute(session: SessionDef, buffer: Buffer) {
     let targetPath = buffer.toString();

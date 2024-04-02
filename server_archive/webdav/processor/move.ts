@@ -20,7 +20,7 @@ export default async function (req: IncomingMessage, res: ServerResponse) {
     const targetNode = await fp.relPath2node(targetRelPath);
     if (targetNode && !overwrite) return respCode(409, res);
     //
-    const targetDirPath = fp.getDir(targetRelPath);
+    const targetDirPath = fp.dirname(targetRelPath);
     const targetName = fp.getName(targetRelPath);
     const targetDir = await fp.relPath2node(targetDirPath);
     if (!targetDir) return respCode(403, res);

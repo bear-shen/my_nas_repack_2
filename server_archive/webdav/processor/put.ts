@@ -9,7 +9,7 @@ export default async function (req: IncomingMessage, res: ServerResponse) {
     const relPath = getRelPath(req.url, req.headers.host, res);
     if (!relPath) return respCode(404, res);
     // console.info('put:2');
-    const targetNodeLs = await fp.relPath2node(fp.getDir(relPath));
+    const targetNodeLs = await fp.relPath2node(fp.dirname(relPath));
     if (!targetNodeLs) return respCode(404, res);
     // console.info('put:3');
     const targetFileName = fp.getName(relPath);

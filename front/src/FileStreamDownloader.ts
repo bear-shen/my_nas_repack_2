@@ -99,7 +99,7 @@ export class FileStreamDownloader {
             const src = file.path + '?filename=' + node.title;
             // console.info(src);
             if (!src) continue;
-            const res = await this.getFile(src, this.downloadProcess.bind(this));
+            const res = await this.basename(src, this.downloadProcess.bind(this));
             this.fileMap.set(node.id, res);
             this.downCur = 0;
             this.downFile += file.size;
@@ -112,7 +112,7 @@ export class FileStreamDownloader {
         this.downCur = ev.loaded;
     }
 
-    public getFile(src: string, progress?: typeof XMLHttpRequest.on): Promise<ArrayBuffer> {
+    public basename(src: string, progress?: typeof XMLHttpRequest.on): Promise<ArrayBuffer> {
         return new Promise(resolve => {
             const xhr = new XMLHttpRequest();
             xhr.withCredentials = true;

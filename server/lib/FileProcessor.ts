@@ -21,42 +21,60 @@ export const selNodeCol = [
     'time_update',
 ];
 
-export async function put(tmpLocalFilePath: string, parent: string | number | col_node, fileName: string) {
+/**
+ * 已存在文件时会根据 fileKey 自动替换文件
+ * 主要用于生成文件
+ * */
+export async function put(
+    tmpLocalFilePath: string,
+    parent: string | number | col_node, fileName: string,
+    fileKey: 'preview' | 'normal' | 'cover' | 'raw' = 'raw'
+) {
     const parentNode = await get(parent);
     if (!parentNode) throw new Error('parentNode not found');
     if (parentNode.type !== 'directory') throw new Error('parentNode is not a directory');
     //
     const title = titleFilter(fileName);
-    const type = getType(getSuffix(title))
+    const type = getType(extension(title))
     //
-    const upd: col_node = {
-        type: type,
-        title: title,
-        description: '',
-        id_parent: parentNode.id,
-        node_id_list: [...parentNode.node_id_list, parentNode.id],
-        node_path: mkRelPath(parentNode),
-        file_index: {
-            raw: {size: 0, checksum: []}
-        },
-        status: 1,
-        building: 1,
-    };
     const ifExs = await ifTitleExist(parentNode, title);
     //
-    const targetLocalPath = mkLocalPath(mkRelPath(upd));
-    console.info(upd, tmpLocalFilePath, targetLocalPath);
+    const targetLocalPath = mkLocalPath(mkRelPath({
+        title: title,
+        node_path: mkRelPath(parentNode),
+    }, fileKey));
+    console.info(tmpLocalFilePath, targetLocalPath);
     await rename(tmpLocalFilePath, targetLocalPath);
     //
+    let res: col_node;
     if (ifExs) {
-        await (new NodeModel).where('id', ifExs.id).update(upd);
-        upd.id = ifExs.id;
+        const targetFileIndex = ifExs.file_index;
+        targetFileIndex[fileKey] = {size: 0, checksum: [],};
+        await (new NodeModel).where('id', ifExs.id).update({
+            file_index: targetFileIndex
+        });
+        res = ifExs;
     } else {
-        await (new NodeModel).insert(upd);
-        upd.id = await (new NodeModel).lastInsertId();
+        //
+        const ins: col_node = {
+            type: type,
+            title: title,
+            description: '',
+            id_parent: parentNode.id,
+            node_id_list: [...parentNode.node_id_list, parentNode.id],
+            node_path: mkRelPath(parentNode),
+            file_index: {
+                raw: {size: 0, checksum: []}
+            },
+            status: 1,
+            building: 1,
+        };
+        await (new NodeModel).insert(ins);
+        ins.id = await (new NodeModel).lastInsertId();
+        res = ins;
     }
     //
-    return upd;
+    return res;
 }
 
 export async function ls(input: string | number | col_node) {
@@ -340,12 +358,19 @@ export async function buildNodeRelPath(nodeList: col_node[]) {
     return nodeList;
 }
 
-export function match() {
-}
-
-//---------------------- helper ----------------------
+/**
+ * 文件夹不存在时会自动创建文件夹
+ * */
 export async function rename(srcPath: string, targetPath: string) {
     let hasErr;
+    const targetDir = dirname(targetPath);
+    const ifDirExs = await ifLocalFileExists(targetDir);
+    if (!ifDirExs) {
+        await fs.mkdir(targetDir, {
+            recursive: true,
+            mode: 0o666,
+        });
+    }
     //
     hasErr = null;
     try {
@@ -368,6 +393,12 @@ export async function rename(srcPath: string, targetPath: string) {
     return true;
 }
 
+export function genTmpPath(suffix: string) {
+    const uuidFN = uuid();
+    return getConfig().path.temp + '/' + uuid + '.' + suffix;
+}
+
+//---------------------- helper ----------------------
 
 const rootNode: col_node = {
     id: 0,
@@ -394,22 +425,28 @@ export function uuid(): string {
     return crypto.randomBytes(24).toString("base64url");
 }
 
-export function getDir(filePath: string): string {
-    filePath = filePath.replace(/\/$/, '');
+export function dirname(filePath: string): string {
+    filePath = rtrimSlash(filePath);
     const lastSlash = filePath.lastIndexOf('/');
     return filePath.substring(0, lastSlash);
 }
 
-export function getFile(filePath: string): string {
-    filePath = filePath.replace(/\/$/, '');
+export function basename(filePath: string): string {
+    filePath = rtrimSlash(filePath);
     const lastSlash = filePath.lastIndexOf('/');
     return filePath.substring(lastSlash + 1);
 }
 
-export function getSuffix(fileName: string): string {
-    const ifSlash = fileName.lastIndexOf('/');
+export function filename(filePath: string): string {
+    const fileName = basename(filePath);
     const suffixOffset = fileName.lastIndexOf('.');
-    if (ifSlash >= suffixOffset) return '';
+    //
+    return fileName.slice(0,suffixOffset);
+}
+
+export function extension(filePath: string): string {
+    const fileName = basename(filePath);
+    const suffixOffset = fileName.lastIndexOf('.');
     //
     let suffix = '';
     if (suffixOffset > 0) {
@@ -448,12 +485,13 @@ export function trimSlash(str: string) {
 }
 
 export function ltrimSlash(str: string) {
+    str = str.trim();
     if (str.indexOf('/') !== 0) return str;
     return ltrimSlash(str.substring(1, str.length));
 }
 
 export function rtrimSlash(str: string) {
+    str = str.trim();
     if (str.lastIndexOf('/') !== str.length - 1) return str;
     return rtrimSlash(str.substring(0, str.length - 1));
 }
-

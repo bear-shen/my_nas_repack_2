@@ -6,7 +6,7 @@ import QueueModel from "../../model/QueueModel";
 export default async function (req: IncomingMessage, res: ServerResponse) {
     const relPath = getRelPath(req.url, req.headers.host, res);
     if (!relPath) return;
-    const parentDir = await fp.relPath2node(fp.getDir(relPath));
+    const parentDir = await fp.relPath2node(fp.dirname(relPath));
     if (!parentDir) return respCode(403, res);
     const mkRes = await fp.mkdir(parentDir[parentDir.length - 1].id, fp.getName(relPath));
     if (mkRes)
