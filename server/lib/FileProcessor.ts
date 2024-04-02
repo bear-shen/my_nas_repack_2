@@ -45,6 +45,7 @@ export async function put(tmpLocalFilePath: string, parent: string | number | co
     const ifExs = await ifTitleExist(parentNode, title);
     //
     const targetLocalPath = mkLocalPath(mkRelPath(upd));
+    console.info(upd, tmpLocalFilePath, targetLocalPath);
     await rename(tmpLocalFilePath, targetLocalPath);
     //
     if (ifExs) {
@@ -127,17 +128,36 @@ export async function mv(
     const cur = await get(srcNode);
     if (!cur) throw new Error('node not found');
     //
-    const localPath = mkLocalPath(mkRelPath(cur), 'raw');
+    const localPath = mkLocalPath(mkRelPath(cur, 'raw'));
     const ifExs = await ifLocalFileExists(localPath);
+    console.info(localPath, ifExs);
     if (!ifExs) throw new Error('local node not found');
-    //
+    //不输入target的时候只进行重命名，这个用于批量处理
+    if (targetDir == -1) {
+        if (!targetTitle) throw new Error('no title');
+        const upd: col_node = {
+            title: titleFilter(targetTitle),
+        }
+        //
+        let targetNodeLocalPath = mkLocalPath(mkRelPath({
+            id: cur.id,
+            title: upd.title,
+            node_path: cur.node_path,
+        }));
+        // console.info('mv to', localPath, targetNodeLocalPath, upd);
+        // return;
+        await rename(localPath, targetNodeLocalPath);
+        //
+        await (new NodeModel).where('id', cur.id).update(upd);
+        return;
+    }
     const target = await get(targetDir);
     if (!target) throw new Error('parentNode not found');
     if (target.node_id_list.indexOf(cur.id) !== -1)
         throw new Error('cannot mv to subNode');
     //
     const targetDirPath = mkRelPath(target);
-    const targetDirLocalPath = mkLocalPath(targetDirPath, 'raw');
+    const targetDirLocalPath = mkLocalPath(targetDirPath);
     const ifTargetExs = await ifLocalFileExists(targetDirLocalPath);
     if (!ifTargetExs) throw new Error('local target dir not found');
     //
@@ -148,6 +168,7 @@ export async function mv(
     };
     if (targetTitle.length) {
         upd.title = titleFilter(targetTitle);
+        if (!upd.title) throw new Error('invalid title');
         upd.description = targetDescription;
     }
     //
@@ -169,8 +190,7 @@ export async function mkdir(
     const ifExs = await ifTitleExist(parentNode, title);
     const parentPath = mkRelPath(parentNode);
     const localPath = mkLocalPath(
-        parentPath.length ? parentPath + '/' + title : title,
-        'raw'
+        parentPath.length ? parentPath + '/' + title : title
     );
     //
     if (!await ifLocalFileExists(localPath)) {
@@ -196,6 +216,16 @@ export async function mkdir(
     return ifExs;
 }
 
+export async function ifLocalFileExists(localPath: string) {
+    try {
+        await fs.access(localPath);
+        return true;
+    } catch (e: any) {
+        // console.info(e);
+        return false;
+    }
+}
+
 export function mkRelPath(node: col_node, withPrefix?: 'temp' | 'preview' | 'normal' | 'cover' | 'raw') {
     const pathConfig = getConfig('path');
     let pathPrefix = '';
@@ -208,41 +238,31 @@ export function mkRelPath(node: col_node, withPrefix?: 'temp' | 'preview' | 'nor
             pathPrefix = pathConfig['prefix_' + withPrefix] + '/';
             break;
     }
+    //root单独做一下
+    if (node.id === 0) {
+        return pathPrefix;
+    }
     const nodePath =
         pathPrefix +
         //去/
         (node.node_path.length ? node.node_path + '/' : '') +
-        //去root
-        (node.id ? node.title : '')
+        node.title
     ;
     return nodePath;
 }
 
-export async function ifLocalFileExists(localPath: string) {
-    try {
-        await fs.access(localPath);
-        return true;
-    } catch (e: any) {
-        // console.info(e);
-        return false;
-    }
-}
-
-export function mkLocalPath(
-    fullRelPath: string,
-    method: 'temp' | 'preview' | 'normal' | 'cover' | 'raw' = 'raw'
-) {
+export function mkLocalPath(fullRelPath: string) {
     let ext = '';
     const pathConfig = getConfig('path');
-    switch (method) {
+    /*switch (method) {
         case "temp":
         case "preview":
         case "normal":
         case "cover":
             ext = pathConfig[method];
             break;
-    }
-    return `${ext.length ? ext : pathConfig.root}/${pathFilter(fullRelPath)}`;
+    }*/
+    return `${pathConfig.root}/${pathFilter(fullRelPath)}`;
 }
 
 export async function ifTitleExist(parent: string | number | col_node, title: string) {
@@ -312,7 +332,7 @@ export async function rename(srcPath: string, targetPath: string) {
         await fs.rm(srcPath, {recursive: true, force: true});
         return true;
     } catch (e) {
-        hasErr = false;
+        hasErr = e;
     }
     //
     if (hasErr) throw hasErr;

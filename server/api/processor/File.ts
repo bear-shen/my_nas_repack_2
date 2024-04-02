@@ -380,16 +380,23 @@ export default class {
 
     async cover(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<false | api_file_cover_resp> {
         const request = data.fields as api_file_cover_req;
-        const curNode = await new NodeModel().where('id', request.id).first();
-        if (!curNode) return;
+        let curNode = await new NodeModel().where('id', request.id).first();
+        if (!curNode) throw new Error('node not found');
         const curPNode = await new NodeModel().where('id', curNode.id_parent).first();
         if (!curPNode) return;
-        const coverId = curNode.file_index.cover;
-        if (!coverId) return;
-        const fileIndex = curNode.file_index;
-        fileIndex.cover = coverId;
-        await new NodeModel().where('id', curNode.id_parent).update({
-            file_index: fileIndex,
+        while (curNode.file_index.rel) {
+            curNode = await new NodeModel().where('id', curNode.id).first();
+            if (!curNode) throw new Error('rel node not found');
+            // if (!curNode.file_index.rel) break;
+        }
+        // const coverId = curNode.file_index.cover;
+        // if (!coverId) return;
+        // const fileIndex = curNode.file_index;
+        // fileIndex.cover = coverId;
+        const tFileIndex = curPNode.file_index;
+        tFileIndex.rel = curNode.id;
+        await new NodeModel().where('id', curPNode.id).update({
+            file_index: tFileIndex,
         });
         return curNode;
     }
