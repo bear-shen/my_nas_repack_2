@@ -47,6 +47,7 @@ export async function put(
     }, fileKey));
     console.info(tmpLocalFilePath, targetLocalPath);
     await rename(tmpLocalFilePath, targetLocalPath);
+
     //
     let res: col_node;
     if (ifExs) {
@@ -401,6 +402,7 @@ export async function rename(srcPath: string, targetPath: string) {
     hasErr = null;
     try {
         await fs.rename(srcPath, targetPath);
+        await fs.chmod(targetPath, 0o666);
         return true;
     } catch (e) {
         hasErr = e;
@@ -410,6 +412,7 @@ export async function rename(srcPath: string, targetPath: string) {
     try {
         await fs.cp(srcPath, targetPath, {recursive: true, force: true});
         await fs.rm(srcPath, {recursive: true, force: true});
+        await fs.chmod(targetPath, 0o666);
         return true;
     } catch (e) {
         hasErr = e;
