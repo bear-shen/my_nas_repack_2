@@ -3,7 +3,9 @@ import {get as getConfig} from "../ServerConfig";
 import {col_node, type_file} from "../../share/Database";
 import NodeModel from "../model/NodeModel";
 import * as fs from 'fs/promises';
+import util from "util";
 
+const exec = util.promisify(require('child_process').exec);
 
 export const selNodeCol = [
     'id',
@@ -120,7 +122,6 @@ export async function rm(srcNode: string | number | col_node) {
     });
 }
 
-//@todo 关联文件未处理
 export async function rmReal(srcNode: string | number | col_node) {
     const cur = await get(srcNode);
     if (!cur) throw new Error('node not found');
@@ -147,6 +148,15 @@ export async function rmReal(srcNode: string | number | col_node) {
         }
     }
     await (new NodeModel).where('id', cur.id).delete();
+}
+
+export async function rmFile(srcNode: string | number | col_node, fileKey: 'preview' | 'normal' | 'cover' | 'raw') {
+    const node = await get(srcNode);
+    const localPath = mkLocalPath(mkRelPath(node, fileKey));
+    await fs.rm(localPath, {
+        // recursive:true,
+        force: true,
+    });
 }
 
 export async function mv(
@@ -441,7 +451,7 @@ export function filename(filePath: string): string {
     const fileName = basename(filePath);
     const suffixOffset = fileName.lastIndexOf('.');
     //
-    return fileName.slice(0,suffixOffset);
+    return fileName.slice(0, suffixOffset);
 }
 
 export function extension(filePath: string): string {
@@ -494,4 +504,26 @@ export function rtrimSlash(str: string) {
     str = str.trim();
     if (str.lastIndexOf('/') !== str.length - 1) return str;
     return rtrimSlash(str.substring(0, str.length - 1));
+}
+
+export async function checksum(localPath: string): Promise<string[]> {
+    const checksumExecLs = getConfig('checksum');
+    //
+    let hashArr: string[] = [];
+    for (let i1 = 0; i1 < checksumExecLs.length; i1++) {
+        let hash = ''
+        try {
+            const cmd = `${checksumExecLs[i1]} "${localPath}"`;
+            const {stdout, stderr} = await exec(cmd);
+            hash = stdout.substring(0, stdout.indexOf(' '));
+            // console.info(stdout);
+            // console.info(stdout.split(/\s/));
+            // console.info(stdout.indexOf(' '));
+            // console.info(stdout.indexOf('\t'));
+        } catch (e) {
+            console.info(e);
+        }
+        hashArr.push(hash);
+    }
+    return hashArr;
 }

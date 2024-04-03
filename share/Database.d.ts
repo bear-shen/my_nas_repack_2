@@ -5,6 +5,9 @@ export type type_file = 'audio' | 'video' |
     'text' | 'subtitle' |
     'pdf' | 'directory';
 
+export type col_node_file_index = { size: number, checksum: string[], path?: string };
+
+
 export type col_node = {
     id?: number,
     id_parent?: number,
@@ -19,10 +22,10 @@ export type col_node = {
         //因为只替换一次因此也应该避免迭代
         //具体的类型实现前端自己进行
         rel?: number,
-        cover?: { size: number, checksum: string[], path?: string },
-        preview?: { size: number, checksum: string[], path?: string },
-        normal?: { size: number, checksum: string[], path?: string },
-        raw?: { size: number, checksum: string[], path?: string },
+        cover?: col_node_file_index,
+        preview?: col_node_file_index,
+        normal?: col_node_file_index,
+        raw?: col_node_file_index,
         // [key: string]: { size: number, checksum: string[], path?: string },
     },
     status?: number,
@@ -36,22 +39,6 @@ export type col_node = {
     time_create?: string,
     time_update?: string,
 }
-
-export type col_file = {
-    id?: number,
-    uuid?: string,
-    suffix?: string,
-    size?: number,
-    // meta?: { [key: string]: any },
-    status?: 0 | 1,
-    checksum?: string,
-    time_create?: string,
-    time_update?: string,
-}
-
-export type col_file_with_path = {
-    path?: string,
-} & col_file
 
 export type col_user_group = {
     id?: number,

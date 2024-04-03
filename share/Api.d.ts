@@ -1,4 +1,4 @@
-import {col_favourite, col_favourite_group, col_file_with_path, col_node, col_queue, col_tag, col_tag_group, col_user, col_user_group, type_file} from './Database';
+import {col_favourite, col_favourite_group, col_node, col_queue, col_tag, col_tag_group, col_user, col_user_group, type_file} from './Database';
 
 export type api_node_col = {
     rate?: number,
@@ -83,7 +83,7 @@ export type api_file_list_req = {
     rate?: string,
     // detail: string,
     with?: 'file' | 'tag' | 'crumb' | 'none' | string,
-    group?: 'directory' | 'deleted'  | string,
+    group?: 'directory' | 'deleted' | string,
     // favourite?: string,
     // no_file?: string,
     // no_tag?: string,
