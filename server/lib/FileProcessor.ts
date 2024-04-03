@@ -430,7 +430,7 @@ export function genTmpPath(suffix: string) {
 
 //---------------------- helper ----------------------
 
-const rootNode: col_node = {
+export const rootNode: col_node = {
     id: 0,
     id_parent: 0,
     type: 'directory',

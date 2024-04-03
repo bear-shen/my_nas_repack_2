@@ -120,8 +120,7 @@ async function mkParentNode(path: string, root: col_node): Promise<col_node> {
 }
 
 async function scanLoop(src: string): Promise<any[]> {
-    return [];
-    /*const curLs = await fp.ls(src);
+    const curLs = await fp.ls(src);
     const subTLs = [] as api_local_file_statement[];
     const targetLs = [];
     for (let i1 = 0; i1 < curLs.length; i1++) {
@@ -132,5 +131,5 @@ async function scanLoop(src: string): Promise<any[]> {
         }
     }
     subTLs.forEach(item => curLs.push(item));
-    return curLs;*/
+    return curLs;
 }

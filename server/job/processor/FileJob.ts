@@ -224,11 +224,12 @@ class FileJob {
 
     static async buildIndex(payload: { [key: string]: any }): Promise<any> {
         const nodeId = payload.id;
-        let node: col_node;
-        if (typeof nodeId === 'object')
-            node = nodeId;
-        else
-            node = await (new NodeModel()).where('id', nodeId).first();
+        let node: col_node = await fp.get(parseInt(nodeId))
+        if (!node.node_index) node.node_index = {
+            tag: [],
+            title: '',
+            description: '',
+        };
         node.node_index.tag = [];
         if (node.tag_id_list.length) {
             const tagLs = await (new TagModel).whereIn('id', node.tag_id_list).select();
@@ -309,12 +310,15 @@ async function cascadeCover(nodeId: number) {
     if (!node.file_index?.cover) return;
     const nodeLs = node.node_id_list.reverse();
     for (let i1 = 0; i1 < nodeLs.length; i1++) {
-        if (!nodeLs[i1]) break;
-        const pNode = await (new NodeModel()).where('id', nodeLs[i1]).first();
+        const pNodeId = nodeLs[i1];
+        if (!pNodeId) break;
+        const pNode = await (new NodeModel()).where('id', pNodeId).first();
         if (!pNode) break;
-        if (pNode.file_index.cover) break;
-        await (new NodeModel()).where('id', nodeLs[i1]).update({
-            file_index: Object.assign(pNode.file_index, {cover: node.file_index.cover})
+        if (pNode.file_index.rel) break;
+        await (new NodeModel()).where('id', pNodeId).update({
+            file_index: {
+                rel: node.id,
+            }
         });
     }
 }

@@ -1,8 +1,9 @@
 import FileJob from "./processor/FileJob";
-import ImportJob from "./processor/ImportJob";
-import SysJob from "./processor/SysJob";
+// import ImportJob from "./processor/ImportJob";
+// import SysJob from "./processor/SysJob";
 import ExtJob from "./processor/ExtJob";
 import StatisticsJob from "./processor/StatisticsJob";
+import SyncJob from "./processor/SyncJob";
 
 /**
  * @notice 考虑到现在队列是用worker跑
@@ -15,8 +16,9 @@ export default {
     'file/rebuild': FileJob.rebuild,
     'file/rebuildIndex': FileJob.rebuildIndex,
     'file/deleteForever': FileJob.deleteForever,
-    'import/run': ImportJob.run,
-    'sys/scanOrphanFile': SysJob.scanOrphanFile,
+    // 'import/run': ImportJob.run,
+    'sync/run': SyncJob.run,
+    // 'sys/scanOrphanFile': SysJob.scanOrphanFile,
     'ext/cascadeTag': ExtJob.cascadeTag,
     'ext/rmRaw': ExtJob.rmRaw,
     'ext/importEHT': ExtJob.importEHT,
