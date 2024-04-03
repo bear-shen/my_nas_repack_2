@@ -33,12 +33,12 @@ export async function execute(session: SessionDef, buffer: Buffer) {
     ws.close();
     const putRes = await fp.put(reqTmpFilePath, targetDir, targetFileName);
     if (putRes) {
-        (new QueueModel()).insert({
+        (new QueueModel).insert({
             type: 'file/build',
             payload: {id: putRes.id},
             status: 1,
         });
-        (new QueueModel()).insert({
+        (new QueueModel).insert({
             type: 'file/buildIndex',
             payload: {id: putRes.id},
             status: 1,

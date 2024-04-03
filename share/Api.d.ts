@@ -113,8 +113,8 @@ export type api_file_mkdir_req = {
 export type api_file_mkdir_resp = col_node;
 
 export type api_file_mov_req = {
-    node_id: string,
-    target_id: string,
+    id_node: string,
+    id_target: string,
 }
 export type api_file_mov_resp = {}
 

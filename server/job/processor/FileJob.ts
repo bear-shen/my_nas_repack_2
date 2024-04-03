@@ -300,10 +300,7 @@ class FileJob {
     }
 
     static async deleteForever(payload: { [key: string]: any }): Promise<any> {
-        if (!payload.id) {
-            throw new Error('id not found');
-        }
-        await fp.rmReal(payload.id)
+        await fp.rmReal(parseInt(payload.id))
     }
 }
 

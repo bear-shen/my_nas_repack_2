@@ -143,8 +143,9 @@ export async function rmReal(srcNode: string | number | col_node) {
             case 'normal':
             case 'cover':
             case 'raw':
-                const curPath = mkLocalPath(mkRelPath(cur, key));
-                await fs.rm(curPath, {recursive: true, force: true});
+                const localPath = mkLocalPath(mkRelPath(cur, key));
+                if (!await ifLocalFileExists(localPath)) break;
+                await fs.rm(localPath, {recursive: true, force: true});
                 break;
         }
     }

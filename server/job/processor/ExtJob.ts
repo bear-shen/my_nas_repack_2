@@ -99,7 +99,7 @@ class ExtJob {
         // console.info(stdout, stderr);
         await (new QueueModel).insert({
             type: 'file/rebuildIndex',
-            payload: {id: payload.id},
+            payload: {id: parseInt(payload.id)},
             status: 1,
         });
     }

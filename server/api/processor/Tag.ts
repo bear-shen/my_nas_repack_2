@@ -99,7 +99,7 @@ export default class {
         });
         await (new QueueModel).insert({
             type: 'file/rebuildIndex',
-            payload: {id: request.id_node},
+            payload: {id: parseInt(request.id_node)},
             status: 1,
         });
         return;

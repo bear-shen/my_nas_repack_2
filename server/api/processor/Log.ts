@@ -7,7 +7,7 @@ export default class {
 
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_queue_list_resp> {
         const request = data.fields as api_queue_list_req;
-        const model = new QueueModel();
+        const model = new QueueModel;
         console.info(request);
         if (request.id) {
             model.where('id', request.id);

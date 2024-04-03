@@ -19,12 +19,12 @@ export default async function (req: IncomingMessage, res: ServerResponse) {
     const putRes = await fp.put(tmpFilePath, targetNodeLs[targetNodeLs.length - 1], targetFileName);
     // console.info('put:6 ', targetFileName);
     if (putRes) {
-        (new QueueModel()).insert({
+        (new QueueModel).insert({
             type: 'file/build',
             payload: {id: putRes.id},
             status: 1,
         });
-        (new QueueModel()).insert({
+        (new QueueModel).insert({
             type: 'file/buildIndex',
             payload: {id: putRes.id},
             status: 1,

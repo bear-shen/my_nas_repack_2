@@ -919,11 +919,11 @@ export class opFunctionModule {
                         query: {
                             type: 'directory',
                         } as api_file_list_req,
-                        call: async (node: api_node_col) => {
+                        call: async (target: api_node_col) => {
                             // console.info(node);
                             const formData = new FormData();
-                            formData.set('node_id', `${node.id}`);
-                            formData.set('target_id', `${node.id}`);
+                            formData.set('id_node', `${node.id}`);
+                            formData.set('id_target', `${target.id}`);
                             const res = await query<api_file_mov_req>('file/mov', formData);
                             if (opModuleVal) opModuleVal.emitGo('reload');
                         }
