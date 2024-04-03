@@ -3,7 +3,7 @@ import {useModalStore} from "@/stores/modalStore";
 import {useEventStore} from "@/stores/event";
 import {onMounted, onUnmounted, ref,} from "vue";
 import type {ModalCallbackConstruct, ModalConstruct, ModalLayout, ModalStruct,} from "@/modal";
-import HelloWorldVue from "@/components/HelloWorld.vue";
+// import HelloWorldVue from "@/components/HelloWorld.vue";
 import Browser from "@/popupComponents/browser.vue";
 import Locator from "@/popupComponents/locator.vue";
 import Uploader from "@/popupComponents/uploader.vue";
@@ -11,7 +11,7 @@ import RenameUtil from "@/popupComponents/renameUtil.vue";
 import type {Ref} from "vue";
 
 const componentDefs = {
-  helloWorld: HelloWorldVue,
+  // helloWorld: HelloWorldVue,
   fileBrowser: Browser,
   uploader: Uploader,
   locator: Locator,

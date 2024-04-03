@@ -53,16 +53,16 @@ const routes = [
             deny_guest: true,
         },
     },
-    {
-        path: '/local',
-        name: 'Local',
-        component: () => import('@/views/LocalView.vue'),
-        meta: {
-            icon: 'sysIcon_yingpan1',
-            deny_user: true,
-            deny_guest: true,
-        },
-    },
+    // {
+    //     path: '/local',
+    //     name: 'Local',
+    //     component: () => import('@/views/LocalView.vue'),
+    //     meta: {
+    //         icon: 'sysIcon_yingpan1',
+    //         deny_user: true,
+    //         deny_guest: true,
+    //     },
+    // },
     {
         path: '/log',
         name: 'ProcessLog',
