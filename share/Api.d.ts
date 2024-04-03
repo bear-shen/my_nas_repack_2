@@ -9,11 +9,10 @@ export type api_node_col = {
     //现在总之放crumb_node了
     // tree?: { id: number, title: string }[],
     // file?: {
-    //     preview?: col_file_with_path,
-    //     normal?: col_file_with_path,
-    //     cover?: col_file_with_path,
-    //     raw?: col_file_with_path,
-    //     [key: string]: col_file_with_path | undefined,
+    //     preview?: string,
+    //     normal?: string,
+    //     cover?: string,
+    //     raw?: string,
     // },
     tag?: (
         col_tag_group & {

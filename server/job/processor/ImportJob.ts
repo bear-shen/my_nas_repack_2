@@ -1,7 +1,6 @@
 import NodeModel from '../../model/NodeModel';
 import {col_node} from '../../../share/Database';
 import * as fp from "../../lib/FileProcessor";
-import * as lfp from "../../lib/LocalFileProcessor";
 import util from "util";
 import {api_local_file_statement} from "../../../share/Api";
 import QueueModel from "../../model/QueueModel";
@@ -68,7 +67,7 @@ export default class {
             const parentNode = await mkParentNode(parentDirname, importRoot);
             // const ifDup = (new NodeModel()).where('id_parent', parentNode.id).where('title', item.name).first();
             // if (ifDup) continue;
-            const targetNode = await fp.put(item.path, parentNode, item.name, true);
+            const targetNode = await fp.put(item.path, parentNode, item.name);
             if (!targetNode) continue;
             (new NodeModel).where('id', targetNode.id).update({
                 time_create: item.timeCreated.slice(0, 19).replace('T', ' '),
@@ -107,7 +106,7 @@ async function mkParentNode(path: string, root: col_node): Promise<col_node> {
             .where('title', fp.titleFilter(tree[i1]))
             .first();
         if (!curNode) {
-            const node = await fp.mkdir(lastNode.id, tree[i1], true);
+            const node = await fp.mkdir(lastNode.id, tree[i1]);
             if (!node) throw new Error('error on cascade mkdir');
             lastNode = node;
             continue;
@@ -120,8 +119,9 @@ async function mkParentNode(path: string, root: col_node): Promise<col_node> {
     // const dirNameArr = [];
 }
 
-async function scanLoop(src: string): Promise<api_local_file_statement[]> {
-    const curLs = await lfp.ls(src);
+async function scanLoop(src: string): Promise<any[]> {
+    return [];
+    /*const curLs = await fp.ls(src);
     const subTLs = [] as api_local_file_statement[];
     const targetLs = [];
     for (let i1 = 0; i1 < curLs.length; i1++) {
@@ -132,5 +132,5 @@ async function scanLoop(src: string): Promise<api_local_file_statement[]> {
         }
     }
     subTLs.forEach(item => curLs.push(item));
-    return curLs;
+    return curLs;*/
 }

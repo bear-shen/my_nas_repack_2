@@ -1,9 +1,7 @@
 import util from "util";
 
 import * as fs from 'fs/promises';
-import * as fp from '../../lib/FileProcessor';
 import {get as getConfig} from "../../ServerConfig";
-import FileModel from "../../model/FileModel";
 
 const exec = util.promisify(require('child_process').exec);
 
@@ -13,7 +11,7 @@ class SysJob {
         const fullPath = config.path.local;
         const fileSet = await scanDir(fullPath, true);
         const pathLs = Array.from(fileSet);
-        const rmLs=[];
+        const rmLs = [];
         // console.info(pathLs);
         for (let i1 = 0; i1 < pathLs.length; i1++) {
             let path = pathLs[i1];
@@ -22,7 +20,7 @@ class SysJob {
             //.gitignore .gitkeep 一类的无法解析
             if (!uuid) continue;
             console.info(i1, pathLs[i1], uuid);
-            const file = await (new FileModel).where('uuid', uuid).first();
+            /*const file = await (new FileModel).where('uuid', uuid).first();
             if (file) continue;
             // const stat = await fs.stat(path);
             console.info('rm:', path);
@@ -35,9 +33,10 @@ class SysJob {
                 console.info('rmdir:', path);
                 rmLs.push('rmdir:'+ path);
                 await fs.rmdir(path);
-            } while (path.length > fullPath.length + 1);
+            } while (path.length > fullPath.length + 1);*/
         }
-        return rmLs;
+        return [];
+        // return rmLs;
     }
 
     static async exec(payload: { [key: string]: any }): Promise<any> {

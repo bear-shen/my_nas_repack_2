@@ -86,15 +86,15 @@ export class FileStreamDownloader {
             b.node_id_list.forEach(id => kB += id.toString().padStart(15, '0'))
             return kA > kB;
         });
-        this.nodeList.forEach(node => this.downTotal += node.file?.raw?.size ?? 0);
+        this.nodeList.forEach(node => this.downTotal += node.file_index?.raw?.size ?? 0);
         return this.nodeList;
     }
 
     public async download() {
         for (let i1 = 0; i1 < this.nodeList.length; i1++) {
             const node = this.nodeList[i1];
-            if (!node.file?.raw) continue;
-            const file = node.file?.raw;
+            if (!node.file_index?.raw) continue;
+            const file = node.file_index?.raw;
             if (!file.path) continue;
             const src = file.path + '?filename=' + node.title;
             // console.info(src);

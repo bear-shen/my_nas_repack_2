@@ -24,10 +24,10 @@ const contentDOM: Ref<HTMLElement | null> = ref(null);
 const timelineDOM: Ref<HTMLElement | null> = ref(null);
 const mediaDOM: Ref<HTMLAudioElement | null> = ref(null);
 const resPath: Ref<string> = ref('');
-if (props.curNode?.file?.normal?.path) {
-  resPath.value = `${props.curNode.file?.normal?.path}?filename=${props.curNode.title}`;
+if (props.curNode?.file_index?.normal?.path) {
+  resPath.value = `${props.curNode.file_index?.normal?.path}?filename=${props.curNode.title}`;
 } else {
-  resPath.value = `${props.curNode.file?.raw?.path}?filename=${props.curNode.title}`
+  resPath.value = `${props.curNode.file_index?.raw?.path}?filename=${props.curNode.title}`
 }
 
 // const playModes = ["queue", "loop", "single", "shuffle"];
@@ -138,10 +138,10 @@ onMounted(async () => {
 watch(() => props.curNode, async (to) => {
   onRelease();
   // beforeInit();
-  if (props.curNode?.file?.normal?.path) {
-    resPath.value = `${to.file?.normal?.path}?filename=${to.title}`;
+  if (props.curNode?.file_index?.normal?.path) {
+    resPath.value = `${to.file_index?.normal?.path}?filename=${to.title}`;
   } else {
-    resPath.value = `${to.file?.raw?.path}?filename=${to.title}`
+    resPath.value = `${to.file_index?.raw?.path}?filename=${to.title}`
   }
   // setTimeout(() => {
     if (mediaDOM.value) mediaDOM.value?.load();
@@ -365,8 +365,8 @@ function parseTime(t: number) {
       </template>
       <!--      <template v-if="mediaMeta.show">-->
       <img
-        v-if="props.curNode.file?.cover"
-        :src="props.curNode.file?.cover?.path"
+        v-if="props.curNode.file_index?.cover"
+        :src="props.curNode.file_index?.cover?.path"
       />
       <span
         v-else
@@ -380,7 +380,7 @@ function parseTime(t: number) {
         ref="mediaDOM"
         preload="metadata"
         :data-item-id="props.curNode.id"
-        :poster="props.curNode.file?.cover?.path"
+        :poster="props.curNode.file_index?.cover?.path"
         @loadedmetadata="onInit"
         @canplay="onCanplay"
         @ended="onEnd"

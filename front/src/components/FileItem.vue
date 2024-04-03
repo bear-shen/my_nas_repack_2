@@ -155,11 +155,11 @@ function emp(e: Event) {
     <template v-if="mode === 'detail'">
       <div class="content">
         <template v-if="node.status">
-          <div v-if="node.file?.cover && node._in_screen" class="thumb"
+          <div v-if="node.file_index?.cover && node._in_screen" class="thumb"
                @dblclick="op_dblclick"
                @click="op_click"
           >
-            <img :src="node.file?.cover.path"/>
+            <img :src="node.file_index?.cover.path"/>
           </div>
           <div v-else
                @dblclick="op_dblclick"
@@ -168,8 +168,8 @@ function emp(e: Event) {
           ></div>
         </template>
         <template v-else>
-          <div v-if="node.file?.cover && node._in_screen" class="thumb">
-            <img :src="node.file?.cover.path"/>
+          <div v-if="node.file_index?.cover && node._in_screen" class="thumb">
+            <img :src="node.file_index?.cover.path"/>
           </div>
           <div v-else
                :class="['thumb', 'listIcon', `listIcon_file_${node.type}`]"
@@ -241,11 +241,11 @@ function emp(e: Event) {
     </template>
     <template v-else-if="mode === 'img'">
       <template v-if="node.status">
-        <div v-if="node.file?.cover && node._in_screen" class="thumb"
+        <div v-if="node.file_index?.cover && node._in_screen" class="thumb"
              @dblclick="op_dblclick"
              @click="op_click"
         >
-          <img :src="node.file?.cover.path"/>
+          <img :src="node.file_index?.cover.path"/>
         </div>
         <div
           v-else
@@ -258,8 +258,8 @@ function emp(e: Event) {
         <p>{{ node.time_create }}</p>
       </template>
       <template v-else>
-        <div v-if="node.file?.cover && node._in_screen" class="thumb">
-          <img :src="node.file?.cover.path"/>
+        <div v-if="node.file_index?.cover && node._in_screen" class="thumb">
+          <img :src="node.file_index?.cover.path"/>
         </div>
         <div
           v-else

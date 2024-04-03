@@ -25,10 +25,10 @@ const contentDOM: Ref<HTMLElement | null> = ref(null);
 const timelineDOM: Ref<HTMLElement | null> = ref(null);
 const mediaDOM: Ref<HTMLVideoElement | null> = ref(null);
 const resPath: Ref<string> = ref('');
-if (props.curNode?.file?.normal?.path) {
-  resPath.value = `${props.curNode.file?.normal?.path}?filename=${props.curNode.title}`;
+if (props.curNode?.file_index?.normal?.path) {
+  resPath.value = `${props.curNode.file_index?.normal?.path}?filename=${props.curNode.title}`;
 } else {
-  resPath.value = `${props.curNode.file?.raw?.path}?filename=${props.curNode.title}`
+  resPath.value = `${props.curNode.file_index?.raw?.path}?filename=${props.curNode.title}`
 }
 
 // const playModes = ["queue", "loop", "single", "shuffle"];
@@ -152,10 +152,10 @@ async function beforeInit() {
 watch(() => props.curNode, async (to) => {
   onRelease();
   beforeInit();
-  if (props.curNode?.file?.normal?.path) {
-    resPath.value = `${to.file?.normal?.path}?filename=${to.title}`;
+  if (props.curNode?.file_index?.normal?.path) {
+    resPath.value = `${to.file_index?.normal?.path}?filename=${to.title}`;
   } else {
-    resPath.value = `${to.file?.raw?.path}?filename=${to.title}`
+    resPath.value = `${to.file_index?.raw?.path}?filename=${to.title}`
   }
   // setTimeout(() => {
   if (mediaDOM.value) mediaDOM.value?.load();
@@ -337,7 +337,7 @@ function loadSubtitle() {
   const subNode = [] as (api_node_col & { label?: string })[];
   props.nodeList.forEach(node => {
     if (node.type !== 'subtitle') return;
-    if (!(node.file?.normal?.path || node.file?.raw?.path)) return;
+    if (!(node.file_index?.normal?.path || node.file_index?.raw?.path)) return;
     let aftStr = node.title?.substring(preStr.length);
     // console.info(aftStr);
     if (node.title?.indexOf(preStr) === 0) subNode.push(Object.assign({label: aftStr}, node));
@@ -417,8 +417,8 @@ function toggleSubtitle(index: number) {
       </template>
       <!--      <template v-if="mediaMeta.show">-->
       <!-- <img
-        v-if="props.curNode.file?.cover"
-        :src="props.curNode.file?.cover?.path"
+        v-if="props.curNode.file_index?.cover"
+        :src="props.curNode.file_index?.cover?.path"
       />
       <span
         v-else
@@ -432,7 +432,7 @@ function toggleSubtitle(index: number) {
         ref="mediaDOM"
         preload="metadata"
         :data-item-id="props.curNode.id"
-        :poster="props.curNode.file?.cover?.path"
+        :poster="props.curNode.file_index?.cover?.path"
         @loadedmetadata="onInit"
         @canplay="onCanplay"
         @ended="onEnd"
@@ -440,7 +440,7 @@ function toggleSubtitle(index: number) {
       >
         <source :src="resPath"/>
         <template v-for="(subtitle,index) in subtitleList">
-          <template v-if="subtitle.file?.normal">
+          <template v-if="subtitle.file_index?.normal">
             <track :default="subtitleIndex==index?true:false"
                    :src="(subtitle.file.normal as col_file_with_path).path" kind="subtitles"
                    :srclang="subtitle.label" :label="subtitle.label"

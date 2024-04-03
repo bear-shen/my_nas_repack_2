@@ -370,7 +370,7 @@ function setRotate(deg) {
       <span class="loader sysIcon sysIcon_sync" v-if="!imgLayout.loaded"></span>
       <img
         :data-ref-node-id="props.curNode.id"
-        :src="`${props.curNode.file?.normal?.path}?filename=${props.curNode.title}`"
+        :src="`${props.curNode.file_index?.normal?.path}?filename=${props.curNode.title}`"
         @pointerdown="onDragging"
         @dblclick="fitImg"
         @load="loadImageRes"

@@ -139,7 +139,7 @@ function buildRespNode(xmlLs: string[], node: (fp.FileStat & { relPath: string }
         'executable': {_text: 'F'},
         'resourcetype': resourceType,
         'getcontenttype': {_text: mime},
-        'getcontentlength': {_text: node.file?.raw?.size ?? 0},
+        'getcontentlength': {_text: node.file_index?.raw?.size ?? 0},
         'displayname': {_text: node.title},
     };
     if (node.type === 'directory') {

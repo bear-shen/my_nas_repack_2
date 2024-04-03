@@ -8,6 +8,7 @@ import util from "util";
 import TagModel from "../../model/TagModel";
 import TagGroupModel from "../../model/TagGroupModel";
 import QueueModel from "../../model/QueueModel";
+import fs from "node:fs/promises";
 
 const exec = util.promisify(require('child_process').exec);
 
@@ -196,6 +197,10 @@ class FileJob {
                 case 'raw':
                     if (!ifReload && node.file_index[indexKey].checksum.length) continue;
                     const localPath = mkLocalPath(mkRelPath(node, indexKey));
+                    newFileIndex[indexKey] = {
+                        size: 0,
+                        checksum: [],
+                    }
                     newFileIndex[indexKey].checksum = await fp.checksum(localPath);
                     if (node.file_index[indexKey].checksum && node.file_index[indexKey].checksum.length) {
                         const org = node.file_index[indexKey].checksum.join(',');
@@ -204,6 +209,8 @@ class FileJob {
                             invalidLs.push([indexKey, org, tgt].join('|'));
                         }
                     }
+                    const stat = await fs.stat(localPath);
+                    newFileIndex[indexKey].size = stat.size;
                     break;
             }
         }

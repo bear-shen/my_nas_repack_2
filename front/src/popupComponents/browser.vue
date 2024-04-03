@@ -503,7 +503,7 @@ function setRater(rateVal: string) {
       <div :class="{info:true,detail:showDetail}">
         <p v-if="showDetail">
           {{ curNode.title }} ({{
-            GenFunc.kmgt(curNode.file?.raw?.size ?? 0, 2)
+            GenFunc.kmgt(curNode.file_index?.raw?.size ?? 0, 2)
           }})
         </p>
         <p v-else>{{ curNode.title }}</p>
@@ -538,7 +538,7 @@ function setRater(rateVal: string) {
         ></button>
         <!--          <button :class="['sysIcon','sysIcon_link',]" @click="browserMeta.act.share"></button>-->
         <button
-          v-if="curNode.file?.raw?.path"
+          v-if="curNode.file_index?.raw?.path"
           :class="['sysIcon', 'sysIcon_download']"
           @click="opFunctionModule.op_download(curNode)"
         ></button>

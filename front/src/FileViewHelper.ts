@@ -842,7 +842,7 @@ export class opModule {
 
 export class opFunctionModule {
     public static async op_download(node: api_node_col) {
-        let filePath = node.file?.raw?.path;
+        let filePath = node.file_index?.raw?.path;
         if (!filePath) return;
         window.open(`${filePath}?filename=${node.title}`);
     }

@@ -328,7 +328,7 @@ export async function ifTitleExist(parent: string | number | col_node, title: st
     return await (new NodeModel).where('id_parent', parentNode.id).where('title', title).first();
 }
 
-export async function buildNodeRelPath(nodeList: col_node[]) {
+export async function buildWebPath(nodeList: col_node[]) {
     const relNodeIdSet = new Set<number>();
     for (let i1 = 0; i1 < nodeList.length; i1++) {
         const node = nodeList[i1];
@@ -350,6 +350,7 @@ export async function buildNodeRelPath(nodeList: col_node[]) {
             }
         }
     }
+    const pathConf = getConfig('path');
     for (let i1 = 0; i1 < nodeList.length; i1++) {
         const node = nodeList[i1];
         for (const typeKey in node.file_index) {
@@ -360,9 +361,24 @@ export async function buildNodeRelPath(nodeList: col_node[]) {
                 case 'preview':
                 case 'normal':
                 case 'raw':
-                    node.file_index[typeKey].path = mkRelPath(node, typeKey);
+                    node.file_index[typeKey].path = pathConf.root_web + '/' + mkRelPath(node, typeKey);
                     break;
             }
+        }
+        if (node.file_index.raw && !node.file_index.normal) {
+            node.file_index.normal = node.file_index.raw;
+        }
+        if (node.type === 'image' && node.file_index.normal && !node.file_index.preview) {
+            node.file_index.preview = node.file_index.normal;
+        }
+        // if (node.type === 'image' && node.file_index.preview && !node.file_index.cover) {
+        //     node.file_index.cover = node.file_index.preview;
+        // }
+        if (node.file_index.preview && !node.file_index.cover) {
+            node.file_index.cover = node.file_index.preview;
+        }
+        if (node.file_index.cover && !node.file_index.preview) {
+            node.file_index.preview = node.file_index.cover;
         }
     }
     return nodeList;
@@ -405,7 +421,7 @@ export async function rename(srcPath: string, targetPath: string) {
 
 export function genTmpPath(suffix: string) {
     const uuidFN = uuid();
-    return getConfig().path.temp + '/' + uuid + '.' + suffix;
+    return getConfig().path.temp + '/' + uuidFN + '.' + suffix;
 }
 
 //---------------------- helper ----------------------
@@ -478,7 +494,7 @@ export function getType(suffix: string): type_file {
     return 'binary';
 }
 
-function titleFilter(title: string) {
+export function titleFilter(title: string) {
     return title.replace(/[\\\/:*?"<>|\r\n\t\s]+/igm, ' ').trim();
 }
 

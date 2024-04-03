@@ -40,6 +40,8 @@ const BaseConfig = {
     path: {
         // temp: `${os.tmpdir()}/tosho_tmp_${process.pid}`,
         root: '/home/file',
+        //静态文件目录对应的URL
+        root_web: '/file',
         api: '/api',
         webdav: '/webdav',
         //prefix_文件夹追加在root之后，路径和源文件夹同步
