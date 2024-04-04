@@ -30,7 +30,9 @@ async function scanDir(localRoot: string, rootNode: col_node) {
     } catch (e) {
         // throw new Error(`cannot read dir: ${localRoot}`)
         console.error(`cannot read dir: ${localRoot}`);
+        return;
     }
+    const subNodeLs = await fp.ls(rootNode);
     // const subNodeMap: Map<string, col_node> = new Map();
     // subNodeLs.forEach(node => {
     //     subNodeMap.set(node.title, node);
@@ -101,7 +103,6 @@ async function scanDir(localRoot: string, rootNode: col_node) {
         }
     }
     //
-    const subNodeLs = await fp.ls(rootNode);
     for (let i1 = 0; i1 < subNodeLs.length; i1++) {
         const curNode = subNodeLs[i1];
         if (curSubNodeTitleSet.has(curNode.title)) continue;

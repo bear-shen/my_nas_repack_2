@@ -156,6 +156,18 @@ export async function rmReal(srcNode: string | number | col_node) {
         }
     }
     await (new NodeModel).where('id', cur.id).delete();
+    //cls rel
+    const relLs = await (new NodeModel)
+        .whereRaw("JSON_VALUE(file_index, '$.rel') = ?", cur.id)
+        // .where('status', '<>', -1)
+        .select();
+    if (relLs.length)
+        for (let i1 = 0; i1 < relLs.length; i1++) {
+            const curFileIndex = relLs[i1].file_index;
+            if (!curFileIndex.rel) continue;
+            delete curFileIndex.rel;
+            await (new NodeModel).where('id', relLs[i1].id).update({file_index: curFileIndex});
+        }
 }
 
 export async function rmFile(srcNode: string | number | col_node, fileKey: 'preview' | 'normal' | 'cover' | 'raw') {
