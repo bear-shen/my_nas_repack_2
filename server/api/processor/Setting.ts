@@ -77,12 +77,4 @@ export default class {
         });
     }
 
-    async get_node_stat() {
-        const ifExs = await (new SettingModel()).where('name', '_t_stat_node').first();
-        if (!ifExs) return null;
-        // console.info(ifExs);
-        return ifExs.value;
-    }
-
-
 };

@@ -7,7 +7,6 @@ import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {query} from "@/Helper";
 import GenFunc from "@/GenFunc";
 import type {api_setting_col, api_setting_del_resp, api_setting_list_req, api_setting_list_resp, api_setting_mod_resp,} from "../../../share/Api";
-import {api_statistics_node} from "../../../share/Api";
 import ContentEditable from "@/components/ContentEditable.vue";
 import type {ModalConstruct} from "@/modal";
 import {useModalStore} from "@/stores/modalStore";
@@ -150,7 +149,7 @@ type widget = {
 };
 const widgetLs: widget[] = [
   {type: 'button', title: 'syncLocalFile', method: btn_syncLocalFile},
-  {type: 'button', title: 'nodeStatistics', method: btn_nodeStatistics},
+  // {type: 'button', title: 'nodeStatistics', method: btn_nodeStatistics},
 ];
 
 async function btn_syncLocalFile() {
@@ -171,89 +170,6 @@ async function btn_syncLocalFile() {
   } as ModalConstruct);
 }
 
-
-async function btn_nodeStatistics() {
-  // const res = await query("setting/set_node_stat", {});
-  const res = await query<api_statistics_node>("setting/get_node_stat", {});
-  // console.info(res);
-  let statHtml = '';
-  let invalid = false;
-  if (res) {
-    let sTable: string[] = [];
-    res.suffix.sort((a, b) => {
-      return parseInt(a.size) > parseInt(b.size) ? -1 : 1;
-    })
-    res.suffix.forEach(suffix => {
-      const r = [suffix.suffix, GenFunc.kmgt(suffix.size), suffix.count];
-      sTable.push(`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`);
-    })
-
-    const dTable = [];
-    res.directory.sort((a, b) => {
-      return a.path < b.path ? -1 : 1;
-    })
-    res.directory.forEach(directory => {
-      const r = [
-        directory.path,
-        directory.nodes.count,
-        // directory.files.count,
-        GenFunc.kmgt(directory.files.size),
-        // directory.cover.count,
-        // GenFunc.kmgt(directory.cover.size),
-        // directory.preview.count,
-        // GenFunc.kmgt(directory.preview.size),
-        // directory.normal.count,
-        GenFunc.kmgt(directory.normal.size),
-        // directory.raw.count,
-        GenFunc.kmgt(directory.raw.size),
-      ];
-      dTable.push(`<tr><td>${r.join('</td><td>')}</td></tr>`);
-    })
-    //popup的modal_content_text未固定height所以不能做全局的高度设置
-    statHtml = `<div style="width: 100%;height: 300px;overflow: auto;">
-<table>
-<tr><th>title</th><th>size</th><th>count</th></tr>
-${sTable.join('')}
-</table>
-</div><div style="margin-top: 16px;width: 100%;height: 300px;overflow: auto;">
-<table>
-<tr>
-<td>path</td>
-<td>nodes.count</td>
-<!--<td>files.count</td>-->
-<td>files.size</td>
-<!--<td>cover.count</td><td>cover.size</td>-->
-<!--<td>preview.count</td><td>preview.size</td>-->
-<!--<td>normal.count</td>-->
-<td>normal.size</td>
-<!--<td>raw.count</td>-->
-<td>raw.size</td>
-</tr>
-${dTable.join('')}
-</table>
-</div>`;
-  } else {
-    statHtml = 'not valid';
-    invalid = true;
-  }
-  const modalStore = useModalStore();
-  modalStore.set({
-    title: "success",
-    text: statHtml,
-    w: invalid ? 400 : 768,
-    h: invalid ? 120 : 690,
-    minW: invalid ? 400 : 768,
-    minH: invalid ? 120 : 690,
-    allow_resize: false,
-    callback: {
-      refresh: async function (modal) {
-        const res = await query("setting/set_node_stat", {});
-      },
-      confirm: async function (modal) {
-      },
-    },
-  } as ModalConstruct);
-}
 
 </script>
 
