@@ -37,7 +37,6 @@ import fs from "node:fs/promises";
 import {splitQuery} from "../../lib/ModelHelper";
 import UserModel from "../../model/UserModel";
 import UserGroupModel from "../../model/UserGroupModel";
-import {buildWebPath} from "../../lib/FileProcessor";
 
 export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_list_resp> {

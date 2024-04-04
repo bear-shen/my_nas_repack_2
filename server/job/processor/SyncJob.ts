@@ -5,6 +5,7 @@ import fs from "node:fs/promises";
 import {col_node} from "../../../share/Database";
 import NodeModel from "../../model/NodeModel";
 import QueueModel from "../../model/QueueModel";
+import {Dirent} from "fs";
 
 const exec = util.promisify(require('child_process').exec);
 
@@ -12,20 +13,34 @@ export default class {
     static async run(payload: { [key: string]: any }): Promise<any> {
         const pathConfig = getConfig('path');
         await scanDir(pathConfig.root, fp.rootNode);
+        // await scanDir(Buffer.from(pathConfig.root), fp.rootNode);
     }
 }
 
+/**
+ * @notice readdir不能很好的支持emoji字符
+ * buffer读取可以认为正常（能遍历但是二进制不同），且无法过滤标题
+ * */
 async function scanDir(localRoot: string, rootNode: col_node) {
     const config = getConfig();
-    const fNameLs = await fs.readdir(localRoot);
-    const subNodeLs = await fp.ls(rootNode);
+    // console.info(20, localRoot);
+    let subFileLs: Dirent[];
+    try {
+        subFileLs = await fs.readdir(localRoot, {encoding: 'utf-8', withFileTypes: true});
+    } catch (e) {
+        // throw new Error(`cannot read dir: ${localRoot}`)
+        console.error(`cannot read dir: ${localRoot}`);
+    }
     // const subNodeMap: Map<string, col_node> = new Map();
     // subNodeLs.forEach(node => {
     //     subNodeMap.set(node.title, node);
     // });
     const curSubNodeTitleSet: Set<string> = new Set();
-    for (let i1 = 0; i1 < fNameLs.length; i1++) {
-        const fTitle = fp.titleFilter(fNameLs[i1]);
+    for (let i1 = 0; i1 < subFileLs.length; i1++) {
+        const fTitle = fp.titleFilter(subFileLs[i1].name);
+        // console.warn(29, fTitle);
+        if (subFileLs[i1].name != fTitle)
+            await fs.rename(localRoot + '/' + subFileLs[i1].name, localRoot + '/' + fTitle);
         //
         if (config.import_ignore.indexOf(fTitle) !== -1) continue;
         if (config.path.prefix_temp == fTitle) continue;
@@ -35,8 +50,11 @@ async function scanDir(localRoot: string, rootNode: col_node) {
         //
         curSubNodeTitleSet.add(fTitle);
         const fPath = localRoot + '/' + fTitle;
-        const fStat = await fs.stat(fPath);
+        // console.info(fPath, fTitle,)
+        const fStat = subFileLs[i1];
+        // const fStat = await fs.stat(fPath);
         if (!(fStat.isDirectory() || fStat.isFile())) continue;
+        // console.warn(45, rootNode, fTitle);
         const ifExs = await fp.ifTitleExist(rootNode, fTitle);
         let curNode: col_node;
         if (!ifExs) {
@@ -59,30 +77,34 @@ async function scanDir(localRoot: string, rootNode: col_node) {
                     raw: {size: 0, checksum: [],},
                 };
             }
-            await (new NodeModel).insert(ins);
-            ins.id = await (new NodeModel).lastInsertId();
+            const insRes = await (new NodeModel).insert(ins);
+            ins.id = insRes.insertId;
             curNode = ins;
         } else {
             curNode = ifExs;
         }
-        if (curNode.type != 'directory')
-            (new QueueModel).insert({
-                type: 'file/build',
+        if (!ifExs) {
+            if (curNode.type != 'directory')
+                await (new QueueModel).insert({
+                    type: 'file/build',
+                    payload: {id: curNode.id},
+                    status: 1,
+                });
+            await (new QueueModel).insert({
+                type: 'file/buildIndex',
                 payload: {id: curNode.id},
                 status: 1,
             });
-        (new QueueModel).insert({
-            type: 'file/buildIndex',
-            payload: {id: curNode.id},
-            status: 1,
-        });
+        }
         if (curNode.type == 'directory') {
-            scanDir(fPath, curNode);
+            await scanDir(fPath, curNode);
         }
     }
+    //
+    const subNodeLs = await fp.ls(rootNode);
     for (let i1 = 0; i1 < subNodeLs.length; i1++) {
         const curNode = subNodeLs[i1];
         if (curSubNodeTitleSet.has(curNode.title)) continue;
-        fp.rmReal(curNode);
+        await fp.rmReal(curNode);
     }
 }

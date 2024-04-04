@@ -1,9 +1,8 @@
-import {Stream} from "stream";
 import crypto from 'node:crypto';
 import {get as getConfig} from "../ServerConfig";
 import * as fs from 'fs/promises';
-import {ReadStream, Stats} from 'fs';
 import * as fsNP from 'fs';
+import {ReadStream} from 'fs';
 import type {api_local_file_statement} from "../../share/Api";
 
 //util
@@ -101,10 +100,7 @@ async function mkdir(relPath: string): Promise<boolean> {
     // console.info(ifExs);
     if (ifExs) return;
     console.info(nPath);
-    await fs.mkdir(nPath, {
-        mode: 0o666,
-        recursive: true,
-    });
+    await fs.mkdir(nPath, {mode: 0o777, recursive: true,});
     return;
 }
 

@@ -217,7 +217,8 @@ class FileJob {
 
     static async buildIndex(payload: { [key: string]: any }): Promise<any> {
         const nodeId = payload.id;
-        let node: col_node = await fp.get(parseInt(nodeId))
+        let node: col_node = await fp.get(parseInt(nodeId));
+        if (!node) return;
         if (!node.node_index) node.node_index = {
             tag: [],
             title: '',
@@ -337,7 +338,7 @@ async function execFFmpeg(
 ): Promise<string | boolean> {
     const orgFilePath = fp.mkLocalPath(fp.mkRelPath(fileNode, 'raw'));
     // const targetFilePath = fp.mkLocalPath(fp.mkRelPath(fileNode, targetKey));
-    const meta = await FFMpeg.loadMeta(orgFilePath);
+    const meta = await FFMpeg.loadMeta(fp.bashTitleFilter(orgFilePath));
     // console.info('===============================');
     // console.info(meta);
     let method;
@@ -393,8 +394,8 @@ async function execFFmpeg(
 
 function parseFFStr(str: string, source: string, target: string) {
     str = str.replace('[execMask.program]', (getConfig()).parser.ffProgram);
-    str = str.replace('[execMask.resource]', source);
-    str = str.replace('[execMask.target]', target);
+    str = str.replace('[execMask.resource]', '"' + fp.bashTitleFilter(source) + '"');
+    str = str.replace('[execMask.target]', '"' + fp.bashTitleFilter(target) + '"');
     // console.info('===============================');
     // console.info(str);
     return str;

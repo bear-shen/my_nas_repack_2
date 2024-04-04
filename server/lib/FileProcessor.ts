@@ -72,8 +72,8 @@ export async function put(
             status: 1,
             building: 1,
         };
-        await (new NodeModel).insert(ins);
-        ins.id = await (new NodeModel).lastInsertId();
+        const insRes = await (new NodeModel).insert(ins);
+        ins.id = insRes.insertId;
         res = ins;
     }
     //
@@ -259,7 +259,8 @@ export async function mkdir(
     );
     //
     if (!await ifLocalFileExists(localPath)) {
-        await fs.mkdir(localPath, {recursive: true, mode: 0o666});
+        //mkdir至少需要0755，否则nginx报错
+        await fs.mkdir(localPath, {recursive: true, mode: 0o777});
     }
     let newNode: col_node = {}
     if (!ifExs) {
@@ -274,8 +275,8 @@ export async function mkdir(
             status: 1,
             building: 0,
         };
-        await (new NodeModel).insert(newNode);
-        const id = await (new NodeModel()).lastInsertId();
+
+        const id = (await (new NodeModel).insert(newNode)).insertId;
         newNode.id = id;
     } else newNode = ifExs;
     return ifExs;
@@ -405,10 +406,7 @@ export async function rename(srcPath: string, targetPath: string) {
     const targetDir = dirname(targetPath);
     const ifDirExs = await ifLocalFileExists(targetDir);
     if (!ifDirExs) {
-        await fs.mkdir(targetDir, {
-            recursive: true,
-            mode: 0o666,
-        });
+        await fs.mkdir(targetDir, {recursive: true, mode: 0o777,});
     }
     //
     hasErr = null;
@@ -537,6 +535,10 @@ export function rtrimSlash(str: string) {
     return rtrimSlash(str.substring(0, str.length - 1));
 }
 
+export function bashTitleFilter(str: string) {
+    return str.replaceAll('`', '\\`');
+}
+
 export async function checksum(localPath: string): Promise<string[]> {
     const checksumExecLs = getConfig('checksum');
     //
@@ -544,7 +546,7 @@ export async function checksum(localPath: string): Promise<string[]> {
     for (let i1 = 0; i1 < checksumExecLs.length; i1++) {
         let hash = ''
         try {
-            const cmd = `${checksumExecLs[i1]} "${localPath}"`;
+            const cmd = `${checksumExecLs[i1]} "${bashTitleFilter(localPath)}"`;
             const {stdout, stderr} = await exec(cmd);
             hash = stdout.substring(0, stdout.indexOf(' '));
             // console.info(stdout);

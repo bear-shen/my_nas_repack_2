@@ -1,9 +1,10 @@
 //generic
 // import fs from "fs";
 import {loadConfig} from '../ServerConfig'
+import fs from "node:fs/promises";
 // import ExtJob from './processor/ExtJob'
 // import StatisticsJob from "./processor/StatisticsJob";
-import * as fp from "../lib/FileProcessor";
+// import * as fp from "../lib/FileProcessor";
 
 console.info('job dev init')
 
@@ -23,8 +24,27 @@ loadConfig().then(async () => {
     // await fp.mv(1,0);
     // await fp.rmReal(1);
     // await fp.rmReal(2);
-    await fp.rm(6);
-
+    // await fp.rm(6);
+    const test = 'つも🔞C10';
+    console.info(Buffer.from(test))
+    console.info(Buffer.from(test).toString())
+    console.info(Buffer.from(Buffer.from(test).toString()));
+    //
+    let res: any;
+    res = await fs.readdir('/home/file/fav', {encoding: 'utf-8',});
+    console.info(Buffer.from(res[0]));
+    // res = await fs.readdir('/home/file/fav/' + res[0], {encoding: 'utf-8',});
+    //
+    res = await fs.readdir('/home/file/fav', {encoding: 'buffer',});
+    console.info(res[0]);
+    // console.info(fromByteArray(res[0]));
+    // console.info((new TextDecoder).decode(res[0]));
+    // let p = Buffer.from('/home/file/fav/')
+    // p = Buffer.concat([p, res[0]]);
+    // res = await fs.readdir(p, {encoding: 'utf-8',});
+    //
+    // console.info(new TextDecoder().decode(toByteArray(res[0])));
+    // console.info(transcode());
     //
     // let path = 'D:\\exos\\db_eros\\hun\\作品合集 78842939 KASABUTA'
     // console.info(await ls(path))

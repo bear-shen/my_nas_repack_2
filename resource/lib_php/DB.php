@@ -28,8 +28,9 @@ require_once 'DBException.php';
  * @method array query($query = '', $bind = [], ...$args)
  * @method array queryGetOne($query = '', $bind = [], ...$args)
  *
- *
+ * @deprecated 这是session级的，在常驻后端下并不安全
  * @method int lastInsertId()
+ *
  * @method array getErr()
  * @method int getErrCode()
  */
@@ -208,6 +209,7 @@ class DB {
     }
 
     /**
+     * @deprecated
      * @see lastInsertId
      */
     protected function _lastInsertId() {
