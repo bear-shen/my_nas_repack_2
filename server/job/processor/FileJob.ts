@@ -1,5 +1,5 @@
 import NodeModel from '../../model/NodeModel';
-import {col_node, col_node_file_index, col_tag_group} from '../../../share/Database';
+import {col_node, col_tag_group} from '../../../share/Database';
 import * as fp from "../../lib/FileProcessor";
 import {mkLocalPath, mkRelPath} from "../../lib/FileProcessor";
 import * as FFMpeg from '../../lib/FFMpeg';
@@ -178,39 +178,32 @@ class FileJob {
         const ifReload = payload.reload;
         const node = await fp.get(nodeId);
         //就有一个问题，关联的文件要不要一起校验，目前先没管
-        const newFileIndex: {
-            rel?: number,
-            cover?: col_node_file_index,
-            preview?: col_node_file_index,
-            normal?: col_node_file_index,
-            raw?: col_node_file_index,
-        } = {};
         const invalidLs: string[] = [];
         for (const indexKey in node.file_index) {
             switch (indexKey) {
                 case 'rel':
-                    newFileIndex.rel = node.file_index.rel;
                     break;
                 case 'normal':
                 case 'preview':
                 case 'cover':
                 case 'raw':
-                    if (!ifReload && node.file_index[indexKey].checksum.length) continue;
                     const localPath = mkLocalPath(mkRelPath(node, indexKey));
-                    newFileIndex[indexKey] = {
-                        size: 0,
-                        checksum: [],
-                    }
-                    newFileIndex[indexKey].checksum = await fp.checksum(localPath);
-                    if (node.file_index[indexKey].checksum && node.file_index[indexKey].checksum.length) {
+                    const stat = await fs.stat(localPath);
+                    node.file_index[indexKey].size = stat.size;
+                    //
+                    if (indexKey == 'raw') {
+                        if (!ifReload && node.file_index[indexKey].checksum.length) continue;
+                        const checksum = await fp.checksum(localPath);
+                        //
                         const org = node.file_index[indexKey].checksum.join(',');
-                        const tgt = newFileIndex[indexKey].checksum.join(',');
-                        if (org === tgt) {
-                            invalidLs.push([indexKey, org, tgt].join('|'));
+                        const tgt = checksum.join(',');
+                        if (org != tgt) {
+                            if (!ifReload)
+                                invalidLs.push([indexKey, org, tgt].join('|'));
+                            else
+                                node.file_index[indexKey].checksum = checksum;
                         }
                     }
-                    const stat = await fs.stat(localPath);
-                    newFileIndex[indexKey].size = stat.size;
                     break;
             }
         }
@@ -218,7 +211,7 @@ class FileJob {
             throw new Error(`invalid hash code, ${invalidLs.join('\r\n')}`)
         }
         await (new NodeModel).where('id', node.id).update({
-            file_index: newFileIndex,
+            file_index: node.file_index,
         });
     }
 

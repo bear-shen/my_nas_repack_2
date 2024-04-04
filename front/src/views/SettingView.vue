@@ -149,12 +149,12 @@ type widget = {
   method: () => any,
 };
 const widgetLs: widget[] = [
-  {type: 'button', title: 'scanOrphanFiles', method: btn_scanOrphanFiles},
+  {type: 'button', title: 'syncLocalFile', method: btn_syncLocalFile},
   {type: 'button', title: 'nodeStatistics', method: btn_nodeStatistics},
 ];
 
-async function btn_scanOrphanFiles() {
-  const res = await query("setting/scan_orphan_files", {});
+async function btn_syncLocalFile() {
+  const res = await query("setting/sync_local_file", {});
   const modalStore = useModalStore();
   modalStore.set({
     title: "success",

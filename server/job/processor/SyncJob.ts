@@ -16,6 +16,7 @@ export default class {
 }
 
 async function scanDir(localRoot: string, rootNode: col_node) {
+    const config = getConfig();
     const fNameLs = await fs.readdir(localRoot);
     const subNodeLs = await fp.ls(rootNode);
     // const subNodeMap: Map<string, col_node> = new Map();
@@ -25,6 +26,13 @@ async function scanDir(localRoot: string, rootNode: col_node) {
     const curSubNodeTitleSet: Set<string> = new Set();
     for (let i1 = 0; i1 < fNameLs.length; i1++) {
         const fTitle = fp.titleFilter(fNameLs[i1]);
+        //
+        if (config.import_ignore.indexOf(fTitle) !== -1) continue;
+        if (config.path.prefix_temp == fTitle) continue;
+        if (config.path.prefix_preview == fTitle) continue;
+        if (config.path.prefix_normal == fTitle) continue;
+        if (config.path.prefix_cover == fTitle) continue;
+        //
         curSubNodeTitleSet.add(fTitle);
         const fPath = localRoot + '/' + fTitle;
         const fStat = await fs.stat(fPath);
@@ -40,6 +48,7 @@ async function scanDir(localRoot: string, rootNode: col_node) {
                 node_path: fp.mkRelPath(rootNode),
                 status: 1,
                 building: 0,
+                file_index: {},
             };
             if (fStat.isDirectory()) {
                 ins.type = 'directory';

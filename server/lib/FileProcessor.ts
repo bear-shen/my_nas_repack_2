@@ -134,19 +134,25 @@ export async function rmReal(srcNode: string | number | col_node) {
         for (let i1 = 0; i1 < subLs.length; i1++) {
             await rmReal(subLs[i1]);
         }
-    }
-    // return;
-    //
-    for (const key in cur.file_index) {
-        switch (key) {
-            case 'preview':
-            case 'normal':
-            case 'cover':
-            case 'raw':
-                const localPath = mkLocalPath(mkRelPath(cur, key));
-                if (!await ifLocalFileExists(localPath)) break;
+        const pathArr = ['preview', 'normal', 'cover', 'raw',];
+        for (let i = 0; i < pathArr.length; i++) {
+            const localPath = mkLocalPath(mkRelPath(cur, <'preview' | 'normal' | 'cover' | 'raw'>pathArr[i]));
+            if (await ifLocalFileExists(localPath)) {
                 await fs.rm(localPath, {recursive: true, force: true});
-                break;
+            }
+        }
+    } else {
+        for (const key in cur.file_index) {
+            switch (key) {
+                case 'preview':
+                case 'normal':
+                case 'cover':
+                case 'raw':
+                    const localPath = mkLocalPath(mkRelPath(cur, key));
+                    if (!await ifLocalFileExists(localPath)) break;
+                    await fs.rm(localPath, {recursive: true, force: true});
+                    break;
+            }
         }
     }
     await (new NodeModel).where('id', cur.id).delete();
@@ -336,21 +342,12 @@ export async function buildWebPath(nodeList: col_node[]) {
         const node = nodeList[i1];
         if (node.file_index.rel) relNodeIdSet.add(node.file_index.rel);
     }
+    const relNodeMap = new Map<number, col_node>();
     if (relNodeIdSet.size) {
-        const relNodeMap = new Map<number, col_node>();
         const relNodeLs = await (new NodeModel).whereIn('id', Array.from(relNodeIdSet)).select();
         relNodeLs.forEach(relNode => {
             relNodeMap.set(relNode.id, relNode);
         });
-        //
-        for (let i1 = 0; i1 < nodeList.length; i1++) {
-            const node = nodeList[i1];
-            if (node.file_index.rel) {
-                const relNodeId = <number>node.file_index.rel;
-                if (!relNodeMap.has(relNodeId)) continue;
-                node.file_index = relNodeMap.get(relNodeId).file_index;
-            }
-        }
     }
     const pathConf = getConfig('path');
     for (let i1 = 0; i1 < nodeList.length; i1++) {
@@ -358,6 +355,20 @@ export async function buildWebPath(nodeList: col_node[]) {
         for (const typeKey in node.file_index) {
             switch (typeKey) {
                 case 'rel':
+                    const relNodeId = <number>node.file_index.rel;
+                    if (!relNodeMap.has(relNodeId)) break;
+                    const relNode = relNodeMap.get(relNodeId)
+                    for (const relTypeKey in relNode.file_index) {
+                        switch (relTypeKey) {
+                            case 'cover':
+                            case 'preview':
+                            case 'normal':
+                            case 'raw':
+                                relNode.file_index[relTypeKey].path = pathConf.root_web + '/' + mkRelPath(relNode, relTypeKey);
+                                break;
+                        }
+                    }
+                    node.file_index = relNode.file_index;
                     break;
                 case 'cover':
                 case 'preview':

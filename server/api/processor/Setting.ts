@@ -61,9 +61,9 @@ export default class {
         return request;
     };
 
-    async scan_orphan_files() {
+    async sync_local_file() {
         (new QueueModel).insert({
-            type: 'sys/scanOrphanFile',
+            type: 'sync/run',
             payload: {},
             status: 1,
         });
