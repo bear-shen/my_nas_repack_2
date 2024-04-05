@@ -1,26 +1,24 @@
 import {IncomingMessage, ServerResponse} from "http";
 import * as fp from "../../lib/FileProcessor";
+import {mkRelPath} from "../../lib/FileProcessor";
 import {get as getConfig} from "../../ServerConfig";
-import {getRelPath, getRequestFile, respCode, setResponseFile} from '../Lib';
+import {getRelPath, respCode, setResponseFile} from '../Lib';
 import {col_node} from '../../../share/Database';
+import fsNp from "fs";
 
 export default async function (req: IncomingMessage, res: ServerResponse) {
     const relPath = getRelPath(req.url, req.headers.host, res);
     // console.info(relPath);
     if (!relPath) return;
-    const nodeLs = await fp.relPath2node(relPath);
-    // console.info(nodeLs);
-    if (!nodeLs) return respCode(404, res);
-    const node = nodeLs[nodeLs.length - 1];
-    if (node.type === 'directory') return await printDir(node, nodeLs, res);
+    const node = await fp.get(relPath);
+    if (!node) return respCode(404, res);
+    if (node.type === 'directory') return await printDir(node, res);
 
     //res.statusCode = 206;
-    const nodeStat = await fp.stat(node);
-    const file = nodeStat.file?.raw;
-    if (!file) return respCode(404, res);
-
+    if (!node?.file_index?.raw) return respCode(404, res);
+    const raw = node.file_index.raw;
     let bufFrom = 0;
-    let bufTo = file.size;
+    let bufTo = raw.size;
     if (req.headers.range) {
         const rngArr = req.headers.range.split('=');
         if (rngArr.length > 1) {
@@ -29,43 +27,55 @@ export default async function (req: IncomingMessage, res: ServerResponse) {
             if (byteArr.length === 2 && byteArr[0] !== byteArr[1]) {
                 bufFrom = Number.parseInt(byteArr[0]);
                 bufTo = Number.parseInt(byteArr[1]);
-                if (bufTo > file.size) {
-                    bufTo = file.size;
+                if (bufTo > raw.size) {
+                    bufTo = raw.size;
                 }
             }
         }
     }
-    if (bufFrom === 0 && bufTo === file.size) {
+    if (bufFrom === 0 && bufTo === raw.size) {
         res.statusCode = 200;
     } else {
         res.statusCode = 206;
     }
     //
-    const rs = await fp.get(node, bufFrom, bufTo);
+    const rawPath = fp.mkLocalPath(mkRelPath(node));
+    const rs = await fsNp.createReadStream(rawPath, {
+        autoClose: true,
+        start: bufFrom,
+        end: bufTo,
+    });
     await setResponseFile(rs, res);
     return;
 }
 
-async function printDir(relPath: col_node, nodePathLs: col_node[], res: ServerResponse) {
-    const fLs = await fp.ls(relPath.id);
+async function printDir(curNode: col_node, res: ServerResponse) {
+    const fLs = await fp.ls(curNode.id);
     const tbLs = [] as string[];
-    const pathArr = [] as string[];
+    // const pathArr = [] as string[];
     //
-    nodePathLs.forEach(node => node.id ? pathArr.push('/' + node.title) : null)
+    // nodePathLs.forEach(node => node.id ? pathArr.push('/' + node.title) : null)
+    const webdavRoot = getConfig().path.webdav;
+
     //
-    if (pathArr.length) {
-        const parPathArr = pathArr.slice(0, pathArr.length - 1);
-        tbLs.push(`<tr>
-        <td><a href="${getConfig().path.webdav}${encodeURI(parPathArr.join(''))}">../</a></td>
-        <td>0</td><td>directory</td><td>${relPath.time_create}</td><td>${relPath.time_update}</td>
+    if (curNode.id) {
+        // const parPathArr = pathArr.slice(0, pathArr.length - 1);
+        const parentNode = await fp.get(curNode.id_parent);
+        if (parentNode) {
+            const parentPath = fp.mkRelPath(parentNode);
+            tbLs.push(`<tr>
+        <td><a href="${webdavRoot}/${encodeURI(parentPath)}">../</a></td>
+        <td>0</td><td>directory</td><td>${parentNode.time_create}</td><td>${parentNode.time_update}</td>
         </tr>`);
+        }
     }
     //
     fLs.forEach(f => {
         //        <td><a href="${Config.path.webdav + encodeURI(f.path)}">${f.name}</a></td>
         tbLs.push(`<tr>
-        <td><a href="${getConfig().path.webdav}${encodeURI(pathArr.join(''))}/${encodeURI(f.title)}">${f.title}</a></td>
-        <td>${f?.file?.raw?.size ?? 0}</td><td>${f.type}</td><td>${f.time_create}</td><td>${f.time_update}</td>
+        <td><a href="${webdavRoot}/${encodeURI(fp.mkRelPath(f))}">${f.title}</a></td>
+        <td>${f?.file_index?.raw?.size ?? 0}</td>
+        <td>${f.type}</td><td>${f.time_create}</td><td>${f.time_update}</td>
         </tr>`);
     })
     res.statusCode = 200;

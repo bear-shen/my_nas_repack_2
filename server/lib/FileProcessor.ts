@@ -196,8 +196,10 @@ export async function mv(
         //
         const upd: col_node = {
             title: titleFilter(targetTitle),
-            node_path: cur.node_path,
+            // node_path: cur.node_path,
         };
+        if (upd.title == cur.title) return;
+        if (await ifTitleExist(cur.id_parent, upd.title)) throw new Error('file already exists');
         // let targetNodeLocalPath = mkLocalPath(mkRelPath(upd));
         // console.info('mv to', localPath, targetNodeLocalPath, upd);
         // return;
@@ -218,20 +220,20 @@ export async function mv(
         await (new NodeModel).where('id', cur.id).update(upd);
         return;
     }
-    const target = await get(targetDir);
-    if (!target) throw new Error('parentNode not found');
-    if (target.node_id_list.indexOf(cur.id) !== -1)
+    const targetDirNode = await get(targetDir);
+    if (!targetDirNode) throw new Error('parentNode not found');
+    if (targetDirNode.node_id_list.indexOf(cur.id) !== -1)
         throw new Error('cannot mv to subNode');
     //
-    const targetDirPath = mkRelPath(target);
+    const targetDirPath = mkRelPath(targetDirNode);
     const targetDirLocalPath = mkLocalPath(targetDirPath);
     const ifTargetExs = await ifLocalFileExists(targetDirLocalPath);
     if (!ifTargetExs) throw new Error('local target dir not found');
     //
     const upd: col_node = {
-        id_parent: target.id,
-        node_id_list: [...target.node_id_list, target.id],
-        node_path: mkRelPath(target),
+        id_parent: targetDirNode.id,
+        node_id_list: [...targetDirNode.node_id_list, targetDirNode.id],
+        node_path: mkRelPath(targetDirNode),
     };
     if (targetTitle.length) {
         upd.title = titleFilter(targetTitle);
@@ -255,6 +257,90 @@ export async function mv(
     }
     //
     await (new NodeModel).where('id', cur.id).update(upd);
+}
+
+export async function cp(
+    srcNode: string | number | col_node, targetDir: string | number | col_node
+    , targetTitle: string = '', targetDescription: string = ''
+) {
+    const cur = await get(srcNode);
+    if (!cur) throw new Error('node not found');
+    //
+    const localPath = mkLocalPath(mkRelPath(cur, 'raw'));
+    const ifExs = await ifLocalFileExists(localPath);
+    // console.info(localPath, ifExs);
+    if (!ifExs) throw new Error('local node not found');
+    //不输入target的时候只进行重命名，这个用于批量处理
+    if (targetDir == -1) {
+        if (!targetTitle) throw new Error('no title');
+        //
+        const ins: col_node = cur;
+        delete ins.id;
+        cur.title = titleFilter(targetTitle);
+        if (ins.title == cur.title) return;
+        if (await ifTitleExist(cur.id_parent, ins.title)) throw new Error('file already exists');
+        // let targetNodeLocalPath = mkLocalPath(mkRelPath(upd));
+        // console.info('mv to', localPath, targetNodeLocalPath, upd);
+        // return;
+        for (const key in ins.file_index) {
+            switch (key) {
+                case 'preview':
+                case 'normal':
+                case 'cover':
+                case 'raw':
+                    let curNodeLocalPath = mkLocalPath(mkRelPath(cur, key));
+                    let targetNodeLocalPath = mkLocalPath(mkRelPath(ins, key));
+                    await copy(curNodeLocalPath, targetNodeLocalPath);
+                    break;
+            }
+        }
+        // await rename(localPath, targetNodeLocalPath);
+        //
+        const insRes = await (new NodeModel).insert(ins);
+        ins.id = insRes.insertId;
+        return ins;
+    }
+    const targetDirNode = await get(targetDir);
+    if (!targetDirNode) throw new Error('parentNode not found');
+    if (targetDirNode.node_id_list.indexOf(cur.id) !== -1)
+        throw new Error('cannot mv to subNode');
+    //
+    const targetDirPath = mkRelPath(targetDirNode);
+    const targetDirLocalPath = mkLocalPath(targetDirPath);
+    const ifTargetExs = await ifLocalFileExists(targetDirLocalPath);
+    if (!ifTargetExs) throw new Error('local target dir not found');
+    //
+    const ins: col_node = cur;
+    delete ins.id;
+    Object.assign(ins, {
+        id_parent: targetDirNode.id,
+        node_id_list: [...targetDirNode.node_id_list, targetDirNode.id],
+        node_path: mkRelPath(targetDirNode),
+    });
+    if (targetTitle.length) {
+        ins.title = titleFilter(targetTitle);
+        if (!ins.title) throw new Error('invalid title');
+        ins.description = targetDescription;
+    } else {
+        ins.title = cur.title;
+    }
+    //
+    for (const key in ins.file_index) {
+        switch (key) {
+            case 'preview':
+            case 'normal':
+            case 'cover':
+            case 'raw':
+                let curNodeLocalPath = mkLocalPath(mkRelPath(cur, key));
+                let targetNodeLocalPath = mkLocalPath(mkRelPath(ins, key));
+                await copy(curNodeLocalPath, targetNodeLocalPath);
+                break;
+        }
+    }
+    //
+    const insRes = await (new NodeModel).insert(ins);
+    ins.id = insRes.insertId;
+    return ins;
 }
 
 export async function mkdir(
@@ -440,6 +526,26 @@ export async function rename(srcPath: string, targetPath: string) {
         hasErr = e;
     }
     //
+    if (hasErr) throw hasErr;
+    return true;
+}
+
+export async function copy(srcPath: string, targetPath: string) {
+    let hasErr;
+    const targetDir = dirname(targetPath);
+    const ifDirExs = await ifLocalFileExists(targetDir);
+    if (!ifDirExs) {
+        await fs.mkdir(targetDir, {recursive: true, mode: 0o777,});
+    }
+    //
+    hasErr = null;
+    try {
+        await fs.cp(srcPath, targetPath, {recursive: true, force: true});
+        // await fs.chmod(targetPath, 0o666);
+        return true;
+    } catch (e) {
+        hasErr = e;
+    }
     if (hasErr) throw hasErr;
     return true;
 }
