@@ -3,6 +3,7 @@ import {ReadStream} from "fs";
 import {IncomingMessage, ServerResponse} from "http";
 import {get as getConfig} from "../ServerConfig";
 import ErrorCode from "../lib/ErrorCode";
+import * as fp from "../lib/FileProcessor";
 
 //@see https://github.com/OpenMarshal/npm-WebDAV-Server/blob/master/src/server/v2/webDAVServer/StartStop.ts#L30
 export function getRequestBuffer(req: IncomingMessage, res: ServerResponse): Promise<Buffer> {
@@ -27,7 +28,7 @@ export function getRequestBuffer(req: IncomingMessage, res: ServerResponse): Pro
 }
 
 //@see https://github.com/OpenMarshal/npm-WebDAV-Server/blob/master/src/server/v2/webDAVServer/StartStop.ts#L30
-export function getRequestFile(req: IncomingMessage, res: ServerResponse): Promise<string> {
+export function getRequestFile(req: IncomingMessage, res: ServerResponse, suffix: string = ''): Promise<string> {
     return new Promise((resolve: any) => {
         // console.info('getRequestFile:init');
         // console.info(req.headers['content-type']);
@@ -35,7 +36,7 @@ export function getRequestFile(req: IncomingMessage, res: ServerResponse): Promi
         if (!length) resolve(null);
         //
         let wrote = 0;
-        const reqTmpFilePath = `${getConfig().path.temp}/${(new Date()).valueOf()}_${Math.random()}`;
+        const reqTmpFilePath = fp.genTmpPath(suffix);
         // const ws = fs.createWriteStream(reqTmpFilePath, { encoding: "binary", highWaterMark: 32 * 1024 * 1024, });
         const ws = fsNP.createWriteStream(reqTmpFilePath, {
             autoClose: true,
@@ -96,10 +97,8 @@ export function getRelPath(url: string, host: string, res: ServerResponse): stri
     if (davRootPos !== 0) return respCode(403, res);
     //
     let relPath = reqPath.slice(getConfig().path.webdav.length);
-    if (!relPath.length) relPath = '/';
-    if (relPath.indexOf('/') !== 0) {
-        return respCode(404, res);
-    }
+    if (!relPath.length) relPath = '';
+    relPath = fp.pathFilter(relPath);
     return relPath;
 }
 

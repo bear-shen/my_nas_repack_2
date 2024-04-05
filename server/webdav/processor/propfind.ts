@@ -4,6 +4,7 @@ import {ElementCompact} from "xml-js";
 import * as fp from "../../lib/FileProcessor";
 import {get as getConfig} from "../../ServerConfig";
 import {getRelPath, getRequestBuffer, respCode} from "../Lib";
+import {col_node} from "../../../share/Database";
 
 /**
  * header
@@ -20,16 +21,16 @@ import {getRelPath, getRequestBuffer, respCode} from "../Lib";
 export default async function (req: IncomingMessage, res: ServerResponse) {
     const relPath = getRelPath(req.url, req.headers.host, res);
     // console.info(relPath, req.url, req.headers.host,);
-    if (!relPath) return;
-    const nodeLs = await fp.relPath2node(relPath);
+    if (typeof relPath != 'string') return;
+    const node = await fp.get(relPath);
     // console.info(nodeLs);
-    if (!nodeLs) return respCode(404, res);
-    const curNode = nodeLs[nodeLs.length - 1];
+    if (!node) return respCode(404, res);
+    if (node.type != 'directory') return respCode(403, res);
     // console.info(curNode);
     //
     const outputData = getBase();
     // console.info(relPath);
-    const xmlBuffer = await (await getRequestBuffer(req, res)).toString();
+    const xmlBuffer = (await getRequestBuffer(req, res)).toString();
     const xmlData = convert.xml2js(xmlBuffer, {compact: true});
     const xmlLs = getXmlAttr(xmlData);
     // console.info(JSON.stringify(xmlData));
@@ -37,25 +38,26 @@ export default async function (req: IncomingMessage, res: ServerResponse) {
     //
     let depth = Number.parseInt(req.headers.depth ? req.headers.depth as string : '0');
     // console.info(depth);
-    let fileLs = [] as (fp.FileStat & { relPath: string })[];
+    let subLs: col_node[] = [];
     let dirPath = fp.dirname(relPath);
     for (let i1 = 0; i1 <= depth; i1++) {
         if (i1 === 0) {
-            const fi = await fp.stat(curNode);
-            if (!fi) return respCode(404, res);
-            fileLs.push(Object.assign(fi, {relPath: `${dirPath}${fi.title === 'root' ? '' : '/' + fi.title}`}));
+            subLs.push(node);
+            // if (!fi) return respCode(404, res);
+            // fileLs.push(Object.assign(fi, {relPath: `${dirPath}${fi.title === 'root' ? '' : '/' + fi.title}`}));
         } else if (i1 === 1) {
-            const fl = await fp.ls(curNode.id);
+            const fl = await fp.ls(node);
+            subLs.push(...fl);
             // console.info(curNode.id, fl);
             //if (fl) continue;
-            fl.forEach(f => fileLs.push(Object.assign(f, {
-                relPath: `${dirPath}/${f.title}`
-                // relPath: `${dirPath}/dev`
-            })));
+            // fl.forEach(f => fileLs.push(Object.assign(f, {
+            // relPath: `${dirPath}/${f.title}`
+            // relPath: `${dirPath}/dev`
+            // })));
         }
     }
     // console.info(fileLs);
-    fileLs.forEach(f => {
+    subLs.forEach(f => {
         outputData['D:multistatus']['D:response'].push(buildRespNode(xmlLs, f))
     });
     // console.info(outputData);
@@ -115,7 +117,7 @@ function getBase(): ElementCompact {
 }
 
 
-function buildRespNode(xmlLs: string[], node: (fp.FileStat & { relPath: string })) {
+function buildRespNode(xmlLs: string[], node: col_node) {
     let mime = '';
     let resourceType = {};
     switch (node.type) {
@@ -157,7 +159,8 @@ function buildRespNode(xmlLs: string[], node: (fp.FileStat & { relPath: string }
         'D:href': {
             _text:
                 getConfig().path.webdav
-                + encodeURI(node.relPath)
+                + '/'
+                + encodeURI(fp.mkRelPath(node))
                 //winscp不加这个无法识别为目录，这货不判断prop
                 + (node.type === 'directory' ? '/' : '')
             ,

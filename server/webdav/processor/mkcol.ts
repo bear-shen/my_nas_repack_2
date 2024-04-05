@@ -1,20 +1,23 @@
 import {IncomingMessage, ServerResponse} from "http";
 import * as fp from "../../lib/FileProcessor";
-import {getRelPath, getRequestFile, respCode} from "../Lib";
+import {getRelPath, respCode} from "../Lib";
 import QueueModel from "../../model/QueueModel";
 
 export default async function (req: IncomingMessage, res: ServerResponse) {
     const relPath = getRelPath(req.url, req.headers.host, res);
-    if (!relPath) return;
-    const parentDir = await fp.relPath2node(fp.dirname(relPath));
+    if (typeof relPath != 'string') return;
+    const dirPath = fp.dirname(relPath);
+    const fileName = fp.titleFilter(fp.basename(relPath));
+    const parentDir = await fp.get(dirPath);
     if (!parentDir) return respCode(403, res);
-    const mkRes = await fp.mkdir(parentDir[parentDir.length - 1].id, fp.getName(relPath));
-    if (mkRes)
-        (new QueueModel).insert({
-            type: 'file/buildIndex',
-            payload: {id: mkRes.id},
-            status: 1,
-        });
+    if (await fp.ifTitleExist(parentDir, fileName))
+        return respCode(409, res);
+    const mkRes = await fp.mkdir(parentDir, fileName);
+    await (new QueueModel).insert({
+        type: 'file/buildIndex',
+        payload: {id: mkRes.id},
+        status: 1,
+    });
     return respCode(201, res);
 }
 

@@ -4,6 +4,7 @@
   "private"        : true,
   "scripts"        : {
 	"serve"       : "tsc && node ./dst/api/index.js --max_old_space_size=16384 --max-new-space-size=16384",
+	"webdav"      : "tsc && node ./dst/webdav/index.js --max_old_space_size=16384 --max-new-space-size=16384",
 	"job"         : "tsc && node ./dst/job/index.js --max_old_space_size=16384 --max-new-space-size=16384",
 	"dev"         : "tsc && node ./dst/job/dev.js --max_old_space_size=16384 --max-new-space-size=16384",
 	"dev_worker"  : "tsc && node ./dst/job/index_worker.js --max_old_space_size=16384 --max-new-space-size=16384",

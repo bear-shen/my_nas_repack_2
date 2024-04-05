@@ -5,7 +5,7 @@ import QueueModel from "../../model/QueueModel";
 
 export default async function (req: IncomingMessage, res: ServerResponse) {
     const relPath = getRelPath(req.url, req.headers.host, res);
-    if (!relPath) return;
+    if (typeof relPath != 'string') return;
     const curNode = await fp.get(relPath);
     if (!curNode) return respCode(404, res);
     // const curNode = pathNodeLs[pathNodeLs.length - 1];
@@ -17,7 +17,7 @@ export default async function (req: IncomingMessage, res: ServerResponse) {
     //
     const targetRelPath = getRelPath((req.headers.destination as string), req.headers.host, res);
     if (!targetRelPath) return;
-    const targetTitle = fp.basename(targetRelPath);
+    const targetTitle = fp.titleFilter(fp.basename(targetRelPath));
     const targetDirPath = fp.dirname(targetRelPath);
     const targetDirNode = await fp.get(targetDirPath);
     const ifExs = await fp.ifTitleExist(targetDirNode, targetTitle);

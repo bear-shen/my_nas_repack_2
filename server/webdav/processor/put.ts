@@ -9,22 +9,23 @@ export default async function (req: IncomingMessage, res: ServerResponse) {
     const relPath = getRelPath(req.url, req.headers.host, res);
     if (!relPath) return respCode(404, res);
     // console.info('put:2');
-    const targetNodeLs = await fp.relPath2node(fp.dirname(relPath));
-    if (!targetNodeLs) return respCode(404, res);
+    const targetDir = await fp.get(fp.dirname(relPath));
+    if (!targetDir) return respCode(404, res);
     // console.info('put:3');
-    const targetFileName = fp.getName(relPath);
+    const targetFileName = fp.basename(relPath);
+    const targetSuffix = fp.extension(relPath);
     // console.info('put:4');
-    const tmpFilePath = await getRequestFile(req, res);
+    const tmpFilePath = await getRequestFile(req, res, targetSuffix);
     // console.info('put:5');
-    const putRes = await fp.put(tmpFilePath, targetNodeLs[targetNodeLs.length - 1], targetFileName);
+    const putRes = await fp.put(tmpFilePath, targetDir, targetFileName);
     // console.info('put:6 ', targetFileName);
     if (putRes) {
-        (new QueueModel).insert({
+        await (new QueueModel).insert({
             type: 'file/build',
             payload: {id: putRes.id},
             status: 1,
         });
-        (new QueueModel).insert({
+        await (new QueueModel).insert({
             type: 'file/buildIndex',
             payload: {id: putRes.id},
             status: 1,

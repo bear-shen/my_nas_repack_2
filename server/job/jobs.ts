@@ -2,7 +2,7 @@ import FileJob from "./processor/FileJob";
 // import ImportJob from "./processor/ImportJob";
 // import SysJob from "./processor/SysJob";
 import ExtJob from "./processor/ExtJob";
-import StatisticsJob from "./processor/StatisticsJob";
+// import StatisticsJob from "./processor/StatisticsJob";
 import SyncJob from "./processor/SyncJob";
 
 /**
@@ -22,5 +22,5 @@ export default {
     'ext/cascadeTag': ExtJob.cascadeTag,
     'ext/rmRaw': ExtJob.rmRaw,
     'ext/importEHT': ExtJob.importEHT,
-    'statistics/node': StatisticsJob.node,
+    // 'statistics/node': StatisticsJob.node,
 } as { [key: string]: (payload: { [key: string]: any }) => Promise<any> };
