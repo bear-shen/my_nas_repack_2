@@ -654,6 +654,7 @@ export function rtrimSlash(str: string) {
 }
 
 export function bashTitleFilter(str: string) {
+    if(getConfig('windows'))return str;
     return str.replaceAll('`', '\\`');
 }
 

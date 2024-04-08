@@ -391,7 +391,7 @@ export class opModule {
                     console.info('Download', e);
                     // nodeLs.forEach(node => {
                     const node = nodeLs[0];
-                    let href = node?.file?.raw?.path;
+                    let href = node.file_index?.raw?.path;
                     let title = node?.title ?? '';
                     if (!href) return;
                     let link = document.createElement('a');
