@@ -341,6 +341,7 @@ async function execFFmpeg(
     const meta = await FFMpeg.loadMeta(fp.bashTitleFilter(orgFilePath));
     // console.info('===============================');
     // console.info(meta);
+    if (!meta) throw new Error('invalid file/filename');
     let method;
     let imgLevel;
     let parserConfig;
