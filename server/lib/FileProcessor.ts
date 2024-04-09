@@ -497,7 +497,7 @@ export async function buildWebPath(nodeList: col_node[]) {
 }
 
 /**
- * 文件夹不存在时会自动创建文件夹
+ * 文件夹不存在时会自动创建文件夹，文件重复时会自动覆盖
  * */
 export async function rename(srcPath: string, targetPath: string) {
     let hasErr;
@@ -505,6 +505,10 @@ export async function rename(srcPath: string, targetPath: string) {
     const ifDirExs = await ifLocalFileExists(targetDir);
     if (!ifDirExs) {
         await fs.mkdir(targetDir, {recursive: true, mode: 0o777,});
+    }
+    const ifTargetExs = await ifLocalFileExists(targetPath);
+    if (!ifTargetExs) {
+        await fs.rm(targetPath, {recursive: true, force: true});
     }
     //
     hasErr = null;
@@ -626,7 +630,7 @@ export function getType(suffix: string): type_file {
 }
 
 export function titleFilter(title: string) {
-    return title.replace(/[\\\/:*?"<>|\r\n\t\s]+/igm, ' ').trim();
+    return title.replace(/[\\\/:*?"<>|#\r\n\t\s]+/igm, ' ').trim();
 }
 
 export function pathFilter(path: string) {
