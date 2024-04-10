@@ -5,6 +5,7 @@ import tls, {ConnectionOptions} from "tls";
 // import SettingModel from "./model/SettingModel";
 
 const BaseConfig = {
+    windows:true,
     // pathPrefix: '/api',
     port: {
         api: 8090,
@@ -39,7 +40,7 @@ const BaseConfig = {
     //
     path: {
         // temp: `${os.tmpdir()}/tosho_tmp_${process.pid}`,
-        root: '/home/file',
+        root: 'G:\\Shares',
         //静态文件目录对应的URL
         root_web: '/file',
         api: '/api',
