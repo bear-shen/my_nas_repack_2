@@ -255,7 +255,7 @@ function emp(e: Event) {
         ></div>
         <!--        <p class="title" @click="op_dblclick">{{ node.title }}</p>-->
         <p class="title" :title="node.title">{{ node.title }}</p>
-        <p>{{ node.time_create }}</p>
+<!--        <p>{{ node.time_create }}</p>-->
       </template>
       <template v-else>
         <div v-if="node.file_index?.cover && node._in_screen" class="thumb">
@@ -266,7 +266,7 @@ function emp(e: Event) {
           :class="['thumb', 'listIcon', `listIcon_file_${node.type}`]"
         ></div>
         <p class="title" :title="node.title">{{ node.title }}</p>
-        <p>{{ node.time_create }}</p>
+<!--        <p>{{ node.time_create }}</p>-->
       </template>
     </template>
     <template v-else-if="mode === 'text'">
@@ -487,8 +487,8 @@ function emp(e: Event) {
   width: $fontSize*8;
   .thumb {
     padding: 0 $fontSize * 0.25;
-    height: $fontSize * 6;
-    line-height: $fontSize * 6;
+    height: $fontSize * 8;
+    line-height: $fontSize * 8;
     font-size: $fontSize * 5;
     width: calc(100% - $fontSize * 0.5);
     aspect-ratio: 1;
@@ -499,8 +499,9 @@ function emp(e: Event) {
     }
   }
   p {
-    margin-top: $fontSize * 0.25;
-    font-size: $fontSize * 0.8;
+    margin-top: $fontSize * 0.2;
+    font-size: $fontSize * 0.75;
+    line-height: $fontSize;
     color: map-get($colors, font_sub);
     //word-break: break-all;
     white-space: nowrap;
@@ -508,7 +509,7 @@ function emp(e: Event) {
     text-overflow: ellipsis;
   }
   .title {
-    font-size: $fontSize;
+    font-size: $fontSize*0.9;
   }
   &:hover .title, &.select .title {
     color: map-get($colors, font);
