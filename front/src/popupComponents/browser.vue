@@ -260,6 +260,7 @@ async function getList(ext: api_file_list_req = {}) {
 function goNav(curNavIndex: number, offset: number, counter: number = 0): any {
   // console.info('goNav', [curNavIndex, offset, counter,]);
   let listLen = vNodeList.value.length;
+  if (listLen < 1) return;
   let nextIndex = 0;
   if (playMode.value === "shuffle") {
     let p = Math.random() * stackSize;
@@ -408,6 +409,15 @@ async function keymap(e: KeyboardEvent) {
       break;
     case 'NumpadEnter':
     case 'Enter':
+      break;
+    case 'Delete':
+      e.preventDefault();
+      e.stopPropagation();
+      const idSet = new Set<number>;
+      idSet.add(curNode.value.id);
+      await opFunctionModule.op_bath_delete(idSet, [], false, () => {
+        goNav(curIndex.value, +1);
+      });
       break;
   }
 }

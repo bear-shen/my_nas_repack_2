@@ -8,7 +8,6 @@ import Browser from "@/popupComponents/browser.vue";
 import Locator from "@/popupComponents/locator.vue";
 import Uploader from "@/popupComponents/uploader.vue";
 import RenameUtil from "@/popupComponents/renameUtil.vue";
-import type {Ref} from "vue";
 
 const componentDefs = {
   // helloWorld: HelloWorldVue,
@@ -29,7 +28,7 @@ function buildModal(modal: ModalConstruct): ModalStruct {
   const iw = window.innerWidth;
   const ih = window.innerHeight;
   // console.info(diffStamp);
-  const target:ModalStruct = {
+  const target: ModalStruct = {
     nid: "",
     base: {
       title: modal.title ?? "",
@@ -81,11 +80,11 @@ function buildModal(modal: ModalConstruct): ModalStruct {
   layout.fullscreen = modal.fullscreen ?? false;
   Object.assign(target.layout, layout);
   // content
-  if (modal.text){
-    if(typeof modal.text==="string") {
+  if (modal.text) {
+    if (typeof modal.text === "string") {
       target.content.text.value = modal.text;
-    }else {
-      target.content.text= modal.text;
+    } else {
+      target.content.text = modal.text;
     }
   }
   if (modal.form) {
@@ -285,15 +284,15 @@ modalStore.handleEvent("close", (nid: string) => {
 
 function toggleActive(nid: string) {
   const diffStamp = Math.floor((new Date().valueOf() - initTimestamp) / 100);
-  modalList.value.forEach((node) => {
-    if (node.nid === nid) {
-      node.layout.index = diffStamp;
-      let newActive = !node.layout.active;
-      node.layout.active = true;
-      if (node.layout.auto_focus && newActive) {
+  modalList.value.forEach((modal) => {
+    if (modal.nid === nid) {
+      modal.layout.index = diffStamp;
+      let newActive = !modal.layout.active;
+      modal.layout.active = true;
+      if (modal.layout.auto_focus && newActive) {
         setTimeout(() => {
           const ifInput: null | HTMLInputElement = document.querySelector(
-            `.modal_dom[data-ref-id="${node.nid}"] input,.modal_dom[data-ref-id="${node.nid}"] button,.modal_dom[data-ref-id="${node.nid}"] textarea`
+            `.modal_dom[data-ref-id="${modal.nid}"] input,.modal_dom[data-ref-id="${modal.nid}"] button,.modal_dom[data-ref-id="${modal.nid}"] textarea`
           );
           // console.warn(ifInput);
           if (ifInput) {
@@ -302,7 +301,7 @@ function toggleActive(nid: string) {
         }, 100);
       }
     } else {
-      node.layout.active = false;
+      modal.layout.active = false;
     }
   });
 }
@@ -354,6 +353,16 @@ function close(nid: string) {
   if (!modal.layout.allow_escape) return;
   modalList.value.delete(nid);
   checkAlpha();
+  let maxIndex = -1;
+  let maxNid = -1;
+  modalList.value.forEach((modal) => {
+    if (maxIndex > modal.layout.index) return;
+    maxIndex = modal.layout.index;
+    maxNid = modal.nid;
+  });
+  if (maxNid != -1) {
+    toggleActive(maxNid);
+  }
   return modal;
 }
 
@@ -682,7 +691,7 @@ function keymap(e: KeyboardEvent) {
       }"
       @click="toggleActive(modal.nid)"
     >
-<!--      @mousedown="onResizeStart(modal.nid, $event)"-->
+      <!--      @mousedown="onResizeStart(modal.nid, $event)"-->
       <div class="modal_header"
            @pointerdown="onResizeStart(modal.nid, $event)"
            @dblclick="modal.layout.fullscreen?resetWindow(modal.nid):fullscreen(modal.nid)"
@@ -809,7 +818,7 @@ function keymap(e: KeyboardEvent) {
         <!-- <HelloWorld msg="123" /> -->
         <!-- </div> -->
       </div>
-<!--      @mousedown="onResizeStart(modal.nid, $event)"-->
+      <!--      @mousedown="onResizeStart(modal.nid, $event)"-->
       <div class="modal_border"
            v-if="modal.layout.allow_resize"
 

@@ -131,8 +131,8 @@ export class opModule {
     public lastSelectIndex = -1;
 
     //
-    public reloadOffset_timer:number|ReturnType<typeof setTimeout> = 0;
-    public reloadOffset_count :number= 0;
+    public reloadOffset_timer: number | ReturnType<typeof setTimeout> = 0;
+    public reloadOffset_count: number = 0;
 
     /**
      * 仅仅在内容页面中启用多选
@@ -711,9 +711,9 @@ export class opModule {
         clearTimeout(this.reloadOffset_timer);
         if (!loaded) {
             this.reloadOffset_timer = setTimeout(() => {
-                  this.reloadOffset_count += 1
-                  this.reloadOffset(e)
-              }, Config.timeouts.offsetDebounce
+                    this.reloadOffset_count += 1
+                    this.reloadOffset(e)
+                }, Config.timeouts.offsetDebounce
             );
             return;
         }
@@ -810,11 +810,11 @@ export class opModule {
             query.tag_id ? query.tag_id : '',
         ].join(':');
         // const path = this.route.fullPath;
-        const ifLogExs:number[] = await kvStore.get('scroll_log', key) as unknown as number[];
+        const ifLogExs: number[] = await kvStore.get('scroll_log', key) as unknown as number[];
         if (!ifLogExs) return;
         // console.info(path, ifLogExs);
-        this.contentDOM.scrollTop = ifLogExs[0]??0;
-        this.contentDOM.scrollLeft = ifLogExs[1]??0;
+        this.contentDOM.scrollTop = ifLogExs[0] ?? 0;
+        this.contentDOM.scrollLeft = ifLogExs[1] ?? 0;
     }
 
     public reloadLazyLoad() {
@@ -986,7 +986,7 @@ export class opFunctionModule {
         return res;
     }
 
-    public static async op_bath_delete(idSet: Set<number>, nodeLs?: api_node_col[], isRecover: boolean = false) {
+    public static async op_bath_delete(idSet: Set<number>, nodeLs?: api_node_col[], isRecover: boolean = false, callback?: () => any) {
         if (!opModuleVal) return;
         opModuleVal.modalStore.set({
             title: `confirm to ${isRecover ? 'recover' : 'delete'} ${idSet.size} files`,
@@ -1013,6 +1013,7 @@ export class opFunctionModule {
                     const res = await query<api_file_bath_delete_resp>("file/bath_delete", queryData);
                     //同步回列表
                     if (opModuleVal) opModuleVal.getList();
+                    if (callback) callback();
                     if (!res) return;
                 },
             },
@@ -1249,7 +1250,7 @@ export class opFunctionModule {
         let selRes: { nodeLs: api_node_col[], idSet: Set<number> } = opModuleVal.getSelected();
         // console.info(selRes);
         if (onSelNode && !selRes.idSet.size) {
-            selRes.idSet.add(onSelNode?.id??0);
+            selRes.idSet.add(onSelNode?.id ?? 0);
             selRes.nodeLs.push(onSelNode);
         }
         // console.info(selRes);

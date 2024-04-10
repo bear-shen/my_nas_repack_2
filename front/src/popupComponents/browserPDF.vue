@@ -28,7 +28,9 @@ const props = defineProps<{
     </div>
     <slot name="navigator"></slot>
     <div class="content">
-      <embed type="application/pdf" :src="`${props.curNode.file_index?.raw?.path}?filename=${props.curNode.title}`" frameborder="0" allowfullscreen/>
+<!--      <embed type="application/pdf" :src="`${props.curNode.file_index?.raw?.path}?filename=${props.curNode.title}`" frameborder="0" allowfullscreen/>-->
+      <embed type="application/pdf" :src="`${props.curNode.file_index?.raw?.path}`" frameborder="0" allowfullscreen/>
+<!--      <iframe :src="`${props.curNode.file_index?.raw?.path}?filename=${props.curNode.title}`" width="100%" height="100%" allowfullscreen/>-->
     </div>
   </div>
 </template>
