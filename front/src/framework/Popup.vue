@@ -267,19 +267,41 @@ modalStore.handleEvent("set", (modal: ModalConstruct) => {
       curModal = value;
     });
   }
-  //
+  //因为click之后会默认取消激活，所以需要跳出同步
   if (exsNid) {
-    toggleActive(exsNid);
+    setTimeout(() => {
+      toggleActive(exsNid);
+    });
   } else {
     curModal = buildModal(modal);
     modalList.value.set(curModal.nid, curModal as ModalStruct);
-    toggleActive(curModal.nid);
+    setTimeout(() => {
+      toggleActive(curModal.nid);
+    });
   }
   checkAlpha();
   return curModal;
 });
 modalStore.handleEvent("close", (nid: string) => {
   return close(nid);
+});
+
+document.body.addEventListener('click', (e) => {
+  // console.info(e);
+  let dom: HTMLElement = e.target;
+  let inPopup = false;
+  while (dom) {
+    if (dom.tagName == 'HTML') break;
+    if (dom.tagName == 'BODY') break;
+    if (dom.classList.contains('modal_dom')) {
+      inPopup = true;
+      break;
+    }
+    // console.info(dom.tagName, dom.classList);
+    dom = dom.parentElement;
+  }
+  if (!inPopup)
+    toggleActive(0);
 });
 
 function toggleActive(nid: string) {
@@ -568,6 +590,7 @@ function keymap(e: KeyboardEvent) {
       break;
     case 'NumpadEnter':
     case 'Enter':
+      //@todo
       if ((e.target as HTMLElement).tagName === "BODY") return;
       //自动focus到提交按钮的情况下，这边做热键会产生两次提交
       if ((e.target as HTMLElement).tagName === "BUTTON") return;
@@ -590,7 +613,6 @@ function keymap(e: KeyboardEvent) {
           return onCallback(nid, key);
           break;
         }
-        modal
       }
       break;
   }
@@ -689,7 +711,7 @@ function keymap(e: KeyboardEvent) {
         left: modal.layout.x + 'px',
         top: modal.layout.y + 'px',
       }"
-      @click="toggleActive(modal.nid)"
+      @click.stop="toggleActive(modal.nid)"
     >
       <!--      @mousedown="onResizeStart(modal.nid, $event)"-->
       <div class="modal_header"

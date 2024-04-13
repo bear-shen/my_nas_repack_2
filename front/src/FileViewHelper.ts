@@ -259,6 +259,7 @@ export class opModule {
                 let from = Math.min(newSelectIndex, this.lastSelectIndex);
                 let to = Math.max(newSelectIndex, this.lastSelectIndex);
                 for (let i1 = from; i1 <= to; i1++) {
+                    if (selIndexLs.has(i1)) continue;
                     this.preSelectedNodeIndexSet.add(i1);
                 }
                 break;
@@ -268,12 +269,15 @@ export class opModule {
             case 'ctrl':
                 break;
         }
+        // console.info(Array.from(this.preSelectedNodeIndexSet), Array.from(selIndexLs));
         this.nodeList.value.forEach((node, index) => {
             let selected: number = 0;
             if (this.preSelectedNodeIndexSet.has(index)) selected += 1;
             if (selIndexLs.has(index)) selected += 1;
             // if (node._selected && selected) selected = false;
+            //必须===1，不然无法反选
             node._selected = selected === 1;
+            // node._selected = selected >0;
             // console.info(node._selected);
         });
         this.lastSelectIndex = newSelectIndex;
@@ -665,6 +669,59 @@ export class opModule {
         }
     }
 
+    public arrowSelection(e: KeyboardEvent) {
+        if (!this.nodeList.value.length) return;
+        let preSelIndex = this.lastSelectIndex;
+        if (preSelIndex === -1) {
+            const selRes = this.getSelected();
+            if (selRes.idSet.size) {
+                preSelIndex = Array.from(selRes.idSet).pop();
+            } else {
+                preSelIndex = 0;
+            }
+        }
+        //
+        let fileViewMode = this.localConfigure.get("file_view_mode") ?? "detail";
+        if (this.route.name !== 'Directory') {
+            fileViewMode = 'detail';
+        }
+        //
+        const preNode = this.nodeList.value[preSelIndex];
+        const nodeW = preNode._offsets[2] - preNode._offsets[0];
+        const domW = this.contentDOM.offsetWidth;
+        const rowNum = Math.floor(domW / nodeW);
+        //
+        let newSelIndex = preSelIndex;
+        switch (e.key) {
+            case 'ArrowRight':
+                newSelIndex += 1;
+                break;
+            case 'ArrowLeft':
+                newSelIndex -= 1;
+                break;
+            case 'ArrowUp':
+                newSelIndex -= 1 * rowNum;
+                break;
+            case 'ArrowDown':
+                newSelIndex += 1 * rowNum;
+                break;
+        }
+        // console.warn(newSelIndex);
+        let cls = false;
+        if (e.ctrlKey || e.shiftKey) cls = true;
+        //
+        if (newSelIndex < 0) newSelIndex = 0;
+        if (newSelIndex > this.nodeList.value.length - 1) newSelIndex = this.nodeList.value.length - 1;
+        this.lastSelectIndex = newSelIndex;
+        //
+        this.nodeList.value.forEach((node, index) => {
+            if (newSelIndex === index)
+                return node._selected = true;
+            if (node._selected && !cls)
+                node._selected = false;
+        });
+    }
+
     //-----------------------
 
     public async keymap(e: KeyboardEvent) {
@@ -677,6 +734,7 @@ export class opModule {
         let selRes: { nodeLs: api_node_col[], idSet: Set<number> };
         switch (e.key) {
             case 'F2':
+                //@todo
                 if ((e.target as HTMLElement).tagName !== "BODY") return;
                 selRes = this.getSelected();
                 await opFunctionModule.op_bath_rename(selRes.idSet, selRes.nodeLs);
@@ -694,8 +752,17 @@ export class opModule {
             case 'Enter':
                 if ((e.target as HTMLElement).tagName !== "BODY") return;
                 selRes = this.getSelected();
+                if (e.altKey && selRes.idSet.size == 1) {
+                    return this.emitGo('node', Array.from(selRes.idSet)[0])
+                }
                 opFunctionModule.op_bath_browser(selRes.idSet, selRes.nodeLs);
                 break;
+            case 'ArrowRight':
+            case 'ArrowLeft':
+            case 'ArrowUp':
+            case 'ArrowDown':
+                if ((e.target as HTMLElement).tagName !== "BODY") return;
+                return this.arrowSelection(e);
         }
     }
 

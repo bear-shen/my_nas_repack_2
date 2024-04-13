@@ -61,8 +61,8 @@ async function reloadScroll() {
 
 onMounted(async () => {
   // console.info('onMounted');
-  if (props.curNode && props.curNode.file && props.curNode.file.raw) {
-    await getContent(props.curNode.file.raw);
+  if (props.curNode && props.curNode.file_index && props.curNode.file_index.raw) {
+    await getContent(props.curNode.file_index.raw);
   }
   if (contentDOM.value)
     contentDOM.value?.addEventListener("scroll", scrollEvt);
@@ -70,8 +70,8 @@ onMounted(async () => {
 
 watch(() => props.curNode, async (to) => {
   // console.info('watch');
-  if (to.file && to.file.raw) {
-    await getContent(to.file.raw);
+  if (to.file_index && to.file_index.raw) {
+    await getContent(to.file_index.raw);
   }
 });
 

@@ -194,7 +194,12 @@ function emp(e: Event) {
               <button :class="['active','sysIcon', 'sysIcon_save']" @click="opFunctionModule.op_rename(node)">SAVE</button>
             </template>
             <template v-else>
-              <p class="title" :title="node.title">{{ node.title }}</p>
+              <template v-if="node.type==='directory'">
+                <p :class="['title','listIcon', `listIcon_file_${node.type}`,]" :title="node.title">{{ node.title }}</p>
+              </template>
+              <template v-else>
+                <p :class="['title',]" :title="node.title">{{ node.title }}</p>
+              </template>
               <!--            <p class="title" @click="op_dblclick">{{ node.title }}</p>-->
               <p class="time">
                 <rater :node="node" v-model="node.rate"></rater>
@@ -204,7 +209,12 @@ function emp(e: Event) {
             </template>
           </template>
           <template v-else>
-            <p class="title">{{ node.title }}</p>
+            <template v-if="node.type==='directory'">
+              <p :class="['title','listIcon', `listIcon_file_${node.type}`,]" :title="node.title">{{ node.title }}</p>
+            </template>
+            <template v-else>
+              <p :class="['title',]" :title="node.title">{{ node.title }}</p>
+            </template>
             <p><span v-for="crumb in node.crumb_node"> / {{ crumb.title }}</span></p>
             <p>{{ node.time_create }}</p>
             <p v-if="node.description">{{ node.description }}</p>
@@ -254,8 +264,14 @@ function emp(e: Event) {
           @click="op_click"
         ></div>
         <!--        <p class="title" @click="op_dblclick">{{ node.title }}</p>-->
-        <p class="title" :title="node.title">{{ node.title }}</p>
-<!--        <p>{{ node.time_create }}</p>-->
+        <template v-if="node.type==='directory'">
+          <p :class="['title','listIcon', `listIcon_file_${node.type}`,]" :title="node.title">{{ node.title }}</p>
+        </template>
+        <template v-else>
+          <p :class="['title',]" :title="node.title">{{ node.title }}</p>
+        </template>
+        <!--        <p class="title" :title="node.title">{{ node.title }}</p>-->
+        <!--        <p>{{ node.time_create }}</p>-->
       </template>
       <template v-else>
         <div v-if="node.file_index?.cover && node._in_screen" class="thumb">
@@ -265,8 +281,14 @@ function emp(e: Event) {
           v-else
           :class="['thumb', 'listIcon', `listIcon_file_${node.type}`]"
         ></div>
-        <p class="title" :title="node.title">{{ node.title }}</p>
-<!--        <p>{{ node.time_create }}</p>-->
+        <template v-if="node.type==='directory'">
+          <p :class="['title','listIcon', `listIcon_file_${node.type}`,]" :title="node.title">{{ node.title }}</p>
+        </template>
+        <template v-else>
+          <p :class="['title',]" :title="node.title">{{ node.title }}</p>
+        </template>
+        <!--        <p class="title" :title="node.title">{{ node.title }}</p>-->
+        <!--        <p>{{ node.time_create }}</p>-->
       </template>
     </template>
     <template v-else-if="mode === 'text'">
@@ -336,6 +358,12 @@ function emp(e: Event) {
         margin: 0 0 $fontSize * 0.5 0;
       }
       .title {
+        //&.listIcon {
+          //background-color: map-get($colors, bar_meta);
+        //}
+        &.listIcon::before {
+          padding-right: $fontSize*0.5;
+        }
         font-size: $fontSize;
         //line-height: $fontSize;
         white-space: normal;
@@ -510,6 +538,9 @@ function emp(e: Event) {
   }
   .title {
     font-size: $fontSize*0.9;
+    &.listIcon::before {
+      padding-right: $fontSize*0.5;
+    }
   }
   &:hover .title, &.select .title {
     color: map-get($colors, font);

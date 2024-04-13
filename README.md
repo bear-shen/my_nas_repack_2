@@ -41,6 +41,8 @@ npm run dev
 - `F2` rename
 - `Delete` delete file
 - `Enter` open browser
+- `alt + Enter` enter dir
+- `↑ ↓ ← →` nav
 
 ## directory list :
 - `ctrl + U` upload

@@ -644,6 +644,17 @@ function setRater(rateVal: string) {
   .pagination.isMobile {
     .left, .right {
       opacity: 1;
+      background-color: transparent;
+      span {
+        //width: $fontSize * 2;
+        //height: $fontSize * 2;
+        //line-height: $fontSize * 2;
+        //border-radius: $fontSize * 2;
+        //background-color: map-get($colors, popup_active);
+        $blurSize: $fontSize * 0.25;
+        text-shadow: 0 0 $blurSize black, 0 0 $blurSize black, 0 0 $blurSize black,
+        0 0 $blurSize black;
+      }
     }
   }
   .content {
