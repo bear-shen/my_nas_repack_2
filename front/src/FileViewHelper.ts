@@ -675,7 +675,7 @@ export class opModule {
         if (preSelIndex === -1) {
             const selRes = this.getSelected();
             if (selRes.idSet.size) {
-                preSelIndex = Array.from(selRes.idSet).pop();
+                preSelIndex = Array.from(selRes.idSet).pop()??0;
             } else {
                 preSelIndex = 0;
             }
@@ -687,6 +687,7 @@ export class opModule {
         }
         //
         const preNode = this.nodeList.value[preSelIndex];
+        if(!preNode._offsets)preNode._offsets=[];
         const nodeW = preNode._offsets[2] - preNode._offsets[0];
         const domW = this.contentDOM.offsetWidth;
         const rowNum = Math.floor(domW / nodeW);
