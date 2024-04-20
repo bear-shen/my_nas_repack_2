@@ -110,6 +110,12 @@ class FileJob {
                             const {stdout, stderr} = await exec(exeStr);
                             console.info(stdout, stderr);
                             nFileInfo = await fp.put(tmpFilePath, node.id_parent, subNodeTitle, 'raw');
+                            //更新状态
+                            if (nFileInfo.id) {
+                                await (new NodeModel()).where('id', nFileInfo.id).update({
+                                    building: 0,
+                                });
+                            }
                         } catch (e) {
                             console.info(e);
                             ifErr = true;
@@ -187,7 +193,7 @@ class FileJob {
                 case 'preview':
                 case 'cover':
                 case 'raw':
-                    const localPath = mkLocalPath(mkRelPath(node, indexKey,node.file_index[indexKey].ext));
+                    const localPath = mkLocalPath(mkRelPath(node, indexKey, node.file_index[indexKey].ext));
                     const stat = await fs.stat(localPath);
                     node.file_index[indexKey].size = stat.size;
                     //
