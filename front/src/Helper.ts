@@ -180,7 +180,7 @@ export function mayTyping(target: HTMLElement | null | undefined) {
         } else if (dom.contentEditable && dom.contentEditable.toLowerCase() === 'true')
             return true;
         else if (!dom.parentElement) return false;
-        dom = dom.parentElement;
+        dom = dom.parentElement as HTMLElement;
     }
     return false;
 }

@@ -733,17 +733,18 @@ export class opModule {
         // let query: api_file_list_req;
         // let nodeLs: api_node_col[], idSet: Set<number>;
         let selRes: { nodeLs: api_node_col[], idSet: Set<number> };
+        const target=e.target as HTMLElement;
         switch (e.key) {
             case 'F2':
                 //@todo
-                if (mayTyping(e.target)) return;
-                if (mayInPopup(e.target)) return;
+                if (mayTyping(target)) return;
+                if (mayInPopup(target)) return;
                 selRes = this.getSelected();
                 await opFunctionModule.op_bath_rename(selRes.idSet, selRes.nodeLs);
                 break;
             case 'Delete':
-                if (mayTyping(e.target)) return;
-                if (mayInPopup(e.target)) return;
+                if (mayTyping(target)) return;
+                if (mayInPopup(target)) return;
                 selRes = this.getSelected();
                 if (this.route.name === 'Recycle') {
                     await opFunctionModule.op_bath_delete_forever(selRes.idSet, selRes.nodeLs);
@@ -753,8 +754,8 @@ export class opModule {
                 break;
             case 'NumpadEnter':
             case 'Enter':
-                if (mayTyping(e.target)) return;
-                if (mayInPopup(e.target)) return;
+                if (mayTyping(target)) return;
+                if (mayInPopup(target)) return;
                 selRes = this.getSelected();
                 if (e.altKey && selRes.idSet.size == 1) {
                     return this.emitGo('node', Array.from(selRes.idSet)[0])
@@ -765,8 +766,8 @@ export class opModule {
             case 'ArrowLeft':
             case 'ArrowUp':
             case 'ArrowDown':
-                if (mayTyping(e.target)) return;
-                if (mayInPopup(e.target)) return;
+                if (mayTyping(target)) return;
+                if (mayInPopup(target)) return;
                 return this.arrowSelection(e);
         }
     }
