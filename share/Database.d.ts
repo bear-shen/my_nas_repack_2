@@ -29,7 +29,7 @@ export type col_node = {
         preview?: col_node_file_index,
         normal?: col_node_file_index,
         raw?: col_node_file_index,
-        // [key: string]: { size: number, checksum: string[], path?: string },
+        [key: string]: number | col_node_file_index,
     },
     status?: number,
     building?: number,

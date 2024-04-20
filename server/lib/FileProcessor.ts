@@ -1,6 +1,6 @@
 import * as crypto from "node:crypto";
 import {get as getConfig} from "../ServerConfig";
-import {col_node, col_node_file_index, type_file} from "../../share/Database";
+import {col_node, type_file} from "../../share/Database";
 import NodeModel from "../model/NodeModel";
 import * as fs from 'fs/promises';
 import util from "util";
@@ -138,7 +138,8 @@ export async function rmReal(srcNode: string | number | col_node) {
     }
     if (cur.file_index)
         for (const key in cur.file_index) {
-            const fileIndex: col_node_file_index = cur.file_index[key];
+            const fileIndex = cur.file_index[key];
+            if (!fileIndex || typeof fileIndex === 'number') continue;
             switch (key) {
                 case 'preview':
                 case 'normal':
@@ -200,7 +201,8 @@ export async function mv(
         // console.info('mv to', localPath, targetNodeLocalPath, upd);
         // return;
         for (const key in cur.file_index) {
-            const fileIndex: col_node_file_index = cur.file_index[key];
+            const fileIndex = cur.file_index[key];
+            if (!fileIndex || typeof fileIndex === 'number') continue;
             switch (key) {
                 case 'preview':
                 case 'normal':
@@ -241,7 +243,8 @@ export async function mv(
     }
     //
     for (const key in cur.file_index) {
-        const fileIndex: col_node_file_index = cur.file_index[key];
+        const fileIndex = cur.file_index[key];
+        if (!fileIndex || typeof fileIndex === 'number') continue;
         switch (key) {
             case 'preview':
             case 'normal':
@@ -281,7 +284,8 @@ export async function cp(
         // console.info('mv to', localPath, targetNodeLocalPath, upd);
         // return;
         for (const key in ins.file_index) {
-            const fileIndex: col_node_file_index = cur.file_index[key];
+            const fileIndex = cur.file_index[key];
+            if (!fileIndex || typeof fileIndex === 'number') continue;
             switch (key) {
                 case 'preview':
                 case 'normal':
@@ -325,7 +329,8 @@ export async function cp(
     }
     //
     for (const key in ins.file_index) {
-        const fileIndex: col_node_file_index = cur.file_index[key];
+        const fileIndex = cur.file_index[key];
+        if (!fileIndex || typeof fileIndex === 'number') continue;
         switch (key) {
             case 'preview':
             case 'normal':
@@ -462,12 +467,14 @@ export async function buildWebPath(nodeList: col_node[]) {
                     if (!relNodeMap.has(relNodeId)) break;
                     const relNode = relNodeMap.get(relNodeId)
                     for (const relTypeKey in relNode.file_index) {
+                        const fileIndex = relNode.file_index[relTypeKey];
+                        if (!fileIndex || typeof fileIndex === 'number') continue;
                         switch (relTypeKey) {
                             case 'cover':
                             case 'preview':
                             case 'normal':
                             case 'raw':
-                                relNode.file_index[relTypeKey].path = pathConf.root_web + '/' + mkRelPath(relNode, relTypeKey);
+                                relNode.file_index[relTypeKey].path = pathConf.root_web + '/' + mkRelPath(relNode, relTypeKey, fileIndex.ext);
                                 break;
                         }
                     }
@@ -477,7 +484,9 @@ export async function buildWebPath(nodeList: col_node[]) {
                 case 'preview':
                 case 'normal':
                 case 'raw':
-                    node.file_index[typeKey].path = pathConf.root_web + '/' + mkRelPath(node, typeKey);
+                    const fileIndex = node.file_index[typeKey];
+                    if (!fileIndex || typeof fileIndex === 'number') continue;
+                    node.file_index[typeKey].path = pathConf.root_web + '/' + mkRelPath(node, typeKey, fileIndex.ext);
                     break;
             }
         }
