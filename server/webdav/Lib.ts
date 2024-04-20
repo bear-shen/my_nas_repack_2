@@ -77,12 +77,12 @@ export function setResponseFile(rs: ReadStream, res: ServerResponse): Promise<nu
 }
 
 
-export function respCode(code: keyof typeof ErrorCode, res: ServerResponse) {
+export function respCode(code: keyof typeof ErrorCode | number, res: ServerResponse) {
     let msg = 'unknown status';
     if (ErrorCode[code]) {
         msg = ErrorCode[code];
     }
-    res.statusCode = code;
+    res.statusCode = code * 1;
     res.write(`${code} : ${msg}`);
     res.end();
 }

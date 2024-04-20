@@ -1,4 +1,4 @@
-const ref = {
+const ref: { [key: number]: string } = {
     100: 'Continue',
     101: 'Switching Protocols',
     102: 'Processing (WebDAV; RFC 2518)',

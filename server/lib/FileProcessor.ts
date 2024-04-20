@@ -1,6 +1,6 @@
 import * as crypto from "node:crypto";
 import {get as getConfig} from "../ServerConfig";
-import {col_node, type_file} from "../../share/Database";
+import {col_node, col_node_file_index, type_file} from "../../share/Database";
 import NodeModel from "../model/NodeModel";
 import * as fs from 'fs/promises';
 import util from "util";
@@ -31,6 +31,7 @@ export async function put(
     tmpLocalFilePath: string,
     parent: string | number | col_node, fileName: string,
     fileKey: 'preview' | 'normal' | 'cover' | 'raw' = 'raw'
+    , ext?: string
 ) {
     const parentNode = await get(parent);
     if (!parentNode) throw new Error('parentNode not found');
@@ -44,7 +45,7 @@ export async function put(
     const targetLocalPath = mkLocalPath(mkRelPath({
         title: title,
         node_path: mkRelPath(parentNode),
-    }, fileKey));
+    }, fileKey, ext));
     console.info(tmpLocalFilePath, targetLocalPath);
     await rename(tmpLocalFilePath, targetLocalPath);
 
@@ -52,7 +53,7 @@ export async function put(
     let res: col_node;
     if (ifExs) {
         const targetFileIndex = ifExs.file_index;
-        targetFileIndex[fileKey] = {size: 0, checksum: [],};
+        targetFileIndex[fileKey] = {size: 0, checksum: [], ext: ext};
         await (new NodeModel).where('id', ifExs.id).update({
             file_index: targetFileIndex
         });
@@ -67,7 +68,7 @@ export async function put(
             node_id_list: [...parentNode.node_id_list, parentNode.id],
             node_path: mkRelPath(parentNode),
             file_index: {
-                raw: {size: 0, checksum: []}
+                raw: {size: 0, checksum: [], ext: ext}
             },
             status: 1,
             building: 1,
@@ -134,27 +135,21 @@ export async function rmReal(srcNode: string | number | col_node) {
         for (let i1 = 0; i1 < subLs.length; i1++) {
             await rmReal(subLs[i1]);
         }
-        const pathArr = ['preview', 'normal', 'cover', 'raw',];
-        for (let i = 0; i < pathArr.length; i++) {
-            const localPath = mkLocalPath(mkRelPath(cur, <'preview' | 'normal' | 'cover' | 'raw'>pathArr[i]));
-            if (await ifLocalFileExists(localPath)) {
-                await fs.rm(localPath, {recursive: true, force: true});
-            }
-        }
-    } else {
+    }
+    if (cur.file_index)
         for (const key in cur.file_index) {
+            const fileIndex: col_node_file_index = cur.file_index[key];
             switch (key) {
                 case 'preview':
                 case 'normal':
                 case 'cover':
                 case 'raw':
-                    const localPath = mkLocalPath(mkRelPath(cur, key));
+                    const localPath = mkLocalPath(mkRelPath(cur, key, fileIndex.ext));
                     if (!await ifLocalFileExists(localPath)) break;
                     await fs.rm(localPath, {recursive: true, force: true});
                     break;
             }
         }
-    }
     await (new NodeModel).where('id', cur.id).delete();
     //cls rel
     const relLs = await (new NodeModel)
@@ -172,7 +167,8 @@ export async function rmReal(srcNode: string | number | col_node) {
 
 export async function rmFile(srcNode: string | number | col_node, fileKey: 'preview' | 'normal' | 'cover' | 'raw') {
     const node = await get(srcNode);
-    const localPath = mkLocalPath(mkRelPath(node, fileKey));
+    const fileIndex = node.file_index[fileKey];
+    const localPath = mkLocalPath(mkRelPath(node, fileKey, fileIndex.ext));
     await fs.rm(localPath, {
         // recursive:true,
         force: true,
@@ -204,13 +200,14 @@ export async function mv(
         // console.info('mv to', localPath, targetNodeLocalPath, upd);
         // return;
         for (const key in cur.file_index) {
+            const fileIndex: col_node_file_index = cur.file_index[key];
             switch (key) {
                 case 'preview':
                 case 'normal':
                 case 'cover':
                 case 'raw':
-                    let curNodeLocalPath = mkLocalPath(mkRelPath(cur, key));
-                    let targetNodeLocalPath = mkLocalPath(mkRelPath(upd, key));
+                    let curNodeLocalPath = mkLocalPath(mkRelPath(cur, key, fileIndex.ext));
+                    let targetNodeLocalPath = mkLocalPath(mkRelPath(upd, key, fileIndex.ext));
                     await rename(curNodeLocalPath, targetNodeLocalPath);
                     break;
             }
@@ -244,13 +241,14 @@ export async function mv(
     }
     //
     for (const key in cur.file_index) {
+        const fileIndex: col_node_file_index = cur.file_index[key];
         switch (key) {
             case 'preview':
             case 'normal':
             case 'cover':
             case 'raw':
-                let curNodeLocalPath = mkLocalPath(mkRelPath(cur, key));
-                let targetNodeLocalPath = mkLocalPath(mkRelPath(upd, key));
+                let curNodeLocalPath = mkLocalPath(mkRelPath(cur, key, fileIndex.ext));
+                let targetNodeLocalPath = mkLocalPath(mkRelPath(upd, key, fileIndex.ext));
                 await rename(curNodeLocalPath, targetNodeLocalPath);
                 break;
         }
@@ -283,13 +281,14 @@ export async function cp(
         // console.info('mv to', localPath, targetNodeLocalPath, upd);
         // return;
         for (const key in ins.file_index) {
+            const fileIndex: col_node_file_index = cur.file_index[key];
             switch (key) {
                 case 'preview':
                 case 'normal':
                 case 'cover':
                 case 'raw':
-                    let curNodeLocalPath = mkLocalPath(mkRelPath(cur, key));
-                    let targetNodeLocalPath = mkLocalPath(mkRelPath(ins, key));
+                    let curNodeLocalPath = mkLocalPath(mkRelPath(cur, key, fileIndex.ext));
+                    let targetNodeLocalPath = mkLocalPath(mkRelPath(ins, key, fileIndex.ext));
                     await copy(curNodeLocalPath, targetNodeLocalPath);
                     break;
             }
@@ -326,13 +325,14 @@ export async function cp(
     }
     //
     for (const key in ins.file_index) {
+        const fileIndex: col_node_file_index = cur.file_index[key];
         switch (key) {
             case 'preview':
             case 'normal':
             case 'cover':
             case 'raw':
-                let curNodeLocalPath = mkLocalPath(mkRelPath(cur, key));
-                let targetNodeLocalPath = mkLocalPath(mkRelPath(ins, key));
+                let curNodeLocalPath = mkLocalPath(mkRelPath(cur, key, fileIndex.ext));
+                let targetNodeLocalPath = mkLocalPath(mkRelPath(ins, key, fileIndex.ext));
                 await copy(curNodeLocalPath, targetNodeLocalPath);
                 break;
         }
@@ -390,7 +390,10 @@ export async function ifLocalFileExists(localPath: string) {
     }
 }
 
-export function mkRelPath(node: col_node, withPrefix?: 'temp' | 'preview' | 'normal' | 'cover' | 'raw') {
+export function mkRelPath(node: col_node,
+                          withPrefix?: 'temp' | 'preview' | 'normal' | 'cover' | 'raw',
+                          ext?: string
+) {
     const pathConfig = getConfig('path');
     let pathPrefix = '';
     switch (withPrefix) {
@@ -410,7 +413,8 @@ export function mkRelPath(node: col_node, withPrefix?: 'temp' | 'preview' | 'nor
         pathPrefix +
         //去/
         (node.node_path.length ? node.node_path + '/' : '') +
-        node.title
+        node.title +
+        (ext ? '.' + ext : '')
     ;
     return nodePath;
 }
@@ -658,7 +662,7 @@ export function rtrimSlash(str: string) {
 }
 
 export function bashTitleFilter(str: string) {
-    if(getConfig('windows'))return str;
+    if (getConfig('windows')) return str;
     return str.replaceAll('`', '\\`');
 }
 

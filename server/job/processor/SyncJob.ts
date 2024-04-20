@@ -40,10 +40,10 @@ async function scanDir(localRoot: string, rootNode: col_node) {
     const curSubNodeTitleSet: Set<string> = new Set();
     for (let i1 = 0; i1 < subFileLs.length; i1++) {
         const fTitle = fp.titleFilter(subFileLs[i1].name);
-        // console.warn(29, fTitle);
+        //规范化文件名
         if (subFileLs[i1].name != fTitle) {
             await fp.rename(localRoot + '/' + subFileLs[i1].name, localRoot + '/' + fTitle)
-            subFileLs[i1].name=fTitle;
+            subFileLs[i1].name = fTitle;
         }
         //
         if (config.import_ignore.indexOf(fTitle) !== -1) continue;

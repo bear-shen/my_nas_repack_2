@@ -37,21 +37,21 @@ class FileJob {
                     const tmpFilePath = await execFFmpeg(node, 'audio', 'normal');
                     if (tmpFilePath === false) ifErr = true;
                     if (typeof tmpFilePath === 'string')
-                        await fp.put(tmpFilePath, node.id_parent, node.title, 'normal');
+                        await fp.put(tmpFilePath, node.id_parent, node.title, 'normal', fp.extension(tmpFilePath));
                 }
                 //
                 if (!node.file_index.preview) {
                     const tmpFilePath = await execFFmpeg(node, 'preview', 'preview');
                     if (tmpFilePath === false) ifErr = true;
                     if (typeof tmpFilePath === 'string')
-                        await fp.put(tmpFilePath, node.id_parent, node.title, 'preview');
+                        await fp.put(tmpFilePath, node.id_parent, node.title, 'preview', fp.extension(tmpFilePath));
                 }
                 //
                 if (!node.file_index.cover) {
                     const tmpFilePath = await execFFmpeg(node, 'cover', 'cover');
                     if (tmpFilePath === false) ifErr = true;
                     if (typeof tmpFilePath === 'string')
-                        await fp.put(tmpFilePath, node.id_parent, node.title, 'cover');
+                        await fp.put(tmpFilePath, node.id_parent, node.title, 'cover', fp.extension(tmpFilePath));
                 }
                 //
                 // await (new NodeModel()).where('id', node.id).update({
@@ -64,21 +64,21 @@ class FileJob {
                     const tmpFilePath = await execFFmpeg(node, 'video', 'normal');
                     if (tmpFilePath === false) ifErr = true;
                     if (typeof tmpFilePath === 'string')
-                        await fp.put(tmpFilePath, node.id_parent, node.title, 'normal');
+                        await fp.put(tmpFilePath, node.id_parent, node.title, 'normal', fp.extension(tmpFilePath));
                 }
                 //
                 if (!node.file_index.preview) {
                     const tmpFilePath = await execFFmpeg(node, 'preview', 'preview');
                     if (tmpFilePath === false) ifErr = true;
                     if (typeof tmpFilePath === 'string')
-                        await fp.put(tmpFilePath, node.id_parent, node.title, 'preview');
+                        await fp.put(tmpFilePath, node.id_parent, node.title, 'preview', fp.extension(tmpFilePath));
                 }
                 //
                 if (!node.file_index.cover) {
                     const tmpFilePath = await execFFmpeg(node, 'cover', 'cover');
                     if (tmpFilePath === false) ifErr = true;
                     if (typeof tmpFilePath === 'string')
-                        await fp.put(tmpFilePath, node.id_parent, node.title, 'cover');
+                        await fp.put(tmpFilePath, node.id_parent, node.title, 'cover', fp.extension(tmpFilePath));
                 }
                 //
                 //subtitle
@@ -123,21 +123,21 @@ class FileJob {
                     const tmpFilePath = await execFFmpeg(node, 'image', 'normal');
                     if (tmpFilePath === false) ifErr = true;
                     if (typeof tmpFilePath === 'string')
-                        await fp.put(tmpFilePath, node.id_parent, node.title, 'normal');
+                        await fp.put(tmpFilePath, node.id_parent, node.title, 'normal', fp.extension(tmpFilePath));
                 }
                 //
                 if (!node.file_index.preview) {
                     const tmpFilePath = await execFFmpeg(node, 'preview', 'preview');
                     if (tmpFilePath === false) ifErr = true;
                     if (typeof tmpFilePath === 'string')
-                        await fp.put(tmpFilePath, node.id_parent, node.title, 'preview');
+                        await fp.put(tmpFilePath, node.id_parent, node.title, 'preview', fp.extension(tmpFilePath));
                 }
                 //
                 if (!node.file_index.cover) {
                     const tmpFilePath = await execFFmpeg(node, 'cover', 'cover');
                     if (tmpFilePath === false) ifErr = true;
                     if (typeof tmpFilePath === 'string')
-                        await fp.put(tmpFilePath, node.id_parent, node.title, 'cover');
+                        await fp.put(tmpFilePath, node.id_parent, node.title, 'cover', fp.extension(tmpFilePath));
                 }
                 //
                 break;
@@ -149,7 +149,7 @@ class FileJob {
                 const tmpFilePath = await execFFmpeg(node, 'subtitle', 'normal');
                 if (tmpFilePath === false) ifErr = true;
                 if (typeof tmpFilePath === 'string')
-                    await fp.put(tmpFilePath, node.id_parent, node.title, 'normal');
+                    await fp.put(tmpFilePath, node.id_parent, node.title, 'normal', fp.extension(tmpFilePath));
                 break;
             case 'pdf':
                 break;
@@ -187,7 +187,7 @@ class FileJob {
                 case 'preview':
                 case 'cover':
                 case 'raw':
-                    const localPath = mkLocalPath(mkRelPath(node, indexKey));
+                    const localPath = mkLocalPath(mkRelPath(node, indexKey,node.file_index[indexKey].ext));
                     const stat = await fs.stat(localPath);
                     node.file_index[indexKey].size = stat.size;
                     //
