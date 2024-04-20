@@ -8,6 +8,7 @@ import Browser from "@/popupComponents/browser.vue";
 import Locator from "@/popupComponents/locator.vue";
 import Uploader from "@/popupComponents/uploader.vue";
 import RenameUtil from "@/popupComponents/renameUtil.vue";
+import {mayInPopup} from "@/Helper";
 
 const componentDefs = {
   // helloWorld: HelloWorldVue,
@@ -289,17 +290,7 @@ modalStore.handleEvent("close", (nid: string) => {
 document.body.addEventListener('click', (e) => {
   // console.info(e);
   let dom: HTMLElement = e.target;
-  let inPopup = false;
-  while (dom) {
-    if (dom.tagName == 'HTML') break;
-    if (dom.tagName == 'BODY') break;
-    if (dom.classList.contains('modal_dom')) {
-      inPopup = true;
-      break;
-    }
-    // console.info(dom.tagName, dom.classList);
-    dom = dom.parentElement;
-  }
+  let inPopup = mayInPopup(dom);
   if (!inPopup)
     toggleActive(0);
 });

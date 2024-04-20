@@ -5,7 +5,10 @@ export type type_file = 'audio' | 'video' |
     'text' | 'subtitle' |
     'pdf' | 'directory';
 
-export type col_node_file_index = { size: number, checksum: string[], path?: string };
+export type col_node_file_index = {
+    size: number, checksum: string[],
+    ext?: string, path?: string,
+};
 
 
 export type col_node = {

@@ -157,9 +157,9 @@ export function mayTyping(target: HTMLElement | null | undefined) {
     let dom = target;
     while (true) {
         if (dom.tagName === 'BODY') return false;
-        if (dom.tagName === 'HTML') return false;
-        if (dom.tagName === 'TEXTAREA') return true;
-        if (dom.tagName === 'INPUT') {
+        else if (dom.tagName === 'HTML') return false;
+        else if (dom.tagName === 'TEXTAREA') return true;
+        else if (dom.tagName === 'INPUT') {
             switch ((dom as HTMLInputElement).type) {
                 case 'input':
                 case 'date':
@@ -168,7 +168,7 @@ export function mayTyping(target: HTMLElement | null | undefined) {
                 case 'file':
                 case 'number':
                 case 'password':
-                case 'radio':
+                // case 'radio':
                 case 'search':
                 case 'text':
                 case 'time':
@@ -177,10 +177,22 @@ export function mayTyping(target: HTMLElement | null | undefined) {
                     return true;
                     break;
             }
-        }
-        if (dom.contentEditable && dom.contentEditable.toLowerCase() === 'true')
+        } else if (dom.contentEditable && dom.contentEditable.toLowerCase() === 'true')
             return true;
-        if (!dom.parentElement) return false;
+        else if (!dom.parentElement) return false;
+        dom = dom.parentElement;
+    }
+    return false;
+}
+
+export function mayInPopup(target: HTMLElement | null | undefined) {
+    if (!target) return false;
+    let dom = target;
+    while (true) {
+        if (dom.classList.contains('modal_dom')) return true;
+        else if (dom.tagName == 'BODY') return false;
+        else if (dom.tagName == 'HTML') return false;
+        else if (!dom.parentElement) return false;
         dom = dom.parentElement;
     }
     return false;

@@ -5,7 +5,7 @@ import type {Ref} from "vue";
 import {ref,} from "vue";
 import type {api_favourite_attach_resp, api_favourite_group_list_resp, api_file_bath_delete_resp, api_file_bath_move_req, api_file_bath_move_resp, api_file_checksum_resp, api_file_cover_resp, api_file_delete_resp, api_file_list_req, api_file_mov_req, api_file_mov_resp, api_file_rebuild_resp, api_node_col, api_rate_attach_resp, api_tag_list_resp} from "../../share/Api";
 import type {ModalConstruct} from "@/modal";
-import {query} from "@/Helper";
+import {mayInPopup, mayTyping, query} from "@/Helper";
 import GenFunc from "@/GenFunc";
 import {useModalStore} from "@/stores/modalStore";
 import type {RouteLocationNormalizedLoaded, Router} from "vue-router";
@@ -735,12 +735,14 @@ export class opModule {
         switch (e.key) {
             case 'F2':
                 //@todo
-                if ((e.target as HTMLElement).tagName !== "BODY") return;
+                if (mayTyping(e.target)) return;
+                if (mayInPopup(e.target)) return;
                 selRes = this.getSelected();
                 await opFunctionModule.op_bath_rename(selRes.idSet, selRes.nodeLs);
                 break;
             case 'Delete':
-                if ((e.target as HTMLElement).tagName !== "BODY") return;
+                if (mayTyping(e.target)) return;
+                if (mayInPopup(e.target)) return;
                 selRes = this.getSelected();
                 if (this.route.name === 'Recycle') {
                     await opFunctionModule.op_bath_delete_forever(selRes.idSet, selRes.nodeLs);
@@ -750,18 +752,20 @@ export class opModule {
                 break;
             case 'NumpadEnter':
             case 'Enter':
-                if ((e.target as HTMLElement).tagName !== "BODY") return;
+                if (mayTyping(e.target)) return;
+                if (mayInPopup(e.target)) return;
                 selRes = this.getSelected();
                 if (e.altKey && selRes.idSet.size == 1) {
                     return this.emitGo('node', Array.from(selRes.idSet)[0])
                 }
-                opFunctionModule.op_bath_browser(selRes.idSet, selRes.nodeLs);
+                await opFunctionModule.op_bath_browser(selRes.idSet, selRes.nodeLs);
                 break;
             case 'ArrowRight':
             case 'ArrowLeft':
             case 'ArrowUp':
             case 'ArrowDown':
-                if ((e.target as HTMLElement).tagName !== "BODY") return;
+                if (mayTyping(e.target)) return;
+                if (mayInPopup(e.target)) return;
                 return this.arrowSelection(e);
         }
     }

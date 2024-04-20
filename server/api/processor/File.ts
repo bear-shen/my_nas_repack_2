@@ -25,7 +25,7 @@ import type {
 } from '../../../share/Api';
 import NodeModel from '../../model/NodeModel';
 import GenFunc from '../../lib/GenFunc';
-import {col_node, col_tag} from '../../../share/Database';
+import {col_favourite, col_node, col_rate, col_tag} from '../../../share/Database';
 import TagModel from '../../model/TagModel';
 import TagGroupModel from '../../model/TagGroupModel';
 import * as fp from "../../lib/FileProcessor";
@@ -195,7 +195,7 @@ export default class {
         });
         //收藏夹
         if (nodeIdSet.size) {
-            const favList = await splitQuery(FavouriteModel, Array.from(nodeIdSet), (orm) => {
+            const favList = await splitQuery<col_favourite>(FavouriteModel, Array.from(nodeIdSet), (orm) => {
                 orm.where('id_user', data.uid).where('status', 1)
             });
             const favMap = new Map<number, number[]>();
@@ -214,7 +214,7 @@ export default class {
         }
         //评级
         if (nodeIdSet.size) {
-            const rateList = await splitQuery(RateModel, Array.from(nodeIdSet), (orm) => {
+            const rateList = await splitQuery<col_rate>(RateModel, Array.from(nodeIdSet), (orm) => {
                 orm.where('id_user', data.uid)
             }, ['id_node', 'rate'], 'id_node');
             const rateMap = new Map<number, number>();
@@ -269,7 +269,7 @@ export default class {
         const parentMap = new Map<number, col_node>();
         if (withConf.indexOf('crumb') !== -1) {
             if (parentIdSet.size) {
-                const parentLs = await splitQuery(NodeModel, Array.from(parentIdSet), undefined, [
+                const parentLs = await splitQuery<col_node>(NodeModel, Array.from(parentIdSet), undefined, [
                     'id', 'title', 'status', 'type',
                 ]);
                 parentLs.forEach(node => {

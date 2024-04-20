@@ -14,8 +14,8 @@ class BaseModel<field> extends ORM {
 
     async select(column?: (keyof field)[] | string[]): Promise<field[]> {
         let res = await super.select(column as string[]);
-        if(!res.length)return [];
-        res=JSON.parse(JSON.stringify(res));
+        if (!res.length) return [];
+        res = JSON.parse(JSON.stringify(res));
         for (let i = 0; i < res.length; i++) {
             // res[i] = JSON.parse(JSON.stringify(res[i]));
             for (const key in res[i]) {
@@ -80,36 +80,50 @@ class BaseModel<field> extends ORM {
         return await super.delete();
     }
 
-    where(...arg: (keyof field)[] | any[] | ((orm: this) => any)[]): this {
-        return super.where(...arg);
+    // public where(func: (this) => any): this;
+    // public where(k: keyof field | string | number, v: string | number): this ;
+    // public where(k: keyof field | string | number, c: string, v: string | number): this ;
+    // where(func: (this) => any): this {
+    //     return super.where(func) as this;
+    // }
+    // where(k: keyof field | string | number, v: string | number): this {
+    //     return super.where(k, v) as this;
+    // }
+
+    where(k: keyof field | string | number | ((orm: this) => any), c?: string | number | any, v?: string | number | any): this {
+        if (c === undefined)
+            return super.where(k) as this;
+        if (v === undefined)
+            return super.where(k, c) as this;
+        return super.where(k, c, v) as this;
     }
 
     whereRaw(expr: string, ...arg: any[]): this {
-        return super.whereRaw(expr, ...arg);
+        return super.whereRaw(expr, ...arg) as this;
     }
 
     whereNull(key: keyof field | string): this {
-        return super.whereNull(key as string);
+        return super.whereNull(key as string) as this;
     }
 
     whereIn(key: keyof field | string, arr: (string | number)[]): this {
-        return super.whereIn(key as string, arr);
+        return super.whereIn(key as string, arr) as this;
     }
 
     whereBetween(key: keyof field | string, a: number | string, b: number | string): this {
-        return super.whereBetween(key as string, a, b);
+        return super.whereBetween(key as string, a, b) as this;
     }
 
     group(by: keyof field | string): this {
-        return super.group(by as string);
+        return super.group(by as string) as this;
     }
 
     order(by: keyof field | string, sort?: string): this {
-        return super.order(by as string, sort);
+        return super.order(by as string, sort) as this;
     }
 
     sort(by: keyof field | string, sort?: string): this {
-        return super.sort(by as string, sort);
+        return super.sort(by as string, sort) as this;
     }
 }
 

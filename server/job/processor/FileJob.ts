@@ -94,7 +94,7 @@ class FileJob {
                     }));
                     for (let i1 = 0; i1 < subArr.length; i1++) {
                         let ffStr = subArr[i1].ffStr;
-                        let subTitle = subArr[i1].subTitle;
+                        let subTitle = subArr[i1].subTitle ?? 'sub' + i1;
                         const subNodeTitle = [
                             fp.filename(node.title),
                             subTitle,
@@ -109,7 +109,7 @@ class FileJob {
                             const exeStr = parseFFStr(ffStr, filePath, tmpFilePath);
                             const {stdout, stderr} = await exec(exeStr);
                             console.info(stdout, stderr);
-                            nFileInfo = await fp.put(tmpFilePath, node.id_parent, subNodeTitle, 'normal');
+                            nFileInfo = await fp.put(tmpFilePath, node.id_parent, subNodeTitle, 'raw');
                         } catch (e) {
                             console.info(e);
                             ifErr = true;
