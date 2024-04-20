@@ -642,7 +642,7 @@ export function getType(suffix: string): type_file {
 }
 
 export function titleFilter(title: string) {
-    return title.replace(/[\\\/:*?"<>|#\r\n\t\s]+/igm, ' ').trim();
+    return title.replace(/[`\\\/:*?"<>|#%\r\n\t\s]+/igm, ' ').trim();
 }
 
 export function pathFilter(path: string) {
