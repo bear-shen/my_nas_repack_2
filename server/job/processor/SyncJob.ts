@@ -12,6 +12,8 @@ const exec = util.promisify(require('child_process').exec);
 export default class {
     static async run(payload: { [key: string]: any }): Promise<any> {
         const pathConfig = getConfig('path');
+        const curJobLs= await (new QueueModel).where('type','sync/run').whereIn('status',[1,2]).select();
+        if(curJobLs.length>1) throw new Error('sync job running');
         await scanDir(pathConfig.root, fp.rootNode);
         // await scanDir(Buffer.from(pathConfig.root), fp.rootNode);
     }
