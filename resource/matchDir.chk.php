@@ -1,12 +1,12 @@
 <?php
-require_once 'lib_php/bootloader.php';
+//require_once 'lib_php/bootloader.php';
 require_once 'lib_php/GenFunc.php';
 //临时数据目录
 $sourceDir = 'E:\\newdown\\';
 //临时数据输出目录
 //$tmpDir = 'E:\\newdown_tmp\\';
 //原始数据目录
-$targetDir = 'F:\\hun\\';
+$targetDir = 'G:\\hun\\';
 global $filterWords;
 $filterWords = [
     '汉化', '翻译', '漢化', '中国', '翻訳', 'chinese', 'english', '翻訳', '汉化',
@@ -16,14 +16,16 @@ $filterWords = [
     "差分", "雑誌",
     "表情", "セリフ", "再販", 'オリジナル', 'オリジ',
     'アンソロジ', '同人誌', 'コミッ', 'comic', 'よろず', 'Various', '同人CG集',
-    '成年コミック', 'オリジナル', 'ゲームCG', 'Game CG', 'よろず',
+    '成年コミック', 'オリジナル', 'ゲームCG', 'Game CG', 'よろず','fantia',
 ];
 $expArr      = [];
 $expTxt      = '';
 //------------------------------------------
 //原始目录
 $tMetaLs = [];
+//var_dump('here');
 $tls     = scandir($targetDir);
+//var_dump('here');
 foreach ($tls as $fl) {
     if ($fl == '.' || $fl == '..') continue;
     $meta = new groupMeta($targetDir . $fl);
@@ -52,6 +54,7 @@ foreach ($tls as $fl) {
 //    break;
     $tMetaLs[] = $meta;
 }
+//var_dump('here');
 file_put_contents(__DIR__ . '/meta.dir.json', json_encode($tMetaLs, JSON_UNESCAPED_UNICODE));
 //------------------------------------------
 //获取临时数据目录
@@ -296,5 +299,30 @@ class folderMeta {
         global $filterWords;
         if (in_array($in, $filterWords)) return null;
         return $in;
+    }
+}
+
+function mb_trim($string, $charlist = null) {
+    if (is_null($charlist)) {
+        return trim($string);
+    } else {
+        $charlist = preg_quote($charlist, '/');
+        return preg_replace("/(^[$charlist]+)|([$charlist]+$)/u", '', $string);
+    }
+}
+function mb_rtrim($string, $charlist = null) {
+    if (is_null($charlist)) {
+        return rtrim($string);
+    } else {
+        $charlist = preg_quote($charlist, '/');
+        return preg_replace("/([$charlist]+$)/u", '', $string);
+    }
+}
+function mb_ltrim($string, $charlist = null) {
+    if (is_null($charlist)) {
+        return ltrim($string);
+    } else {
+        $charlist = preg_quote($charlist, '/');
+        return preg_replace("/(^[$charlist]+)/u", '', $string);
     }
 }
