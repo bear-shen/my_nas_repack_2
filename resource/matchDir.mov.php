@@ -1,5 +1,5 @@
 <?php
-require_once 'lib_php/bootloader.php';
+//require_once 'lib_php/bootloader.php';
 require_once 'lib_php/GenFunc.php';
 //临时数据目录
 $sourceDir = 'E:\\newdown\\';
