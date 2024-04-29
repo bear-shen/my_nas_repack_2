@@ -206,7 +206,7 @@ function emp(e: Event) {
                 <rater :node="node" v-model="node.rate"></rater>
                 <span :title="`C:${node.time_create}\r\nU:${node.time_update}`">{{ (node.time_create ?? '').substring(0, 10) }}</span>
               </p>
-              <p v-if="node.is_file">{{ GenFunc.kmgt(node?.file_index?.raw?.size ?? 0) }}B {{ node.description }}</p>
+              <p v-if="node.is_file">{{ GenFunc.kmgt(node?.file_index?.raw?.size ?? 0,2) }}B {{ node.description }}</p>
               <p v-else>{{ node.description }}</p>
             </template>
           </template>
@@ -219,7 +219,7 @@ function emp(e: Event) {
             </template>
             <p><span v-for="crumb in node.crumb_node"> / {{ crumb.title }}</span></p>
             <p>{{ node.time_create }}</p>
-            <p v-if="node.is_file">{{ GenFunc.kmgt(node?.file_index?.raw?.size ?? 0) }}B {{ node.description }}</p>
+            <p v-if="node.is_file">{{ GenFunc.kmgt(node?.file_index?.raw?.size ?? 0,2) }}B {{ node.description }}</p>
             <p v-else>{{ node.description }}</p>
           </template>
         </div>

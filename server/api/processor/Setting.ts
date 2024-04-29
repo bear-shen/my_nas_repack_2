@@ -5,6 +5,7 @@ import SettingModel from "../../model/SettingModel";
 import {loadConfig} from "../../ServerConfig";
 import {conn} from "../../lib/SQL";
 import QueueModel from "../../model/QueueModel";
+import { throws } from 'assert'
 
 export default class {
 
@@ -62,6 +63,10 @@ export default class {
     };
 
     async sync_local_file() {
+        const ifExs=(new QueueModel).where('type','sync/run').whereIn('status',[1,2]).first();
+        if(ifExs) {
+             throw new Error('sync job running');
+        }
         (new QueueModel).insert({
             type: 'sync/run',
             payload: {},
