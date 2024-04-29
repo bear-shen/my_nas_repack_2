@@ -9,6 +9,7 @@ import Hinter from "@/components/Hinter.vue";
 import type {col_tag, col_tag_group} from "../../../share/Database";
 import {opFunctionModule} from "@/FileViewHelper";
 import Rater from "@/components/Rater.vue";
+import GenFunc from "../GenFunc";
 // import type {col_tag} from "../../../share/Database";
 // import {api_tag_col} from "../../../share/Api";
 
@@ -210,14 +211,15 @@ function emp(e: Event) {
           </template>
           <template v-else>
             <template v-if="node.type==='directory'">
-              <p :class="['title','listIcon', `listIcon_file_${node.type}`,]" :title="node.title">{{ node.title }}</p>
+              <p :class="['title','listIcon', `listIcon_file_directory`,]" :title="node.title">{{ node.title }}</p>
             </template>
             <template v-else>
               <p :class="['title',]" :title="node.title">{{ node.title }}</p>
             </template>
             <p><span v-for="crumb in node.crumb_node"> / {{ crumb.title }}</span></p>
             <p>{{ node.time_create }}</p>
-            <p v-if="node.description">{{ node.description }}</p>
+            <p v-if="node.is_file">{{ GenFunc.kmgt(node?.file_index?.raw?.size ?? 0) }} {{ node.description }}</p>
+            <p v-else>{{ node.description }}</p>
           </template>
         </div>
       </div>
@@ -359,7 +361,7 @@ function emp(e: Event) {
       }
       .title {
         //&.listIcon {
-          //background-color: map-get($colors, bar_meta);
+        //background-color: map-get($colors, bar_meta);
         //}
         &.listIcon::before {
           padding-right: $fontSize*0.5;

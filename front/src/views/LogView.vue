@@ -69,15 +69,18 @@ async function scrollEvt(a: any) {
 
 let curPage = 1;
 let loading = false;
+
 async function getList(clear: boolean = false) {
   if (loading) return;
   loading = true;
+  if (clear) curPage = 1;
   // console.info('getGroup');
   // groupList.value = [];
   const res = await query<api_queue_list_resp>("log/get",
     Object.assign(
-      {page: curPage++}, queryData
+      {page: curPage}, queryData
     ));
+  curPage += 1;
   loading = false;
   if (!res) return;
   if (!res.length) {
