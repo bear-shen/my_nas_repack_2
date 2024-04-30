@@ -18,6 +18,7 @@ export default {
     'file/deleteForever': FileJob.deleteForever,
     // 'import/run': ImportJob.run,
     'sync/run': SyncJob.run,
+    'sync/check': SyncJob.check,
     // 'sys/scanOrphanFile': SysJob.scanOrphanFile,
     'ext/cascadeTag': ExtJob.cascadeTag,
     'ext/rmRaw': ExtJob.rmRaw,

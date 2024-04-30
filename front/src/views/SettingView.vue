@@ -172,22 +172,33 @@ async function btn_syncLocalFile() {
 }
 
 async function btn_checkLocalFile() {
-  const res = await query("setting/check_local_file", {});
+  const res = await query<api_setting_col>("setting/check_local_file_result", {});
+  console.info(res);
   const modalStore = useModalStore();
+  let resTxt = '';
+  let resArr: string[] = [];
+  if (res && res.value) {
+    if (res.value.db) res.value.db.forEach(s => resArr.push(`<tr><td>db</td><td>${s}</td></tr>`));
+    if (res.value.raw) res.value.raw.forEach(s => resArr.push(`<tr><td>raw</td><td>${s}</td></tr>`));
+    if (res.value.preview) res.value.preview.forEach(s => resArr.push(`<tr><td>preview</td><td>${s}</td></tr>`));
+    if (res.value.normal) res.value.normal.forEach(s => resArr.push(`<tr><td>normal</td><td>${s}</td></tr>`));
+    if (res.value.cover) res.value.cover.forEach(s => resArr.push(`<tr><td>cover</td><td>${s}</td></tr>`));
+  }
+  resTxt = `<table>${resArr.join('')}</table>`;
+  console.info(resTxt);
   modalStore.set({
-    title: "success",
-    text: "queued",
-    w: 320,
-    h: 100,
-    minW: 320,
-    minH: 100,
-    allow_resize: false,
+    title: "chk result",
+    text: resTxt,
+    w: 480,
+    h: 360,
+    minW: 480,
+    minH: 360,
+    allow_resize: true,
     callback: {
       checkNew: async function (modal) {
         const res = await query("setting/check_local_file", {});
       },
       close: async function (modal) {
-        const res = await query("setting/check_local_file", {});
       },
     },
   } as ModalConstruct);

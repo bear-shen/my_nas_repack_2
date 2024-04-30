@@ -24,19 +24,19 @@ export default class {
     static async check(payload: { [key: string]: any }): Promise<any> {
         const pathConfig = getConfig('path');
         const nodeIdQLs = await (new NodeModel).select(['id']);
-        const nodeIdLs = [];
+        const nodeIdLs: number[] = [];
         nodeIdQLs.forEach(n => nodeIdLs.push(n.id));
         //
-        const nodeArr = await splitQuery<col_node>(NodeModel, [], null, [
+        const nodeArr = await splitQuery<col_node>(NodeModel, nodeIdLs, null, [
             'id', 'title', 'node_path', 'file_index', 'node_id_list', 'type',
         ]);
         // const nodeMap = new Map<string, col_node>;
         // nodeArr.forEach((node) => nodeMap.set(node.node_path, node));
         //
         const rawFileSet = await scanLocalDir(pathConfig.root);
-        const previewFileSet = await scanLocalDir(pathConfig.prefix_preview);
-        const normalFileSet = await scanLocalDir(pathConfig.prefix_normal);
-        const coverFileSet = await scanLocalDir(pathConfig.prefix_cover);
+        const previewFileSet = await scanLocalDir(pathConfig.preview);
+        const normalFileSet = await scanLocalDir(pathConfig.normal);
+        const coverFileSet = await scanLocalDir(pathConfig.cover);
         const extStt = {
             //db中存在raw中不存在
             db: [] as string[],
@@ -89,11 +89,22 @@ export default class {
                 extStt.cover.push(f);
             }
         });
-        await new SettingModel().insert({
-            name: '_t_file_check_result',
-            value: extStt,
-            status: 1,
-        })
+        const ifExs = await new SettingModel().where('name', '_t_file_check_result')
+            .order('id', 'desc').first();
+        if (ifExs) {
+            await new SettingModel().where('id', ifExs.id).update({
+                name: '_t_file_check_result',
+                value: extStt,
+                status: 1,
+            });
+        } else {
+            await new SettingModel().insert({
+                name: '_t_file_check_result',
+                value: extStt,
+                status: 1,
+            });
+        }
+
     }
 }
 
