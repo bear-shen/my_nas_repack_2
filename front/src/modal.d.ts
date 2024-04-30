@@ -1,6 +1,7 @@
 //return true to keep
-import type { Ref, UnwrapRef } from 'vue'
+import type {Ref} from 'vue'
 
+//返回true时不关闭窗口
 export type ModalCallbackFunc = (modal: ModalStruct) => Promise<true | any> | void;
 
 export type ModalFormConstruct<K> = {

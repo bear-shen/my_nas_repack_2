@@ -12,7 +12,7 @@ class BaseModel<field> extends ORM {
         super('');
     }
 
-    async select(column?: (keyof field)[] | string[]): Promise<field[]> {
+    async select(column?: (string | keyof field)[]): Promise<field[]> {
         let res = await super.select(column as string[]);
         if (!res.length) return [];
         res = JSON.parse(JSON.stringify(res));

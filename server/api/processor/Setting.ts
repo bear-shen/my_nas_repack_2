@@ -5,7 +5,6 @@ import SettingModel from "../../model/SettingModel";
 import {loadConfig} from "../../ServerConfig";
 import {conn} from "../../lib/SQL";
 import QueueModel from "../../model/QueueModel";
-import { throws } from 'assert'
 
 export default class {
 
@@ -63,8 +62,8 @@ export default class {
     };
 
     async sync_local_file() {
-        const ifExs= await (new QueueModel).where('type','sync/run').whereIn('status',[1,2]).first();
-        if(ifExs) throw new Error('sync job running');
+        const ifExs = await (new QueueModel).where('type', 'sync/run').whereIn('status', [1, 2]).first();
+        if (ifExs) throw new Error('sync job running');
         (new QueueModel).insert({
             type: 'sync/run',
             payload: {},
@@ -79,5 +78,23 @@ export default class {
             status: 1,
         });
     }
+
+
+    async check_local_file() {
+        const ifExs = await (new QueueModel).where('type', 'sync/check').whereIn('status', [1, 2]).first();
+        if (ifExs) throw new Error('chk job running');
+        (new QueueModel).insert({
+            type: 'sync/check',
+            payload: {},
+            status: 1,
+        });
+    }
+
+    async check_local_file_result() {
+        const res = await new SettingModel().where('name', '_t_file_check_result')
+            .order('id', 'desc').first();
+        return res;
+    }
+
 
 };

@@ -1,14 +1,13 @@
 import BaseModel from "../model/BaseModel";
-import ORM from './ORM'
 
-export async function splitQuery<K>(
-    instance: typeof BaseModel<K>, idList: (number | string)[]
-    , ext?: (orm: BaseModel<K>) => any
-    , column: string[] = ['*'], key: string = 'id'
+export async function splitQuery<field>(
+    instance: typeof BaseModel<field>, idList: (number | string)[]
+    , ext?: (orm: BaseModel<field>) => any
+    , column: (keyof field | string)[] = ['*'], key: string = 'id'
     , size: number = 1000
-): Promise<K[]> {
+): Promise<field[]> {
     let startInd = 0;
-    const resArr: K[] = [];
+    const resArr: field[] = [];
     // let subLs: K[] = [];
     // ORM.dumpSql=true;
     while (true) {
