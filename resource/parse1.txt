@@ -94,7 +94,20 @@ zzz
 
 .\ffmpeg.exe -y -hwaccel auto -i .\012.png -c:v webp -quality 75 -s 1440x2560 dpre.webp
 
-.\ffmpeg.exe -hide_banner -hwaccel auto -y -i 'u305.mp4' -c:v hevc_nvenc -profile:v main10 -preset slow -tune hq -pix_fmt p010le  'u305.exp.mp4'
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i 'u305.mp4' -c:v hevc_nvenc -profile:v main10 -preset slow -tune hq -qp 16 -rc-lookahead 80 -bf 4 -pix_fmt p010le 'u305.exp.mp4'
+rtx3060 (mobile)
+frame= 2119 fps=148 q=20.0 Lsize=   40775kB time=00:01:28.36 bitrate=3780.2kbits/s speed=6.15x
+frame= 2119 fps=147 q=20.0 Lsize=   40775kB time=00:01:28.36 bitrate=3780.2kbits/s speed=6.15x
+rtx4070 (desktop)
+frame= 2119 fps=132 q=20.0 Lsize=   40782kB time=00:01:28.36 bitrate=3780.9kbits/s speed=5.49x
+frame= 2119 fps=135 q=20.0 Lsize=   40782kB time=00:01:28.36 bitrate=3780.9kbits/s speed=5.63x
+
+.\ffmpeg.exe -hide_banner -hwaccel auto -y -i 'u305.mp4' -c:v hevc_qsv -profile:v main10 -preset slow -tune hq -qp 16 -rc-lookahead 80 -bf 4 -pix_fmt p010le 'u305.exp.mp4'
+#注意，参数不正确
+intel xe (12700h)
+frame= 2119 fps=142 q=-0.0 Lsize=   11743kB time=00:01:28.36 bitrate=1088.7kbits/s speed=5.91x
+frame= 2119 fps=131 q=-0.0 Lsize=   11743kB time=00:01:28.36 bitrate=1088.7kbits/s speed=5.48x
+
 
 .\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main10 -preset slow -pix_fmt yuv420p u305.main10.yuv420p.mp4
 .\ffmpeg.exe -hide_banner -hwaccel auto -y -i u305.mp4 -c:v libx265 -profile:v main10 -preset slow -pix_fmt yuvj420p u305.main10.yuvj420p.mp4
