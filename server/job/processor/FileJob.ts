@@ -27,6 +27,7 @@ class FileJob {
         // }
         //
         if (!node.file_index.raw) return;
+        // node.file_index = {raw: node.file_index.raw};
         //
         // let parsedFile: col_node | boolean;
         // console.info(node);
@@ -388,6 +389,7 @@ async function execFFmpeg(
     try {
         const tmpFilePath = fp.genTmpPath(parserConfig.format);
         const exeStr = parseFFStr(ffStr, orgFilePath, tmpFilePath);
+        // console.info(exeStr);
         const {stdout, stderr} = await exec(exeStr);
         console.info(stdout, stderr);
         return tmpFilePath;

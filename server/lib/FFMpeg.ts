@@ -30,6 +30,9 @@ type ffMeta = {
             language: string;
             title: string;
         };
+        disposition: {
+            attached_pic: number;
+        };
     }[];
 };
 
@@ -427,7 +430,12 @@ async function imageStr(meta: ffMeta, level: 'cover' | 'preview' | 'image'): Pro
             continue;
         }
         noVideo = false;
-        if (meta.streams[i1].level == -99) {
+        //音频封面
+        if (
+            // meta.streams[i1].level == -99
+            //不知道这个在音乐上的有效性如何，主要是rmvb的level一样是-99
+            meta.streams[i1].disposition?.attached_pic
+        ) {
             hasImage = true;
         }
         if (meta.format.duration) {
@@ -441,6 +449,7 @@ async function imageStr(meta: ffMeta, level: 'cover' | 'preview' | 'image'): Pro
         h = meta.streams[i1].height;
         break;
     }
+    // console.info({hasImage, duration});
     if (noVideo) return false;
     //
     console.info(
@@ -464,6 +473,7 @@ async function imageStr(meta: ffMeta, level: 'cover' | 'preview' | 'image'): Pro
 ${(tranSize || tranLength || tranType || tranStreams) ? imgConf.ff_encoder : '-c:v copy'}
 ${tranLength ? `-s ${Math.round(tranLength ? w * imgConf.max_length / maxLen : w)}x${Math.round(tranLength ? h * imgConf.max_length / maxLen : h)}` : ''}
 [execMask.target]`.replaceAll(/[\r\n]+/gm, "  ");
+    // console.info(str);
     return str;
 }
 
