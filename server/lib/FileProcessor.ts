@@ -153,7 +153,7 @@ export async function rmReal(srcNode: string | number | col_node) {
     await (new NodeModel).where('id', cur.id).delete();
     //cls rel
     const relLs = await (new NodeModel)
-        .whereRaw("JSON_VALUE(file_index, '$.rel') = ?", cur.id)
+        .where('rel_node_id', cur.id)
         // .where('status', '<>', -1)
         .select();
     if (relLs.length)

@@ -175,7 +175,7 @@ async function syncDir(localRoot: string, rootNode: col_node) {
             await fp.rename(localRoot + '/' + subFileLs[i1].name, localRoot + '/' + fTitle)
             subFileLs[i1].name = fTitle;
         }
-        //
+        //排除多余的文件
         if (config.import_ignore.indexOf(fTitle) !== -1) continue;
         if (config.path.prefix_temp == fTitle) continue;
         if (config.path.prefix_preview == fTitle) continue;

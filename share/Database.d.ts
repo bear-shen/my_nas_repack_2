@@ -41,6 +41,7 @@ export type col_node = {
     },
     time_create?: string,
     time_update?: string,
+    rel_node_id?: number,
 }
 
 export type col_user_group = {

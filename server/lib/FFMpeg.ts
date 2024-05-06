@@ -374,6 +374,9 @@ async function imageStr(meta: ffMeta, level: 'cover' | 'preview' | 'image'): Pro
      * FF_LEVEL_UNKNOWN - 99
      *
      * 图像基本都是-99
+     * 但是rmvb也是-99
+     * 因此使用 meta.streams[i1].disposition?.attached_pic 判断是否有图片
+     * 有图片的就使用0帧截图
      * 视频一般会填充一个大于0的值（hevc，avc，av1，mpeg）
      *
      * 因此以此判定是视频还是内嵌图像
