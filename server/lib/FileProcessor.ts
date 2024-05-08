@@ -530,6 +530,7 @@ export async function rename(srcPath: string, targetPath: string) {
         return true;
     } catch (e) {
         hasErr = e;
+        console.info(hasErr);
     }
     //
     hasErr = null;
@@ -540,6 +541,7 @@ export async function rename(srcPath: string, targetPath: string) {
         return true;
     } catch (e) {
         hasErr = e;
+        console.info(hasErr);
     }
     //
     if (hasErr) throw hasErr;
@@ -642,7 +644,7 @@ export function getType(suffix: string): type_file {
 }
 
 export function titleFilter(title: string) {
-    return title.replace(/[`\\\/:*?"<>|#%\r\n\t\s]+/igm, ' ').trim();
+    return title.replace(/[`\\\/:*?"<>|#%　\s]+/igm, ' ').trim();
 }
 
 export function pathFilter(path: string) {
