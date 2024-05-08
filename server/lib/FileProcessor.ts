@@ -519,7 +519,7 @@ export async function rename(srcPath: string, targetPath: string) {
         await fs.mkdir(targetDir, {recursive: true, mode: 0o777,});
     }
     const ifTargetExs = await ifLocalFileExists(targetPath);
-    if (!ifTargetExs) {
+    if (ifTargetExs) {
         await fs.rm(targetPath, {recursive: true, force: true});
     }
     //
