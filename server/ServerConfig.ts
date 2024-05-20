@@ -146,6 +146,7 @@ const BaseConfig = {
     },
     import_ignore: [
         "thumbs.db", "_MACOSX", "desktop.ini",
+        ".DS_Store",
     ] as string[],
 };
 
