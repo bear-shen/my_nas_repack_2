@@ -511,14 +511,14 @@ function setRater(rateVal: string) {
   >
     <template v-slot:info>
       <div :class="{info:true,detail:showDetail}">
-        <p v-if="crumbList.length">F : {{ crumbList[crumbList.length - 1].title }}</p>
+        <p v-if="crumbList.length">Dir : {{ crumbList[crumbList.length - 1].title }}</p>
         <p v-if="showDetail">
           {{ curNode.title }} ({{
             GenFunc.kmgt(curNode.file_index?.raw?.size ?? 0, 2)
           }})
         </p>
         <p v-else>{{ curNode.title }}</p>
-        <p v-if="showDetail">{{ curNode.description }}</p>
+        <p v-if="showDetail" class="preLine">{{ curNode.description }}</p>
       </div>
     </template>
     <template v-slot:btnContainer>

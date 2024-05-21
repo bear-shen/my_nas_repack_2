@@ -25,6 +25,12 @@ $hinterIndex: 250;
   #{$type}: -webkit-fill-available;
   #{$type}: -moz-available;
 }
+@mixin multiLineWrap($lines) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 @mixin blurBackground {
   &:before {
     z-index: -1;
@@ -49,8 +55,8 @@ $hinterIndex: 250;
 $colorDef_bk: hsla(210, 10%, 20%, 1);
 $colorDef_font: rgb(197, 197, 197);
 $colorDef_button: hsla(210, 20%, 10%, 1);
-$colorDef_positive: hsla(0, 0%, 60%,1);
-$colorDef_negative: hsla(0, 0%, 40%,1);
+$colorDef_positive: hsla(0, 0%, 60%, 1);
+$colorDef_negative: hsla(0, 0%, 40%, 1);
 $colors: (
   //内容背景
         bk:$colorDef_bk,

@@ -360,6 +360,9 @@ function emp(e: Event) {
         line-height: $fontSize*1.25;
         margin: 0 0 $fontSize * 0.5 0;
       }
+      p{
+        @include multiLineWrap(4);
+      }
       .title {
         //&.listIcon {
         //background-color: map-get($colors, bar_meta);

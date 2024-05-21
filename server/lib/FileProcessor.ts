@@ -184,7 +184,7 @@ export async function mv(
     //
     const localPath = mkLocalPath(mkRelPath(cur, 'raw'));
     const ifExs = await ifLocalFileExists(localPath);
-    // console.info(localPath, ifExs);
+    // console.info(localPath, ifExs, targetDir);
     if (!ifExs) throw new Error('local node not found');
     //不输入target的时候只进行重命名，这个用于批量处理
     if (targetDir == -1) {
@@ -251,6 +251,7 @@ export async function mv(
             case 'raw':
                 let curNodeLocalPath = mkLocalPath(mkRelPath(cur, key, fileIndex.ext));
                 let targetNodeLocalPath = mkLocalPath(mkRelPath(upd, key, fileIndex.ext));
+                // console.info(curNodeLocalPath, targetNodeLocalPath);
                 await rename(curNodeLocalPath, targetNodeLocalPath);
                 break;
         }
@@ -513,6 +514,7 @@ export async function buildWebPath(nodeList: col_node[]) {
  * */
 export async function rename(srcPath: string, targetPath: string) {
     let hasErr;
+    if (srcPath == targetPath) return true;
     const targetDir = dirname(targetPath);
     const ifDirExs = await ifLocalFileExists(targetDir);
     if (!ifDirExs) {
