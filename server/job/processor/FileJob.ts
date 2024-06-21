@@ -304,6 +304,52 @@ class FileJob {
     static async deleteForever(payload: { [key: string]: any }): Promise<any> {
         await fp.rmReal(parseInt(payload.id))
     }
+
+    /**
+     * 级联隐藏文件
+     * */
+    static async cascadeDeleteStatus(payload: { [key: string]: any }): Promise<any> {
+        const srcId = parseInt(payload.id);
+        const rootNode = await (new NodeModel).where('id', srcId).first();
+        if (!rootNode) return;
+        //
+        let targetStatusCode = rootNode.status;
+        // await (new NodeModel).where('id', rootNode.id).update({
+        //     cascade_status: targetStatusCode,
+        // });
+        //
+        // if (curNode.status != 0) return;
+        if (rootNode.type != 'directory') return;
+        const subNodeLs = await (new NodeModel)
+            .whereRaw('find_in_set(?,node_id_list)', rootNode.id)
+            .select(['id', 'id_parent', 'node_id_list', 'status', 'cascade_status']);
+        const statusMap = new Map<number, number[]>();
+        subNodeLs.forEach(node => {
+            statusMap.set(node.id, [node.status, node.cascade_status]);
+        });
+        for (let i1 = 0; i1 < subNodeLs.length; i1++) {
+            let curNode = subNodeLs[i1];
+            //如果当前文件是当前的根目录，不修改状态，status=0且cascade_status=1
+            //如果当前文件是已删除的，不用处理，修改状态，status=0且cascade_status=0
+            //但是如果路径中有已删除的文件夹，则不修改状态
+            let noMod = false;
+            for (let i2 = 0; i2 < curNode.node_id_list.length; i2++) {
+                let pNodeId = curNode.node_id_list[i2];
+                if (!pNodeId) continue;
+                let pNodeStatus = statusMap.get(pNodeId);
+                if (!pNodeStatus) continue;
+                if (pNodeStatus[0] == 0) {
+                    noMod = true;
+                    break;
+                }
+            }
+            if (noMod) continue;
+            //
+            await (new NodeModel).where('id', curNode.id).update({
+                cascade_status: targetStatusCode,
+            })
+        }
+    }
 }
 
 async function cascadeCover(nodeId: number) {

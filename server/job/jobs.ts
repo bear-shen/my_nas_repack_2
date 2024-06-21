@@ -16,6 +16,7 @@ export default {
     'file/rebuild': FileJob.rebuild,
     'file/rebuildIndex': FileJob.rebuildIndex,
     'file/deleteForever': FileJob.deleteForever,
+    'file/cascadeDeleteStatus': FileJob.cascadeDeleteStatus,
     // 'import/run': ImportJob.run,
     'sync/run': SyncJob.run,
     'sync/check': SyncJob.check,

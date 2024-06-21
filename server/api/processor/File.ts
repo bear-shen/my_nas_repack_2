@@ -139,6 +139,7 @@ export default class {
             else
                 model.where('id_parent', crumbPid);
         }
+        model.where('cascade_status', 1);
         if (request.node_type) {
             switch (request.node_type) {
                 case 'any':
@@ -411,6 +412,11 @@ export default class {
     async delete(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<false | api_file_delete_resp> {
         const request = data.fields as api_file_delete_req;
         await fp.rm(parseInt(request.id));
+        await (new QueueModel).insert({
+            type: 'file/cascadeDeleteStatus',
+            payload: {id: request.id},
+            status: 1,
+        });
         return;
     }
 
@@ -466,6 +472,11 @@ export default class {
         //
         for (const nodeId of list) {
             await fp.rm(parseInt(nodeId));
+            await (new QueueModel).insert({
+                type: 'file/cascadeDeleteStatus',
+                payload: {id: nodeId},
+                status: 1,
+            });
         }
     }
 
