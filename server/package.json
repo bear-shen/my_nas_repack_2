@@ -19,7 +19,7 @@
 	"http"          : "^0.0.1-security",
 	"install"       : "^0.13.0",
 	"md5"           : "^2.3.0",
-	"mysql2"        : "^3.9.1",
+	"mysql2"        : "^3.9.8",
 	"npm"           : "^8.5.2",
 	"Promise"       : "npm:promise@^8.1.0",
 	"xml"           : "^1.0.1",
