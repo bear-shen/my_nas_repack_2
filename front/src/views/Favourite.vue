@@ -122,6 +122,8 @@ function addGroup(auto: 0 | 1) {
       tag_id: '',
       rate: '',
       pid: '',
+      cascade_dir: '1',
+      tag_or: '1',
     },
     edit: true,
     ext_key: (new Date()).valueOf(),
@@ -273,7 +275,7 @@ function tag_parse(item: api_tag_col) {
   return `${item.group.title} : ${item.title}`;
 }
 
-function delTag(groupIndex: number, tagIndex: number) {
+function tag_del(groupIndex: number, tagIndex: number) {
   const curGroup = groupList.value[groupIndex];
   if (!curGroup.tag) curGroup.tag = [];
   curGroup.tag.splice(tagIndex, 1);
@@ -347,7 +349,7 @@ function delTag(groupIndex: number, tagIndex: number) {
                     <div>
                       <p v-for="(tag,tagIndex) in group.tag">
                         <span>{{ tag_parse(tag) }}</span>
-                        <span class="sysIcon sysIcon_delete" @click="delTag(index,tagIndex)"></span>
+                        <span class="sysIcon sysIcon_delete" @click="tag_del(index,tagIndex)"></span>
                       </p>
                     </div>
                     <hinter
@@ -356,6 +358,17 @@ function delTag(groupIndex: number, tagIndex: number) {
                       :parse-text="tag_parse"
                       :meta="index"
                     ></hinter>
+                  </td>
+                </tr>
+                <tr>
+                  <td>or</td>
+                  <td>
+                    <input type="checkbox" v-model="(group.meta.tag_or as any)"
+                           :id="`FV_G_CB_S_${group.ext_key?group.ext_key:group.id}_TAG_OR`"
+                           :true-value="'1'"
+                           :false-value="''"
+                    />
+                    <label class="no_bg" :for="`FV_G_CB_S_${group.ext_key?group.ext_key:group.id}_TAG_OR`"></label>
                   </td>
                 </tr>
                 <tr>
@@ -368,6 +381,17 @@ function delTag(groupIndex: number, tagIndex: number) {
                       v-model="group.node"
                       :meta="index"
                     ></hinter>
+                  </td>
+                </tr>
+                <tr>
+                  <td>cascade</td>
+                  <td>
+                    <input type="checkbox" v-model="(group.meta.cascade_dir as any)"
+                           :id="`FV_G_CB_S_${group.ext_key?group.ext_key:group.id}_CASCADE`"
+                           :true-value="'1'"
+                           :false-value="''"
+                    />
+                    <label class="no_bg" :for="`FV_G_CB_S_${group.ext_key?group.ext_key:group.id}_CASCADE`"></label>
                   </td>
                 </tr>
                 <tr>
@@ -507,7 +531,7 @@ function delTag(groupIndex: number, tagIndex: number) {
           padding-left: $fontSize*0.5;
           width: $fontSize*12;
           label::after {
-            display: none;
+            //display: none;
           }
           select {
             color: map-get($colors, font_sub);

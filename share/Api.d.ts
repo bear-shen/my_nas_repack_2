@@ -72,6 +72,7 @@ export type api_file_list_req = {
     pid?: string,
     keyword?: string,
     tag_id?: string,
+    tag_or?: string,
     fav_id?: string,
     //
     //这个只是表示在当前文件夹中搜索

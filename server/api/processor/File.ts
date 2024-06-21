@@ -63,7 +63,7 @@ export default class {
         switch (request.mode) {
             default:
             case 'directory':
-                if (!request.pid) {
+                if (typeof request.pid == 'undefined' || request.pid === null) {
                     throw new Error('no def pid');
                 }
                 break;
@@ -102,7 +102,7 @@ export default class {
                     return await this.get({
                         uid: data.uid,
                         fields: Object.assign({
-                            cascade_dir: '1',
+                            // cascade_dir: '1',
                             mode: 'directory',
                         } as api_file_list_req, curFav.meta),
                         files: data.files,
@@ -116,9 +116,16 @@ export default class {
                 break;
         }
         if (request.tag_id) {
-            request.tag_id.split(',').forEach(tagId =>
-                model.whereRaw('find_in_set(?,tag_id_list)', tagId)
-            )
+            let tagOr = !!request.tag_or;
+            model.where((model) => {
+                request.tag_id.split(',').forEach(tagId => {
+                        if (tagOr)
+                            model.or().whereRaw('find_in_set(?,tag_id_list)', tagId);
+                        else
+                            model.whereRaw('find_in_set(?,tag_id_list)', tagId);
+                    }
+                )
+            })
         }
         let crumbPid = -1;
         if (request.pid && request.group != 'deleted') crumbPid = parseInt(request.pid);
