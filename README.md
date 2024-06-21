@@ -2,11 +2,13 @@
 
 a simple net disk frontend for nas
 
-support tagging, favourite, and user group 
+support tagging, favourite, and user group
+
+notice:
+
+ftp/webdav discontinued, no further test & dev
 
 -- --
-
-protocol supported: ftp, webdav
 
 mysql/mariadb, nginx, ffmpeg required
 

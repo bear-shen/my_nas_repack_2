@@ -32,6 +32,7 @@ export type col_node = {
         [key: string]: number | col_node_file_index,
     },
     status?: number,
+    cascade_status?: number,
     building?: number,
     tag_id_list?: number[],
     node_index?: {

@@ -15,27 +15,15 @@ import * as fHelper from "@/FileViewHelper";
 import {manualSort} from "@/FileViewHelper";
 import Hinter from "@/components/Hinter.vue";
 import Rater from "@/components/Rater.vue";
+import Config from "@/Config";
 
-const def = {
-  fileType: [
-    "any",
-    "directory",
-    "file",
-    "audio",
-    "video",
-    "image",
-    "binary",
-    "text",
-    "pdf",
-  ],
-};
 //
 const localConfigure = useLocalConfigureStore();
 const modalStore = useModalStore();
 const contentDOM: Ref<HTMLElement | null> = ref(null);
 const router = useRouter();
 const route = useRoute();
-let queryData = {
+let groupQueryData = {
   id: "",
   keyword: "",
 } as api_favourite_group_list_req;
@@ -44,13 +32,11 @@ type api_favourite_group_col_local = (api_favourite_group_col & {
   node?: api_node_col,
 });
 const groupList: Ref<(api_favourite_group_col_local)[]> = ref([]);
-const nodeList: Ref<api_node_col[]> = ref([]);
 const curGroup: Ref<api_favourite_group_col_local | null> = ref(null);
 const curGroupIndex: Ref<number> = ref(-1);
-let opModule: opModuleClass;
 
 onMounted(async () => {
-  Object.assign(queryData, GenFunc.copyObject(route.query));
+  Object.assign(groupQueryData, GenFunc.copyObject(route.query));
   await getGroup();
   opModule = new fHelper.opModule({
     route: route,
@@ -59,9 +45,9 @@ onMounted(async () => {
     getList: getList,
     contentDOM: contentDOM.value as HTMLElement,
     emitGo: emitGo,
-    // queryData: queryData,
+    // groupQueryData: groupQueryData,
   });
-  if (queryData.id) {
+  if (groupQueryData.id) {
     locateGroup();
     await getList();
     opModule.reloadScroll();
@@ -73,17 +59,17 @@ onUnmounted(() => {
 
 onBeforeRouteUpdate(async (to) => {
   console.info(to);
-  queryData.id = (to.query.id as string) ?? '';
-  queryData.keyword = to.query.keyword as string ?? '';
+  groupQueryData.id = (to.query.id as string) ?? '';
+  groupQueryData.keyword = to.query.keyword as string ?? '';
   // await getGroup();
-  if (queryData.id) {
+  if (groupQueryData.id) {
     locateGroup();
     await getList();
   }
 });
 
 async function getGroup() {
-  const res = await query<api_favourite_group_list_resp>("favourite_group/get", queryData);
+  const res = await query<api_favourite_group_list_resp>("favourite_group/get", groupQueryData);
   if (!res) return;
   const targetList = [];
   res.forEach((item) => {
@@ -131,8 +117,8 @@ function addGroup(auto: 0 | 1) {
 }
 
 function locateGroup() {
-  if (!queryData.id) return;
-  let groupId = parseInt(queryData.id);
+  if (!groupQueryData.id) return;
+  let groupId = parseInt(groupQueryData.id);
   groupList.value.forEach((item, index) => {
     if (groupId !== item.id) return;
     curGroupIndex.value = index;
@@ -152,12 +138,30 @@ async function goGroup(index: number) {
   });
 }
 
+let nodeQueryData: api_file_list_req = {
+  mode: 'directory',
+  pid: '0',
+  keyword: '',
+  tag_id: '',
+  node_type: '',
+  cascade_dir: '',
+  with: '',
+  group: '',
+  rate: ''
+};
+const nodeList: Ref<api_node_col[]> = ref([]);
+let opModule: opModuleClass;
+
+function search() {
+
+}
+
 async function getList() {
   // const group = groupList.value[index];
   nodeList.value = [];
   const res = await query<api_file_list_resp>("file/get", {
     mode: 'favourite',
-    fav_id: queryData.id,
+    fav_id: groupQueryData.id,
     with: 'file,tag',
   } as api_file_list_req);
   if (!res) return;
@@ -196,7 +200,7 @@ function emitGo(type: string, code?: number) {
         default:
           fHelper.popupDetail({
             mode: 'favourite',
-            fav_id: queryData.id,
+            fav_id: groupQueryData.id,
             with: 'file',
           }, node.id ?? 0);
           break;
@@ -205,17 +209,18 @@ function emitGo(type: string, code?: number) {
   }
 }
 
+//
 
 async function node_hint(text: string): Promise<api_node_col[] | false> {
   console.info('node_hint');
-  let queryData: api_file_list_req = {
+  let groupQueryData: api_file_list_req = {
     mode: "search",
     node_type: "directory",
     keyword: text,
     with: 'crumb',
     limit: '20',
   };
-  const res = await query<api_file_list_resp>("file/get", queryData);
+  const res = await query<api_file_list_resp>("file/get", groupQueryData);
   if (!res) return false;
   // console.info(res)
   if ('root'.indexOf(text) !== -1) {
@@ -248,6 +253,7 @@ function node_parse(item: api_node_col) {
   return `/ ${treeMap.join(' / ')}`;
 }
 
+//
 
 async function tag_hint(text: string): Promise<api_tag_list_resp | false> {
   const formData = new FormData();
@@ -337,7 +343,7 @@ function tag_del(groupIndex: number, tagIndex: number) {
                   <td>nodeType</td>
                   <td>
                     <select v-model="(group.meta as api_file_list_req).node_type as string">
-                      <option v-for="(fileType, key) in def.fileType" :value="fileType">
+                      <option v-for="(fileType, key) in Config.fileType" :value="fileType">
                         {{ fileType }}
                       </option>
                     </select>
@@ -426,16 +432,69 @@ function tag_del(groupIndex: number, tagIndex: number) {
         </template>
       </div>
     </div>
-    <div class="list_fav" ref="contentDOM">
-      <FileItem
-        v-for="(node, nodeIndex) in nodeList"
-        :key="nodeIndex"
-        :node="node"
-        :index="nodeIndex"
-        :selected="false"
-        @go="emitGo"
-      ></FileItem>
-      <!--      @go="emitGo"-->
+    <div class="fav_content">
+      <div class='content_meta'>
+        <div class='search'>
+          <label>
+            <span>Title : </span><input type='text' v-model='nodeQueryData.keyword'/>
+          </label>
+          <label>
+            <span>Type : </span>
+            <select v-model='nodeQueryData.node_type'>
+              <option v-for='type in Config.fileType'>{{ type }}</option>
+            </select>
+          </label>
+          <label>
+            <span>Rate : </span>
+            <select class='sysIcon' v-model='nodeQueryData.rate'>
+              <option v-for='(type,key) in Config.rate' :value='key' v-html='type'></option>
+            </select>
+          </label>
+          <label>
+            <button class='sysIcon sysIcon_search' @click='search'></button>
+          </label>
+        </div>
+        <div class='display'>
+          <template v-if='opModule &&opModule.showSelectionOp'>
+            <a @click="opModule.bathOp('browser')">OP</a>
+            <a @click="opModule.bathOp('favourite')">FAV</a>
+            <a @click="opModule.bathOp('rename')">RN</a>
+            <a @click="opModule.bathOp('move')">MV</a>
+            <a v-if="route.name!=='Recycle'" @click="opModule.bathOp('delete')">DEL</a>
+            <a v-if="route.name==='Recycle'" @click="opModule.bathOp('delete_forever')">rDEL</a>
+            <a class='sysIcon sysIcon_fengefu'></a>
+          </template>
+          <label>
+            <span>Sort : </span>
+            <select v-model='sortVal' @change='setSort(sortVal)'>
+              <option v-for='(sortItem, key) in Config.sort' :value='key'>
+                {{ sortItem }}
+              </option>
+            </select>
+          </label>
+          <a class='sysIcon sysIcon_fengefu'></a>
+          <a
+            v-for='type in Config.listType'
+            :class="[
+            'sysIcon',
+            `sysIcon_listType_${type}`,
+            { active: mode === type },
+          ]"
+            @click='setMode(type)'
+          ></a>
+        </div>
+      </div>
+      <div class="list_fav" ref="contentDOM">
+        <FileItem
+          v-for="(node, nodeIndex) in nodeList"
+          :key="nodeIndex"
+          :node="node"
+          :index="nodeIndex"
+          :selected="false"
+          @go="emitGo"
+        ></FileItem>
+        <!--      @go="emitGo"-->
+      </div>
     </div>
   </div>
 </template>
@@ -558,18 +617,20 @@ function tag_del(groupIndex: number, tagIndex: number) {
       }
     }
   }
-  .list_fav {
+  .fav_content {
     width: calc(100% - $fontSize * 20);
     height: 100%;
     overflow: auto;
     //@include smallScroll();
     //columns: $fontSize * 20 6;
     //column-gap: 0;
-    display: flex;
-    flex-wrap: wrap;
-    //justify-content: space-around;
-    justify-content: left;
-    align-content: flex-start;
+    .list_fav {
+      display: flex;
+      flex-wrap: wrap;
+      //justify-content: space-around;
+      justify-content: left;
+      align-content: flex-start;
+    }
   }
   @media (max-width: $fontSize*50) {
     display: block;
@@ -584,12 +645,14 @@ function tag_del(groupIndex: number, tagIndex: number) {
         max-width: 30%;
       }
     }
-    .list_fav {
+    .fav_content {
       width: 100%;
       height: 70%;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-around;
+      .list_fav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+      }
     }
   }
 }

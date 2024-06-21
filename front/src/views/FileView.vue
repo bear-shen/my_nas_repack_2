@@ -21,45 +21,6 @@ const contentDOM: Ref<HTMLElement | null> = ref(null)
 // console.info(z);
 const router = useRouter()
 const route = useRoute()
-const def = {
-  fileType: [
-    'any',
-    'directory',
-    'file',
-    'audio',
-    'video',
-    'image',
-    'binary',
-    'text',
-    'pdf'
-  ],
-  sort: {
-    id_asc: 'id ↑',
-    id_desc: 'id ↓',
-    name_asc: 'name ↑',
-    name_desc: 'name ↓',
-    crt_asc: 'crt time ↑',
-    crt_desc: 'crt time ↓',
-    upd_asc: 'upd time ↑',
-    upd_desc: 'upd time ↓',
-    rate_asc: 'rate ↑',
-    rate_desc: 'rate ↓'
-  },
-  rate: {
-    '0': '&#xe69f;&#xe69f;&#xe69f;&#xe69f;&#xe69f;',
-    '1': '&#xe6b6;&#xe69f;&#xe69f;&#xe69f;&#xe69f;',
-    '2': '&#xe69e;&#xe69f;&#xe69f;&#xe69f;&#xe69f;',
-    '3': '&#xe69e;&#xe6b6;&#xe69f;&#xe69f;&#xe69f;',
-    '4': '&#xe69e;&#xe69e;&#xe69f;&#xe69f;&#xe69f;',
-    '5': '&#xe69e;&#xe69e;&#xe6b6;&#xe69f;&#xe69f;',
-    '6': '&#xe69e;&#xe69e;&#xe69e;&#xe69f;&#xe69f;',
-    '7': '&#xe69e;&#xe69e;&#xe69e;&#xe6b6;&#xe69f;',
-    '8': '&#xe69e;&#xe69e;&#xe69e;&#xe69e;&#xe69f;',
-    '9': '&#xe69e;&#xe69e;&#xe69e;&#xe69e;&#xe6b6;',
-    '10': '&#xe69e;&#xe69e;&#xe69e;&#xe69e;&#xe69e;'
-  },
-  listType: ['detail', 'text', 'img']
-}
 let queryData: api_file_list_req = {
   mode: 'directory',
   pid: '0',
@@ -391,7 +352,7 @@ function onDragover(e: DragEvent) {
 </script>
 
 <template>
-  <div class='fr_content' @dragover="onDragover">
+  <div class='fr_content view_file' @dragover="onDragover">
     <div class='content_meta'>
       <div class='crumb' v-if='crumbList.length'>
         <a dir='ltr'
@@ -409,13 +370,13 @@ function onDragover(e: DragEvent) {
         <label>
           <span>Type : </span>
           <select v-model='queryData.node_type'>
-            <option v-for='type in def.fileType'>{{ type }}</option>
+            <option v-for='type in Config.fileType'>{{ type }}</option>
           </select>
         </label>
         <label>
           <span>Rate : </span>
           <select class='sysIcon' v-model='queryData.rate'>
-            <option v-for='(type,key) in def.rate' :value='key' v-html='type'></option>
+            <option v-for='(type,key) in Config.rate' :value='key' v-html='type'></option>
           </select>
         </label>
         <label v-if='crumbList.length'>
@@ -458,14 +419,14 @@ function onDragover(e: DragEvent) {
         <label>
           <span>Sort : </span>
           <select v-model='sortVal' @change='setSort(sortVal)'>
-            <option v-for='(sortItem, key) in def.sort' :value='key'>
+            <option v-for='(sortItem, key) in Config.sort' :value='key'>
               {{ sortItem }}
             </option>
           </select>
         </label>
         <a class='sysIcon sysIcon_fengefu'></a>
         <a
-          v-for='type in def.listType'
+          v-for='type in Config.listType'
           :class="[
             'sysIcon',
             `sysIcon_listType_${type}`,
@@ -492,9 +453,9 @@ function onDragover(e: DragEvent) {
   </div>
 </template>
 
-<style scoped lang='scss'>
+<style lang='scss' scoped>
 @import "../assets/variables";
-.fr_content {
+.fr_content.view_file {
   display: flex;
   flex-direction: column;
   /*position: relative;
@@ -508,98 +469,6 @@ function onDragover(e: DragEvent) {
   @media (max-width: 960px) {
     padding-top: $fontSize*4.5;
   }*/
-  .content_meta {
-    /*position: fixed;
-    top: $fontSize*1.5;
-    @include fillAvailable(width);
-    z-index: 1;
-    //left:0;*/
-    $metaBk: map-get($colors, bar_meta);
-    background-color: $metaBk;
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    padding: 0 $fontSize * 0.5;
-    //height: $fontSize * 1.5;
-    line-height: $fontSize * 1.5;
-    //margin-bottom: $fontSize;
-    * {
-      //height: $fontSize * 1.5;
-      line-height: $fontSize * 1.5;
-      padding-top: 0;
-      padding-bottom: 0;
-      vertical-align: top;
-    }
-    > * {
-      display: inline-block;
-      overflow: hidden;
-    }
-    label {
-      margin-right: $fontSize;
-      height: $fontSize * 1.5;
-      width: $fontSize * 1.5;
-      padding: 0;
-      text-align: center;
-      line-height: $fontSize * 1.25;
-    }
-    input,
-    button,
-    select {
-      background-color: $metaBk;
-      padding: 0;
-    }
-    a,
-    span {
-      font-size: $fontSize;
-      //line-height: 1.5em;
-      padding: 0 0.125em;
-      display: inline-block;
-    }
-    a:hover {
-      background-color: map-get($colors, bar_meta_active);
-    }
-    @media (min-width: 640px) {
-      .crumb { max-width: 50%;}
-    }
-    @media (min-width: 1280px) {
-      .crumb { max-width: 90%;}
-    }
-    @media (min-width: 1920px) {
-      .crumb { max-width: 50%;}
-    }
-    .crumb {
-      font-size: $fontSize;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      //direction: rtl;
-      /*max-width: $fontSize*30;
-      text-align: right;*/
-      .item {
-        //unicode-bidi: bidi-override;
-        //float: left;
-        //direction: ltr;
-        display: inline-block;
-        padding-right: $fontSize * 0.25;
-        cursor: pointer;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: $fontSize*10;
-      }
-      .item:hover {
-        background-color: map-get($colors, bar_meta_active);
-      }
-      .item::before {
-        content: "/";
-        font-size: $fontSize;
-        padding-left: $fontSize * 0.25;
-        padding-right: $fontSize * 0.25;
-      }
-    }
-    .display a {
-      cursor: pointer;
-    }
-  }
 }
 .content_detail {
   //height: 90vh;

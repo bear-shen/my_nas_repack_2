@@ -15,6 +15,7 @@ import browserPDFVue from "./browserPDF.vue";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {useEventStore} from "@/stores/event";
 import type {col_node, type_file,} from "../../../share/Database";
+import Config from "@/Config";
 //------------------
 const props = defineProps<{
   data: {
@@ -24,52 +25,6 @@ const props = defineProps<{
   };
   modalData: ModalStruct;
 }>();
-const def = {
-  fileType: [
-    "any",
-    // "directory",
-    "file",
-    "audio",
-    "video",
-    "image",
-    "binary",
-    "text",
-    "pdf",
-  ],
-  sort: {
-    id_asc: "id ↑",
-    id_desc: "id ↓",
-    name_asc: "name ↑",
-    name_desc: "name ↓",
-    crt_asc: "crt time ↑",
-    crt_desc: "crt time ↓",
-    upd_asc: "upd time ↑",
-    upd_desc: "upd time ↓",
-    rate_asc: "rate ↑",
-    rate_desc: "rate ↓",
-  },
-  rate: {
-    '0': '&#xe69f;&#xe69f;&#xe69f;&#xe69f;&#xe69f;',
-    '1': '&#xe6b6;&#xe69f;&#xe69f;&#xe69f;&#xe69f;',
-    '2': '&#xe69e;&#xe69f;&#xe69f;&#xe69f;&#xe69f;',
-    '3': '&#xe69e;&#xe6b6;&#xe69f;&#xe69f;&#xe69f;',
-    '4': '&#xe69e;&#xe69e;&#xe69f;&#xe69f;&#xe69f;',
-    '5': '&#xe69e;&#xe69e;&#xe6b6;&#xe69f;&#xe69f;',
-    '6': '&#xe69e;&#xe69e;&#xe69e;&#xe69f;&#xe69f;',
-    '7': '&#xe69e;&#xe69e;&#xe69e;&#xe6b6;&#xe69f;',
-    '8': '&#xe69e;&#xe69e;&#xe69e;&#xe69e;&#xe69f;',
-    '9': '&#xe69e;&#xe69e;&#xe69e;&#xe69e;&#xe6b6;',
-    '10': '&#xe69e;&#xe69e;&#xe69e;&#xe69e;&#xe69e;',
-  },
-  listType: ["detail", "text", "img"],
-  playMode: [
-    /*"queue",*/ "loop", "single", "shuffle"
-  ],
-  ignoreFileType: [
-    'directory',
-    'subtitle',
-  ] as type_file[],
-};
 const isMobile = window.navigator.userAgent.toLowerCase().indexOf('mobile') !== -1;
 const regComponentLs = {
   audio: browserAudioVue,
@@ -118,10 +73,10 @@ const playMode: Ref<string> = ref(
 );
 
 function togglePlayMode() {
-  let curModeIndex = def.playMode.indexOf(playMode.value);
+  let curModeIndex = Config.playMode.indexOf(playMode.value);
   curModeIndex += 1;
-  if (curModeIndex > def.playMode.length - 1) curModeIndex = 0;
-  playMode.value = def.playMode[curModeIndex];
+  if (curModeIndex > Config.playMode.length - 1) curModeIndex = 0;
+  playMode.value = Config.playMode[curModeIndex];
   localConfigure.set("browser_play_mode", playMode.value);
 }
 
@@ -291,7 +246,7 @@ function emitNav(index: number) {
 
 function isValidNode(node: api_node_col) {
   // const node = nodeList.value[nextIndex];
-  // console.info([node.type, filterVal.value, def.ignoreFileType.indexOf(node.type ?? 'directory')]);
+  // console.info([node.type, filterVal.value, Config.ignoreFileType.indexOf(node.type ?? 'directory')]);
   const rate = parseInt(rateVal.value) ?? 0;
   if ((node.rate ?? 0) < rate) {
     return false;
@@ -299,7 +254,7 @@ function isValidNode(node: api_node_col) {
   switch (filterVal.value) {
     case 'any':
     case 'file':
-      return def.ignoreFileType.indexOf(node.type ?? 'directory') === -1;
+      return Config.ignoreFileType.indexOf(node.type ?? 'directory') === -1;
       break;
     default:
       return filterVal.value == node.type;
@@ -526,16 +481,16 @@ function setRater(rateVal: string) {
       <!--      </div>-->
       <div class="btnContainer">
         <select class="sysIcon" v-model="rateVal" @change="setRater(rateVal)">
-          <option v-for="(type,key) in def.rate" :value="key" v-html="type"></option>
+          <option v-for="(type,key) in Config.rate" :value="key" v-html="type"></option>
         </select>
         <select v-model="filterVal" @change="setFilter(filterVal)">
-          <option v-for="(fileType, key) in def.fileType" :value="fileType">
+          <option v-for="(fileType, key) in Config.fileType" :value="fileType">
             {{ fileType }}
           </option>
         </select>
         <br>
         <select v-model="sortVal" @change="setSort($event)">
-          <option v-for="(sortItem, key) in def.sort" :value="key">
+          <option v-for="(sortItem, key) in Config.sort" :value="key">
             {{ sortItem }}
           </option>
         </select>

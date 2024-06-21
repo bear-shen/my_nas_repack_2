@@ -60,4 +60,97 @@ const containerDef = {};
 .fr_footer {
   height: $footerHeight;
 }
+
+.content_meta {
+  /*position: fixed;
+  top: $fontSize*1.5;
+  @include fillAvailable(width);
+  z-index: 1;
+  //left:0;*/
+  $metaBk: map-get($colors, bar_meta);
+  background-color: $metaBk;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  padding: 0 $fontSize * 0.5;
+  //height: $fontSize * 1.5;
+  line-height: $fontSize * 1.5;
+  //margin-bottom: $fontSize;
+  * {
+    //height: $fontSize * 1.5;
+    line-height: $fontSize * 1.5;
+    padding-top: 0;
+    padding-bottom: 0;
+    vertical-align: top;
+  }
+  > * {
+    display: inline-block;
+    overflow: hidden;
+  }
+  label {
+    margin-right: $fontSize;
+    height: $fontSize * 1.5;
+    width: $fontSize * 1.5;
+    padding: 0;
+    text-align: center;
+    line-height: $fontSize * 1.25;
+  }
+  input,
+  button,
+  select {
+    background-color: $metaBk;
+    padding: 0;
+  }
+  a,
+  span {
+    font-size: $fontSize;
+    //line-height: 1.5em;
+    padding: 0 0.125em;
+    display: inline-block;
+  }
+  a:hover {
+    background-color: map-get($colors, bar_meta_active);
+  }
+  @media (min-width: 640px) {
+    .crumb { max-width: 50%;}
+  }
+  @media (min-width: 1280px) {
+    .crumb { max-width: 90%;}
+  }
+  @media (min-width: 1920px) {
+    .crumb { max-width: 50%;}
+  }
+  .crumb {
+    font-size: $fontSize;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    //direction: rtl;
+    /*max-width: $fontSize*30;
+    text-align: right;*/
+    .item {
+      //unicode-bidi: bidi-override;
+      //float: left;
+      //direction: ltr;
+      display: inline-block;
+      padding-right: $fontSize * 0.25;
+      cursor: pointer;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: $fontSize*10;
+    }
+    .item:hover {
+      background-color: map-get($colors, bar_meta_active);
+    }
+    .item::before {
+      content: "/";
+      font-size: $fontSize;
+      padding-left: $fontSize * 0.25;
+      padding-right: $fontSize * 0.25;
+    }
+  }
+  .display a {
+    cursor: pointer;
+  }
+}
 </style>
