@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import {onMounted, onUnmounted, ref, type Ref, watch} from "vue";
-import type {ModalStruct} from "../modal";
+import type {ModalStruct} from "@/modal";
 import type {api_node_col} from "../../../share/Api";
 import GenFunc from "@/GenFunc";
 import {useEventStore} from "@/stores/event";
 import {mayTyping} from "@/Helper";
 import * as kvStore from '@/IndexedKVStore';
 // import piexif from 'piexif-ts';
-
 
 const props = defineProps<{
   data: {
@@ -24,7 +23,19 @@ const orgZoomLevel = [0.1, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 2];
 
 const contentDOM: Ref<HTMLElement | null> = ref(null);
 const imgDOM: Ref<HTMLImageElement | null> = ref(null);
-const imgLayout = ref({
+type imgLayoutType = {
+  loaded: number;
+  w: number;
+  h: number;
+  x: number;
+  y: number;
+  rotate: number;
+  ratio: number;
+  ratioTxt: string;
+  orgW: number;
+  orgH: number;
+};
+const imgLayout: Ref<imgLayoutType> = ref({
   loaded: 0,
   w: 0,
   h: 0,
@@ -95,19 +106,22 @@ let resizingEvtKey = eventStore.listen(
   `modal_resizing_${props.modalData.nid}`,
   (data) => fitImg()
 );
-watch(() => props.curNode, async (to) => {
-  console.info('onMod props.curNode');
-  //非得这样切一下不然不刷新
-  // showImg.value = false;
-  // setTimeout(() => {
-  //   showImg.value = true;
-  // imgDOM.value?.decode();
-  imgLayout.value.loaded = 0;
-  // setTimeout(() => {
-  //   loadImageRes();
-  // }, 0)
-  // }, 0)
-});
+
+watch(
+  () => props.curNode,
+  async (to) => {
+    console.info('onMod props.curNode');
+    //非得这样切一下不然不刷新
+    // showImg.value = false;
+    // setTimeout(() => {
+    //   showImg.value = true;
+    // imgDOM.value?.decode();
+    imgLayout.value.loaded = 0;
+    // setTimeout(() => {
+    //   loadImageRes();
+    // }, 0)
+    // }, 0)
+  });
 
 onUnmounted(() => {
   // eventStore.release(`modal_resizing_${props.modalData.nid}`, resizingEvtKey);
@@ -175,6 +189,8 @@ function onDragging(e: PointerEvent) {
   if (!props.modalData.layout.active) return;
   // console.info(e);
   if (!e.pointerId) return;
+  e.preventDefault();
+  e.stopPropagation();
   pointerId = e.pointerId;
   const layout = imgLayout.value;
   const t = {
@@ -190,6 +206,7 @@ function onDragging(e: PointerEvent) {
 
 function onPointerMove(e: PointerEvent) {
   e.preventDefault();
+  e.stopPropagation();
   if (e.pointerId !== pointerId) return;
   // e.stopPropagation();
   if (!dragData.active) return;
@@ -301,7 +318,6 @@ function setZoom(e?: WheelEvent, dir?: number) {
   target.ratioTxt = Math.round(ratio * 1000) / 10 + " %";
   Object.assign(imgLayout.value, target);
 }
-
 
 function keymap(e: KeyboardEvent) {
   if (mayTyping(e.target)) return;

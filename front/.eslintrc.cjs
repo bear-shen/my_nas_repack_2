@@ -6,8 +6,7 @@ module.exports = {
   'extends'    : [
     'plugin:vue/vue3-essential',
     'eslint:recommended',
-    '@vue/eslint-config-typescript',
-    '@vue/eslint-config-prettier'
+    '@vue/eslint-config-typescript'
   ],
   rules        : {
     'no-unused-vars'                    : 'off',
@@ -54,6 +53,7 @@ module.exports = {
     'no-trailing-spaces'                : 'off',
     '@typescript-eslint/no-var-requires': 'off',
     'vue/max-attributes-per-line'       : 'off',
+    'vue/no-unused-vars'                : 'off',
     'no-empty '                         : 'off',
     // 'prettier/prettier': ['error', {
     //   'semi'       : false,

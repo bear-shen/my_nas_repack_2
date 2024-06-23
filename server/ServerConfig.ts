@@ -40,7 +40,7 @@ const BaseConfig = {
     //
     path: {
         // temp: `${os.tmpdir()}/tosho_tmp_${process.pid}`,
-        root: 'G:\\Shares',
+        root: '/home/file',
         //静态文件目录对应的URL
         root_web: '/file',
         api: '/api',

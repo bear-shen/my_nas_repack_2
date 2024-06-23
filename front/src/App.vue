@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import HelloWorld from "./components/HelloWorld.vue";
 import FrHeader from "./framework/Header.vue";
 import FrFooter from "./framework/Footer.vue";
 import FrNavi from "./framework/Navi.vue";
@@ -112,13 +111,19 @@ const containerDef = {};
     background-color: map-get($colors, bar_meta_active);
   }
   @media (min-width: 640px) {
-    .crumb { max-width: 50%;}
+    .crumb {
+      max-width: 50%;
+    }
   }
   @media (min-width: 1280px) {
-    .crumb { max-width: 90%;}
+    .crumb {
+      max-width: 90%;
+    }
   }
   @media (min-width: 1920px) {
-    .crumb { max-width: 50%;}
+    .crumb {
+      max-width: 50%;
+    }
   }
   .crumb {
     font-size: $fontSize;
@@ -137,7 +142,7 @@ const containerDef = {};
       cursor: pointer;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: $fontSize*10;
+      max-width: $fontSize * 10;
     }
     .item:hover {
       background-color: map-get($colors, bar_meta_active);

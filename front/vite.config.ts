@@ -1,37 +1,30 @@
-import { fileURLToPath, URL } from 'node:url'
+import {fileURLToPath, URL} from 'node:url'
 
-import { defineConfig } from 'vite'
+import {defineConfig, UserConfig} from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { relative } from 'node:path'
+import {relative} from 'node:path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '',
-  server: {
-    hmr: {
-      // server: '192.168.112.161:8085',
-      // port: 8085,
-      clientPort: 8085,
+    base: '',
+    server: {
+        hmr: {
+            // server: '192.168.112.161:8085',
+            // port: 8085,
+            clientPort: 8085,
+        },
     },
-  },
-  plugins: [vue()],
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
-    }
-  },
-  build: {
-    rollupOptions: {
-      input: {
-        default: '/index.html'
-      },
+    plugins: [vue()],
+    resolve: {
+        alias: {
+            '@': fileURLToPath(new URL('./src', import.meta.url))
+        }
     },
-  },
-  css: {
-    preprocessorOptions: {
-      scss: {
-        additionalData: '@import "@/assets/variables.scss";'
-      }
-    }
-  },
+    css: {
+        preprocessorOptions: {
+            scss: {
+                additionalData: '@import "@/assets/variables.scss";'
+            }
+        }
+    },
 })
