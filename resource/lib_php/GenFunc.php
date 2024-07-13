@@ -1094,7 +1094,9 @@ class GenFunc {
      */
     public static function scanDirPlus($dir, $mode = 1, $step = false) {
         $fList   = [];
-        $absRoot = is_array($dir) ? rtrim($dir[0], '/\\') . DIRECTORY_SEPARATOR . ltrim($dir[1], '/\\') : trim($dir, '/\\');
+        $absRoot = is_array($dir) ?
+            rtrim($dir[0], '/\\') . DIRECTORY_SEPARATOR . ltrim($dir[1], '/\\') :
+            rtrim($dir, '/\\');
 //        echo $absRoot, "\r\n";
         $scan = @scandir($absRoot) ?: [];
 //        var_dump($scan);

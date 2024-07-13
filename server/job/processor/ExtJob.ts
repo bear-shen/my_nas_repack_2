@@ -1,7 +1,7 @@
 import util from "util";
 import NodeModel from "../../model/NodeModel";
 import * as fp from "../../lib/FileProcessor";
-import {Buffer} from "buffer";
+import Buffer from "buffer";
 import * as https from "https";
 import {RequestOptions} from "https";
 import http from "http";
@@ -35,10 +35,10 @@ class ExtJob {
                 // recursive:true,
                 force: true,
             });
-            const targetIndex=node.file_index;
+            const targetIndex = node.file_index;
             delete targetIndex.raw;
             await (new NodeModel).where('id', node.id).update({
-                file_index:targetIndex,
+                file_index: targetIndex,
             });
             // const ifExs = await fp.checkOrphanFile(rawFId)
             // if (ifExs) continue;
