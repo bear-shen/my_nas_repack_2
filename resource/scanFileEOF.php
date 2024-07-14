@@ -13,6 +13,7 @@ $eofDef    = [
 //var_dump(__FILE__);
 //exit();
 $sourceLs = GenFunc::scanDirPlus($sourceDir);
+echo "file to scan:", sizeof($sourceLs), "\r\n";
 $errEofLs = [];
 foreach ($sourceLs as $sourceFile) {
 //    var_dump($sourceFile);
@@ -49,4 +50,5 @@ foreach ($sourceLs as $sourceFile) {
     }
     fclose($ch);
 }
+echo "complete\r\n";
 //
