@@ -1,7 +1,7 @@
 import util from "util";
 import NodeModel from "../../model/NodeModel";
 import * as fp from "../../lib/FileProcessor";
-import Buffer from "buffer";
+import {Buffer} from "buffer";
 import * as https from "https";
 import {RequestOptions} from "https";
 import http from "http";
