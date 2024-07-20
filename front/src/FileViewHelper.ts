@@ -46,6 +46,8 @@ export class opModule {
     public mode: Ref<string> = ref('');
     public modeKey: string = '';
 
+    public sortVal: Ref<string> = ref('');
+
     constructor(
         config: {
             // nodeList: Ref<api_node_col[]>,
@@ -74,6 +76,7 @@ export class opModule {
             'file_view_mode',
             (v) => (this.mode.value = v)
         );
+        this.sortVal = ref(this.localConfigure.get('file_view_sort') ?? 'name_asc');
         //必须这么写否则无法解绑
         this.contextMenuEvt = this.contextMenuEvt.bind(this);
         this.mouseDownEvt = this.mouseDownEvt.bind(this);
@@ -107,7 +110,7 @@ export class opModule {
 
     public destructor() {
         console.info('destructor loaded');
-        this.localConfigure.release('file_view_mode', modeKey);
+        this.localConfigure.release('file_view_mode', this.modeKey);
         removeEventListener('contextmenu', this.contextMenuEvt);
         removeEventListener('mousedown', this.mouseDownEvt);
         removeEventListener('mousemove', this.mouseMoveEvt);
@@ -741,6 +744,23 @@ export class opModule {
         // console.info('file_view_mode',nodeList.value,preList);
         // if (opModule) opModule.setList(preList);
         this.setList(this.nodeList.value);
+    }
+
+    //-----------------------
+    public setSort(sort: string) {
+        console.info('setSort', sort)
+        this.localConfigure.set('file_view_sort', sort)
+        const preList = this.nodeList.value
+        this.nodeList.value = []
+        setTimeout(() => {
+            this.nodeList.value = this.sortList(preList, this.sortVal.value)
+            this.setList(this.nodeList.value)
+        }, Config.timeouts.sort)
+    }
+
+    public sortList(list: api_node_col[], sort: string) {
+        list = manualSort(list, sort);
+        return list;
     }
 
     //-----------------------

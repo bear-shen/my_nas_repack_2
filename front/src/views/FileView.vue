@@ -7,7 +7,7 @@ import {useLocalConfigureStore} from '@/stores/localConfigure'
 import {query} from '@/Helper'
 import type {opModule as opModuleClass} from '@/FileViewHelper'
 import * as fHelper from '@/FileViewHelper'
-import {manualSort} from '@/FileViewHelper'
+// import {manualSort} from '@/FileViewHelper'
 import GenFunc from '@/GenFunc'
 import type {api_file_list_req, api_file_list_resp, api_file_mkdir_req, api_file_mkdir_resp, api_node_col} from '../../../share/Api'
 import {useModalStore} from '@/stores/modalStore'
@@ -17,8 +17,6 @@ import Config from "@/Config";
 const modalStore = useModalStore()
 const contentDOM: Ref<HTMLElement | null> = ref(null)
 //
-// const z = { a: FileItem };
-// console.info(z);
 const router = useRouter()
 const route = useRoute()
 let queryData: api_file_list_req = {
@@ -33,22 +31,6 @@ let queryData: api_file_list_req = {
   rate: ''
 }
 // let usePid = false;
-//
-// defineProps<{
-// msg: string;
-// }>();
-/* onMounted(() => {
-  console.info(route.path);
-});
-let curContainer: RouteRecordRaw | null = null;
-watch(route, async (to: RouteLocationNormalizedLoaded) => {
-  console.info(to.path, routes);
-  routes.forEach((r) => {
-    if (r.path !== to.path) return;
-    curContainer = r;
-    console.info(curContainer.name);
-  });
-}); */
 onBeforeRouteUpdate(async (to) => {
   console.info('onBeforeRouteUpdate', to)
   queryData = Object.assign({
@@ -69,9 +51,7 @@ onBeforeRouteUpdate(async (to) => {
 let crumbList: Ref<api_node_col[]> = ref([])
 let nodeList: Ref<api_node_col[]> = ref([])
 let opModule: opModuleClass
-// onMounted(async () => {
-// getList();
-// });
+
 async function getList() {
   console.info('getList', route.name)
   crumbList.value = []
@@ -90,7 +70,7 @@ async function getList() {
   if (!res) return
   // console.info(res);
   crumbList.value = res.path
-  nodeList.value = sortList(res.list, sortVal.value)
+  nodeList.value = opModule.sortList(res.list, opModule.sortVal.value)
   if (opModule) opModule.setList(nodeList.value)
   // console.info(crumbList);
   return {crumb: crumbList.value, node: nodeList.value}
@@ -183,48 +163,6 @@ function addFile() {
 
 //
 const localConfigure = useLocalConfigureStore()
-// let mode: Ref<string> = ref(localConfigure.get('file_view_mode') ?? 'detail')
-// const modeKey = localConfigure.listen(
-//   'file_view_mode',
-//   (v) => (mode.value = v)
-// );
-
-// function setMode(mode: string) {
-//   localConfigure.set('file_view_mode', mode);
-//   // const preList = nodeList.value;
-//   // nodeList.value = [];
-//   // console.info('file_view_mode',nodeList.value,preList);
-//   // if (opModule) opModule.setList(preList);
-//   if (opModule) opModule.setList(nodeList.value);
-// }
-
-//
-let sortVal: Ref<string> = ref(localConfigure.get('file_view_sort') ?? 'name_asc')
-// const sortKey = localConfigure.listen(
-//   "file_view_sort",
-//   (v) => {
-//     sortVal.value = v;
-//     const preVal = nodeList.value;
-//     nodeList.value = [];
-//     nodeList.value = sortList(preVal);
-//   }
-// );
-
-function setSort(sort: string) {
-  console.info('setSort', sort)
-  localConfigure.set('file_view_sort', sort)
-  const preList = nodeList.value
-  nodeList.value = []
-  setTimeout(() => {
-    nodeList.value = sortList(preList, sortVal.value)
-    if (opModule) opModule.setList(nodeList.value)
-  }, Config.timeouts.sort)
-}
-
-function sortList(list: api_node_col[], sort: string) {
-  list = manualSort(list, sort)
-  return list
-}
 
 //
 function search() {
@@ -421,9 +359,9 @@ function onDragover(e: DragEvent) {
           <a class='sysIcon sysIcon_addfile' @click='addFile'></a>
           <a class='sysIcon sysIcon_fengefu'></a>
         </template>
-        <label>
+        <label v-if="opModule && opModule.sortVal">
           <span>Sort : </span>
-          <select v-model='sortVal' @change='setSort(sortVal)'>
+          <select v-model='opModule.sortVal.value' @change='opModule.setSort(sortVal)'>
             <option v-for='(sortItem, key) in Config.sort' :value='key'
                     :key="`FV_SCH_CON_SORT_${key}`"
             >
