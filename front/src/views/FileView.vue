@@ -183,20 +183,20 @@ function addFile() {
 
 //
 const localConfigure = useLocalConfigureStore()
-let mode: Ref<string> = ref(localConfigure.get('file_view_mode') ?? 'detail')
-const modeKey = localConfigure.listen(
-  'file_view_mode',
-  (v) => (mode.value = v)
-)
+// let mode: Ref<string> = ref(localConfigure.get('file_view_mode') ?? 'detail')
+// const modeKey = localConfigure.listen(
+//   'file_view_mode',
+//   (v) => (mode.value = v)
+// );
 
-function setMode(mode: string) {
-  localConfigure.set('file_view_mode', mode);
-  // const preList = nodeList.value;
-  // nodeList.value = [];
-  // console.info('file_view_mode',nodeList.value,preList);
-  // if (opModule) opModule.setList(preList);
-  if (opModule) opModule.setList(nodeList.value);
-}
+// function setMode(mode: string) {
+//   localConfigure.set('file_view_mode', mode);
+//   // const preList = nodeList.value;
+//   // nodeList.value = [];
+//   // console.info('file_view_mode',nodeList.value,preList);
+//   // if (opModule) opModule.setList(preList);
+//   if (opModule) opModule.setList(nodeList.value);
+// }
 
 //
 let sortVal: Ref<string> = ref(localConfigure.get('file_view_sort') ?? 'name_asc')
@@ -286,7 +286,7 @@ function emitGo(type: string, code?: number) {
 
 onMounted(async () => {
   console.info('onMounted');
-  localConfigure.release('file_view_mode', modeKey);
+  // localConfigure.release('file_view_mode', modeKey);
   Object.assign(queryData, GenFunc.copyObject(route.query));
   opModule = new fHelper.opModule({
     route: route,
@@ -370,13 +370,18 @@ function onDragover(e: DragEvent) {
         <label>
           <span>Type : </span>
           <select v-model='queryData.node_type'>
-            <option v-for='type in Config.fileType'>{{ type }}</option>
+            <option v-for='(type,key) in Config.fileType'
+                    :key="`FV_SCH_NODE_TYPE_${key}`"
+            >{{ type }}
+            </option>
           </select>
         </label>
         <label>
           <span>Rate : </span>
           <select class='sysIcon' v-model='queryData.rate'>
-            <option v-for='(type,key) in Config.rate' :value='key' v-html='type'></option>
+            <option v-for='(type,key) in Config.rate' :value='key' v-html='type'
+                    :key="`FV_SCH_CON_RATE_${key}`"
+            ></option>
           </select>
         </label>
         <label v-if='crumbList.length'>
@@ -419,24 +424,29 @@ function onDragover(e: DragEvent) {
         <label>
           <span>Sort : </span>
           <select v-model='sortVal' @change='setSort(sortVal)'>
-            <option v-for='(sortItem, key) in Config.sort' :value='key'>
+            <option v-for='(sortItem, key) in Config.sort' :value='key'
+                    :key="`FV_SCH_CON_SORT_${key}`"
+            >
               {{ sortItem }}
             </option>
           </select>
         </label>
         <a class='sysIcon sysIcon_fengefu'></a>
-        <a
-          v-for='type in Config.listType'
-          :class="[
+        <template v-if="!!opModule">
+          <a
+            v-for='(type,index) in Config.listType'
+            :class="[
             'sysIcon',
             `sysIcon_listType_${type}`,
-            { active: mode === type },
+            { active:opModule.mode.value === type},
           ]"
-          @click='setMode(type)'
-        ></a>
+            @click='opModule.setMode(type)'
+            :key="`FAV_SCH_BTN_${index}`"
+          ></a>
+        </template>
       </div>
     </div>
-    <div :class="['content_detail', `mode_${mode}`]" ref='contentDOM'>
+    <div :class="['content_detail', `mode_${opModule?opModule.mode.value:''}`]" ref='contentDOM'>
       <FileItem
         v-for='(node, nodeIndex) in nodeList'
         :key='nodeIndex'

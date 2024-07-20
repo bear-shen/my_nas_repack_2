@@ -26,6 +26,7 @@ const route = useRoute();
 let groupQueryData = {
   id: "",
   keyword: "",
+
 } as api_favourite_group_list_req;
 type api_favourite_group_col_local = (api_favourite_group_col & {
   edit?: boolean, ext_key?: number,
@@ -343,7 +344,7 @@ function tag_del(groupIndex: number, tagIndex: number) {
                   <td>nodeType</td>
                   <td>
                     <select v-model="(group.meta as api_file_list_req).node_type as string">
-                      <option v-for="(fileType, key) in Config.fileType" :value="fileType">
+                      <option v-for="(fileType, key) in Config.fileType" :value="fileType" :key="`FAV_G_${group.ext_key}_NODE_TYPE_${key}`">
                         {{ fileType }}
                       </option>
                     </select>
@@ -353,7 +354,7 @@ function tag_del(groupIndex: number, tagIndex: number) {
                   <td>withTag</td>
                   <td class="favTagLs">
                     <div>
-                      <p v-for="(tag,tagIndex) in group.tag">
+                      <p v-for="(tag,tagIndex) in group.tag" :key="`FAV_G_${group.ext_key}_TAG_BTN_${tagIndex}`">
                         <span>{{ tag_parse(tag) }}</span>
                         <span class="sysIcon sysIcon_delete" @click="tag_del(index,tagIndex)"></span>
                       </p>
@@ -370,11 +371,11 @@ function tag_del(groupIndex: number, tagIndex: number) {
                   <td>or</td>
                   <td>
                     <input type="checkbox" v-model="(group.meta.tag_or as any)"
-                           :id="`FV_G_CB_S_${group.ext_key?group.ext_key:group.id}_TAG_OR`"
+                           :id="`FAV_G_CB_S_${group.ext_key?group.ext_key:group.id}_TAG_OR`"
                            :true-value="'1'"
                            :false-value="''"
                     />
-                    <label class="no_bg" :for="`FV_G_CB_S_${group.ext_key?group.ext_key:group.id}_TAG_OR`"></label>
+                    <label class="no_bg" :for="`FAV_G_CB_S_${group.ext_key?group.ext_key:group.id}_TAG_OR`"></label>
                   </td>
                 </tr>
                 <tr>
@@ -393,11 +394,11 @@ function tag_del(groupIndex: number, tagIndex: number) {
                   <td>cascade</td>
                   <td>
                     <input type="checkbox" v-model="(group.meta.cascade_dir as any)"
-                           :id="`FV_G_CB_S_${group.ext_key?group.ext_key:group.id}_CASCADE`"
+                           :id="`FAV_G_CB_S_${group.ext_key?group.ext_key:group.id}_CASCADE`"
                            :true-value="'1'"
                            :false-value="''"
                     />
-                    <label class="no_bg" :for="`FV_G_CB_S_${group.ext_key?group.ext_key:group.id}_CASCADE`"></label>
+                    <label class="no_bg" :for="`FAV_G_CB_S_${group.ext_key?group.ext_key:group.id}_CASCADE`"></label>
                   </td>
                 </tr>
                 <tr>
@@ -441,13 +442,13 @@ function tag_del(groupIndex: number, tagIndex: number) {
           <label>
             <span>Type : </span>
             <select v-model='nodeQueryData.node_type'>
-              <option v-for='type in Config.fileType'>{{ type }}</option>
+              <option v-for='(type,index) in Config.fileType' :key="`FAV_SCH_CON_TYPE_${index}`">{{ type }}</option>
             </select>
           </label>
           <label>
             <span>Rate : </span>
             <select class='sysIcon' v-model='nodeQueryData.rate'>
-              <option v-for='(type,key) in Config.rate' :value='key' v-html='type'></option>
+              <option v-for='(type,key) in Config.rate' :value='key' v-html='type' :key="`FAV_SCH_CON_RATE_${key}`"></option>
             </select>
           </label>
           <label>
@@ -467,20 +468,21 @@ function tag_del(groupIndex: number, tagIndex: number) {
           <label>
             <span>Sort : </span>
             <select v-model='sortVal' @change='setSort(sortVal)'>
-              <option v-for='(sortItem, key) in Config.sort' :value='key'>
+              <option v-for='(sortItem, key) in Config.sort' :value='key' :key="`FAV_SCH_CON_SORT_${key}`">
                 {{ sortItem }}
               </option>
             </select>
           </label>
           <a class='sysIcon sysIcon_fengefu'></a>
           <a
-            v-for='type in Config.listType'
+            v-for='(type,index) in Config.listType'
             :class="[
             'sysIcon',
             `sysIcon_listType_${type}`,
             { active: mode === type },
           ]"
             @click='setMode(type)'
+            :key="`FAV_SCH_CON_ICON_${index}`"
           ></a>
         </div>
       </div>

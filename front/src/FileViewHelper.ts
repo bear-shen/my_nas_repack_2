@@ -43,6 +43,9 @@ export class opModule {
     public localConfigure: ReturnType<typeof useLocalConfigureStore>;
     public contextStore: ReturnType<typeof useContextStore>;
 
+    public mode: Ref<string> = ref('');
+    public modeKey: string = '';
+
     constructor(
         config: {
             // nodeList: Ref<api_node_col[]>,
@@ -66,6 +69,11 @@ export class opModule {
         this.contextStore = useContextStore();
         // this.nodeList = config.nodeList;
         // this.queryData = config.queryData;
+        this.mode.value = this.localConfigure.get('file_view_mode') ?? 'detail';
+        this.modeKey = this.localConfigure.listen(
+            'file_view_mode',
+            (v) => (this.mode.value = v)
+        );
         //必须这么写否则无法解绑
         this.contextMenuEvt = this.contextMenuEvt.bind(this);
         this.mouseDownEvt = this.mouseDownEvt.bind(this);
@@ -99,6 +107,7 @@ export class opModule {
 
     public destructor() {
         console.info('destructor loaded');
+        this.localConfigure.release('file_view_mode', modeKey);
         removeEventListener('contextmenu', this.contextMenuEvt);
         removeEventListener('mousedown', this.mouseDownEvt);
         removeEventListener('mousemove', this.mouseMoveEvt);
@@ -256,8 +265,8 @@ export class opModule {
             case 'ctrl_shift':
                 if (newSelectIndex == -1) break;
                 if (this.lastSelectIndex == -1) break;
-                let from = Math.min(newSelectIndex, this.lastSelectIndex);
-                let to = Math.max(newSelectIndex, this.lastSelectIndex);
+                const from = Math.min(newSelectIndex, this.lastSelectIndex);
+                const to = Math.max(newSelectIndex, this.lastSelectIndex);
                 for (let i1 = from; i1 <= to; i1++) {
                     if (selIndexLs.has(i1)) continue;
                     this.preSelectedNodeIndexSet.add(i1);
@@ -675,7 +684,7 @@ export class opModule {
         if (preSelIndex === -1) {
             const selRes = this.getSelected();
             if (selRes.idSet.size) {
-                preSelIndex = Array.from(selRes.idSet).pop()??0;
+                preSelIndex = Array.from(selRes.idSet).pop() ?? 0;
             } else {
                 preSelIndex = 0;
             }
@@ -687,7 +696,7 @@ export class opModule {
         }
         //
         const preNode = this.nodeList.value[preSelIndex];
-        if(!preNode._offsets)preNode._offsets=[];
+        if (!preNode._offsets) preNode._offsets = [];
         const nodeW = preNode._offsets[2] - preNode._offsets[0];
         const domW = this.contentDOM.offsetWidth;
         const rowNum = Math.floor(domW / nodeW);
@@ -725,6 +734,17 @@ export class opModule {
 
     //-----------------------
 
+    public setMode(mode: string) {
+        this.localConfigure.set('file_view_mode', mode);
+        // const preList = nodeList.value;
+        // nodeList.value = [];
+        // console.info('file_view_mode',nodeList.value,preList);
+        // if (opModule) opModule.setList(preList);
+        this.setList(this.nodeList.value);
+    }
+
+    //-----------------------
+
     public async keymap(e: KeyboardEvent) {
         // console.info(e);
         // let selCount: number;
@@ -733,7 +753,7 @@ export class opModule {
         // let query: api_file_list_req;
         // let nodeLs: api_node_col[], idSet: Set<number>;
         let selRes: { nodeLs: api_node_col[], idSet: Set<number> };
-        const target=e.target as HTMLElement;
+        const target = e.target as HTMLElement;
         switch (e.key) {
             case 'F2':
                 //@todo

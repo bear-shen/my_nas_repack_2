@@ -55,6 +55,8 @@ module.exports = {
     'vue/max-attributes-per-line'       : 'off',
     'vue/no-unused-vars'                : 'off',
     'no-empty '                         : 'off',
+    'no-fallthrough'                   : 'off',
+    'prefer-const'                   : 'off',
     // 'prettier/prettier': ['error', {
     //   'semi'       : false,
     //   'endOfLine'  : 'auto',
