@@ -11,7 +11,7 @@
 	"bench_ffmpeg": "tsc && node ./dst/job/bench_ffmpeg.js"
   },
   "dependencies"   : {
-	"@types/node"   : "^18.11.8",
+	"@types/node"   : "^20.11.7",
 	"@types/Promise": "npm:@types/promise@^7.1.30",
 	"base64-js"     : "^1.5.1",
 	"formidable"    : "^2.1.1",

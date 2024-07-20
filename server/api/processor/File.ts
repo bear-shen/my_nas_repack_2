@@ -50,21 +50,20 @@ export default class {
         };
         const model = new NodeModel();
         //
-        const user = await (new UserModel).where('id', data.uid).first();
-        const userGroup = await (new UserGroupModel).where('id', user.id_group).first();
-        const userAuth = userGroup.auth;
-        if (userAuth && userAuth.deny) {
-            userAuth.deny.forEach(node => {
-                model.not().whereRaw('find_in_set( ? ,node_id_list)', node.id)
-                    .where('id', '<>', node.id)
-            })
-        }
-        //
         switch (request.mode) {
             default:
             case 'directory':
                 if (typeof request.pid == 'undefined' || request.pid === null) {
                     throw new Error('no def pid');
+                }
+                //一开始没定义这个，是搜索收藏的时候增加的
+                if (request.keyword.length) {
+                    model.where(
+                        // 'index_node',
+                        'title',
+                        'like',
+                        `%${request.keyword.trim()}%`
+                    );
                 }
                 break;
             case 'search':
@@ -99,12 +98,27 @@ export default class {
                 const curFav = await (new FavouriteGroupModel).where('id', request.fav_id).first();
                 if (!curFav) throw new Error('fav group not exist');
                 if (curFav.auto) {
+                    //auto=1的情况下会将fav的meta字段作为查询条件，重新进行一次查询
+                    //但是这样会有一个问题，在收藏夹里无法二级搜索
+                    //所以针对各种字段单独做一下
+                    const newReq = curFav.meta;
+                    if (request.keyword) {
+                        newReq.keyword = request.keyword;
+                    }
+                    if (request.node_type) {
+                        newReq.node_type = request.node_type;
+                    }
+                    if (request.rate) {
+                        if (newReq.rate < request.rate)
+                            newReq.rate = request.rate;
+                    }
+                    // console.info(request);
                     return await this.get({
                         uid: data.uid,
                         fields: Object.assign({
                             // cascade_dir: '1',
                             mode: 'directory',
-                        } as api_file_list_req, curFav.meta),
+                        } as api_file_list_req, newReq),
                         files: data.files,
                     }, req, res);
                 }
@@ -115,6 +129,17 @@ export default class {
                 ;
                 break;
         }
+        //
+        const user = await (new UserModel).where('id', data.uid).first();
+        const userGroup = await (new UserGroupModel).where('id', user.id_group).first();
+        const userAuth = userGroup.auth;
+        if (userAuth && userAuth.deny) {
+            userAuth.deny.forEach(node => {
+                model.not().whereRaw('find_in_set( ? ,node_id_list)', node.id)
+                    .where('id', '<>', node.id)
+            })
+        }
+        //
         if (request.tag_id) {
             let tagOr = !!request.tag_or;
             model.where((model) => {

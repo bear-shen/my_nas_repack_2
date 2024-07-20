@@ -401,7 +401,7 @@ function onDragover(e: DragEvent) {
   </div>
 </template>
 
-<style lang='scss' scoped>
+<style lang='scss'>
 @import "../assets/variables";
 .fr_content.view_file {
   display: flex;

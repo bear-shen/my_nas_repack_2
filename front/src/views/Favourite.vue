@@ -26,7 +26,6 @@ const route = useRoute();
 let groupQueryData = {
   id: "",
   keyword: "",
-
 } as api_favourite_group_list_req;
 type api_favourite_group_col_local = (api_favourite_group_col & {
   edit?: boolean, ext_key?: number,
@@ -37,7 +36,13 @@ const curGroup: Ref<api_favourite_group_col_local | null> = ref(null);
 const curGroupIndex: Ref<number> = ref(-1);
 
 onMounted(async () => {
-  Object.assign(groupQueryData, GenFunc.copyObject(route.query));
+  // Object.assign(groupQueryData, GenFunc.copyObject(route.query));
+  //
+  groupQueryData.id = (route.query.id as string) ?? '';
+  nodeQueryData.keyword = route.query.keyword as string ?? '';
+  nodeQueryData.node_type = route.query.node_type as string ?? '';
+  nodeQueryData.rate = route.query.rate as string ?? '';
+  //
   await getGroup();
   opModule = new fHelper.opModule({
     route: route,
@@ -51,7 +56,7 @@ onMounted(async () => {
   if (groupQueryData.id) {
     locateGroup();
     await getList();
-    opModule.reloadScroll();
+    await opModule.reloadScroll();
   }
 });
 onUnmounted(() => {
@@ -61,7 +66,10 @@ onUnmounted(() => {
 onBeforeRouteUpdate(async (to) => {
   console.info(to);
   groupQueryData.id = (to.query.id as string) ?? '';
-  groupQueryData.keyword = to.query.keyword as string ?? '';
+  nodeQueryData.keyword = to.query.keyword as string ?? '';
+  nodeQueryData.node_type = to.query.node_type as string ?? '';
+  nodeQueryData.rate = to.query.rate as string ?? '';
+
   // await getGroup();
   if (groupQueryData.id) {
     locateGroup();
@@ -140,40 +148,39 @@ async function goGroup(index: number) {
 }
 
 let nodeQueryData: api_file_list_req = {
-  mode: 'directory',
-  pid: '0',
+  // mode: 'directory',
+  // pid: '0',
   keyword: '',
-  tag_id: '',
-  node_type: '',
-  cascade_dir: '',
-  with: '',
-  group: '',
+  // tag_id: '',
+  node_type: 'any',
+  // cascade_dir: '',
+  // with: '',
+  // group: '',
   rate: ''
 };
 const nodeList: Ref<api_node_col[]> = ref([]);
 let opModule: opModuleClass;
 
 function search() {
-
+  const tQuery = Object.assign({}, groupQueryData, nodeQueryData);
+  router.push({
+    path: route.path,
+    query: tQuery
+  })
 }
 
 async function getList() {
   // const group = groupList.value[index];
   nodeList.value = [];
-  const res = await query<api_file_list_resp>("file/get", {
-    mode: 'favourite',
-    fav_id: groupQueryData.id,
-    with: 'file,tag',
-  } as api_file_list_req);
+  const res = await query<api_file_list_resp>("file/get", Object.assign({},
+    {
+      mode: 'favourite',
+      fav_id: groupQueryData.id,
+      with: 'file,tag',
+    }, nodeQueryData ? nodeQueryData : {}) as api_file_list_req);
   if (!res) return;
   nodeList.value = manualSort(res.list, 'name_asc');
   opModule.setList(nodeList.value);
-}
-
-async function detach() {
-}
-
-async function attach() {
 }
 
 function emitGo(type: string, code?: number) {
@@ -433,7 +440,7 @@ function tag_del(groupIndex: number, tagIndex: number) {
         </template>
       </div>
     </div>
-    <div class="fav_content">
+    <div class="fav_content" ref="contentDOM">
       <div class='content_meta'>
         <div class='search'>
           <label>
@@ -455,38 +462,40 @@ function tag_del(groupIndex: number, tagIndex: number) {
             <button class='sysIcon sysIcon_search' @click='search'></button>
           </label>
         </div>
-        <div class='display'>
-          <template v-if='opModule &&opModule.showSelectionOp'>
+        <template v-if='opModule &&opModule.showSelectionOp'>
+          <div class='display'>
             <a @click="opModule.bathOp('browser')">OP</a>
-            <a @click="opModule.bathOp('favourite')">FAV</a>
+            <!--            <a @click="opModule.bathOp('favourite')">FAV</a>-->
             <a @click="opModule.bathOp('rename')">RN</a>
             <a @click="opModule.bathOp('move')">MV</a>
             <a v-if="route.name!=='Recycle'" @click="opModule.bathOp('delete')">DEL</a>
             <a v-if="route.name==='Recycle'" @click="opModule.bathOp('delete_forever')">rDEL</a>
             <a class='sysIcon sysIcon_fengefu'></a>
-          </template>
-          <label>
-            <span>Sort : </span>
-            <select v-model='sortVal' @change='setSort(sortVal)'>
-              <option v-for='(sortItem, key) in Config.sort' :value='key' :key="`FAV_SCH_CON_SORT_${key}`">
-                {{ sortItem }}
-              </option>
-            </select>
-          </label>
-          <a class='sysIcon sysIcon_fengefu'></a>
-          <a
-            v-for='(type,index) in Config.listType'
-            :class="[
+            <label v-if="opModule && opModule.sortVal">
+              <span>Sort : </span>
+              <select v-model='opModule.sortVal.value' @change='opModule.setSort(sortVal)'>
+                <option v-for='(sortItem, key) in Config.sort' :value='key'
+                        :key="`FV_SCH_CON_SORT_${key}`"
+                >
+                  {{ sortItem }}
+                </option>
+              </select>
+            </label>
+            <a class='sysIcon sysIcon_fengefu'></a>
+            <a
+              v-for='(type,index) in Config.listType'
+              :class="[
             'sysIcon',
             `sysIcon_listType_${type}`,
-            { active: mode === type },
+            { active: opModule.mode.value === type },
           ]"
-            @click='setMode(type)'
-            :key="`FAV_SCH_CON_ICON_${index}`"
-          ></a>
-        </div>
+              @click='opModule.setMode(type)'
+              :key="`FAV_SCH_CON_ICON_${index}`"
+            ></a>
+          </div>
+        </template>
       </div>
-      <div class="list_fav" ref="contentDOM">
+      <div :class="['list_fav',`mode_${opModule?opModule.mode.value:''}`,]">
         <FileItem
           v-for="(node, nodeIndex) in nodeList"
           :key="nodeIndex"
@@ -632,6 +641,11 @@ function tag_del(groupIndex: number, tagIndex: number) {
       //justify-content: space-around;
       justify-content: left;
       align-content: flex-start;
+    }
+    .list_fav.mode_text {
+      display: table;
+      width: 100%;
+      height: auto;
     }
   }
   @media (max-width: $fontSize*50) {
