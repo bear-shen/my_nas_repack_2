@@ -209,7 +209,7 @@ function emitGo(type: string, code?: number) {
           fHelper.popupDetail({
             mode: 'favourite',
             fav_id: groupQueryData.id,
-            with: 'file',
+            with: 'file,crumb',
           }, node.id ?? 0);
           break;
       }
