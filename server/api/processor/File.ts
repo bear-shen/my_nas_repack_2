@@ -57,7 +57,7 @@ export default class {
                     throw new Error('no def pid');
                 }
                 //一开始没定义这个，是搜索收藏的时候增加的
-                if (request.keyword.length) {
+                if (typeof request.keyword === 'string' && request.keyword.length) {
                     model.where(
                         // 'index_node',
                         'title',
@@ -121,6 +121,16 @@ export default class {
                         } as api_file_list_req, newReq),
                         files: data.files,
                     }, req, res);
+                } else {
+                    //一开始没定义这个，是搜索收藏的时候增加的
+                    if (typeof request.keyword === 'string' && request.keyword.length) {
+                        model.where(
+                            // 'index_node',
+                            'title',
+                            'like',
+                            `%${request.keyword.trim()}%`
+                        );
+                    }
                 }
                 model.whereRaw(
                     'id in (select id_node from favourite where id_group = ? and id_user = ?)'

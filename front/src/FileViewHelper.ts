@@ -1179,6 +1179,7 @@ export class opFunctionModule {
         const favGroupOpts: { [key: string]: string } = {};
         if (favGroupLs) {
             favGroupLs.forEach((row) => {
+                if (row.auto) return;
                 favGroupOpts[row.id ?? 0] = row.title ?? '';
             })
         }
@@ -1226,6 +1227,7 @@ export class opFunctionModule {
         const favGroupOpts: { [key: string]: string } = {};
         if (favGroupLs) {
             favGroupLs.forEach((row) => {
+                if (row.auto) return;
                 favGroupOpts[row.id ?? 0] = row.title ?? '';
             })
         }
