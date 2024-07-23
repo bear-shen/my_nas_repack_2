@@ -2,6 +2,7 @@ import * as crypto from "node:crypto";
 import {get as getConfig} from "../ServerConfig";
 import {col_node, type_file} from "../../share/Database";
 import NodeModel from "../model/NodeModel";
+import FavouriteModel from "../model/FavouriteModel";
 import * as fs from 'fs/promises';
 import util from "util";
 
@@ -151,6 +152,8 @@ export async function rmReal(srcNode: string | number | col_node) {
             }
         }
     await (new NodeModel).where('id', cur.id).delete();
+    //收藏夹也要删除
+    await (new FavouriteModel).where('id_node', cur.id).delete();
     //cls rel
     const relLs = await (new NodeModel)
         .where('rel_node_id', cur.id)

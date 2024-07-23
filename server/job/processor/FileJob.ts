@@ -302,7 +302,7 @@ class FileJob {
     }
 
     static async deleteForever(payload: { [key: string]: any }): Promise<any> {
-        await fp.rmReal(parseInt(payload.id))
+        await fp.rmReal(parseInt(payload.id));
     }
 
     /**
