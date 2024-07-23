@@ -169,17 +169,21 @@ function search() {
   })
 }
 
-async function getList() {
+async function getList(replaceWith?: api_file_list_resp[]) {
   // const group = groupList.value[index];
   nodeList.value = [];
-  const res = await query<api_file_list_resp>("file/get", Object.assign({},
-    {
-      mode: 'favourite',
-      fav_id: groupQueryData.id,
-      with: 'file,tag',
-    }, nodeQueryData ? nodeQueryData : {}) as api_file_list_req);
-  if (!res) return;
-  nodeList.value = manualSort(res.list, 'name_asc');
+  if (!replaceWith) {
+    const res = await query<api_file_list_resp>("file/get", Object.assign({},
+      {
+        mode: 'favourite',
+        fav_id: groupQueryData.id,
+        with: 'file,tag',
+      }, nodeQueryData ? nodeQueryData : {}) as api_file_list_req);
+    if (!res) return;
+    nodeList.value = manualSort(res.list, 'name_asc');
+  } else {
+    nodeList.value = replaceWith;
+  }
   opModule.setList(nodeList.value);
 }
 

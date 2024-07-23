@@ -132,6 +132,22 @@ export class opModule {
         )
     }
 
+    //从当前页面的列表上动态删除一些文件，主要是用于免刷新
+    public deleteFromList(idList: number[]) {
+        const targetList: api_node_col[] = [];
+        this.nodeList.value.forEach(node =>
+            targetList.push(node)
+        );
+        idList.forEach(id => {
+            for (let i1 = 0; i1 < targetList.length; i1++) {
+                if (id !== targetList[i1].id) continue;
+                targetList.splice(i1, 1);
+                break;
+            }
+        });
+        this.getList(targetList);
+    }
+
     public selecting = false;
     public selectingMovEvtCount = 0;
     public selectingOffset = [[0, 0,], [0, 0,],];
@@ -1095,7 +1111,7 @@ export class opFunctionModule {
         formData.set('id', `${node.id}`);
         const res = await query<api_file_delete_resp>('file/delete', formData);
         console.info(opModuleVal);
-        if (opModuleVal) opModuleVal.emitGo('reload');
+        if (opModuleVal) opModuleVal.deleteFromList([node.id]);
         return res;
     }
 
@@ -1120,12 +1136,13 @@ export class opFunctionModule {
                 confirm: async (modal) => {
                     // console.info(modal);
                     // return;
+                    const idList = Array.from(idSet);
                     const queryData = {
-                        id_list: Array.from(idSet).join(',')
+                        id_list: idList.join(','),
                     };
                     const res = await query<api_file_bath_delete_resp>("file/bath_delete", queryData);
                     //同步回列表
-                    if (opModuleVal) opModuleVal.getList();
+                    if (opModuleVal) opModuleVal.deleteFromList(idList);
                     if (callback) callback();
                     if (!res) return;
                 },
@@ -1137,7 +1154,7 @@ export class opFunctionModule {
         const formData = new FormData();
         formData.set('id', `${node.id}`);
         const res = await query<api_file_delete_resp>('file/delete_forever', formData);
-        if (opModuleVal) opModuleVal.emitGo('reload');
+        if (opModuleVal) opModuleVal.deleteFromList([node.id]);
         return res;
     }
 
@@ -1161,12 +1178,13 @@ export class opFunctionModule {
             callback: {
                 confirm: async (modal) => {
                     // console.warn('op_bath_delete_forever confirm');
+                    const idList = Array.from(idSet);
                     const queryData = {
-                        id_list: Array.from(idSet).join(',')
+                        id_list: idList.join(','),
                     };
                     const res = await query<api_file_bath_delete_resp>("file/bath_delete_forever", queryData);
                     //同步回列表
-                    if (opModuleVal) opModuleVal.getList();
+                    if (opModuleVal) opModuleVal.deleteFromList(idList);
                     if (!res) return;
                 },
             },

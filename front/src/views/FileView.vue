@@ -52,28 +52,32 @@ let crumbList: Ref<api_node_col[]> = ref([])
 let nodeList: Ref<api_node_col[]> = ref([])
 let opModule: opModuleClass
 
-async function getList() {
+async function getList(replaceWith?: api_file_list_resp[]) {
   console.info('getList', route.name)
-  crumbList.value = []
-  nodeList.value = []
-  switch (route.name) {
-    default:
-      break
-    case 'Recycle':
-      queryData.group = 'deleted'
-      break
-    case 'Favourite':
-      queryData.group = 'favourite'
-      break
+  nodeList.value = [];
+  if (!replaceWith) {
+    crumbList.value = [];
+    switch (route.name) {
+      default:
+        break;
+      case 'Recycle':
+        queryData.group = 'deleted';
+        break
+      case 'Favourite':
+        queryData.group = 'favourite';
+        break
+    }
+    const res = await query<api_file_list_resp>('file/get', queryData);
+    if (!res) return;
+    // console.info(res);
+    crumbList.value = res.path;
+    nodeList.value = opModule.sortList(res.list, opModule.sortVal.value);
+  } else {
+    nodeList.value = replaceWith;
   }
-  const res = await query<api_file_list_resp>('file/get', queryData)
-  if (!res) return
-  // console.info(res);
-  crumbList.value = res.path
-  nodeList.value = opModule.sortList(res.list, opModule.sortVal.value)
-  if (opModule) opModule.setList(nodeList.value)
+  if (opModule) opModule.setList(nodeList.value);
   // console.info(crumbList);
-  return {crumb: crumbList.value, node: nodeList.value}
+  return {crumb: crumbList.value, node: nodeList.value};
 }
 
 function addFolder() {
