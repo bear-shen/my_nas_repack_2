@@ -105,7 +105,8 @@ export default class {
                     if (request.keyword) {
                         newReq.keyword = request.keyword;
                     }
-                    if (request.node_type) {
+                    if (!newReq.node_type && request.node_type) {
+                        //指定节点类型的时候不能覆盖
                         newReq.node_type = request.node_type;
                     }
                     if (request.rate) {
@@ -270,7 +271,7 @@ export default class {
             });
         }
         //配置
-        let withConf = ['file', 'tag', 'crumb']
+        let withConf = ['file', 'tag', 'crumb'];
         // console.info(withConf);
         if (request.with && request.with.length) {
             withConf = request.with.split(',');

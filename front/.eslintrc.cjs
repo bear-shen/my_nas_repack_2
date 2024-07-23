@@ -54,9 +54,10 @@ module.exports = {
     '@typescript-eslint/no-var-requires': 'off',
     'vue/max-attributes-per-line'       : 'off',
     'vue/no-unused-vars'                : 'off',
+    'vue/no-mutating-props'             : 'off',
     'no-empty '                         : 'off',
-    'no-fallthrough'                   : 'off',
-    'prefer-const'                   : 'off',
+    'no-fallthrough'                    : 'off',
+    'prefer-const'                      : 'off',
     // 'prettier/prettier': ['error', {
     //   'semi'       : false,
     //   'endOfLine'  : 'auto',

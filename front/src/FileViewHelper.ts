@@ -364,7 +364,7 @@ export class opModule {
         }, Config.timeouts.selectEvt);
     }
 
-    public contextMenuEvt(e: MouseEvent) {
+    public async contextMenuEvt(e: MouseEvent) {
         if (!this.inDetailView(e)) return;
         // console.info('this.contextMenuEvt');
         // console.info(this.inDetailView(e));
@@ -392,9 +392,9 @@ export class opModule {
             {
                 title: 'Open',
                 auth: 'guest',
-                method: (e: MouseEvent) => {
+                method: async (e: MouseEvent) => {
                     console.info('Open', e);
-                    if (isBath) opFunctionModule.op_bath_browser(idSet, nodeLs);
+                    if (isBath) await opFunctionModule.op_bath_browser(idSet, nodeLs);
                     else this.emitGo('node', nodeLs[0].id);
                 },
             },
@@ -467,56 +467,56 @@ export class opModule {
             {
                 title: 'Rename',
                 auth: !useEditMethods ? 'none' : 'user',
-                method: (e: MouseEvent) => {
+                method: async (e: MouseEvent) => {
                     console.info('Rename', e);
-                    if (isBath) opFunctionModule.op_bath_rename(idSet, nodeLs);
-                    else opFunctionModule.op_rename(nodeLs[0]);
+                    if (isBath) await opFunctionModule.op_bath_rename(idSet, nodeLs);
+                    else await opFunctionModule.op_rename(nodeLs[0]);
                 },
             },
             {
                 title: 'Move',
                 auth: !useEditMethods ? 'none' : 'user',
-                method: (e: MouseEvent) => {
+                method: async (e: MouseEvent) => {
                     console.info('Move', e);
-                    if (isBath) opFunctionModule.op_bath_move(idSet, nodeLs);
-                    else opFunctionModule.op_move(nodeLs[0]);
+                    if (isBath) await opFunctionModule.op_bath_move(idSet, nodeLs);
+                    else await opFunctionModule.op_move(nodeLs[0]);
                 },
             },
             {
                 title: 'Delete',
                 auth: !inRecycle ? 'user' : 'none',
-                method: (e: MouseEvent) => {
+                method: async (e: MouseEvent) => {
                     console.info('Delete', e);
-                    if (isBath) opFunctionModule.op_bath_delete(idSet, nodeLs);
-                    else opFunctionModule.op_delete(nodeLs[0]);
+                    if (isBath) await opFunctionModule.op_bath_delete(idSet, nodeLs);
+                    else await opFunctionModule.op_delete(nodeLs[0]);
                 },
             },
             {
                 title: 'Recover',
                 auth: inRecycle ? 'user' : 'none',
-                method: (e: MouseEvent) => {
+                method: async (e: MouseEvent) => {
                     console.info('Recover', e);
                     //recover是delete重做一次
-                    if (isBath) opFunctionModule.op_bath_delete(idSet, nodeLs, true);
-                    else opFunctionModule.op_delete(nodeLs[0], true);
+                    if (isBath) await opFunctionModule.op_bath_delete(idSet, nodeLs, true);
+                    else await opFunctionModule.op_delete(nodeLs[0], true);
                 },
             },
             {
                 title: 'Delete Forever',
                 auth: inRecycle ? 'user' : 'none',
-                method: (e: MouseEvent) => {
+                method: async (e: MouseEvent) => {
                     console.info('Delete Forever', e);
-                    if (isBath) opFunctionModule.op_bath_delete_forever(idSet, nodeLs);
-                    else opFunctionModule.op_delete_forever(nodeLs[0]);
+                    if (isBath) await opFunctionModule.op_bath_delete_forever(idSet, nodeLs);
+                    else await opFunctionModule.op_delete_forever(nodeLs[0]);
                 },
             },
             {
                 title: 'Favourite',
                 auth: !useEditMethods ? 'none' : 'user',
-                method: (e: MouseEvent) => {
+                method: async (e: MouseEvent) => {
                     console.info('Favourite', e);
-                    if (isBath) opFunctionModule.op_bath_favourite(idSet, nodeLs);
-                    else opFunctionModule.op_toggle_favourite(nodeLs[0]);
+                    if (isBath) await opFunctionModule.op_bath_favourite(idSet, nodeLs);
+                    else await opFunctionModule.op_toggle_favourite(nodeLs[0]);
                 },
             },
             {
@@ -529,7 +529,7 @@ export class opModule {
                     {
                         title: 'Tagging',
                         auth: !useEditMethods ? 'none' : 'user',
-                        method: (e: MouseEvent) => {
+                        method: async (e: MouseEvent) => {
                             console.info('Tagging', e);
                             nodeLs.forEach(node => {
                                 opFunctionModule.op_tag(node);
@@ -539,25 +539,25 @@ export class opModule {
                     {
                         title: 'Set Cover',
                         auth: isBath ? 'none' : 'user',
-                        method: (e: MouseEvent) => {
+                        method: async (e: MouseEvent) => {
                             console.info('Set Cover', e);
-                            opFunctionModule.op_set_cover(nodeLs[0]);
+                            await opFunctionModule.op_set_cover(nodeLs[0]);
                         },
                     },
                     {
                         title: 'Import EHT',
                         auth: 'admin',
-                        method: (e: MouseEvent) => {
+                        method: async (e: MouseEvent) => {
                             console.info('Import EHT', e);
-                            opFunctionModule.op_imp_tag_eh(Array.from(idSet));
+                            await opFunctionModule.op_imp_tag_eh(Array.from(idSet));
                         },
                     },
                     {
                         title: 'Cascade Tag',
                         auth: 'user',
-                        method: (e: MouseEvent) => {
+                        method: async (e: MouseEvent) => {
                             console.info('Cascade Tag', e);
-                            opFunctionModule.op_cascade_tag(Array.from(idSet));
+                            await opFunctionModule.op_cascade_tag(Array.from(idSet));
                         },
                     },
                 ],
@@ -572,25 +572,25 @@ export class opModule {
                     {
                         title: 'ReBuild',
                         auth: 'admin',
-                        method: (e: MouseEvent) => {
+                        method: async (e: MouseEvent) => {
                             console.info('ReBuild', e);
-                            opFunctionModule.op_rebuild(Array.from(idSet));
+                            await opFunctionModule.op_rebuild(Array.from(idSet));
                         },
                     },
                     {
                         title: 'ReCheck',
                         auth: isBath ? 'none' : 'admin',
-                        method: (e: MouseEvent) => {
+                        method: async (e: MouseEvent) => {
                             console.info('ReCheck', e);
-                            opFunctionModule.op_recheck(Array.from(idSet));
+                            await opFunctionModule.op_recheck(Array.from(idSet));
                         },
                     },
                     {
                         title: 'RM RAW',
                         auth: 'admin',
-                        method: (e: MouseEvent) => {
+                        method: async (e: MouseEvent) => {
                             console.info('RMRAW', e);
-                            opFunctionModule.op_rm_raw(Array.from(idSet));
+                            await opFunctionModule.op_rm_raw(Array.from(idSet));
                         },
                     },
                 ],
