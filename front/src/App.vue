@@ -59,13 +59,13 @@ const containerDef = {};
 .fr_footer {
   height: $footerHeight;
 }
-
 .content_meta {
   /*position: fixed;
   top: $fontSize*1.5;
   @include fillAvailable(width);
   z-index: 1;
   //left:0;*/
+  font-size: 0;
   $metaBk: map-get($colors, bar_meta);
   background-color: $metaBk;
   display: flex;
@@ -76,11 +76,10 @@ const containerDef = {};
   line-height: $fontSize * 1.5;
   //margin-bottom: $fontSize;
   * {
-    //height: $fontSize * 1.5;
+    height: $fontSize * 1.5;
     line-height: $fontSize * 1.5;
     padding-top: 0;
     padding-bottom: 0;
-    vertical-align: top;
   }
   > * {
     display: inline-block;
@@ -92,23 +91,25 @@ const containerDef = {};
     width: $fontSize * 1.5;
     padding: 0;
     text-align: center;
-    line-height: $fontSize * 1.25;
   }
   input,
-  button,
+    //button,
   select {
     background-color: $metaBk;
-    padding: 0;
+    padding: 0 $fontSize*0.25;
+  }
+  input[type=checkbox] + label, input[type=radio] + label, button {
+    padding: 0 $fontSize*0.5;
   }
   a,
   span {
     font-size: $fontSize;
     //line-height: 1.5em;
-    padding: 0 0.125em;
+    padding: 0 0.25em;
     display: inline-block;
   }
   a:hover {
-    background-color: map-get($colors, bar_meta_active);
+    //background-color: map-get($colors, bar_meta_active);
   }
   @media (min-width: 640px) {
     .crumb {

@@ -284,8 +284,8 @@ async function modUser(index: number) {
           <div class="title">
             <div @click="goGroup(index)">{{ group.title }}</div>
             <div class="operator">
-              <span class="sysIcon sysIcon_edit" @click="modGroup(index)"></span>
-              <span class="sysIcon sysIcon_delete" @click="delGroup(index)"></span>
+              <span class="buttonStyle sysIcon sysIcon_edit" @click="modGroup(index)"></span>
+              <span class="buttonStyle sysIcon sysIcon_delete" @click="delGroup(index)"></span>
             </div>
           </div>
           <div @click="goGroup(index)" class="description">{{ group.description }}</div>
@@ -314,7 +314,7 @@ async function modUser(index: number) {
                   :model-value="authNode"
                   :meta="[index,authIndex]"
                 ></hinter>
-                <span class="sysIcon sysIcon_delete" @click="delAuth(index,authIndex)"></span>
+                <span class="buttonStyle sysIcon sysIcon_delete" @click="delAuth(index,authIndex)"></span>
               </dd>
             </template>
             <dd class="pointer add" @click="addAuth(index)">+</dd>
@@ -345,7 +345,7 @@ async function modUser(index: number) {
             </label>
             <!--          <div class="operate">-->
             <div>
-              <span class="sysIcon sysIcon_save" @click="modGroup(index)"></span>
+              <span class="buttonStyle sysIcon sysIcon_save" @click="modGroup(index)"></span>
             </div>
             <!--          </div>-->
           </div>
@@ -372,7 +372,7 @@ async function modUser(index: number) {
           <div class="title">
             <div>{{ user.name }}</div>
             <div>
-              <span class="sysIcon sysIcon_edit" @click="modUser(index)"></span>
+              <span class="buttonStyle sysIcon sysIcon_edit" @click="modUser(index)"></span>
               <!--              <span class="sysIcon sysIcon_delete" @click="delUser(index)"></span>-->
             </div>
           </div>
@@ -389,7 +389,7 @@ async function modUser(index: number) {
                      :false-value="0"
               />
               <label class="no_bg" :for="`UV_U_CB_${user.ext_key?user.ext_key:user.id}`"></label>
-              <span class="sysIcon sysIcon_save" @click="modUser(index)"></span>
+              <span class="buttonStyle sysIcon sysIcon_save" @click="modUser(index)"></span>
               <!--              <span class="sysIcon sysIcon_delete" @click="delUser(index)"></span>-->
             </div>
           </div>
@@ -411,9 +411,6 @@ async function modUser(index: number) {
 <style lang="scss">
 @import "../assets/variables";
 .fr_content.view_user {
-  .sysIcon {
-    cursor: pointer;
-  }
   padding-bottom: 0;
   height: 100%;
   display: flex;
@@ -455,10 +452,6 @@ async function modUser(index: number) {
         div {
           display: inline-block;
         }*/
-        .sysIcon {
-          margin-left: $fontSize;
-          cursor: pointer;
-        }
         //justify-content: space-between;
       }
       .sort {
@@ -490,16 +483,21 @@ async function modUser(index: number) {
               content: '';
             }
           }
+          input[type='checkbox'], input[type='radio'] {
+            &:checked + label {
+              color: map-get($colors, font);
+            }
+          }
         }
         .auth dt {
           color: map-get($colors, font);
         }
-        .auth .add{
+        .auth .add {
           text-indent: 0.5em;
           color: map-get($colors, font);
           text-align: center;
           width: 100%;
-          &:hover{
+          &:hover {
             background-color: map-get($colors, bk_active);
           }
         }
@@ -512,6 +510,10 @@ async function modUser(index: number) {
           }
           .hinter {
             width: 90%;
+          }
+          .buttonStyle {
+            padding-top: 0;
+            padding-bottom: 0;
           }
         }
       }
@@ -550,7 +552,7 @@ async function modUser(index: number) {
         display: flex;
         justify-content: space-between;
         span {
-          margin-left: $fontSize*0.5;
+          //margin-left: $fontSize*0.5;
           min-width: $fontSize*2;
         }
       }

@@ -332,7 +332,7 @@ function onDragover(e: DragEvent) {
                  :true-value='1'
                  false-value=''
           />
-          <label for='FV_S_CB'></label>
+          <label class="buttonStyle" for='FV_S_CB'></label>
         </label>
         <!--      <label>
               <input
@@ -345,23 +345,23 @@ function onDragover(e: DragEvent) {
               <label for="content_directory_directory_only_checkbox">Fav</label>
             </label>-->
         <label>
-          <button class='sysIcon sysIcon_search' @click='search'></button>
+          <button class='buttonStyle sysIcon sysIcon_search' @click='search'></button>
         </label>
       </div>
       <div class='display'>
         <template v-if='opModule &&opModule.showSelectionOp'>
-          <a @click="opModule.bathOp('browser')">OP</a>
-          <a @click="opModule.bathOp('favourite')">FAV</a>
-          <a @click="opModule.bathOp('rename')">RN</a>
-          <a @click="opModule.bathOp('move')">MV</a>
-          <a v-if="route.name!=='Recycle'" @click="opModule.bathOp('delete')">DEL</a>
-          <a v-if="route.name==='Recycle'" @click="opModule.bathOp('delete_forever')">rDEL</a>
+          <a class="buttonStyle" @click="opModule.bathOp('browser')">OP</a>
+          <a class="buttonStyle" @click="opModule.bathOp('favourite')">FAV</a>
+          <a class="buttonStyle" @click="opModule.bathOp('rename')">RN</a>
+          <a class="buttonStyle" @click="opModule.bathOp('move')">MV</a>
+          <a class="buttonStyle" v-if="route.name!=='Recycle'" @click="opModule.bathOp('delete')">DEL</a>
+          <a class="buttonStyle" v-if="route.name==='Recycle'" @click="opModule.bathOp('delete_forever')">rDEL</a>
           <a class='sysIcon sysIcon_fengefu'></a>
         </template>
         <template v-if="crumbList.length || queryData.pid=='0'">
-          <a class='sysIcon sysIcon_addfolder' @click='addFolder'></a>
-          <a class='sysIcon sysIcon_addfile' @click='addFile'></a>
-          <a class='sysIcon sysIcon_fengefu'></a>
+          <a class='buttonStyle sysIcon sysIcon_addfolder' @click='addFolder'></a>
+          <a class='buttonStyle sysIcon sysIcon_addfile' @click='addFile'></a>
+          <a class='buttonStyle sysIcon sysIcon_fengefu'></a>
         </template>
         <label v-if="opModule && opModule.sortVal">
           <span>Sort : </span>
@@ -378,6 +378,7 @@ function onDragover(e: DragEvent) {
           <a
             v-for='(type,index) in Config.listType'
             :class="[
+            'buttonStyle',
             'sysIcon',
             `sysIcon_listType_${type}`,
             { active:opModule.mode.value === type},

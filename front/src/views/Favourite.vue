@@ -317,11 +317,11 @@ function tag_del(groupIndex: number, tagIndex: number) {
 }"
       >
         <span
-          class="sysIcon sysIcon_plus-square-o"
+          class="buttonStyle sysIcon sysIcon_plus-square-o"
           @click="addGroup(0)"
         ></span>
         <span
-          class="sysIcon sysIcon_A"
+          class="buttonStyle sysIcon sysIcon_A"
           @click="addGroup(1)"
         ></span>
       </div>
@@ -338,8 +338,8 @@ function tag_del(groupIndex: number, tagIndex: number) {
             <div :class="{active:curGroupIndex==index,auto:true}" @click="goGroup(index)">
               <div class="title">{{ group.title }}</div>
               <div class="operator" @click.stop>
-                <span class="sysIcon sysIcon_edit" @click="modGroup(index)"></span>
-                <span class="sysIcon sysIcon_delete" @click="delGroup(index)"></span>
+                <span class="buttonStyle sysIcon sysIcon_edit" @click="modGroup(index)"></span>
+                <span class="buttonStyle sysIcon sysIcon_delete" @click="delGroup(index)"></span>
               </div>
             </div>
           </template>
@@ -347,8 +347,8 @@ function tag_del(groupIndex: number, tagIndex: number) {
             <div :class="{active:curGroupIndex==index,auto:true}">
               <content-editable class="title" v-model="group.title" :auto-focus="true"></content-editable>
               <div class="operator">
-                <span class="sysIcon sysIcon_save" @click="modGroup(index)"></span>
-                <span class="sysIcon sysIcon_delete" @click="delGroup(index)"></span>
+                <span class="buttonStyle sysIcon sysIcon_save" @click="modGroup(index)"></span>
+                <span class="buttonStyle sysIcon sysIcon_delete" @click="delGroup(index)"></span>
               </div>
               <table>
                 <tr>
@@ -367,7 +367,7 @@ function tag_del(groupIndex: number, tagIndex: number) {
                     <div>
                       <p v-for="(tag,tagIndex) in group.tag" :key="`FAV_G_${group.ext_key}_TAG_BTN_${tagIndex}`">
                         <span>{{ tag_parse(tag) }}</span>
-                        <span class="sysIcon sysIcon_delete" @click="tag_del(index,tagIndex)"></span>
+                        <span class="buttonStyle sysIcon sysIcon_delete" @click="tag_del(index,tagIndex)"></span>
                       </p>
                     </div>
                     <hinter
@@ -386,7 +386,7 @@ function tag_del(groupIndex: number, tagIndex: number) {
                            :true-value="'1'"
                            :false-value="''"
                     />
-                    <label class="no_bg" :for="`FAV_G_CB_S_${group.ext_key?group.ext_key:group.id}_TAG_OR`"></label>
+                    <label class="buttonStyle" :for="`FAV_G_CB_S_${group.ext_key?group.ext_key:group.id}_TAG_OR`"></label>
                   </td>
                 </tr>
                 <tr>
@@ -409,7 +409,7 @@ function tag_del(groupIndex: number, tagIndex: number) {
                            :true-value="'1'"
                            :false-value="''"
                     />
-                    <label class="no_bg" :for="`FAV_G_CB_S_${group.ext_key?group.ext_key:group.id}_CASCADE`"></label>
+                    <label class="buttonStyle" :for="`FAV_G_CB_S_${group.ext_key?group.ext_key:group.id}_CASCADE`"></label>
                   </td>
                 </tr>
                 <tr>
@@ -427,8 +427,8 @@ function tag_del(groupIndex: number, tagIndex: number) {
             <div :class="{active:curGroupIndex==index}" @click="goGroup(index)">
               <div class="title">{{ group.title }}</div>
               <div class="operator" @click.stop>
-                <span class="sysIcon sysIcon_edit" @click="modGroup(index)"></span>
-                <span class="sysIcon sysIcon_delete" @click="delGroup(index)"></span>
+                <span class="buttonStyle sysIcon sysIcon_edit" @click="modGroup(index)"></span>
+                <span class="buttonStyle sysIcon sysIcon_delete" @click="delGroup(index)"></span>
               </div>
             </div>
           </template>
@@ -436,8 +436,8 @@ function tag_del(groupIndex: number, tagIndex: number) {
             <div :class="{active:curGroupIndex==index}">
               <content-editable class="title" v-model="group.title" :auto-focus="true"></content-editable>
               <div class="operator">
-                <span class="sysIcon sysIcon_save" @click="modGroup(index)"></span>
-                <span class="sysIcon sysIcon_delete" @click="delGroup(index)"></span>
+                <span class="buttonStyle sysIcon sysIcon_save" @click="modGroup(index)"></span>
+                <span class="buttonStyle sysIcon sysIcon_delete" @click="delGroup(index)"></span>
               </div>
             </div>
           </template>
@@ -463,17 +463,17 @@ function tag_del(groupIndex: number, tagIndex: number) {
             </select>
           </label>
           <label>
-            <button class='sysIcon sysIcon_search' @click='search'></button>
+            <button class='buttonStyle sysIcon sysIcon_search' @click='search'></button>
           </label>
         </div>
         <template v-if='opModule &&opModule.showSelectionOp'>
           <div class='display'>
-            <a @click="opModule.bathOp('browser')">OP</a>
+            <a class="buttonStyle" @click="opModule.bathOp('browser')">OP</a>
             <!--            <a @click="opModule.bathOp('favourite')">FAV</a>-->
-            <a @click="opModule.bathOp('rename')">RN</a>
-            <a @click="opModule.bathOp('move')">MV</a>
-            <a v-if="route.name!=='Recycle'" @click="opModule.bathOp('delete')">DEL</a>
-            <a v-if="route.name==='Recycle'" @click="opModule.bathOp('delete_forever')">rDEL</a>
+            <a class="buttonStyle" @click="opModule.bathOp('rename')">RN</a>
+            <a class="buttonStyle" @click="opModule.bathOp('move')">MV</a>
+            <a class="buttonStyle" v-if="route.name!=='Recycle'" @click="opModule.bathOp('delete')">DEL</a>
+            <a class="buttonStyle" v-if="route.name==='Recycle'" @click="opModule.bathOp('delete_forever')">rDEL</a>
             <a class='sysIcon sysIcon_fengefu'></a>
             <label v-if="opModule && opModule.sortVal">
               <span>Sort : </span>
@@ -489,6 +489,7 @@ function tag_del(groupIndex: number, tagIndex: number) {
             <a
               v-for='(type,index) in Config.listType'
               :class="[
+            'buttonStyle',
             'sysIcon',
             `sysIcon_listType_${type}`,
             { active: opModule.mode.value === type },
@@ -538,7 +539,8 @@ function tag_del(groupIndex: number, tagIndex: number) {
       //text-align: center;
     }
     .fav_group {
-      padding: $fontSize*0.5 $fontSize;
+      padding: $fontSize*0.25 $fontSize;
+      line-height: $fontSize*2;
       &:hover, &.active {
         background-color: map-get($colors, bar_meta_active);
       }
@@ -582,10 +584,7 @@ function tag_del(groupIndex: number, tagIndex: number) {
         //}
       }
       .operator {
-        .sysIcon {
-          margin-left: $fontSize;
-          cursor: pointer;
-        }
+        font-size: 0;
       }
       table {
         margin-top: $fontSize*0.5;

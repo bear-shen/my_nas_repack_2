@@ -84,7 +84,7 @@ input[type='radio'] {
     display: inline-block;
     width: max-content;
     /*background-image: linear-gradient(0deg, hsla(250, 30%, 30%, 1) 0%, rgb(25, 25, 25) 100%);*/
-    background-color: map-get($colors, negative);
+    //background-color: map-get($colors, negative);
     font-size: $fontSize;
     padding: 0.25*$fontSize 0.5*$fontSize;
     line-height: $fontSize;
@@ -94,12 +94,13 @@ input[type='radio'] {
       font-family: "sysIcon" !important;
       font-size: 0.75em;
       content: '\e600';
+      vertical-align: text-bottom;
     }
   }
   &:checked {
     + label {
       //background-image: linear-gradient(0deg, rgba(100, 100, 100, 1) 0%, rgba(150, 150, 150, 1) 100%);
-      background-color: map-get($colors, positive);
+      //background-color: map-get($colors, positive);
       &::after {
         content: '\e62c';
       }
@@ -107,15 +108,16 @@ input[type='radio'] {
   }
   + label.no_bg {
     background-color: transparent;
-    color: map-get($colors, negative);
+    //color: map-get($colors, negative);
   }
   &:checked {
     + label.no_bg {
-      color: map-get($colors, positive);
+      background-color: transparent;
+      //color: map-get($colors, positive);
     }
   }
 }
-.preLine{
+.preLine {
   white-space: pre-line;
 }
 ::-webkit-scrollbar-track {
@@ -135,4 +137,16 @@ input[type='radio'] {
 }
 ::-webkit-scrollbar-corner {
   background-color: rgba(0, 0, 0, 0.0);
+}
+.buttonStyle {
+  //margin-left: $fontSize;
+  cursor: pointer;
+  padding: $fontSize*0.5;
+  //
+  background-color: map-get($colors, transparent);
+  color: map-get($colors, font);
+  &:hover, &.active {
+    background-color: map-get($colors, font_active);
+    color: map-get($colors, button_active);
+  }
 }

@@ -273,14 +273,14 @@ async function modTag(index: number) {
             <div class="title">
               <div @click="checkGroup(index)">{{ group.title }}</div>
               <div class="operator">
-                <span class="sysIcon sysIcon_edit" @click="modGroup(index)"></span>
-                <span class="sysIcon sysIcon_delete" @click="delGroup(index)"></span>
+                <span class="buttonStyle sysIcon sysIcon_edit" @click="modGroup(index)"></span>
+                <span class="buttonStyle sysIcon sysIcon_delete" @click="delGroup(index)"></span>
               </div>
             </div>
             <div @click="checkGroup(index)" class="description">{{ group.description }}</div>
             <div @click="checkGroup(index)" class="node">
               <template v-if="group.node && group.node.crumb_node">
-          <span v-for="sub in group.node.crumb_node">
+          <span v-for="(sub,crumbIndex) in group.node.crumb_node" :key="`tagView_group_${group.ext_key?group.ext_key:group.id}_CR_${crumbIndex}`">
             {{ sub.title }}
           </span>
               </template>
@@ -309,8 +309,8 @@ async function modTag(index: number) {
               <content-editable class="sort" v-model="group.sort"></content-editable>
               <!--          <div class="operate">-->
               <div>
-                <span class="sysIcon sysIcon_save" @click="modGroup(index)"></span>
-                <span class="sysIcon sysIcon_delete" @click="delGroup(index)"></span>
+                <span class="buttonStyle sysIcon sysIcon_save" @click="modGroup(index)"></span>
+                <span class="buttonStyle sysIcon sysIcon_delete" @click="delGroup(index)"></span>
               </div>
               <!--          </div>-->
             </div>
@@ -338,8 +338,8 @@ async function modTag(index: number) {
           <div class="title">
             <div>{{ tag.title }}</div>
             <div>
-              <span class="sysIcon sysIcon_edit" @click="modTag(index)"></span>
-              <span class="sysIcon sysIcon_delete" @click="delTag(index)"></span>
+              <span class="buttonStyle sysIcon sysIcon_edit" @click="modTag(index)"></span>
+              <span class="buttonStyle sysIcon sysIcon_delete" @click="delTag(index)"></span>
             </div>
           </div>
           <div v-if="tag.description" class="description">{{ tag.description }}</div>
@@ -349,8 +349,8 @@ async function modTag(index: number) {
           <div class="title">
             <content-editable v-model="tag.title" :auto-focus="true"></content-editable>
             <div>
-              <span class="sysIcon sysIcon_save" @click="modTag(index)"></span>
-              <span class="sysIcon sysIcon_delete" @click="delTag(index)"></span>
+              <span class="buttonStyle sysIcon sysIcon_save" @click="modTag(index)"></span>
+              <span class="buttonStyle sysIcon sysIcon_delete" @click="delTag(index)"></span>
             </div>
           </div>
           <content-editable
@@ -418,7 +418,7 @@ async function modTag(index: number) {
           display: inline-block;
         }*/
         .sysIcon {
-          margin-left: $fontSize;
+          //margin-left: $fontSize;
           cursor: pointer;
         }
         //justify-content: space-between;
@@ -446,7 +446,13 @@ async function modTag(index: number) {
         .operator {
           display: flex;
           justify-content: space-between;
-          padding-right: $fontSize*0.5;
+          //padding-right: $fontSize*0.5;
+          div:last-child {
+            margin-top: $fontSize*-0.5;
+            //width: $fontSize*4;
+            //background-color: white;
+            z-index: 5;
+          }
         }
       }
     }
@@ -484,7 +490,7 @@ async function modTag(index: number) {
         display: flex;
         justify-content: space-between;
         span {
-          margin-left: $fontSize*0.5;
+          //margin-left: $fontSize*0.5;
           min-width: $fontSize*2;
         }
       }
