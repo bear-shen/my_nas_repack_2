@@ -172,7 +172,10 @@ async function syncDir(localRoot: string, rootNode: col_node) {
         const fTitle = fp.titleFilter(subFileLs[i1].name);
         //规范化文件名
         if (subFileLs[i1].name != fTitle) {
-            await fp.rename(localRoot + '/' + subFileLs[i1].name, localRoot + '/' + fTitle)
+            await fp.rename(
+                localRoot + '/' + subFileLs[i1].name,
+                localRoot + '/' + fTitle
+            );
             subFileLs[i1].name = fTitle;
         }
         //排除多余的文件
@@ -229,6 +232,28 @@ async function syncDir(localRoot: string, rootNode: col_node) {
                 payload: {id: curNode.id},
                 status: 1,
             });
+        } else {
+            //更新时间大于导入时间的需要重新更新
+            if (curNode.type != 'directory') {
+                const localStats = await fs.stat(fPath);
+                const updateTime = new Date(ifExs.time_update);
+                if (localStats.mtime.valueOf() >= updateTime.valueOf()) {
+                    console.info(
+                        'file modified, rebuild now: ',
+                        ifExs.title,
+                        ifExs.time_update,
+                        updateTime,
+                        updateTime.valueOf(),
+                        localStats.mtime,
+                        localStats.mtime.valueOf(),
+                    )
+                    await (new QueueModel).insert({
+                        type: 'file/rebuild',
+                        payload: {id: curNode.id},
+                        status: 1,
+                    });
+                }
+            }
         }
         if (curNode.type == 'directory') {
             await syncDir(fPath, curNode);
