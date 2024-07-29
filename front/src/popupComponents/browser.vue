@@ -489,16 +489,16 @@ function setRater(rateVal: string) {
       <!--      </div>-->
       <div class="btnContainer">
         <select class="sysIcon" v-model="rateVal" @change="setRater(rateVal)">
-          <option v-for="(type,key) in Config.rate" :value="key" v-html="type" :key="'BROWSER_RATE_'+key"></option>
+          <option v-for="(type,key) in Config.rate" :value="key" v-html="type" :key="'BROWSER_RATE_'+modalData.nid+'_'+key"></option>
         </select>
         <select v-model="filterVal" @change="setFilter(filterVal)">
-          <option v-for="(fileType, key) in Config.fileType" :value="fileType" :key="'BROWSER_TYPE_'+key">
+          <option v-for="(fileType, key) in Config.fileType" :value="fileType" :key="'BROWSER_TYPE_'+modalData.nid+'_'+key">
             {{ fileType }}
           </option>
         </select>
         <br>
         <select v-model="sortVal" @change="setSort($event)">
-          <option v-for="(sortItem, key) in Config.sort" :value="key" :key="'BROWSER_SORT_'+key">
+          <option v-for="(sortItem, key) in Config.sort" :value="key" :key="'BROWSER_SORT_'+modalData.nid+'_'+key">
             {{ sortItem }}
           </option>
         </select>
