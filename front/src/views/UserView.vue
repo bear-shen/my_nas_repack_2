@@ -584,6 +584,38 @@ async function modUser(index: number) {
       background-color: map-get($colors, bk_active);
     }
   }
+  @media (max-width: $fontSize*50) {
+    display: block;
+    .list_user_group {
+      width: 100%;
+      height: 30%;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      align-content: flex-start;
+      .user_group {
+        //min-width: $fontSize*15;
+        font-size: 0;
+        //height: 10px;
+        width: calc(50% - $fontSize * 2);
+        //padding-left: 0;
+        //padding-right: 0;
+      }
+      .user_group.edit {
+        width: 100%;
+      }
+    }
+    .list_user {
+      width: 100%;
+      height: 70%;
+      //.user {
+      //  display: flex;
+      //  flex-wrap: wrap;
+      //  justify-content: space-around;
+      //}
+    }
+  }
 }
 </style>
 <!---->

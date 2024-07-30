@@ -715,17 +715,17 @@ function keymap(e: KeyboardEvent) {
         <div class="modal_menu">
           <template v-if="modal.layout.allow_move &&modal.layout.allow_fullscreen">
             <span
-              class="sysIcon sysIcon_maximize"
+              class="buttonStyle sysIcon sysIcon_maximize"
               v-if="!modal.layout.fullscreen"
               @click="fullscreen(modal.nid)"
             ></span>
             <span
-              class="sysIcon sysIcon_windowize"
+              class="buttonStyle sysIcon sysIcon_windowize"
               v-else
               @click="resetWindow(modal.nid)"
             ></span>
           </template>
-          <span class="sysIcon sysIcon_close" @click="close(modal.nid)"></span>
+          <span class="buttonStyle sysIcon sysIcon_close" @click="close(modal.nid)"></span>
         </div>
       </div>
       <div class="modal_content">
@@ -878,12 +878,12 @@ function keymap(e: KeyboardEvent) {
   padding: $fontSize * 0.25;
   @include blurBackground();
   .modal_header {
-    height: $fontSize;
-    line-height: $fontSize;
-    font-size: $fontSize*0.75;
+    height: $fontSize*(0.75+0.25*2);
+    line-height: $fontSize*(0.75+0.25*2);
+    font-size: 0;
     .sysIcon {
       font-size: $fontSize*0.75;
-      padding: 0 $fontSize*0.25;
+      padding: $fontSize*0.25;
     }
     white-space: nowrap;
     background-color: map-get($colors, popup_title);
@@ -893,12 +893,14 @@ function keymap(e: KeyboardEvent) {
     cursor: grab;
     .modal_menu span {
       cursor: pointer;
+      font-size: $fontSize*0.75;
     }
     .modal_title {
       white-space: nowrap;
       max-width: 80%;
       overflow: hidden;
       text-overflow: ellipsis;
+      font-size: $fontSize*0.75;
     }
   }
   .modal_border {

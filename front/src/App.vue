@@ -76,19 +76,20 @@ const containerDef = {};
   line-height: $fontSize * 1.5;
   //margin-bottom: $fontSize;
   * {
-    height: $fontSize * 1.5;
+    //height: $fontSize * 1.5;
     line-height: $fontSize * 1.5;
     padding-top: 0;
     padding-bottom: 0;
   }
   > * {
     display: inline-block;
-    overflow: hidden;
+    //overflow: hidden;
   }
   label {
+    display: inline-block;
     margin-right: $fontSize;
-    height: $fontSize * 1.5;
-    width: $fontSize * 1.5;
+    //height: $fontSize * 1.5;
+    //width: $fontSize * 1.5;
     padding: 0;
     text-align: center;
   }

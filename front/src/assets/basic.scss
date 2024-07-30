@@ -141,7 +141,7 @@ input[type='radio'] {
 .buttonStyle {
   //margin-left: $fontSize;
   cursor: pointer;
-  padding: $fontSize*0.5;
+  padding: 0.5em;
   //
   background-color: map-get($colors, transparent);
   color: map-get($colors, font);

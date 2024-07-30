@@ -658,10 +658,19 @@ function tag_del(groupIndex: number, tagIndex: number) {
       height: 30%;
       display: flex;
       flex-wrap: wrap;
-      justify-content: space-around;
-      .tag_group {
-        min-width: $fontSize*15;
-        max-width: 30%;
+      justify-content: space-between;
+      align-items: flex-start;
+      align-content: flex-start;
+      .fav_group {
+        //min-width: $fontSize*15;
+        font-size: 0;
+        //height: 10px;
+        width: calc(50% - $fontSize);
+        padding-left: 0;
+        padding-right: 0;
+      }
+      .fav_group.edit {
+        width: 100%;
       }
     }
     .fav_content {
