@@ -528,6 +528,7 @@ function onResizeEnd(e: PointerEvent) {
   document.removeEventListener("pointerup", onResizeEnd);
   document.removeEventListener("pointermove", onResizing);
   pointerId = 0;
+  resizing.modal = null;
 }
 
 //return true to keep
@@ -693,7 +694,7 @@ function keymap(e: KeyboardEvent) {
     <div
       v-for="[modalIndex, modal] in modalList"
       :key="`_modal_${modalIndex}`"
-      :class="{ modal_dom: true, active: modal.layout.active }"
+      :class="{ modal_dom: true, active: modal.layout.active,resizing:resizing.modal?.nid==modal.nid }"
       :data-ref-id="modal.nid"
       :style="{
         zIndex: modal.layout.index,
@@ -761,7 +762,7 @@ function keymap(e: KeyboardEvent) {
               <template v-if="form.type === 'checkbox'">
                 <template
                   v-for="(option, optionKey) in form.options"
-                  :key="`P_${modalIndex}_C_${formIndex}_CB`"
+                  :key="`P_${modalIndex}_C_${formIndex}_CB_${optionKey}`"
                 >
                   <input
                     :id="`P_${modalIndex}_C_${formIndex}_CB_${optionKey}`"
@@ -779,7 +780,7 @@ function keymap(e: KeyboardEvent) {
               <template v-if="form.type === 'radio'">
                 <template
                   v-for="(option, optionKey) in form.options"
-                  :key="`P_${modalIndex}_C_${formIndex}_RD`"
+                  :key="`P_${modalIndex}_C_${formIndex}_RD_${optionKey}`"
                 >
                   <input
                     :id="`P_${modalIndex}_C_${formIndex}_RD_${optionKey}`"
@@ -798,7 +799,7 @@ function keymap(e: KeyboardEvent) {
                 <select v-model="form.value" :multiple="form.multiple">
                   <option
                     v-for="(option, optionKey) in form.options"
-                    :key="`P_${modalIndex}_C_${formIndex}_SL`"
+                    :key="`P_${modalIndex}_C_${formIndex}_SL_${optionKey}`"
                     :value="optionKey"
                   >
                     {{ option }}
@@ -812,7 +813,9 @@ function keymap(e: KeyboardEvent) {
           class="modal_content_component"
           v-if="modal.content.component && modal.content.component.length"
         > -->
-        <template v-for="component in modal.content.component">
+        <template v-for="(component,componentIndex) in modal.content.component"
+                  :key="`CMP_${modalIndex}_${componentIndex}`"
+        >
           <component
             :is="componentDefs[component.componentName]"
             :data="component.data"
@@ -822,7 +825,8 @@ function keymap(e: KeyboardEvent) {
 
         <div v-if="modal.callback && modal.callback.length" class="modal_content_callback">
           <button
-            v-for="item in modal.callback"
+            v-for="(item,itemIndex) in modal.callback"
+            :key="`BTN_${modalIndex}_${itemIndex}`"
             @click="onCallback(modal.nid, item.key)"
           >
             {{ item.name }}

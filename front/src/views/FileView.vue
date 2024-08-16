@@ -15,7 +15,7 @@ import FileItem from '@/components/FileItem.vue'
 import Config from "@/Config";
 
 const modalStore = useModalStore()
-const contentDOM: Ref<HTMLElement | null> = ref(null)
+const contentDOM: Ref<HTMLElement | null> = ref(null);
 //
 const router = useRouter()
 const route = useRoute()
@@ -437,12 +437,15 @@ function onDragover(e: DragEvent) {
   //justify-content: space-around;
   justify-content: left;
   align-content: flex-start;
+  //display: grid;
+  //grid-template-columns: repeat(8,10%);
 }
 .content_detail.mode_img {
   //columns: $fontSize * 10 12;
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-around;
+  //justify-content: space-around;
+  justify-content: left;
   align-content: flex-start;
 }
 .content_detail.mode_text {
