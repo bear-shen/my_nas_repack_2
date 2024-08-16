@@ -26,13 +26,7 @@ const props = defineProps<{
   modalData: ModalStruct;
 }>();
 const isMobile = window.navigator.userAgent.toLowerCase().indexOf('mobile') !== -1;
-const regComponentLs: { [key: string]: any } = isMobile ? {
-  audio: browserAudioVue,
-  video: browserVideoVue,
-  image: browserImageVue,
-  text: browserTextVue,
-  base: browserBaseVue,
-} : {
+const regComponentLs: { [key: string]: any } = {
   audio: browserAudioVue,
   video: browserVideoVue,
   image: browserImageVue,
