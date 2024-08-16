@@ -17,7 +17,7 @@ const props = defineProps<{
 const filePath = props.curNode.file_index?.raw?.path;
 const viewerId = 'pdvViewer_' + props.modalData.nid;
 const contentDOM: Ref<HTMLElement | null> = ref(null);
-const src = '/public/pdfjs/web/viewer.html?file=' + filePath + '&filename=' + props.curNode.title;
+const src = '/pdfjs/web/viewer.html?file=' + filePath + '&filename=' + props.curNode.title;
 
 //
 /*const eventStore = useEventStore();
