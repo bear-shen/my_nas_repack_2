@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {onMounted, ref, type Ref} from "vue";
+import {onMounted, onUnmounted, ref, type Ref, watch} from "vue";
 import type {ModalConstruct, ModalStruct} from "../modal";
 import {queryDemo, query} from "@/Helper";
 import type {api_node_col, api_file_list_resp} from "../../../share/Api";
@@ -14,11 +14,25 @@ const props = defineProps<{
   curIndex: number;
   curNode: api_node_col;
 }>();
-const filePath = props.curNode.file_index?.raw?.path;
+let filePath = null;
 const viewerId = 'pdvViewer_' + props.modalData.nid;
-const contentDOM: Ref<HTMLElement | null> = ref(null);
-const src = '/pdfjs/web/viewer.html?file=' + filePath + '&filename=' + props.curNode.title;
+const contentDOM: Ref<HTMLIFrameElement | null> = ref(null);
+const src: Ref<string | null> = ref(null);
 
+
+onMounted(() => {
+  console.warn("mounted");
+  src.value = '/pdfjs/web/viewer.html?file=' + props.curNode.file_index?.raw?.path + '&filename=' + props.curNode.title;
+});
+watch(
+  () => props.curNode,
+  async (to) => {
+    console.info('onMod props.curNode');
+    src.value = '/pdfjs/web/viewer.html?file=' + to.file_index?.raw?.path + '&filename=' + to.title;
+  });
+onUnmounted(() => {
+  src.value = null;
+});
 //
 /*const eventStore = useEventStore();
 let resizingEvtKey = eventStore.listen(
@@ -72,7 +86,7 @@ loadPDF();
     </div>
     <slot name="navigator"></slot>
     <div class="content">
-      <iframe :src="src" width="100%" height="100%" allowfullscreen/>
+      <iframe v-if="src" :src="src" width="100%" height="100%" allowfullscreen/>
     </div>
   </div>
 </template>
