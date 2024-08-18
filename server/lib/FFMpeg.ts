@@ -33,6 +33,10 @@ type ffMeta = {
         disposition: {
             attached_pic: number;
         };
+        side_data_list?: {
+            side_data_type?: string;
+            rotation?: number;
+        }[];
     }[];
 };
 
@@ -428,6 +432,7 @@ async function imageStr(meta: ffMeta, level: 'cover' | 'preview' | 'image'): Pro
     //     }
     // }
     let noVideo = true;
+    // let switchWH = false;
     for (let i1 = 0; i1 < meta.streams.length; i1++) {
         if (meta.streams[i1].codec_type != 'video') {
             continue;
@@ -450,6 +455,22 @@ async function imageStr(meta: ffMeta, level: 'cover' | 'preview' | 'image'): Pro
         }
         w = meta.streams[i1].width;
         h = meta.streams[i1].height;
+        if (meta.streams[i1]?.side_data_list) {
+            for (let i2 = 0; i2 < meta.streams[i1]?.side_data_list.length; i2++) {
+                let sideDataType = meta.streams[i1]?.side_data_list[i2]?.side_data_type;
+                if (!sideDataType) continue;
+                if (sideDataType != 'Display Matrix') continue;
+                let rotation = meta.streams[i1]?.side_data_list[i2]?.rotation;
+                if (!rotation) continue;
+                if (rotation % 180 != 0) {
+                    console.info('switchWH');
+                    // switchWH=true;
+                    let z = w;
+                    w = h;
+                    h = z;
+                }
+            }
+        }
         break;
     }
     // console.info({hasImage, duration});
