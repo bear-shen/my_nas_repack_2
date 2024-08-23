@@ -165,7 +165,7 @@ onBeforeUnmount(() => {
 let bufferTimer = 0;
 
 function modBuffered() {
-  if (!mediaDOM || !mediaDOM.value) return;
+  if (!mediaDOM.value) return;
   if (!mediaDOM.value.buffered || !mediaDOM.value.buffered.length) return;
   let end = 0;
   for (let i1 = 0; i1 < mediaDOM.value.buffered.length; i1++) {

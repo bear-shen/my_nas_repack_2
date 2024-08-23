@@ -179,7 +179,7 @@ onBeforeUnmount(() => {
 let bufferTimer = 0;
 
 function modBuffered() {
-  if (!mediaDOM || !mediaDOM.value) return;
+  if (!mediaDOM.value) return;
   if (!mediaDOM.value.buffered || !mediaDOM.value.buffered.length) return;
   let end = 0;
   for (let i1 = 0; i1 < mediaDOM.value.buffered.length; i1++) {
@@ -399,7 +399,7 @@ function toggleSubtitle(index: number) {
           <select
             v-if="subtitleList &&subtitleList.length"
             v-model="subtitleIndex" @change="toggleSubtitle(subtitleIndex)">
-            <option v-for="(item, key) in subtitleList" :value="key">
+            <option v-for="(item, key) in subtitleList" :value="key" :key="'MO_BS_VDO_'+modalData.nid+'_sub_'+key">
               {{ item.label }}
             </option>
           </select>
@@ -441,15 +441,19 @@ function toggleSubtitle(index: number) {
         <source :src="resPath"/>
         <template v-for="(subtitle,index) in subtitleList">
           <template v-if="subtitle.file_index?.normal">
-            <track :default="subtitleIndex==index?true:false"
-                   :src="(subtitle.file_index.normal as col_file_with_path).path" kind="subtitles"
-                   :srclang="subtitle.label" :label="subtitle.label"
+            <track
+              :key="'MO_BS_VDO_'+modalData.nid+'_track_'+index"
+              :default="subtitleIndex==index?true:false"
+              :src="(subtitle.file_index.normal as col_file_with_path).path" kind="subtitles"
+              :srclang="subtitle.label" :label="subtitle.label"
             />
           </template>
           <template v-else>
-            <track :default="subtitleIndex==index?true:false"
-                   :src="(subtitle.file_index.raw as col_file_with_path).path" kind="subtitles"
-                   :srclang="subtitle.label" :label="subtitle.label"
+            <track
+              :key="'MO_BS_VDO_'+modalData.nid+'_track_'+index"
+              :default="subtitleIndex==index?true:false"
+              :src="(subtitle.file_index.raw as col_file_with_path).path" kind="subtitles"
+              :srclang="subtitle.label" :label="subtitle.label"
             />
           </template>
         </template>
@@ -491,6 +495,15 @@ function toggleSubtitle(index: number) {
       top: 0;
     }
   }
+  .base {
+    .l, .m, .r {
+      position: relative;
+    }
+  }
+  .l {
+    width: calc(100% - $fontSize * 10);
+    min-width: 150px;
+  }
   .l .btnContainer {
     button {
       vertical-align: bottom;
@@ -507,7 +520,7 @@ function toggleSubtitle(index: number) {
       display: inline-block;
       //background-color: map_get($colors, input_button_bk);
       color: map_get($colors, font_sub_active);
-      width: 150px;
+      width: calc(100% - $fontSize * 10);
       //      padding: 0 $fontSize * 0.5;
       border-right: 1px solid map_get($colors, font_sub_active);
       height: $fontSize * 1.5;

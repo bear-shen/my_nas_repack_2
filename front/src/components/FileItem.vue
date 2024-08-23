@@ -206,7 +206,7 @@ function emp(e: Event) {
                 <rater :node="node" v-model="node.rate"></rater>
                 <span :title="`C:${node.time_create}\r\nU:${node.time_update}`">{{ (node.time_create ?? '').substring(0, 10) }}</span>
               </p>
-              <p v-if="node.is_file">{{ GenFunc.kmgt(node?.file_index?.raw?.size ?? 0,2) }}B {{ node.description }}</p>
+              <p v-if="node.is_file">{{ GenFunc.kmgt(node?.file_index?.raw?.size ?? 0, 2) }}B {{ node.description }}</p>
               <p v-else>{{ node.description }}</p>
             </template>
           </template>
@@ -217,25 +217,25 @@ function emp(e: Event) {
             <template v-else>
               <p :class="['title',]" :title="node.title">{{ node.title }}</p>
             </template>
-            <p><span v-for="crumb in node.crumb_node"> / {{ crumb.title }}</span></p>
+            <p><span v-for="(crumb,index) in node.crumb_node" :key="'FI_CR_'+node.id+'_'+index"> / {{ crumb.title }}</span></p>
             <p>{{ node.time_create }}</p>
-            <p v-if="node.is_file">{{ GenFunc.kmgt(node?.file_index?.raw?.size ?? 0,2) }}B {{ node.description }}</p>
+            <p v-if="node.is_file">{{ GenFunc.kmgt(node?.file_index?.raw?.size ?? 0, 2) }}B {{ node.description }}</p>
             <p v-else>{{ node.description }}</p>
           </template>
         </div>
       </div>
       <div v-if="!node._tagging && node.tag" class="tag_list">
-        <dl v-for="group in node.tag">
+        <dl v-for="group in node.tag" :key="'FI_TG_'+node.id+'_'+group.id">
           <dt>{{ group.title }}</dt>
-          <dd v-for="tag in group.sub" @click="go('tag', tag?.id??0)">
+          <dd v-for="tag in group.sub" :key="'FI_TG_'+node.id+'_'+group.id+'_'+tag.id" @click="go('tag', tag?.id??0)">
             {{ tag.title }}
           </dd>
         </dl>
       </div>
       <div v-if="node._tagging" class="tag_list editing">
-        <dl v-for="group in node.tag">
+        <dl v-for="group in node.tag" :key="'FI_TG_'+node.id+'_'+group.id">
           <dt>{{ group.title }}</dt>
-          <dd v-for="tag in group.sub" @click="tag_del(tag?.id??0)">
+          <dd v-for="tag in group.sub" :key="'FI_TG_'+node.id+'_'+group.id+'_'+tag.id" @click="tag_del(tag?.id??0)">
             <span>{{ tag.title }}</span>
             <span class="sysIcon sysIcon_delete"></span>
           </dd>
@@ -360,7 +360,7 @@ function emp(e: Event) {
         line-height: $fontSize*1.25;
         margin: 0 0 $fontSize * 0.5 0;
       }
-      p{
+      p {
         @include multiLineWrap(4);
       }
       .title {
