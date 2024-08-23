@@ -34,6 +34,7 @@ type api_favourite_group_col_local = (api_favourite_group_col & {
 const groupList: Ref<(api_favourite_group_col_local)[]> = ref([]);
 const curGroup: Ref<api_favourite_group_col_local | null> = ref(null);
 const curGroupIndex: Ref<number> = ref(-1);
+const isMobile = window.navigator.userAgent.toLowerCase().indexOf('mobile') !== -1;
 
 onMounted(async () => {
   // Object.assign(groupQueryData, GenFunc.copyObject(route.query));
@@ -458,9 +459,16 @@ function tag_del(groupIndex: number, tagIndex: number) {
           </label>
           <label>
             <span>Rate : </span>
-            <select class='sysIcon' v-model='nodeQueryData.rate'>
-              <option v-for='(type,key) in Config.rate' :value='key' v-html='type' :key="`FAV_SCH_CON_RATE_${key}`"></option>
-            </select>
+            <template v-if="isMobile">
+              <select v-model='nodeQueryData.rate'>
+                <option v-for='(type,key) in Config.rateMobile' :value='key' :key="`FAV_SCH_CON_RATE_${key}`">{{type}}</option>
+              </select>
+            </template>
+            <template v-else>
+              <select class='sysIcon' v-model='nodeQueryData.rate'>
+                <option v-for='(type,key) in Config.rate' :value='key' v-html='type' :key="`FAV_SCH_CON_RATE_${key}`"></option>
+              </select>
+            </template>
           </label>
           <label>
             <button class='buttonStyle sysIcon sysIcon_search' @click='search'></button>

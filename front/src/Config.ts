@@ -14,7 +14,7 @@ export default {
         'pdf'
     ],
     indexedDBName: 'tosho_db',
-    timeouts:{
+    timeouts: {
         sort: 50,
         selectEvt: 50,
         clearEvt: 100,
@@ -48,6 +48,20 @@ export default {
         '8': '&#xe69e;&#xe69e;&#xe69e;&#xe69e;&#xe69f;',
         '9': '&#xe69e;&#xe69e;&#xe69e;&#xe69e;&#xe6b6;',
         '10': '&#xe69e;&#xe69e;&#xe69e;&#xe69e;&#xe69e;'
+    },
+    //v☆◐◧※
+    rateMobile: {
+        '0': '☆☆☆☆☆',
+        '1': '※☆☆☆☆',
+        '2': '★☆☆☆☆',
+        '3': '★※☆☆☆',
+        '4': '★★☆☆☆',
+        '5': '★★※☆☆',
+        '6': '★★★☆☆',
+        '7': '★★★※☆',
+        '8': '★★★★☆',
+        '9': '★★★★※',
+        '10': '★★★★★'
     },
     listType: ['detail', 'text', 'img'],
     playMode: [

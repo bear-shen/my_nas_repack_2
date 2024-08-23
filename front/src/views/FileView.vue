@@ -1,24 +1,24 @@
 <script setup lang='ts'>
-import type {Ref} from 'vue'
+import type {Ref} from 'vue';
 // import {routes} from "@/router/index";
-import {onMounted, onUnmounted, ref} from 'vue'
-import {onBeforeRouteUpdate, useRoute, useRouter} from 'vue-router'
-import {useLocalConfigureStore} from '@/stores/localConfigure'
-import {query} from '@/Helper'
-import type {opModule as opModuleClass} from '@/FileViewHelper'
-import * as fHelper from '@/FileViewHelper'
-// import {manualSort} from '@/FileViewHelper'
-import GenFunc from '@/GenFunc'
-import type {api_file_list_req, api_file_list_resp, api_file_mkdir_req, api_file_mkdir_resp, api_node_col} from '../../../share/Api'
-import {useModalStore} from '@/stores/modalStore'
-import FileItem from '@/components/FileItem.vue'
+import {onMounted, onUnmounted, ref} from 'vue';
+import {onBeforeRouteUpdate, useRoute, useRouter} from 'vue-router';
+import {useLocalConfigureStore} from '@/stores/localConfigure';
+import {query} from '@/Helper';
+import type {opModule as opModuleClass} from '@/FileViewHelper';
+import * as fHelper from '@/FileViewHelper';
+// import {manualSort} from '@/FileViewHelper';
+import GenFunc from '@/GenFunc';
+import type {api_file_list_req, api_file_list_resp, api_file_mkdir_req, api_file_mkdir_resp, api_node_col} from '../../../share/Api';
+import {useModalStore} from '@/stores/modalStore';
+import FileItem from '@/components/FileItem.vue';
 import Config from "@/Config";
 
-const modalStore = useModalStore()
+const modalStore = useModalStore();
 const contentDOM: Ref<HTMLElement | null> = ref(null);
 //
-const router = useRouter()
-const route = useRoute()
+const router = useRouter();
+const route = useRoute();
 let queryData: api_file_list_req = {
   mode: 'directory',
   pid: '0',
@@ -29,10 +29,12 @@ let queryData: api_file_list_req = {
   with: '',
   group: '',
   rate: ''
-}
+};
+const isMobile = window.navigator.userAgent.toLowerCase().indexOf('mobile') !== -1;
+
 // let usePid = false;
 onBeforeRouteUpdate(async (to) => {
-  console.info('onBeforeRouteUpdate', to)
+  console.info('onBeforeRouteUpdate', to);
   queryData = Object.assign({
     mode: 'directory',
     pid: '0',
@@ -43,14 +45,14 @@ onBeforeRouteUpdate(async (to) => {
     with: '',
     group: '',
     rate: ''
-  } as api_file_list_req, GenFunc.copyObject(to.query))
-  await getList()
+  } as api_file_list_req, GenFunc.copyObject(to.query));
+  await getList();
 })
 
 //
-let crumbList: Ref<api_node_col[]> = ref([])
-let nodeList: Ref<api_node_col[]> = ref([])
-let opModule: opModuleClass
+let crumbList: Ref<api_node_col[]> = ref([]);
+let nodeList: Ref<api_node_col[]> = ref([]);
+let opModule: opModuleClass;
 
 async function getList(replaceWith?: api_file_list_resp[]) {
   console.info('getList', route.name)
@@ -320,11 +322,20 @@ function onDragover(e: DragEvent) {
         </label>
         <label>
           <span>Rate : </span>
-          <select class='sysIcon' v-model='queryData.rate'>
-            <option v-for='(type,key) in Config.rate' :value='key' v-html='type'
-                    :key="`FV_SCH_CON_RATE_${key}`"
-            ></option>
-          </select>
+          <template v-if="isMobile">
+            <select class='sysIcon' v-model='queryData.rate'>
+              <option v-for='(type,key) in Config.rateMobile' :value='key' v-html='type'
+                      :key="`FV_SCH_CON_RATE_${key}`"
+              ></option>
+            </select>
+          </template>
+          <template v-else>
+            <select class='sysIcon' v-model='queryData.rate'>
+              <option v-for='(type,key) in Config.rate' :value='key' v-html='type'
+                      :key="`FV_SCH_CON_RATE_${key}`"
+              ></option>
+            </select>
+          </template>
         </label>
         <label v-if='crumbList.length'>
           <span>Cascade : </span>

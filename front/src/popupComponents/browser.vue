@@ -482,9 +482,17 @@ function setRater(rateVal: string) {
       <!--      <div class="btnContainer">-->
       <!--      </div>-->
       <div class="btnContainer">
-        <select class="sysIcon" v-model="rateVal" @change="setRater(rateVal)">
-          <option v-for="(type,key) in Config.rate" :value="key" v-html="type" :key="'BROWSER_RATE_'+modalData.nid+'_'+key"></option>
-        </select>
+        <template v-if="isMobile">
+          <select v-model="rateVal" @change="setRater(rateVal)">
+            <option v-for="(type,key) in Config.rateMobile" :value="key" :key="'BROWSER_RATE_'+modalData.nid+'_'+key">{{type}}</option>
+          </select>
+        </template>
+        <template v-else>
+          <select class="sysIcon" v-model="rateVal" @change="setRater(rateVal)">
+            <option v-for="(type,key) in Config.rate" :value="key" v-html="type" :key="'BROWSER_RATE_'+modalData.nid+'_'+key"></option>
+          </select>
+        </template>
+
         <select v-model="filterVal" @change="setFilter(filterVal)">
           <option v-for="(fileType, key) in Config.fileType" :value="fileType" :key="'BROWSER_TYPE_'+modalData.nid+'_'+key">
             {{ fileType }}
