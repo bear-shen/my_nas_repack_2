@@ -42,6 +42,9 @@ const mediaMeta = ref({
   volume: localConfigure.get("browser_play_volume")
     ? localConfigure.get("browser_play_volume")
     : 100,
+  brightness: localConfigure.get("browser_play_brightness")
+    ? localConfigure.get("browser_play_brightness")
+    : 1,
   mute: false,
   //
   play: false,
@@ -54,6 +57,9 @@ const modeKey = localConfigure.listen("browser_play_mode", (v) =>
 );
 const volumeKey = localConfigure.listen("browser_play_volume", (v) =>
   Object.assign(mediaMeta.value, {volume: v})
+);
+const brightnessKey = localConfigure.listen("browser_play_brightness", (v) =>
+  Object.assign(mediaMeta.value, {brightness: v})
 );
 
 function onInit(): any {
@@ -173,6 +179,7 @@ onBeforeUnmount(() => {
   onRelease(false);
   localConfigure.release("browser_play_mode", modeKey);
   localConfigure.release("browser_play_volume", volumeKey);
+  localConfigure.release("browser_play_brightness", brightnessKey);
   clearInterval(bufferTimer);
 });
 
@@ -206,21 +213,27 @@ function onTimeUpdate(e: Event) {
 const dragData = {
   active: false,
   x: 0,
+  y: 0,
   w: 0,
+  h: 0,
   orgX: 0,
+  orgY: 0,
+  left: 0,
+  right: 0,
+  t: 0,
 };
 
 let pointerId = 0;
 
-function onDragging(e: PointerEvent) {
+function onBarDragging(e: PointerEvent) {
   if (pointerId) return;
   const dom = mediaDOM.value;
   if (!dom) return;
   const timeline = timelineDOM.value;
   if (!timeline) return;
   pointerId = e.pointerId;
-  document.addEventListener("pointermove", pointerMoveListener);
-  document.addEventListener("pointerup", pointerUpListener);
+  document.addEventListener("pointermove", pointerBarMoveListener);
+  document.addEventListener("pointerup", pointerBarUpListener);
   // console.info(e, timelineDOM, dom);
   // const layout = imgLayout.value;
   const t = {
@@ -242,7 +255,7 @@ function onDragging(e: PointerEvent) {
   // console.info(e);
 }
 
-function pointerMoveListener(e: PointerEvent) {
+function pointerBarMoveListener(e: PointerEvent) {
   if (e.pointerId != pointerId) return;
   // console.info("pointerMoveListener");
   e.preventDefault();
@@ -261,13 +274,98 @@ function pointerMoveListener(e: PointerEvent) {
   });
 }
 
-function pointerUpListener(e: PointerEvent) {
+function pointerBarUpListener(e: PointerEvent) {
   if (e.pointerId != pointerId) return;
   pointerId = 0;
   // console.info("pointerUpListener");
   Object.assign(dragData, {active: false});
-  document.removeEventListener("pointermove", pointerMoveListener);
-  document.removeEventListener("pointerup", pointerUpListener);
+  document.removeEventListener("pointermove", pointerBarMoveListener);
+  document.removeEventListener("pointerup", pointerBarUpListener);
+}
+
+function onContentDragging(e: PointerEvent) {
+  if (pointerId) return;
+  //
+  const dom = mediaDOM.value;
+  if (!dom) return;
+  const contentDOMVal = contentDOM.value;
+  if (!contentDOMVal) return;
+  //
+  pointerId = e.pointerId;
+  e.preventDefault();
+  e.stopPropagation();
+  document.addEventListener("pointermove", pointerContentMoveListener);
+  document.addEventListener("pointerup", pointerContentUpListener);
+  // console.info(e, timelineDOM, dom);
+  // const layout = imgLayout.value;
+  const t = {
+    active: true,
+    x: e.clientX,
+    y: e.clientY,
+    w: contentDOMVal.clientWidth,
+    h: contentDOMVal.clientHeight,
+    orgX: GenFunc.nodeOffsetX(contentDOMVal),
+    orgY: GenFunc.nodeOffsetX(contentDOMVal),
+    left: 0,
+    right: 0,
+    t: new Date().valueOf(),
+  };
+  //
+  const deltaW = (t.x - t.orgX) / t.w;
+  if (deltaW > 0.5) t.right = 1;
+  if (deltaW < 0.5) t.left = 1;
+  //
+  // console.info(t);
+  Object.assign(dragData, t);
+  //togglePlay
+}
+
+function pointerContentMoveListener(e: PointerEvent) {
+  if (e.pointerId != pointerId) return;
+  // console.info("pointerMoveListener");
+  e.preventDefault();
+  e.stopPropagation();
+  if (!dragData.active) return;
+  //
+  const dom = mediaDOM.value;
+  if (!dom) return;
+  const contentDOMVal = contentDOM.value;
+  if (!contentDOMVal) return;
+  //
+  const deltaH = (e.clientY - dragData.y) / (dragData.h);
+  Object.assign(dragData, {y: e.clientY});
+  const meta = mediaMeta.value;
+  if (dragData.right) {
+    let volume = meta.volume - (deltaH * 100 * 1.5);
+    // console.info(meta.volume, deltaH, volume, dragData);
+    if (volume < 0) volume = 0;
+    if (volume > 100) volume = 100;
+    dom.volume = volume / 100;
+    // Object.assign(mediaMeta.value, { volume: volume });
+    localConfigure.set("browser_play_volume", volume);
+  }
+  if (dragData.left) {
+    let brightness = meta.brightness - deltaH;
+    if (brightness < 0) brightness = 0;
+    if (brightness > 1) brightness = 1;
+    //
+    meta.brightness = brightness;
+    localConfigure.set("browser_play_brightness", brightness);
+  }
+}
+
+function pointerContentUpListener(e: PointerEvent) {
+  if (e.pointerId != pointerId) return;
+  pointerId = 0;
+  const cur = new Date().valueOf();
+  // console.info(dragData.t, cur, cur - dragData.t);
+  if (dragData.t > cur - 250) {
+    togglePlay();
+  }
+  // console.info("pointerUpListener");
+  Object.assign(dragData, {active: false});
+  document.removeEventListener("pointermove", pointerContentMoveListener);
+  document.removeEventListener("pointerup", pointerContentUpListener);
 }
 
 function wheelListener(e: WheelEvent) {
@@ -372,7 +470,7 @@ function toggleSubtitle(index: number) {
               sysIcon_mutemode: !mediaMeta.mute && !mediaMeta.volume,
             }"
           >
-            {{ mediaMeta.volume }}
+            {{ Math.round(mediaMeta.volume) }}
           </button>
           <button
             :class="{
@@ -384,7 +482,7 @@ function toggleSubtitle(index: number) {
             <!-- {{ parseTime(mediaMeta.duration) }} -->
             {{ parseTime(mediaMeta.time) }}
           </button>
-          <div :class="['video_bar']" @pointerdown="onDragging" ref="timelineDOM">
+          <div :class="['video_bar']" @pointerdown="onBarDragging" ref="timelineDOM">
             <span class="duration"
                   :style="{
                 left: (100 * mediaMeta.time) / mediaMeta.duration + '%',
@@ -410,15 +508,16 @@ function toggleSubtitle(index: number) {
       </div>
     </div>
     <slot name="navigator"></slot>
-    <div class="content" ref="contentDOM" @click="togglePlay">
+    <div class="content" ref="contentDOM" @pointerdown="onContentDragging">
       <!-- {{ props.curNode.title }} -->
       <template v-if="mediaMeta.loading">
         <span class="loader sysIcon sysIcon_sync"></span>
       </template>
       <!--      <template v-if="mediaMeta.show">-->
       <!-- <img
-        v-if="props.curNode.file_index?.cover"
-        :src="props.curNode.file_index?.cover?.path"
+        v-if="props.curNode.file_index?.preview"
+        :src="props.curNode.file_index?.preview?.path"
+        :style="{filter: `brightness(${mediaMeta.brightness})`}"
       />
       <span
         v-else
@@ -437,6 +536,7 @@ function toggleSubtitle(index: number) {
         @canplay="onCanplay"
         @ended="onEnd"
         @timeupdate="onTimeUpdate"
+        :style="{filter: `brightness(${mediaMeta.brightness})`}"
       >
         <source :src="resPath"/>
         <template v-for="(subtitle,index) in subtitleList">
@@ -486,6 +586,7 @@ function toggleSubtitle(index: number) {
 @import "../assets/variables";
 .modal_browser.video {
   .content {
+    touch-action: none;
     video {
       position: absolute;
       width: 100%;
@@ -496,7 +597,7 @@ function toggleSubtitle(index: number) {
     }
   }
   .base {
-    .l, .m, .r {
+    .l, .r {
       position: relative;
     }
   }
