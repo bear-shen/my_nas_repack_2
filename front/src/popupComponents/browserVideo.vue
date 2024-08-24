@@ -432,7 +432,7 @@ function toggleSubtitle(index: number) {
         ref="mediaDOM"
         preload="metadata"
         :data-item-id="props.curNode.id"
-        :poster="props.curNode.file_index?.cover?.path"
+        :poster="props.curNode.file_index?.preview?.path"
         @loadedmetadata="onInit"
         @canplay="onCanplay"
         @ended="onEnd"

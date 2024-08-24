@@ -484,7 +484,7 @@ function setRater(rateVal: string) {
       <div class="btnContainer">
         <template v-if="isMobile">
           <select v-model="rateVal" @change="setRater(rateVal)">
-            <option v-for="(type,key) in Config.rateMobile" :value="key" :key="'BROWSER_RATE_'+modalData.nid+'_'+key">{{type}}</option>
+            <option v-for="(type,key) in Config.rateMobile" :value="key" :key="'BROWSER_RATE_'+modalData.nid+'_'+key">{{ type }}</option>
           </select>
         </template>
         <template v-else>
@@ -572,6 +572,12 @@ function setRater(rateVal: string) {
     }
     &.detail p:first-child {
       white-space: normal;
+    }
+    p {
+      max-width: $fontSize*10;
+    }
+    &.detail p {
+      max-width: unset;
     }
   }
   .pagination {

@@ -12,14 +12,9 @@ import SettingModel from "../../model/SettingModel";
 
 const exec = util.promisify(require('child_process').exec);
 
-let importerTitleFilter: string[] = [];
 
 export default class {
     static async run(payload: { [key: string]: any }): Promise<any> {
-        importerTitleFilter = getConfig().import_ignore;
-        for (let i1 = 0; i1 < importerTitleFilter.length; i1++) {
-            importerTitleFilter[i1] = importerTitleFilter[i1].toLowerCase();
-        }
         const pathConfig = getConfig('path');
         const curJobLs = await (new QueueModel).where('type', 'sync/run').whereIn('status', [1, 2]).select();
         if (curJobLs.length > 1) throw new Error('sync job running');
@@ -114,8 +109,32 @@ export default class {
     }
 }
 
+let filterCacheLoaded: boolean = false;
+let importerTitleFilter: string[] = [];
+let pathConfig: { [key: string]: string } = {};
+
+function filtered(fileName: string) {
+    if (!filterCacheLoaded) {
+        if (getConfig().import_ignore.length) {
+            importerTitleFilter = getConfig().import_ignore;
+            for (let i1 = 0; i1 < importerTitleFilter.length; i1++) {
+                importerTitleFilter[i1] = importerTitleFilter[i1].toLowerCase();
+            }
+        }
+        const config = getConfig();
+        pathConfig = config.path;
+        filterCacheLoaded = true;
+    }
+    const lowerFileName = fileName.toLowerCase();
+    if (importerTitleFilter.indexOf(lowerFileName) !== -1) return true;
+    if (pathConfig.prefix_temp == lowerFileName) return true;
+    if (pathConfig.prefix_preview == lowerFileName) return true;
+    if (pathConfig.prefix_normal == lowerFileName) return true;
+    if (pathConfig.prefix_cover == lowerFileName) return true;
+    return false;
+}
+
 async function scanLocalDir(localRoot: string): Promise<Set<string>> {
-    const config = getConfig();
     const resPath = new Set<string>();
     let subFileLs: Dirent[];
     try {
@@ -127,12 +146,7 @@ async function scanLocalDir(localRoot: string): Promise<Set<string>> {
     }
     for (let i1 = 0; i1 < subFileLs.length; i1++) {
         //
-        const lowerFileName = subFileLs[i1].name.toLowerCase();
-        if (importerTitleFilter.indexOf(lowerFileName) !== -1) continue;
-        if (config.path.prefix_temp == lowerFileName) continue;
-        if (config.path.prefix_preview == lowerFileName) continue;
-        if (config.path.prefix_normal == lowerFileName) continue;
-        if (config.path.prefix_cover == lowerFileName) continue;
+        if (filtered(subFileLs[i1].name)) continue;
         //
         const subPath = localRoot + '/' + subFileLs[i1].name;
         resPath.add(subPath);
@@ -159,7 +173,6 @@ async function scanLocalDir(localRoot: string): Promise<Set<string>> {
  * | synology | synology | filezilla | 1          |              |
  * */
 async function syncDir(localRoot: string, rootNode: col_node) {
-    const config = getConfig();
     // console.info(20, localRoot);
     let subFileLs: Dirent[];
     try {
@@ -186,12 +199,7 @@ async function syncDir(localRoot: string, rootNode: col_node) {
             subFileLs[i1].name = fTitle;
         }
         //排除多余的文件
-        const lowerFileName = subFileLs[i1].name.toLowerCase();
-        if (importerTitleFilter.indexOf(lowerFileName) !== -1) continue;
-        if (config.path.prefix_temp == lowerFileName) continue;
-        if (config.path.prefix_preview == lowerFileName) continue;
-        if (config.path.prefix_normal == lowerFileName) continue;
-        if (config.path.prefix_cover == lowerFileName) continue;
+        if (filtered(subFileLs[i1].name)) continue;
         //
         curSubNodeTitleSet.add(fTitle);
         const fPath = localRoot + '/' + fTitle;
