@@ -568,7 +568,7 @@ onUnmounted(() => {
 });
 
 function keymap(e: KeyboardEvent) {
-  // console.info(e);
+  console.info(e);
   switch (e.key) {
     case 'Escape':
       // 这个想不起来是为啥加的了，
@@ -576,7 +576,9 @@ function keymap(e: KeyboardEvent) {
       modalList.value.forEach((value, key) => {
         if (value.layout.active) {
           if (!value.layout.allow_escape) return;
-          close(value.nid);
+          setTimeout(() =>
+            close(value.nid)
+          );
         }
       });
       break;
