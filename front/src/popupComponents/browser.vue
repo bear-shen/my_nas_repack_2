@@ -565,7 +565,6 @@ function setRater(rateVal: string) {
       color: map-get($colors, font_active);
     }
     p:first-child {
-      white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       //width: 80%;
@@ -575,6 +574,7 @@ function setRater(rateVal: string) {
     }
     p {
       max-width: $fontSize*10;
+      white-space: nowrap;
     }
     &.detail p {
       max-width: unset;
