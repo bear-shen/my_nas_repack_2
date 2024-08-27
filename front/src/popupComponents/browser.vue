@@ -369,7 +369,7 @@ async function keymap(e: KeyboardEvent) {
       e.preventDefault();
       e.stopPropagation();
       const idSet = new Set<number>;
-      idSet.add(curNode.value.id);
+      if (curNode.value && curNode.value.id) idSet.add(curNode.value.id);
       await opFunctionModule.op_bath_delete(idSet, [], false, () => {
         goNav(curIndex.value, +1);
       });
@@ -489,7 +489,7 @@ function setRater(rateVal: string) {
         </template>
         <template v-else>
           <select class="sysIcon" v-model="rateVal" @change="setRater(rateVal)">
-            <option v-for="(type,key) in Config.rate" :value="key" v-html="type" :key="'BROWSER_RATE_'+modalData.nid+'_'+key"></option>
+          <option class='sysIcon_A sysIcon' v-for="(type,key) in Config.rate" :value="key" v-html="type" :key="'BROWSER_RATE_'+modalData.nid+'_'+key"></option>
           </select>
         </template>
 
