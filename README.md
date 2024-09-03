@@ -4,13 +4,15 @@ a simple net disk frontend for nas
 
 support tagging, favourite, and user group
 
-notice:
-
-ftp/webdav discontinued, no further test & dev
-
 -- --
 
 mysql/mariadb, nginx, ffmpeg required
+
+nginx modules required:
+
+  http_auth_request
+
+  http_proxy
 
 php optional
 

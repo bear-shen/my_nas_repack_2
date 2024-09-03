@@ -13,9 +13,10 @@ const BaseConfig = {
     },
     auth: {
         api: {
-            '^/api/[^/]+?/[^/]+?$': [1],
             '^/api/user/login$': [0],
+            '^/api/user/auth$': [0],
             '^/api/dev/[^/]+?$': [0],
+            '^/api/[^/]+?/[^/]+?$': [1],
         } as { [key: string]: Array<any> },
         local: {
             name: 'root',

@@ -3,6 +3,7 @@ import {URL} from "url";
 import AuthModel from '../model/AuthModel';
 import UserModel from "../model/UserModel";
 import UserGroupModel from "../model/UserGroupModel";
+import {get as getConfig} from "../ServerConfig";
 
 const md5 = require('md5');
 
@@ -10,8 +11,15 @@ async function check(url: URL, req: IncomingMessage): Promise<number | true | fa
     // console.info(url.pathname,);
     // console.info(url, data,);
     const [_, prefix, c, a] = url.pathname.split('/');
-    if (c === 'user' && a === 'login') {
-        return true;
+    const fPath = `/api/${c}/${a}`;
+    const authLs = getConfig('auth.api');
+    for (const path in authLs) {
+        const match = new RegExp(path, 'i');
+        if (fPath.match(match)) {
+            if (!authLs[path][0]) {
+                return true;
+            }
+        }
     }
     // console.info([_, prefix, c, a]);
     // console.info(req.headers);

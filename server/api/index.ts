@@ -7,10 +7,9 @@ import {ParsedForm} from "./types";
 
 
 const server = http.createServer(async function (req: IncomingMessage, res: ServerResponse) {
-
     // console.info(new URL('http://www.baidu.com/aaa'));
     // console.info(req.method, req.headers);
-    console.info(req.url);
+    // console.info(req.url);
     //
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     if (req.headers.origin)

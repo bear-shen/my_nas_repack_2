@@ -4,8 +4,14 @@ import FrFooter from "./framework/Footer.vue";
 import FrNavi from "./framework/Navi.vue";
 import Popup from "./framework/Popup.vue";
 import Context from "./framework/Context.vue";
+import {useUserStore} from "@/stores/userStore";
 // import dev from "../../share/dev";
 
+const userStore = useUserStore();
+const userData = userStore.get();
+if (userData) {
+  document.cookie = `token=${userData.token}; max-age=31536000`
+}
 // dev();
 const containerDef = {};
 </script>

@@ -6,6 +6,9 @@ import UserModel from '../../model/UserModel';
 import crypto from 'node:crypto';
 import AuthModel from '../../model/AuthModel';
 import UserGroupModel from "../../model/UserGroupModel";
+import {get as getConfig} from "../../ServerConfig";
+import * as fp from "../../lib/FileProcessor";
+import userGroupModel from "../../model/UserGroupModel";
 
 export default class {
     async login(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_user_login_resp> {
@@ -91,5 +94,109 @@ export default class {
             request.id = `${res.insertId}`;
         }
         return request;
+    };
+
+    async auth(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<void> {
+        // console.info(req.headers.cookie);
+        if (!req.headers.cookie) {
+            // console.info('if (!req.headers.cookie) {');
+            res.statusCode = 401;
+            return null;
+        }
+        //
+        const tokenReg = req.headers.cookie.match(/\btoken=(\w+)/);
+        if (!tokenReg) {
+            // console.info('if (!tokenReg) {');
+            res.statusCode = 401;
+            return null;
+        }
+        const token = tokenReg[1];
+        const auth = await (new AuthModel).where('token', token).first(['uid']);
+        if (!auth) {
+            // console.info('if (!auth) {');
+            res.statusCode = 401;
+            return null;
+        }
+        //
+        const user = await (new UserModel).where('id', auth.uid).first();
+        if (!user) {
+            // console.info('if (!user) {');
+            res.statusCode = 401;
+            return null;
+        }
+        //
+        const userGroup = await (new userGroupModel).where('id', user.id_group).first();
+        if (!userGroup) {
+            // console.info('if (!userGroup) {');
+            res.statusCode = 401;
+            return null;
+        }
+        const userAuth = userGroup.auth;
+        //
+        if (!req.headers['x-original-uri']) {
+            // console.info('if (!req.headers[\'x-original-uri\']) {');
+            res.statusCode = 401;
+            return null;
+        }
+        let uri = req.headers['x-original-uri'];
+        if (typeof uri !== 'string') uri = uri[0];
+        //
+        // const urlInfo = new URL(uri);
+        // console.info(urlInfo);
+        const pathDef = getConfig('path');
+        if (uri.indexOf(pathDef.root_web) !== 0) {
+            // console.info('if (uri.indexOf(pathDef.root_web) !== 0) {');
+            res.statusCode = 403;
+            return null;
+        }
+        let relPath = uri.substring(pathDef.root_web.length);
+        // console.info(relPath);
+        //
+        let nodeType = 'raw';
+        let subLs = [
+            'temp',
+            'preview',
+            'normal',
+            'cover',
+        ];
+        for (let i1 = 0; i1 < subLs.length; i1++) {
+            let subName = pathDef['prefix_' + subLs[i1]];
+            if (relPath.indexOf('/' + subName + '/') !== 0) continue;
+            nodeType = subLs[i1];
+            relPath = relPath.substring(subName.length + 1);
+        }
+        //预览和封面一类的文件后缀会被修改，所以只针对目录进行判断
+        relPath = fp.dirname(relPath);
+        // console.info(nodeType, relPath);
+        const nodeDir = await fp.get(relPath);
+        // console.info(nodeDir);
+        if (!nodeDir) {
+            // console.info('if (!nodeDir) {');
+            res.statusCode = 403;
+            return null;
+        }
+        //
+        if (userAuth && userAuth.deny) {
+            // console.info(userAuth.deny);
+            let allow = true;
+            userAuth.deny.forEach(node => {
+                if (nodeDir.id == node.id) {
+                    allow = false;
+                    return;
+                }
+                if (nodeDir.node_id_list.indexOf(node.id) != -1) {
+                    allow = false;
+                    return;
+                }
+            });
+            if (!allow) {
+                // console.info('if (!nodeDir) {');
+                res.statusCode = 401;
+                return null;
+            }
+        }
+        // console.info(ifNodeExs);
+        res.statusCode = 200;
+        return null;
     };
 };
