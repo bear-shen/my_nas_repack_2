@@ -8,7 +8,7 @@ import type {col_node, col_tag, col_tag_group} from '../../../share/Database';
 import TagGroupModel from '../../model/TagGroupModel';
 import * as fp from "../../lib/FileProcessor";
 import ORM from "../../lib/ORM";
-import {ResultSetHeader} from "mysql2";
+// import {ResultSetHeader} from "mysql2";
 import type {api_tag_group_col, api_tag_group_del_req, api_tag_group_del_resp, api_tag_group_list_req, api_tag_group_list_resp, api_tag_group_mod_resp} from "../../../share/Api";
 import {api_tag_group_mod_req} from "../../../share/Api";
 

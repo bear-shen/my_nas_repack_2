@@ -48,8 +48,7 @@
  *     SELECT ...
  *     [ON DUPLICATE KEY UPDATE assignment_list]
  * */
-import {conn} from "./SQL";
-import {ResultSetHeader, RowDataPacket} from "mysql2";
+import {query, execute, ExecuteResult} from "./SQL";
 
 class queryDefinition {
     type: string; // expression|operator|sub|raw
@@ -383,7 +382,7 @@ ${sqlPart.limit}`.trim();
         // console.info(sql, this._dataset.binds.full);
         if (ORM.dumpSql)
             console.info(sql, this._dataset.binds.full);
-        const [rows, fields] = await conn().execute(sql, this._dataset.binds.full);
+        const rows = await query(sql, this._dataset.binds.full);
         // console.info(this._dataset.binds.full[0],(rows as RowDataPacket[])[0]);
         return rows;
     }
@@ -401,7 +400,7 @@ ${sqlPart.limit}`.trim();
         return null;
     }
 
-    async update(kv: { [key: string]: any }): Promise<any> {
+    async update(kv: { [key: string]: any }): Promise<void> {
         const sqlPart = {
             table: this.table,
             where: this._makeWhere(),
@@ -445,13 +444,13 @@ ${sqlPart.limit}`.trim();
         this._dataset.binds.full.push(...this._dataset.binds.where);
         // this._dataset.binds.full.push(...this._dataset.binds.sort);
         this._dataset.binds.full.push(...this._dataset.binds.limit);
-        const [rows, fields] = await conn().execute(sql, this._dataset.binds.full);
+        const res = await execute(sql, this._dataset.binds.full);
         if (ORM.dumpSql)
             console.info(sql, this._dataset.binds.full);
-        return rows;
+        return;
     }
 
-    async insert(kv: { [key: string]: any }): Promise<ResultSetHeader> {
+    async insert(kv: { [key: string]: any }): Promise<ExecuteResult> {
         const sqlPart = {
             table: this.table,
             key: '',
@@ -477,13 +476,13 @@ ${sqlPart.limit}`.trim();
         let sql = `insert ${sqlPart.ignore} into ${sqlPart.table} (${sqlPart.key})
 value (${sqlPart.value})`.trim();
         // console.info(sql, this._dataset.binds);
-        const [rows, fields] = await conn().execute(sql, this._dataset.binds.full);
+        const res = await execute(sql, this._dataset.binds.full);
         if (ORM.dumpSql)
             console.info(sql, this._dataset.binds.full);
-        return rows as ResultSetHeader;
+        return res
     }
 
-    async insertAll(kvs: Array<{ [key: string]: any }>): Promise<ResultSetHeader> {
+    async insertAll(kvs: Array<{ [key: string]: any }>): Promise<ExecuteResult> {
         const sqlPart = {
             table: this.table,
             key: '',
@@ -513,20 +512,22 @@ value (${sqlPart.value})`.trim();
         let sql = `insert ${sqlPart.ignore} into ${sqlPart.table} (${sqlPart.key})
 values ${sqlPart.value}`.trim();
         // console.info(sql, this._dataset.binds);
-        const [rows, fields] = await conn().execute(sql, this._dataset.binds.full);
+        const res = await execute(sql, this._dataset.binds.full);
         if (ORM.dumpSql)
             console.info(sql, this._dataset.binds.full);
-        return rows as ResultSetHeader;
+        return res;
     }
 
+    /*
+    //mysql的lastInsertId为session级，不合适
     async lastInsertId(): Promise<number> {
         const [rows, fields]: [RowDataPacket[], any] = await conn().execute('select last_insert_id() as id;');
         // console.info(rows, fields);
         if (rows.length) return rows[0].id;
         return null;
-    };
+    };*/
 
-    async delete(): Promise<any> {
+    async delete(): Promise<void> {
         const sqlPart = {
             table: this.table,
             where: this._makeWhere(),
@@ -557,10 +558,10 @@ ${sqlPart.limit}`.trim();
         this._dataset.binds.full.push(...this._dataset.binds.where);
         // this._dataset.binds.full.push(...this._dataset.binds.sort);
         this._dataset.binds.full.push(...this._dataset.binds.limit);
-        const [rows, fields] = await conn().execute(sql, this._dataset.binds.full);
+        const res = await execute(sql, this._dataset.binds.full);
         if (ORM.dumpSql)
             console.info(sql, this._dataset.binds.full);
-        return rows;
+        return;
     }
 }
 

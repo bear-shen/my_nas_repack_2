@@ -1,7 +1,7 @@
 import {IncomingMessage, ServerResponse} from "http";
 // import ORM from "./lib/ORM";
 // import { conn } from "./lib/SQL";
-import {type RowDataPacket} from "mysql2";
+// import {type RowDataPacket} from "mysql2";
 import {ParsedForm} from './types';
 import File from "./processor/File";
 import User from "./processor/User";
@@ -15,7 +15,7 @@ import Favourite from "./processor/Favourite";
 import FavouriteGroup from "./processor/FavouriteGroup";
 import Rate from "./processor/Rate";
 
-type t = RowDataPacket;
+// type t = RowDataPacket;
 const controllers: { [key: string]: any } = {
     file: File,
     tag: Tag,
