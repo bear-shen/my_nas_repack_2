@@ -1,5 +1,5 @@
 import ORM from "../lib/ORM";
-import {ResultSetHeader} from "mysql2";
+import {ORMExecuteResult, ORMQueryResult} from "../lib/DBDriver";
 
 interface field {
     [key: string]: any;
@@ -13,17 +13,16 @@ class BaseModel<field> extends ORM {
     }
 
     async select(column?: (string | keyof field)[]): Promise<field[]> {
-        let res = await super.select(column as string[]);
+        let res = await super.select(column as string[]) as field[];
         if (!res.length) return [];
         res = JSON.parse(JSON.stringify(res));
         for (let i = 0; i < res.length; i++) {
             // res[i] = JSON.parse(JSON.stringify(res[i]));
             for (const key in res[i]) {
                 if (!Object.prototype.hasOwnProperty.call(res[i], key)) continue;
-                if (this[`_col_get_${key}` as string as keyof BaseModel<field>]) {
-                    res[i][key] = (
-                        this[`_col_get_${key}` as string as keyof BaseModel<field>] as (input: any) => any
-                    )(res[i][key]);
+                const caller = this[`_col_get_${key}` as string as keyof BaseModel<field>];
+                if (caller) {
+                    res[i][key] = (caller as (input: any) => any)(res[i][key]);
                 }
             }
         }
@@ -43,7 +42,7 @@ class BaseModel<field> extends ORM {
         return res;
     }
 
-    async update(kv: field | { [p: string]: any }): Promise<ResultSetHeader> {
+    async update(kv: field | { [p: string]: any }): Promise<ORMExecuteResult> {
         kv = JSON.parse(JSON.stringify(kv)) as { [p: string]: any };
         for (const key in kv) {
             if (!Object.prototype.hasOwnProperty.call(kv, key)) continue;
@@ -53,7 +52,7 @@ class BaseModel<field> extends ORM {
         return await super.update(kv);
     }
 
-    async insert(kv: field | { [p: string]: any }): Promise<ResultSetHeader> {
+    async insert(kv: field | { [p: string]: any }): Promise<ORMExecuteResult> {
         kv = JSON.parse(JSON.stringify(kv)) as { [p: string]: any };
         for (const key in kv) {
             if (!Object.prototype.hasOwnProperty.call(kv, key)) continue;
@@ -63,7 +62,7 @@ class BaseModel<field> extends ORM {
         return await super.insert(kv);
     }
 
-    async insertAll(kvs: Array<field | { [p: string]: any }>): Promise<ResultSetHeader> {
+    async insertAll(kvs: Array<field | { [p: string]: any }>): Promise<ORMExecuteResult> {
         const pkvs = JSON.parse(JSON.stringify(kvs)) as Array<{ [p: string]: any }>;
         for (let i = 0; i < pkvs.length; i++) {
             for (const key in pkvs[i]) {
@@ -76,7 +75,7 @@ class BaseModel<field> extends ORM {
         return await super.insertAll(pkvs);
     }
 
-    async delete(): Promise<ResultSetHeader> {
+    async delete(): Promise<ORMExecuteResult> {
         return await super.delete();
     }
 

@@ -48,7 +48,25 @@
  *     SELECT ...
  *     [ON DUPLICATE KEY UPDATE assignment_list]
  * */
-import {query, execute, ExecuteResult} from "./SQL";
+
+import {get as getConfig} from "../ServerConfig";
+import {ORMExecuteResult, ORMQueryResult} from "./DBDriver";
+
+const dbConfig = getConfig('db');
+let driverName = '';
+switch (dbConfig.driver) {
+    case 'mysql':
+        driverName = "./MySQL";
+        break
+    case 'postgresql':
+        driverName = "./PostgreSQL";
+        break
+}
+const {
+    query,
+    execute,
+    SQL_PARAM
+} = require(driverName);
 
 class queryDefinition {
     type: string; // expression|operator|sub|raw
@@ -180,7 +198,7 @@ class ORM {
             case 2:
                 this._dataset.queryPos.push({
                     type: 'expression',
-                    data: [arg[0], '=', '?',],
+                    data: [arg[0], '=', SQL_PARAM,],
                 });
                 this._dataset.binds.where.push(arg[1]);
                 break;
@@ -189,7 +207,7 @@ class ORM {
                     default:
                         this._dataset.queryPos.push({
                             type: 'expression',
-                            data: [arg[0], arg[1], '?',],
+                            data: [arg[0], arg[1], SQL_PARAM,],
                         });
                         this._dataset.binds.where.push(arg[2]);
                         break;
@@ -217,7 +235,7 @@ class ORM {
         return this;
     }
 
-    whereRaw(expr: string, ...arg: any): this {
+    whereRaw(expr: string, ...arg: any[]): this {
         this._ormWhere(expr, 'raw', arg);
         return this;
     }
@@ -230,14 +248,14 @@ class ORM {
     whereIn(key: string, arr: (string | number)[]): this {
         const sArr = [];
         for (let i = 0; i < arr.length; i++) {
-            sArr.push('?');
+            sArr.push(SQL_PARAM);
         }
         this._ormWhere(`${key} in (${sArr.join(' , ')})`, 'raw', arr);
         return this;
     }
 
     whereBetween(key: string, a: number | string, b: number | string): this {
-        this._ormWhere(`${key} between ? and ?`, 'raw', [a, b]);
+        this._ormWhere(`${key} between ${SQL_PARAM} and ${SQL_PARAM}`, 'raw', [a, b]);
         return this;
     }
 
@@ -339,7 +357,7 @@ class ORM {
     }
 
     // first():this{return this;}
-    async select(column?: string[]): Promise<any> {
+    async select(column?: string[]): Promise<ORMQueryResult> {
         if (!column || !column.length) column = ['*'];
         const sqlPart = {
             column: column.join(','),
@@ -400,7 +418,7 @@ ${sqlPart.limit}`.trim();
         return null;
     }
 
-    async update(kv: { [key: string]: any }): Promise<void> {
+    async update(kv: { [key: string]: any }): Promise<ORMExecuteResult> {
         const sqlPart = {
             table: this.table,
             where: this._makeWhere(),
@@ -412,7 +430,7 @@ ${sqlPart.limit}`.trim();
         const assignBinds = [];
         for (const key in kv) {
             if (!Object.prototype.hasOwnProperty.call(kv, key)) continue;
-            assignArr.push(`${key} = ?`);
+            assignArr.push(`${key} = ${SQL_PARAM}`);
             assignBinds.push(kv[key]);
         }
         sqlPart.assignment = assignArr.join(' , ');
@@ -447,10 +465,10 @@ ${sqlPart.limit}`.trim();
         const res = await execute(sql, this._dataset.binds.full);
         if (ORM.dumpSql)
             console.info(sql, this._dataset.binds.full);
-        return;
+        return res;
     }
 
-    async insert(kv: { [key: string]: any }): Promise<ExecuteResult> {
+    async insert(kv: { [key: string]: any }): Promise<ORMExecuteResult> {
         const sqlPart = {
             table: this.table,
             key: '',
@@ -466,7 +484,7 @@ ${sqlPart.limit}`.trim();
         for (const key in kv) {
             if (!Object.prototype.hasOwnProperty.call(kv, key)) continue;
             assigns.key.push(key);
-            assigns.value.push('?');
+            assigns.value.push(SQL_PARAM);
             this._dataset.binds.full.push(kv[key]);
         }
         //
@@ -474,15 +492,15 @@ ${sqlPart.limit}`.trim();
         sqlPart.value = assigns.value.join(' , ');
         //
         let sql = `insert ${sqlPart.ignore} into ${sqlPart.table} (${sqlPart.key})
-value (${sqlPart.value})`.trim();
+values (${sqlPart.value})`.trim();
         // console.info(sql, this._dataset.binds);
         const res = await execute(sql, this._dataset.binds.full);
         if (ORM.dumpSql)
             console.info(sql, this._dataset.binds.full);
-        return res
+        return res;
     }
 
-    async insertAll(kvs: Array<{ [key: string]: any }>): Promise<ExecuteResult> {
+    async insertAll(kvs: Array<{ [key: string]: any }>): Promise<ORMExecuteResult> {
         const sqlPart = {
             table: this.table,
             key: '',
@@ -500,7 +518,7 @@ value (${sqlPart.value})`.trim();
             for (const key in kv) {
                 if (!Object.prototype.hasOwnProperty.call(kv, key)) continue;
                 if (i === 0) assigns.key.push(key);
-                v.push('?');
+                v.push(SQL_PARAM);
                 this._dataset.binds.full.push(kv[key]);
             }
             assigns.value.push(`( ${v.join(' , ')} )`);
@@ -527,7 +545,7 @@ values ${sqlPart.value}`.trim();
         return null;
     };*/
 
-    async delete(): Promise<void> {
+    async delete(): Promise<ORMExecuteResult> {
         const sqlPart = {
             table: this.table,
             where: this._makeWhere(),
@@ -561,7 +579,7 @@ ${sqlPart.limit}`.trim();
         const res = await execute(sql, this._dataset.binds.full);
         if (ORM.dumpSql)
             console.info(sql, this._dataset.binds.full);
-        return;
+        return res;
     }
 }
 

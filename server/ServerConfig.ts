@@ -5,7 +5,7 @@ import tls, {ConnectionOptions} from "tls";
 // import SettingModel from "./model/SettingModel";
 
 const BaseConfig = {
-    windows:true,
+    windows: true,
     // pathPrefix: '/api',
     port: {
         api: 8090,
@@ -24,6 +24,7 @@ const BaseConfig = {
         },
     },
     db: {
+        driver: 'mysql',
         host: '127.0.0.1',
         port: 3306,
         database: 'toshokan2',
@@ -200,7 +201,8 @@ export async function loadConfig() {
     //setting里update，加载不update
     // const curTimeStamp = Math.round((new Date().valueOf()) / 60 * 1000).toString();
     const curTimeStamp = new Date().valueOf().toString();
-    await conn().execute(`insert ignore into \`cache\`(code, val)
+    await conn().execute(`insert
+    ignore into \`cache\`(code, val)
                               value ('config_stamp', '${curTimeStamp}');`);
     loaded = true;
     // serverConfig;
