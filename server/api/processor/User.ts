@@ -14,6 +14,7 @@ export default class {
     async login(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_user_login_resp> {
         const request = data.fields as api_user_login_req;
         const pass = makePass(request.password);
+
         const ifUser = await (new UserModel)
             .where('name', request.username)
             .where('password', pass).first();

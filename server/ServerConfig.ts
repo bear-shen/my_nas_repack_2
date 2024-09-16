@@ -1,7 +1,7 @@
 import {type_file} from '../share/Database';
 import fs from "fs";
-import {conn} from "./lib/SQL";
 import tls, {ConnectionOptions} from "tls";
+import {ORMQueryResult} from "./lib/DBDriver";
 // import SettingModel from "./model/SettingModel";
 
 const BaseConfig = {
@@ -24,12 +24,18 @@ const BaseConfig = {
         },
     },
     db: {
-        driver: 'mysql',
-        host: '127.0.0.1',
-        port: 3306,
-        database: 'toshokan2',
-        account: 'root',
-        password: 'root',
+        // driver: 'mysql',
+        // host: '127.0.0.1',
+        // port: 3306,
+        // database: 'toshokan2',
+        // account: 'root',
+        // password: 'root',
+        driver: 'postgresql',
+        host: '172.24.128.1',
+        port: 5432,
+        database: 'toshokan',
+        account: 'postgres',
+        password: '1',
     },
     suffix: {
         video: ['mp4', 'avi', 'mkv', 'm4a', '3gp', 'flv', 'hlv', 'rm', 'rmvb',],
@@ -151,7 +157,22 @@ const BaseConfig = {
         ".ds_store",
     ] as string[],
 };
-
+//
+let driverName = '';
+switch (BaseConfig.db.driver) {
+    case 'mysql':
+        driverName = "./lib/MySQL";
+        break
+    case 'postgresql':
+        driverName = "./lib/PostgreSQL";
+        break
+}
+const {
+    query,
+    execute,
+    SQL_PARAM
+} = require(driverName);
+//
 try {
     BaseConfig.path.temp = BaseConfig.path.root + '/' + BaseConfig.path.prefix_temp;
     fs.mkdirSync(BaseConfig.path.temp, {recursive: true, mode: 0o777});
@@ -174,16 +195,18 @@ try {
 }
 
 export let loaded = false;
-export let serverConfig = {};
+
+//ORM.ts的文件是直接写在外面的（因为需要require），
+//所以先赋值一下
+export let serverConfig = BaseConfig;
 
 export async function loadConfig() {
-    console.info('loadConfig');
     loaded = false;
     serverConfig = BaseConfig;
     //这边如果用SettingModel的话在worker中会提示  Class extends value undefined is not a constructor or null
     //但是主进程里面不会，原因不明
     //stackoverflow讲可能是循环引用，那为何主进程就行
-    const [settingArr, fields] = await conn().execute('select * from settings');
+    const settingArr: ORMQueryResult = await query('select * from settings');
     // console.info(settingArr);
     for (let i1 = 0; i1 < (settingArr as { [key: string]: any }[]).length; i1++) {
         const row = (settingArr as { [key: string]: any }[]) [i1];
@@ -201,14 +224,15 @@ export async function loadConfig() {
     //setting里update，加载不update
     // const curTimeStamp = Math.round((new Date().valueOf()) / 60 * 1000).toString();
     const curTimeStamp = new Date().valueOf().toString();
-    await conn().execute(`insert
-    ignore into \`cache\`(code, val)
-                              value ('config_stamp', '${curTimeStamp}');`);
+    await execute(`truncate table cache;`);
+    await execute(`insert into cache (code, val)
+                   values ('config_stamp', '${curTimeStamp}');`);
     loaded = true;
     // serverConfig;
 }
 
 export function get(key: string = '') {
+    // console.info('getConfig', key);
     // if (!loaded) loadConfig();
     if (!key.length) return serverConfig;
     const keyArr = key.split('.');

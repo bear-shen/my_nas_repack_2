@@ -26,11 +26,13 @@ function conn(): pg.Pool {
 }
 
 async function query(sql: string, binds: Array<any>): Promise<ORMQueryResult> {
+    // console.info(sql, binds);
     const res = await conn().query(toPreparedStatement(sql), binds);
     return res.rows;
 }
 
 async function execute(sql: string, binds: Array<any>): Promise<ORMExecuteResult> {
+    // console.info(sql, binds);
     const res = await conn().query(toPreparedStatement(sql), binds);
     return {};
 }

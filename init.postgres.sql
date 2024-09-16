@@ -1,9 +1,18 @@
+/*
 CREATE DATABASE "toshokan"
     WITH
     OWNER = "postgres"
     ENCODING = 'UTF8'
 ;
-
+*/
+/*
+-- tran fmt
+update node set node_id_list = CONCAT('[',node_id_list,']'),tag_id_list = CONCAT('[',tag_id_list,']');
+update queue set result = CONCAT('"',result,'"');
+*/
+-- ---------------------------------------------------------------------------------------- --
+-- pg似乎有对跨数据库操作的限制
+-- 因此需要先建表后选择数据库，再执行
 -- ---------------------------------------------------------------------------------------- --
 
 -- @see https://pgroonga.github.io/install/windows.html
@@ -94,11 +103,11 @@ CREATE TABLE IF NOT EXISTS "node"
     PRIMARY KEY ("id")
 );
 
-CREATE INDEX if not exists "node_index_node_id_list" ON "node" using GIN ("node_id_list" jsonb_path_ops);
-CREATE INDEX if not exists "node_index_file_index" ON "node" using GIN ("file_index" jsonb_path_ops);
-CREATE INDEX if not exists "node_index_tag_id_list" ON "node" using GIN ("tag_id_list" jsonb_path_ops);
--- CREATE INDEX if not exists "node_index_node_index" ON "node" USING GIN (to_tsvector('english', "node_index"));
-CREATE INDEX if not exists "node_index_node_index_pgroonga" ON "node" USING pgroonga ("node_index");
+CREATE INDEX if not EXISTS "node_index_node_id_list" ON "node" using GIN ("node_id_list" jsonb_path_ops);
+CREATE INDEX if not EXISTS "node_index_file_index" ON "node" using GIN ("file_index" jsonb_path_ops);
+CREATE INDEX if not EXISTS "node_index_tag_id_list" ON "node" using GIN ("tag_id_list" jsonb_path_ops);
+-- CREATE INDEX if not EXISTS "node_index_node_index" ON "node" USING GIN (to_tsvector('english', "node_index"));
+CREATE INDEX if not EXISTS "node_index_node_index_pgroonga" ON "node" USING pgroonga ("node_index");
 
 CREATE TABLE IF NOT EXISTS "queue"
 (

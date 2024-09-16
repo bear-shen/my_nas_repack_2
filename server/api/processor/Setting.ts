@@ -3,8 +3,9 @@ import {ParsedForm} from '../types';
 import {api_setting_col, api_setting_del_req, api_setting_del_resp, api_setting_list_req, api_setting_list_resp, api_setting_mod_req, api_setting_mod_resp,} from '../../../share/Api';
 import SettingModel from "../../model/SettingModel";
 import {loadConfig} from "../../ServerConfig";
-import {conn} from "../../lib/SQL";
+
 import QueueModel from "../../model/QueueModel";
+import ORM from "../../lib/ORM";
 
 export default class {
 
@@ -53,9 +54,12 @@ export default class {
         }
         // const curTimeStamp = Math.round((new Date().valueOf()) / 60 * 1000).toString();
         const curTimeStamp = new Date().valueOf().toString();
-        await conn().execute(`insert ignore into \`cache\`(code, val)
-                                  value ('config_stamp', '${curTimeStamp}')
-                              on DUPLICATE key update val=values(val);`);
+        const ifExs = await (new ORM('cache')).where('code', 'config_stamp').first();
+        if (ifExs) await (new ORM('cache')).where('code', 'config_stamp').delete();
+        await (new ORM('cache')).insert({
+            code: 'config_stamp',
+            val: curTimeStamp,
+        });
         loadConfig();
         //@todo 后端队列的数据到时候要记得更新，重启或者重新加载
         return request;

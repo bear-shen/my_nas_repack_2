@@ -61,6 +61,7 @@ const server = http.createServer(async function (req: IncomingMessage, res: Serv
         res.end();
     }
 });
+
 loadConfig().then(() => {
     const config = getConfig();
     server.listen(config.port.api);

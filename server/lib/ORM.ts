@@ -52,7 +52,10 @@
 import {get as getConfig} from "../ServerConfig";
 import {ORMExecuteResult, ORMQueryResult} from "./DBDriver";
 
+
 const dbConfig = getConfig('db');
+// console.info(getConfig());
+// console.info(dbConfig);
 let driverName = '';
 switch (dbConfig.driver) {
     case 'mysql':

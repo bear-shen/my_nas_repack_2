@@ -4,7 +4,7 @@ import {col_favourite_group} from "../../share/Database";
 class FavouriteGroupModel extends BaseModel<col_favourite_group> {
     public table = 'favourite_group';
 
-    _col_get_meta(input: string): { [key: string]: any } {
+/*    _col_get_meta(input: string): { [key: string]: any } {
         if (!input) return {};
         const res = JSON.parse(input);
         return res ? res : null;
@@ -13,7 +13,7 @@ class FavouriteGroupModel extends BaseModel<col_favourite_group> {
     _col_set_meta(input: any): string {
         if (!input) return '{}';
         return JSON.stringify(input);
-    }
+    }*/
 }
 
 export default FavouriteGroupModel;
