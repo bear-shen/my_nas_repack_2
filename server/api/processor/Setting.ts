@@ -6,6 +6,7 @@ import {loadConfig} from "../../ServerConfig";
 
 import QueueModel from "../../model/QueueModel";
 import ORM from "../../lib/ORM";
+import CacheModel from "../../model/CacheModel";
 
 export default class {
 
@@ -54,9 +55,9 @@ export default class {
         }
         // const curTimeStamp = Math.round((new Date().valueOf()) / 60 * 1000).toString();
         const curTimeStamp = new Date().valueOf().toString();
-        const ifExs = await (new ORM('cache')).where('code', 'config_stamp').first();
-        if (ifExs) await (new ORM('cache')).where('code', 'config_stamp').delete();
-        await (new ORM('cache')).insert({
+        const ifExs = await (new CacheModel).where('code', 'config_stamp').first();
+        if (ifExs) await (new CacheModel).where('code', 'config_stamp').delete();
+        await (new CacheModel).insert({
             code: 'config_stamp',
             val: curTimeStamp,
         });

@@ -18,12 +18,17 @@ async function run() {
     while (true) {
         // ORM.dumpSql = true;
         const cachedConfig = await (new CacheModel).where('code', 'config_stamp').first();
-        if (cachedConfig) {
-            if (!configStamp) {
-                configStamp = cachedConfig.val;
-            } else if (cachedConfig.val != configStamp) {
-                process.exit();
-            }
+        if (!cachedConfig) {
+            console.info('config not load');
+            process.exit();
+            return;
+        }
+        if (!configStamp) {
+            configStamp = cachedConfig.val;
+        }
+        if (cachedConfig.val != configStamp) {
+            console.info('config stamp not match, exit and reload');
+            process.exit();
         }
         // console.info(cachedConfig);
         const ifExs = await (new QueueModel).where('status', 1).where(`id%${parseInt(threads)}`, parseInt(threadIndex)).order('id').first();
