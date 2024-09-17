@@ -1,11 +1,8 @@
 import {type_file} from '../share/Database';
 import fs from "fs";
 import tls, {ConnectionOptions} from "tls";
-import {ORMQueryResult} from "./lib/DBDriver";
 import * as toml from "toml";
-import SettingModel from "./model/SettingModel";
-import CacheModel from "./model/CacheModel";
-// import SettingModel from "./model/SettingModel";
+import {ORMQueryResult} from "./lib/DBDriver";
 //
 export type ConfValue = string | number | boolean | ConfValue[];
 export type ConfType = {
@@ -37,7 +34,9 @@ const BaseConfig: ConfType = {
     },
 };
 //
-const tomlConfContent = fs.readFileSync('./config.toml');
+const tomlConfContent = fs.readFileSync(__dirname + '/../config.toml');
+// console.info(__dirname + '/config.toml');
+// console.info(tomlConfContent);
 const tomlConf = toml.parse(tomlConfContent.toString()) as ConfType;
 mergeToml(BaseConfig, tomlConf);
 
@@ -81,6 +80,8 @@ const {
     execute,
     SQL_PARAM
 } = require(driverName);
+
+
 loadConfig();
 
 export async function loadConfig() {
@@ -88,10 +89,9 @@ export async function loadConfig() {
     //这边如果用SettingModel的话在worker中会提示  Class extends value undefined is not a constructor or null
     //但是主进程里面不会，原因不明
     //stackoverflow讲可能是循环引用，那为何主进程就行
-    const settingArr: ORMQueryResult = await query('select * from settings');
-    // console.info(settingArr);
+    const settingArr: ORMQueryResult = await (query('select * from settings'));
     for (let i1 = 0; i1 < settingArr.length; i1++) {
-        const row = settingArr [i1];
+        const row = settingArr[i1];
         const keyArr = row.name.split('.');
         const lastKey = keyArr.pop();
         let target: any = serverConfig;
@@ -128,17 +128,15 @@ export async function loadConfig() {
     //setting里update，加载不update
     // const curTimeStamp = Math.round((new Date().valueOf()) / 60 * 1000).toString();
     const curTimeStamp = new Date().valueOf().toString();
-    const ifExs = await (new CacheModel).where('code', 'config_stamp').first();
+    const ifExs = await query("select * from cache where code='config_stamp'");
     if (!ifExs)
-        await (new CacheModel).insert({
-            code: 'config_stamp',
-            value: curTimeStamp,
-        });
+        await query(`insert into cache (code, value)
+                     values ('config_stamp', ${curTimeStamp})`);
     loaded = true;
     // serverConfig;
 }
 
-console.info(BaseConfig);
+// console.info(BaseConfig);
 
 
 export function get(key: string = '') {
@@ -147,6 +145,7 @@ export function get(key: string = '') {
     if (!key.length) return serverConfig;
     const keyArr = key.split('.');
     let target: any = serverConfig;
+    if (!target) return null;
     for (let i1 = 0; i1 < keyArr.length; i1++) {
         target = target[keyArr[i1]];
     }
