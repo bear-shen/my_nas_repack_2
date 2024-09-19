@@ -52,14 +52,14 @@ class BaseModel<field> extends ORM {
         return await super.update(kv);
     }
 
-    async insert(kv: field | { [p: string]: any }): Promise<ORMExecuteResult> {
+    async insert(kv: field | { [p: string]: any }): Promise<field[] | ORMExecuteResult> {
         kv = JSON.parse(JSON.stringify(kv)) as { [p: string]: any };
         for (const key in kv) {
             if (!Object.prototype.hasOwnProperty.call(kv, key)) continue;
             if (this[`_col_set_${key}` as string as keyof BaseModel<field>])
                 kv[key] = (this[`_col_set_${key}` as string as keyof BaseModel<field>] as (input: any) => any)(kv[key]);
         }
-        return await super.insert(kv);
+        return await super.insert(kv) as field[] | ORMExecuteResult;
     }
 
     async insertAll(kvs: Array<field | { [p: string]: any }>): Promise<ORMExecuteResult> {

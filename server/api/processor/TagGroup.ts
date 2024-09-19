@@ -103,7 +103,7 @@ export default class {
                 sort: request.sort,
                 status: request.status,
             });
-            request.id = `${res.insertId}`;
+            request.id = `${res[0].id}`;
         }
 
         return request;

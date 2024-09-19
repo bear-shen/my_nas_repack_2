@@ -81,7 +81,7 @@ export default class {
                 description: request.description,
                 status: request.status,
             });
-            request.id = `${res.insertId}`;
+            request.id = `${res[0].id}`;
         }
         return request;
     };

@@ -471,7 +471,7 @@ ${sqlPart.limit}`.trim();
         return res;
     }
 
-    async insert(kv: { [key: string]: any }): Promise<ORMExecuteResult> {
+    async insert(kv: { [key: string]: any }): Promise<ORMExecuteResult | ORMQueryResult> {
         const sqlPart = {
             table: this.table,
             key: '',
@@ -496,8 +496,15 @@ ${sqlPart.limit}`.trim();
         //
         let sql = `insert ${sqlPart.ignore} into ${sqlPart.table} (${sqlPart.key})
 values (${sqlPart.value})`.trim();
+        let res: ORMExecuteResult | ORMQueryResult;
+        if (dbConfig.driver == 'postgresql') {
+            sql = sql + ' returning *';
+            res = await query(sql, this._dataset.binds.full);
+        } else {
+            res = await execute(sql, this._dataset.binds.full);
+        }
         // console.info(sql, this._dataset.binds);
-        const res = await execute(sql, this._dataset.binds.full);
+
         if (ORM.dumpSql)
             console.info(sql, this._dataset.binds.full);
         return res;

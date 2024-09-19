@@ -51,7 +51,7 @@ export default class {
             await (new SettingModel()).where('id', request.id).update(modReq);
         } else {
             const res = await (new SettingModel()).insert(modReq);
-            request.id = `${res.insertId}`;
+            request.id = `${res[0].id}`;
         }
         // const curTimeStamp = Math.round((new Date().valueOf()) / 60 * 1000).toString();
         const curTimeStamp = new Date().valueOf().toString();

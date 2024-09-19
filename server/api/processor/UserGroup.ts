@@ -3,6 +3,8 @@ import {IncomingMessage, ServerResponse} from 'http';
 import {ParsedForm} from '../types';
 import type {api_user_group_del_req, api_user_group_del_resp, api_user_group_list_req, api_user_group_list_resp, api_user_group_mod_req, api_user_group_mod_resp} from "../../../share/Api";
 import UserGroupModel from "../../model/UserGroupModel";
+import {ORMQueryResult} from "../../lib/DBDriver";
+import {col_user_group} from "../../../share/Database";
 
 export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_user_group_list_req> {
@@ -59,7 +61,7 @@ export default class {
                 status: request.status,
                 auth: authArr,
             });
-            id = res.insertId;
+            id = res[0].id;
             // request.id = `${res.insertId}`;
         }
         return await (new UserGroupModel()).where('id', id).first();

@@ -116,7 +116,7 @@ export default class {
                 auto: request.auto,
                 id_user: data.uid,
             });
-            request.id = `${res.insertId}`;
+            request.id = `${res[0].id}`;
         }
         return request;
     };

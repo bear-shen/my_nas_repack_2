@@ -92,7 +92,7 @@ export default class {
             await (new UserModel()).where('id', request.id).update(modReq);
         } else {
             const res = await (new UserModel()).insert(modReq);
-            request.id = `${res.insertId}`;
+            request.id = `${res[0].id}`;
         }
         return request;
     };
