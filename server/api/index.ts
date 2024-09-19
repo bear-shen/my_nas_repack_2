@@ -4,6 +4,7 @@ import Authorize from "./Authorize";
 import formidable, {Fields, Files} from "formidable";
 import Router from "./Router";
 import {ParsedForm} from "./types";
+import ORM from "../lib/ORM";
 
 
 const server = http.createServer(async function (req: IncomingMessage, res: ServerResponse) {
@@ -68,6 +69,19 @@ loadConfig().then(() => {
     console.info('server now listen on:', config.port.api);
     console.info('temp dir:', config.path.temp);
     console.info('file dir:', config.path.root);
+    //重置自增id，用于修复导入数据时的id混乱
+    (new ORM).execute(`select setval('auth_id_seq', (select max(id) from auth));`);
+    // (new ORM).execute(`select setval('cache_id_seq',(select max(id) from cache))`);
+    (new ORM).execute(`select setval('favourite_id_seq', (select max(id) from favourite));`);
+    (new ORM).execute(`select setval('favourite_group_id_seq', (select max(id) from favourite_group));`);
+    (new ORM).execute(`select setval('node_id_seq', (select max(id) from node));`);
+    (new ORM).execute(`select setval('queue_id_seq', (select max(id) from queue));`);
+    (new ORM).execute(`select setval('rate_id_seq', (select max(id) from rate));`);
+    (new ORM).execute(`select setval('settings_id_seq', (select max(id) from settings));`);
+    (new ORM).execute(`select setval('tag_id_seq', (select max(id) from tag));`);
+    (new ORM).execute(`select setval('tag_group_id_seq', (select max(id) from tag_group));`);
+    (new ORM).execute(`select setval('user_id_seq', (select max(id) from "user"));`);
+    (new ORM).execute(`select setval('user_group_id_seq', (select max(id) from user_group));`);
 });
 
 function parseForm(req: IncomingMessage): Promise<ParsedForm> {

@@ -321,7 +321,7 @@ class FileJob {
         // if (curNode.status != 0) return;
         if (rootNode.type != 'directory') return;
         const subNodeLs = await (new NodeModel)
-            .whereRaw('find_in_set(?,node_id_list)', rootNode.id)
+            .whereRaw('node_id_list @> $0',rootNode.id)
             .select(['id', 'id_parent', 'node_id_list', 'status', 'cascade_status']);
         const statusMap = new Map<number, number[]>();
         subNodeLs.forEach(node => {

@@ -90,7 +90,7 @@ export default class {
                     //这样有性能问题，但是没想到什么好办法
                     //考虑到还是书多，所以还是只看 parent
                     // idList.forEach(id =>
-                    //     model.or().whereRaw('find_in_set(?,node_id_list)', id)
+                    //     model.or().whereRaw('node_id_list @> $0',id)
                     // );
                 });
                 break;
@@ -146,7 +146,7 @@ export default class {
         const userAuth = userGroup.auth;
         if (userAuth && userAuth.deny) {
             userAuth.deny.forEach(node => {
-                model.not().whereRaw('find_in_set( ? ,node_id_list)', node.id)
+                model.not().whereRaw('node_id_list @> $0',node.id)
                     .where('id', '<>', node.id)
             })
         }
@@ -156,9 +156,9 @@ export default class {
             model.where((model) => {
                 request.tag_id.split(',').forEach(tagId => {
                         if (tagOr)
-                            model.or().whereRaw('find_in_set(?,tag_id_list)', tagId);
+                            model.or().whereRaw('tag_id_list @> $0',tagId);
                         else
-                            model.whereRaw('find_in_set(?,tag_id_list)', tagId);
+                            model.whereRaw('tag_id_list @> $0',tagId);
                     }
                 )
             })
@@ -171,7 +171,7 @@ export default class {
         if (crumbPid !== -1) {
             target.path = await buildCrumb(crumbPid);
             if (request.cascade_dir)
-                model.whereRaw('find_in_set(?,node_id_list)', crumbPid);
+                model.whereRaw('node_id_list @> $0',crumbPid);
             else
                 model.where('id_parent', crumbPid);
         }
@@ -472,7 +472,7 @@ export default class {
         //     fileIdSet.add(curNode.index_file_id[type]);
         // }
         // if (curNode.type === 'directory') {
-        //     const cascadeNode = await (new NodeModel).whereRaw('find_in_set( ? ,node_id_list)', curNode.id).select([
+        //     const cascadeNode = await (new NodeModel).whereRaw('node_id_list @> $0',curNode.id).select([
         //         'id',
         //         'title',
         //         'type',

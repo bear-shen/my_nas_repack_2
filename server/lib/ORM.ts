@@ -110,7 +110,7 @@ class ORM {
         // kv:[] as Array<string>,
     };
 
-    constructor(tableName: string) {
+    constructor(tableName?: string) {
         if (tableName)
             this.table = tableName;
         this._dataset.queryPos = this._dataset.query;
@@ -583,6 +583,15 @@ ${sqlPart.limit}`.trim();
         if (ORM.dumpSql)
             console.info(sql, this._dataset.binds.full);
         return res;
+    }
+
+    //因为驱动独立出来了所以还是得有个地方提供sql查询。。。
+    async query(sql: string, binds?: Array<any>): Promise<ORMQueryResult> {
+        return query(sql, binds ? binds : []);
+    }
+
+    async execute(sql: string, binds?: Array<any>): Promise<ORMQueryResult> {
+        return execute(sql, binds ? binds : []);
     }
 }
 
