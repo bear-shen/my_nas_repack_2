@@ -7,6 +7,7 @@ import {loadConfig} from "../../ServerConfig";
 import QueueModel from "../../model/QueueModel";
 import ORM from "../../lib/ORM";
 import CacheModel from "../../model/CacheModel";
+import {col_setting} from "../../../share/Database";
 
 export default class {
 
@@ -50,7 +51,7 @@ export default class {
             // const ifExs = await (new settingModel()).where('id', request.id).first();
             await (new SettingModel()).where('id', request.id).update(modReq);
         } else {
-            const res = await (new SettingModel()).insert(modReq);
+            const res = await (new SettingModel()).insert(modReq) as col_setting[];
             request.id = `${res[0].id}`;
         }
         // const curTimeStamp = Math.round((new Date().valueOf()) / 60 * 1000).toString();

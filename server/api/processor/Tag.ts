@@ -3,7 +3,7 @@ import {IncomingMessage, ServerResponse} from 'http';
 import {ParsedForm} from '../types';
 import {api_tag_attach_req, api_tag_attach_resp, api_tag_col, api_tag_del_req, api_tag_del_resp, api_tag_list_req, api_tag_list_resp, api_tag_mod_req, api_tag_mod_resp} from '../../../share/Api';
 import NodeModel from '../../model/NodeModel';
-import {col_tag_group} from '../../../share/Database';
+import {col_tag, col_tag_group} from '../../../share/Database';
 import TagModel from '../../model/TagModel';
 import TagGroupModel from '../../model/TagGroupModel';
 import QueueModel from "../../model/QueueModel";
@@ -80,7 +80,7 @@ export default class {
                 alt: request.alt,
                 description: request.description,
                 status: request.status,
-            });
+            }) as col_tag[];
             request.id = `${res[0].id}`;
         }
         return request;

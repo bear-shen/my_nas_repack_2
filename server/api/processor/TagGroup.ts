@@ -102,7 +102,7 @@ export default class {
                 id_node: request.id_node,
                 sort: request.sort,
                 status: request.status,
-            });
+            }) as col_tag_group[];
             request.id = `${res[0].id}`;
         }
 

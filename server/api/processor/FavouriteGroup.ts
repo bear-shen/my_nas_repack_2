@@ -4,7 +4,7 @@ import {ParsedForm} from '../types';
 import type {api_favourite_group_del_req, api_favourite_group_del_resp, api_favourite_group_list_req, api_favourite_group_list_resp, api_favourite_group_mod_req, api_favourite_group_mod_resp, api_tag_col} from "../../../share/Api";
 import FavouriteGroupModel from "../../model/FavouriteGroupModel";
 import NodeModel from "../../model/NodeModel";
-import {col_node, col_tag_group} from "../../../share/Database";
+import {col_favourite_group, col_node, col_tag_group} from "../../../share/Database";
 import TagModel from "../../model/TagModel";
 import TagGroupModel from "../../model/TagGroupModel";
 
@@ -108,14 +108,14 @@ export default class {
                 //
             });
         } else {
-            const res = await (new FavouriteGroupModel()).insert({
+            const res= await (new FavouriteGroupModel()).insert({
                 title: request.title,
                 status: request.status,
                 meta: request.meta ? JSON.parse(request.meta) : {},
                 //
                 auto: request.auto,
                 id_user: data.uid,
-            });
+            }) as col_favourite_group[];
             request.id = `${res[0].id}`;
         }
         return request;

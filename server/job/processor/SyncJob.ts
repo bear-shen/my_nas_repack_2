@@ -230,7 +230,7 @@ async function syncDir(localRoot: string, rootNode: col_node) {
                     raw: {size: 0, checksum: [],},
                 };
             }
-            const insRes = await (new NodeModel).insert(ins);
+            const insRes = await (new NodeModel).insert(ins) as col_node[];
             ins.id = insRes[0].id;
             curNode = ins;
         } else {

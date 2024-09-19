@@ -9,6 +9,7 @@ import UserGroupModel from "../../model/UserGroupModel";
 import {get as getConfig} from "../../ServerConfig";
 import * as fp from "../../lib/FileProcessor";
 import userGroupModel from "../../model/UserGroupModel";
+import {col_user} from "../../../share/Database";
 
 export default class {
     async login(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_user_login_resp> {
@@ -91,7 +92,7 @@ export default class {
             // const ifExs = await (new UserModel()).where('id', request.id).first();
             await (new UserModel()).where('id', request.id).update(modReq);
         } else {
-            const res = await (new UserModel()).insert(modReq);
+            const res = await (new UserModel()).insert(modReq) as col_user[];
             request.id = `${res[0].id}`;
         }
         return request;

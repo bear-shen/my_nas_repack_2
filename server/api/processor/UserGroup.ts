@@ -60,7 +60,7 @@ export default class {
                 admin: request.admin,
                 status: request.status,
                 auth: authArr,
-            });
+            }) as col_user_group[];
             id = res[0].id;
             // request.id = `${res.insertId}`;
         }
