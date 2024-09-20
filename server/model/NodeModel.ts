@@ -4,6 +4,21 @@ import {col_node} from "../../share/Database";
 class NodeModel extends BaseModel<col_node> {
     public table = 'node';
 
+    _col_get_id(input: string): number {
+        if (!input) return null;
+        return parseInt(input);
+    }
+
+    _col_get_id_parent(input: string): number {
+        if (!input) return null;
+        return parseInt(input);
+    }
+
+    _col_get_rel_node_id(input: string): number {
+        if (!input) return null;
+        return parseInt(input);
+    }
+
     // _col_get_node_id_list(input: string): number[] {
     //     if (!input) return [];
     //     const res = input.split(',').map(value => parseInt(value));

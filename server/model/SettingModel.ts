@@ -4,6 +4,11 @@ import {col_setting} from "../../share/Database";
 class SettingModel extends BaseModel<col_setting> {
     public table = 'settings';
 
+    _col_get_id(input: string): number {
+        if (!input) return null;
+        return parseInt(input);
+    }
+
     // _col_get_value(input: string): { [key: string]: any } {
     //     let tVal = null;
     //     try {

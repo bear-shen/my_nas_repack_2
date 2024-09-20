@@ -14,9 +14,10 @@ const exec = util.promisify(require('child_process').exec);
 
 class FileJob {
     static async build(payload: { [key: string]: any }): Promise<any> {
-        const nodeId = payload.id;
+        const nodeId = parseInt(payload.id);
         let node: col_node = await fp.get(nodeId);
         //
+        console.info(node);
         let ifErr = false;
         //
         //@notice 重建节点时不删除物理文件
@@ -232,7 +233,7 @@ class FileJob {
             description: '',
         };
         node.node_index.tag = [];
-        if (node.tag_id_list.length) {
+        if (node.tag_id_list && node.tag_id_list.length) {
             const tagLs = await (new TagModel).whereIn('id', node.tag_id_list).select();
             if (tagLs.length) {
                 const tagGroupIdSet = new Set<number>;
@@ -321,7 +322,7 @@ class FileJob {
         // if (curNode.status != 0) return;
         if (rootNode.type != 'directory') return;
         const subNodeLs = await (new NodeModel)
-            .whereRaw('node_id_list @> $0',rootNode.id)
+            .whereRaw('node_id_list @> $0', rootNode.id)
             .select(['id', 'id_parent', 'node_id_list', 'status', 'cascade_status']);
         const statusMap = new Map<number, number[]>();
         subNodeLs.forEach(node => {

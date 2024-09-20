@@ -69,7 +69,7 @@ async function setStatus(queueId: number, status: number, result?: string) {
 
 loadConfig().then(() => {
     // console.info('======================================');
-    // console.info(!!getConfig());
+    // console.info(get());
     // if (!getConfig()) {
     //     // console.info(getConfig());
     //     return;

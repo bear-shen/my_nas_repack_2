@@ -1,4 +1,6 @@
 windows = true
+checksum = ['xxh128sum', 'b3sum']
+import_ignore = ["thumbs.db", "_macosx", "desktop.ini", ".ds_store"]
 
 [port]
 api = 8090
@@ -89,8 +91,6 @@ allow_container = ['webvtt', ]
 allow_codec = ['ass', 'ssa', 'vtt', 'srt', 'subrip', 'mov_text', 'webvtt', ]
 priority_kw = ['cht', 'chs', 'chin', 'zh-', '中', 'jpn', 'jps', 'japan', 'jp', '日', 'us', 'en', '英', ]
 
-checksum = ['xxh128sum', 'b3sum']
-import_ignore = ["thumbs.db", "_macosx", "desktop.ini", ".ds_store"]
 
 
 

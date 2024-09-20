@@ -1,8 +1,13 @@
 import BaseModel from "./BaseModel";
-import { col_user_group } from "../../share/Database";
+import {col_user_group} from "../../share/Database";
 
 class UserGroupModel extends BaseModel<col_user_group> {
     public table = 'user_group';
+
+    _col_get_id(input: string): number {
+        if (!input) return null;
+        return parseInt(input);
+    }
 
     // _col_get_auth(input: string): { [key: string]: any } {
     //     if (!input) return {};

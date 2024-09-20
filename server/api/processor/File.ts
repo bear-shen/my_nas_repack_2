@@ -146,7 +146,7 @@ export default class {
         const userAuth = userGroup.auth;
         if (userAuth && userAuth.deny) {
             userAuth.deny.forEach(node => {
-                model.not().whereRaw('node_id_list @> $0',node.id)
+                model.not().whereRaw('node_id_list @> $0', node.id)
                     .where('id', '<>', node.id)
             })
         }
@@ -156,9 +156,9 @@ export default class {
             model.where((model) => {
                 request.tag_id.split(',').forEach(tagId => {
                         if (tagOr)
-                            model.or().whereRaw('tag_id_list @> $0',tagId);
+                            model.or().whereRaw('tag_id_list @> $0', tagId);
                         else
-                            model.whereRaw('tag_id_list @> $0',tagId);
+                            model.whereRaw('tag_id_list @> $0', tagId);
                     }
                 )
             })
@@ -171,7 +171,7 @@ export default class {
         if (crumbPid !== -1) {
             target.path = await buildCrumb(crumbPid);
             if (request.cascade_dir)
-                model.whereRaw('node_id_list @> $0',crumbPid);
+                model.whereRaw('node_id_list @> $0', crumbPid);
             else
                 model.where('id_parent', crumbPid);
         }
@@ -224,9 +224,10 @@ export default class {
         nodeLs.forEach(node => {
             // node.rate = Math.round(Math.random() * 10);
             nodeIdSet.add(node.id);
-            node.tag_id_list.forEach(tagId => {
-                tagIdSet.add(tagId);
-            });
+            if (node.tag_id_list && node.tag_id_list.length)
+                node.tag_id_list.forEach(tagId => {
+                    tagIdSet.add(tagId);
+                });
             // for (const key in node.index_file_id) {
             //     if (!Object.prototype.hasOwnProperty.call(node.index_file_id, key)) continue;
             //     const fileId = node.index_file_id[key];
