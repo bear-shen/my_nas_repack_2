@@ -17,7 +17,7 @@ class FileJob {
         const nodeId = parseInt(payload.id);
         let node: col_node = await fp.get(nodeId);
         //
-        console.info(node);
+        // console.info(node);
         let ifErr = false;
         //
         //@notice 重建节点时不删除物理文件
