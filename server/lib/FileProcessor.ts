@@ -74,7 +74,7 @@ export async function put(
             building: 1,
         };
         const insRes = await (new NodeModel).insert(ins) as col_node[];
-        ins.id = insRes[0].id;
+        ins.id = parseInt(insRes[0].id as unknown as string);
         res = ins;
     }
     //
@@ -303,7 +303,7 @@ export async function cp(
         // await rename(localPath, targetNodeLocalPath);
         //
         const insRes = await (new NodeModel).insert(ins) as col_node[];
-        ins.id = insRes[0].id;
+        ins.id = parseInt(insRes[0].id as unknown as string);
         return ins;
     }
     const targetDirNode = await get(targetDir);
@@ -347,7 +347,7 @@ export async function cp(
     }
     //
     const insRes = await (new NodeModel).insert(ins) as col_node[];
-    ins.id = insRes[0].id;
+    ins.id = parseInt(insRes[0].id as unknown as string);
     return ins;
 }
 
@@ -381,8 +381,8 @@ export async function mkdir(
             status: 1,
             building: 0,
         };
-        const res=(await (new NodeModel).insert(newNode)) as col_node[];
-        const id = res[0].id;
+        const res = (await (new NodeModel).insert(newNode)) as col_node[];
+        const id = parseInt(res[0].id as unknown as string);
         newNode.id = id;
     } else newNode = ifExs;
     return ifExs;

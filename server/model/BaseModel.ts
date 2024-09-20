@@ -59,6 +59,9 @@ class BaseModel<field> extends ORM {
             if (this[`_col_set_${key}` as string as keyof BaseModel<field>])
                 kv[key] = (this[`_col_set_${key}` as string as keyof BaseModel<field>] as (input: any) => any)(kv[key]);
         }
+        //@todo 这样做会有一些问题，返回的数据不会经过model的预处理
+        //例如id需要手动parseInt的问题
+        //单独处理是没有问题，但是通用版还需要考虑
         return await super.insert(kv) as field[] | ORMExecuteResult;
     }
 
