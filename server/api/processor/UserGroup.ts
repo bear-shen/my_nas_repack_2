@@ -61,7 +61,7 @@ export default class {
                 status: request.status,
                 auth: authArr,
             }) as col_user_group[];
-            id = parseInt(res[0].id as unknown as string);
+            id = res[0].id;
             // request.id = `${res.insertId}`;
         }
         return await (new UserGroupModel()).where('id', id).first();

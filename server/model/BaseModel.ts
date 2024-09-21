@@ -59,10 +59,21 @@ class BaseModel<field> extends ORM {
             if (this[`_col_set_${key}` as string as keyof BaseModel<field>])
                 kv[key] = (this[`_col_set_${key}` as string as keyof BaseModel<field>] as (input: any) => any)(kv[key]);
         }
-        //@todo 这样做会有一些问题，返回的数据不会经过model的预处理
-        //例如id需要手动parseInt的问题
-        //单独处理是没有问题，但是通用版还需要考虑
-        return await super.insert(kv) as field[] | ORMExecuteResult;
+        const insRes = await super.insert(kv) as field[] | ORMExecuteResult;
+        //@notice 这边基本是pg专用的逻辑，当回传field[]时处理一遍字段
+        if (!insRes || !(insRes as field[]).length) return insRes;
+        const res = insRes as field[];
+        for (let i = 0; i < res.length; i++) {
+            // res[i] = JSON.parse(JSON.stringify(res[i]));
+            for (const key in res[i]) {
+                if (!Object.prototype.hasOwnProperty.call(res[i], key)) continue;
+                const caller = this[`_col_get_${key}` as string as keyof BaseModel<field>];
+                if (caller) {
+                    res[i][key] = (caller as (input: any) => any)(res[i][key]);
+                }
+            }
+        }
+        return res;
     }
 
     async insertAll(kvs: Array<field | { [p: string]: any }>): Promise<ORMExecuteResult> {

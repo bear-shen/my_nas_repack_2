@@ -231,7 +231,7 @@ async function syncDir(localRoot: string, rootNode: col_node) {
                 };
             }
             const insRes = await (new NodeModel).insert(ins) as col_node[];
-            ins.id = parseInt(insRes[0].id as unknown as string);
+            ins.id = insRes[0].id;
             curNode = ins;
         } else {
             curNode = ifExs;

@@ -74,7 +74,7 @@ export async function put(
             building: 1,
         };
         const insRes = await (new NodeModel).insert(ins) as col_node[];
-        ins.id = parseInt(insRes[0].id as unknown as string);
+        ins.id = insRes[0].id;
         res = ins;
     }
     //
@@ -303,7 +303,7 @@ export async function cp(
         // await rename(localPath, targetNodeLocalPath);
         //
         const insRes = await (new NodeModel).insert(ins) as col_node[];
-        ins.id = parseInt(insRes[0].id as unknown as string);
+        ins.id = insRes[0].id;
         return ins;
     }
     const targetDirNode = await get(targetDir);
@@ -347,7 +347,7 @@ export async function cp(
     }
     //
     const insRes = await (new NodeModel).insert(ins) as col_node[];
-    ins.id = parseInt(insRes[0].id as unknown as string);
+    ins.id = insRes[0].id;
     return ins;
 }
 
