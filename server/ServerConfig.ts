@@ -129,7 +129,7 @@ export async function loadConfig() {
     // const curTimeStamp = Math.round((new Date().valueOf()) / 60 * 1000).toString();
     const curTimeStamp = new Date().valueOf().toString();
     const ifExs = await query("select * from cache where code='config_stamp'");
-    if (!ifExs)
+    if (!ifExs || !ifExs.length)
         await query(`insert into cache (code, value)
                      values ('config_stamp', ${curTimeStamp})`);
     loaded = true;
