@@ -430,6 +430,16 @@ const GenFunc = {
         }
         return t;
     },
+    nodeOffsetXY: function (ele: HTMLElement): { x: number, y: number } {
+        let x = ele.offsetLeft ? ele.offsetLeft : 0;
+        let y = ele.offsetTop ? ele.offsetTop : 0;
+        if (ele.offsetParent) {
+            let {x: sx, y: sy} = this.nodeOffsetXY(ele.offsetParent as HTMLElement);
+            x += sx;
+            y += sy;
+        }
+        return {x, y};
+    },
     // other////////////////////////////////////////////////////////////////////////////////////////
     isEmpty: function (object: { [key: string]: any }): boolean {
         for (const k in object) {

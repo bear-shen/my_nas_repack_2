@@ -20,6 +20,7 @@ const props = defineProps<{
   curNode: api_node_col;
 }>();
 const orgZoomLevel = [0.1, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 2];
+let zoomLevelLs = [];
 
 const contentDOM: Ref<HTMLElement | null> = ref(null);
 const imgDOM: Ref<HTMLImageElement | null> = ref(null);
@@ -31,6 +32,7 @@ type imgLayoutType = {
   y: number;
   rotate: number;
   ratio: number;
+  orgRatio: number;
   ratioTxt: string;
   orgW: number;
   orgH: number;
@@ -42,6 +44,7 @@ const imgLayout: Ref<imgLayoutType> = ref({
   x: 0,
   y: 0,
   rotate: 0,
+  orgRatio: 0,
   ratio: 0,
   ratioTxt: "0 %",
   orgW: 0,
@@ -52,22 +55,22 @@ function onload(e: any) {
   console.info("onload", e);
 }
 
-async function loadImageRes(e: Event): any {
+async function onImageLoad(e: Event): any {
   const dom = imgDOM.value;
   // console.info('here')
   if (!dom) return;
   if (!dom.complete) {
-    // return setTimeout(loadImageRes.bind(null, curNodeId), 50);
-    return setTimeout(loadImageRes, 50);
+    // return setTimeout(onImageLoad.bind(null, curNodeId), 50);
+    return setTimeout(onImageLoad, 50);
   }
   // const arrayBuffer = await (await fetch(props.curNode.file.normal?.path)).arrayBuffer();
   // const exif = piexif.load(arrayBuffer);
   // console.info(exif);
 
-  // console.info("loadImageRes",e);
+  // console.info("onImageLoad",e);
   //以dom为基准矫正
   // if (dom.getAttribute("data-ref-node-id") !== `${curNodeId}`)
-  //   return setTimeout(loadImageRes.bind(null, curNodeId), 50);
+  //   return setTimeout(onImageLoad.bind(null, curNodeId), 50);
 
   const curR = await kvStore.get('image_rotate', props.curNode.id);
   Object.assign(imgLayout.value, {
@@ -76,7 +79,7 @@ async function loadImageRes(e: Event): any {
     orgW: dom.naturalWidth,
     rotate: curR,
   });
-  await fitImg();
+  await resetImg();
 }
 
 onMounted(() => {
@@ -91,20 +94,20 @@ onMounted(() => {
     orgW: 0,
     orgH: 0,
   });
-  // loadImageRes(props.curNode.id ?? 0);
-  // loadImageRes();
+  // onImageLoad(props.curNode.id ?? 0);
+  // onImageLoad();
   // document.addEventListener("mouseup", onPointerUp);
   // document.addEventListener("mousemove", onPointerMove);
   document.addEventListener("pointerup", onPointerUp);
   document.addEventListener("pointermove", onPointerMove);
-  document.addEventListener("wheel", setZoom);
+  document.addEventListener("wheel", onWheel);
   document.addEventListener("keydown", keymap);
 });
 //
 const eventStore = useEventStore();
 let resizingEvtKey = eventStore.listen(
   `modal_resizing_${props.modalData.nid}`,
-  (data) => fitImg()
+  (data) => resetImg()
 );
 
 watch(
@@ -118,7 +121,7 @@ watch(
     // imgDOM.value?.decode();
     imgLayout.value.loaded = 0;
     // setTimeout(() => {
-    //   loadImageRes();
+    //   onImageLoad();
     // }, 0)
     // }, 0)
   });
@@ -133,24 +136,25 @@ onUnmounted(() => {
   // document.removeEventListener("mousemove", onPointerMove);
   document.removeEventListener("pointerup", onPointerUp);
   document.removeEventListener("pointermove", onPointerMove);
-  document.removeEventListener("wheel", setZoom);
+  document.removeEventListener("wheel", onWheel);
   document.removeEventListener("keydown", keymap);
 });
 
-async function fitImg() {
-  // console.info("fitImg");
+async function resetImg() {
+  if (!imgLayout.value.loaded) return;
   //dom的更新要比事件推送的迟，所以能用数值就用数值
-  // const domLayout = contentDOM.value;
-  // const domW = domLayout?.clientWidth ?? 0;
-  // const domH = domLayout?.clientHeight ?? 0;
-  // console.info(props.modalData);
+  // const cDOM = contentDOM.value;
+  // if (!cDOM) return;
+  // const domW = cDOM.clientWidth ?? 0;
+  // const domH = cDOM.clientHeight ?? 0;
   const modalLayout = props.modalData.layout;
   const domW = modalLayout.w ?? 0;
   let domH = modalLayout.h ?? 0;
   //因为上面用的layout所以会导致一个偏差，没想到有什么好办法，直接减掉算了
-  domH -= 16;
+  // domH -= 16;
   const layout = imgLayout.value;
-  const r90 = layout.rotate % 180 !== 0;
+  //左右正负45度为横，垂直正负45度为旋转
+  const r90 = Math.abs(layout.rotate % 180 - 90) < 45;
   const wRatio = domW / (r90 ? layout.orgH : layout.orgW);
   const hRatio = domH / (r90 ? layout.orgW : layout.orgH);
   //
@@ -160,6 +164,7 @@ async function fitImg() {
     x: 0,
     y: 0,
     ratio: 0,
+    orgRatio: 0,
     ratioTxt: "0 %",
   };
   //
@@ -170,64 +175,156 @@ async function fitImg() {
   target.x = (domW - target.w) / 2;
   target.y = (domH - target.h) / 2;
   target.ratio = ratio;
+  target.orgRatio = ratio;
   target.ratioTxt = Math.round(ratio * 1000) / 10 + " %";
   Object.assign(imgLayout.value, target);
   // console.info(imgLayout.value);
+
 }
 
-let dragData = {
-  active: false,
-  x: 0,
-  y: 0,
-  orgX: 0,
-  orgY: 0,
+type TransformData = {
+  //移动偏移的坐标
+  dX: number,
+  dY: number,
+  //目标中点
+  midX: number,
+  midY: number,
+  //缩放
+  scale: number,
+  //旋转
+  rotate: number,
+};
+type DragData = {
+  x: number,
+  y: number,
+  // orgX: number,
+  // orgY: number,
 };
 
-let pointerId = 0;
+const pointerMap = new Map<number, DragData>();
 
-function onDragging(e: PointerEvent) {
+function onPointerDown(e: PointerEvent) {
   if (!props.modalData.layout.active) return;
   // console.info(e);
   if (!e.pointerId) return;
   e.preventDefault();
   e.stopPropagation();
-  pointerId = e.pointerId;
+  // pointerId = e.pointerId;
   const layout = imgLayout.value;
-  const t = {
-    active: true,
+  const orgDragData = {
+    // active: true,
     x: e.clientX,
     y: e.clientY,
-    orgX: layout.x,
-    orgY: layout.y,
+    // orgX: layout.x,
+    // orgY: layout.y,
   };
-  Object.assign(dragData, t);
+  // Object.assign(dragData, t);
   // console.info(e);
+  pointerMap.set(e.pointerId, orgDragData);
 }
 
 function onPointerMove(e: PointerEvent) {
   e.preventDefault();
   e.stopPropagation();
-  if (e.pointerId !== pointerId) return;
-  // e.stopPropagation();
-  if (!dragData.active) return;
-  const layout = imgLayout.value;
-  const d = {
-    x: e.clientX - dragData.x + dragData.orgX,
-    y: e.clientY - dragData.y + dragData.orgY,
-  };
-  // Object.assign(dragData, d);
-  Object.assign(imgLayout.value, d);
+  doTransform(e);
 }
 
 function onPointerUp(e: PointerEvent) {
-  if (e.pointerId !== pointerId) return;
-  dragData.active = false;
-  pointerId = 0;
+  const orgDragData = pointerMap.get(e.pointerId);
+  if (!orgDragData) return;
+  pointerMap.delete(e.pointerId);
 }
 
-function setZoom(e?: WheelEvent, dir?: number) {
-  // console.info();
-  // if (!props.modalData.layout.active) return;
+//基于一个中点，进行拖拽缩放和旋转
+function doTransform(e: PointerEvent) {
+  const org = pointerMap.get(e.pointerId);
+  if (!org) return;
+  const layout = imgLayout.value;
+  const iDOM = imgDOM.value;
+  const cDOM = contentDOM.value;
+  if (!iDOM) return;
+  if (!cDOM) return;
+  //
+  if (pointerMap.size == 1) {
+    const d = {
+      x: e.clientX - org.x + layout.x,
+      y: e.clientY - org.y + layout.y,
+    };
+    // Object.assign(dragData, d);
+    Object.assign(imgLayout.value, d);
+    pointerMap.set(e.pointerId, {
+      x: e.clientX,
+      y: e.clientY,
+    });
+    return;
+  }
+  //计算map中除了当前pointer的所有pointer均值为中点A
+  //当前pointer的移动坐标到中点A的中点为偏移量
+  //当前pointer到中点的距离为1，变动距离视作缩放倍率const layout = imgLayout.value;
+  const mid = {
+    x: 0,
+    y: 0,
+    pointerCount: 0,
+  };
+  pointerMap.forEach((value, key, map) => {
+    if (key == e.pointerId) return;
+    mid.x += value.x;
+    mid.y += value.y;
+    mid.pointerCount += 1;
+  });
+  mid.x = mid.x / mid.pointerCount;
+  mid.y = mid.y / mid.pointerCount;
+  //
+  const d = {
+    orgX: org.x - mid.x,
+    orgY: org.y - mid.y,
+    tgtX: e.clientX - mid.x,
+    tgtY: e.clientY - mid.y,
+  };
+  const target = {
+    x: 0,
+    y: 0,
+    w: 0,
+    h: 0,
+    // rotate: 0,
+    ratio: layout.ratio * Math.sqrt(
+      (d.tgtX * d.tgtX + d.tgtY * d.tgtY) /
+      (d.orgX * d.orgX + d.orgY * d.orgY)
+    ),
+    ratioTxt: "0 %",
+  };
+  //
+  target.w = layout.orgW * target.ratio;
+  target.h = layout.orgH * target.ratio;
+  //
+  const domW = cDOM.clientWidth ?? 0;
+  const domH = cDOM.clientHeight ?? 0;
+  const {x: domX, y: domY} = GenFunc.nodeOffsetXY(cDOM);
+  const imgW = iDOM.clientWidth ?? 0;
+  const imgH = iDOM.clientHeight ?? 0;
+  const {x: imgX, y: imgY} = GenFunc.nodeOffsetXY(iDOM);
+  //
+  const ddX = (mid.x - domX) - domW / 2;
+  const ddY = (mid.y - domY) - domH / 2;
+  //
+  const diX = (mid.x - (imgX + imgW / 2)) / layout.ratio * target.ratio;
+  const diY = (mid.y - (imgY + imgH / 2)) / layout.ratio * target.ratio;
+  //
+  target.x = (domW - target.w) / 2 + ddX - diX;
+  target.y = (domH - target.h) / 2 + ddY - diY;
+  //
+  target.ratioTxt = Math.round(target.ratio * 10000) / 100 + " %";
+  console.info(target.ratio);
+  //
+  Object.assign(imgLayout.value, target);
+  pointerMap.set(e.pointerId, {
+    x: e.clientX,
+    y: e.clientY,
+  });
+}
+
+function onWheel(e: WheelEvent) {
+  // console.info('onWheel');
   let eDOM = e?.target as HTMLElement;
   let curNid;
   do {
@@ -238,84 +335,78 @@ function setZoom(e?: WheelEvent, dir?: number) {
     if (eDOM.tagName === "BODY") break;
   } while (true);
   if (curNid !== props.modalData.nid) return;
+  const dir = e.deltaY < 0 ? 1 : -1;
   //
-  const iLayout = imgLayout.value;
+  // const cDOM = contentDOM.value;
+  // const domW = cDOM.clientWidth ?? 0;
+  // const domH = cDOM.clientHeight ?? 0;
+  // const {x: domX, y: domY} = GenFunc.nodeOffsetXY(cDOM);
+  //
+  // console.info(domH, domW, domX, domY);
+  // console.info(dx, dy);
+  // return;
+  setZoom(dir, e.clientX, e.clientY);
+}
+
+//传入的是距离dom中点的偏移量
+function setZoom(dir?: 1 | -1, clientX?: number, clientY?: number) {
+  // console.info('setZoom', dir, clientX, clientY);
+  //
+  const layout = imgLayout.value;
   const iDOM = imgDOM.value;
   const cDOM = contentDOM.value;
-  // const cDOM = props.modalData.layout;
   if (!iDOM) return;
   if (!cDOM) return;
-  const domW = cDOM?.clientWidth ?? 0;
-  const domH = cDOM?.clientHeight ?? 0;
-  // const domW = cDOM?.w?? 0;
-  // const domH = cDOM?.h ?? 0;
-  const wRatio = domW / iLayout.orgW;
-  const hRatio = domH / iLayout.orgH;
-  const orgRatio = Math.min(wRatio, hRatio);
-  //
+  //缩放比例
   let zoomLevel = [];
-  const curRatio = iLayout.ratio;
-  zoomLevel.push(...orgZoomLevel, iLayout.ratio, orgRatio);
+  const curRatio = layout.ratio;
+  zoomLevel.push(...orgZoomLevel, layout.ratio, layout.orgRatio);
   const zoomLevelSet = new Set<number>(zoomLevel);
   zoomLevel = Array.from(zoomLevelSet);
   zoomLevel.sort();
+  const targetZoomIndex = zoomLevel.indexOf(layout.ratio) + dir;
+  if (targetZoomIndex < 0) return;
+  if (targetZoomIndex >= zoomLevel.length) return;
+  const targetZoomLevel = zoomLevel[targetZoomIndex];
   //
-  let curRatioIndex = zoomLevel.indexOf(curRatio);
-  // console.info(e);
-  if (e) curRatioIndex += e.deltaY < 0 ? 1 : -1;
-  else curRatioIndex += dir ? 1 : -1;
-  if (curRatioIndex < 0) curRatioIndex = 0;
-  if (curRatioIndex > zoomLevel.length - 1)
-    curRatioIndex = zoomLevel.length - 1;
-  const ratio = zoomLevel[curRatioIndex];
+  const domW = cDOM.clientWidth ?? 0;
+  const domH = cDOM.clientHeight ?? 0;
+  const {x: domX, y: domY} = GenFunc.nodeOffsetXY(cDOM);
   //
+  const r90 = Math.abs(layout.rotate % 180 - 90) < 45;
   const target = {
-    w: 0,
-    h: 0,
+    w: layout.orgW * targetZoomLevel,
+    h: layout.orgH * targetZoomLevel,
     x: 0,
     y: 0,
-    ratio: 0,
-    ratioTxt: "0 %",
+    ratio: targetZoomLevel,
+    ratioTxt: Math.round(targetZoomLevel * 10000) / 100 + " %",
   };
-  // console.info(e);
-  if (e) {
-    const mX = e.clientX;
-    const mY = e.clientY;
-    //
-    const dX = GenFunc.nodeOffsetX(cDOM);
-    const cdX = mX - dX - domW / 2;
-    const iX = GenFunc.nodeOffsetX(iDOM);
-    const ciX = mX - iX - iLayout.w / 2;
-    const oX = (ciX * ratio) / iLayout.ratio;
-    //
-    const dY = GenFunc.nodeOffsetY(cDOM);
-    const cdY = mY - dY - domH / 2;
-    const iY = GenFunc.nodeOffsetY(iDOM);
-    const ciY = mY - iY - iLayout.h / 2;
-    const oY = (ciY * ratio) / iLayout.ratio;
-    //
-    // console.info(wRatio, hRatio, domLayout, layout);
-    target.w = iLayout.orgW * ratio;
-    target.h = iLayout.orgH * ratio;
-    // target.x = 0.5 * (domW - (iLayout.orgW * ratio) / iLayout.ratio) - oX;
-    // target.x = (domW - target.w) / 2;
-    // target.y = (domH - target.h) / 2;
-    //居中, 鼠标位置的坐标移动到中点, 之后移动到鼠标位置
-    target.x = (domW - target.w) / 2 - oX + cdX;
-    target.y = (domH - target.h) / 2 - oY + cdY;
-  } else {
-    const orgX = iLayout.x - domW / 2;
-    const cdX = (orgX * ratio) / iLayout.ratio;
-    const orgY = iLayout.y - domH / 2;
-    const cdY = (orgY * ratio) / iLayout.ratio;
-    //获取之前的以中点为坐标的值, 乘个倍率, 加回去
-    target.w = iLayout.orgW * ratio;
-    target.h = iLayout.orgH * ratio;
-    target.x = domW / 2 + cdX;
-    target.y = domH / 2 + cdY;
+  //
+  if (clientX === undefined || clientY === undefined) {
+    target.x = (domW - target.w) / 2;
+    target.y = (domH - target.h) / 2;
+    Object.assign(imgLayout.value, target);
+    return;
   }
-  target.ratio = ratio;
-  target.ratioTxt = Math.round(ratio * 1000) / 10 + " %";
+  //
+  const imgW = iDOM.clientWidth ?? 0;
+  const imgH = iDOM.clientHeight ?? 0;
+  const {x: imgX, y: imgY} = GenFunc.nodeOffsetXY(iDOM);
+  //加上鼠标在当前窗口上的偏移量，可得到图片中点跟随鼠标的效果
+  //图片中点距离鼠标的偏移量
+  //    转换一下倍率
+  //    得到图片缩放点跟随鼠标的效果
+  const ddX = (clientX - domX) - domW / 2;
+  const ddY = (clientY - domY) - domH / 2;
+  //
+  // const diY = 0;
+  const diX = (clientX - (imgX + imgW / 2)) / curRatio * target.ratio;
+  const diY = (clientY - (imgY + imgH / 2)) / curRatio * target.ratio;
+  //
+  target.x = (domW - target.w) / 2 + ddX - diX;
+  target.y = (domH - target.h) / 2 + ddY - diY;
+  //
   Object.assign(imgLayout.value, target);
 }
 
@@ -351,7 +442,7 @@ function setRotate(deg) {
   kvStore.set('image_rotate', props.curNode.id, curR);
   Object.assign(imgLayout.value, layout);
   // console.info(layout);
-  fitImg();
+  resetImg();
 }
 </script>
 
@@ -364,15 +455,15 @@ function setRotate(deg) {
         <div class="btnContainer">
           <button
             :class="['sysIcon', 'sysIcon_zoomout']"
-            @click="setZoom(undefined, 0)"
+            @click="setZoom( -1)"
           ></button>
-          <!-- <button :class="['sysIcon', 'sysIcon_fangdajing1']" @click="fitImg"> -->
-          <button @click="fitImg">
+          <!-- <button :class="['sysIcon', 'sysIcon_fangdajing1']" @click="resetImg"> -->
+          <button @click="resetImg">
             {{ imgLayout.ratioTxt }}
           </button>
           <button
             :class="['sysIcon', 'sysIcon_zoomin']"
-            @click="setZoom(undefined, 1)"
+            @click="setZoom( 1)"
           ></button>
         </div>
       </div>
@@ -387,9 +478,9 @@ function setRotate(deg) {
       <img
         :data-ref-node-id="props.curNode.id"
         :src="`${props.curNode.file_index?.normal?.path}?filename=${props.curNode.title}`"
-        @pointerdown="onDragging"
-        @dblclick="fitImg"
-        @load="loadImageRes"
+        @pointerdown="onPointerDown"
+        @dblclick="resetImgresetImg"
+        @load="onImageLoad"
         :style="
           imgLayout.loaded
             ? {
