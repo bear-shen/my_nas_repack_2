@@ -151,10 +151,11 @@ async function resetImg() {
   const domW = modalLayout.w ?? 0;
   let domH = modalLayout.h ?? 0;
   //因为上面用的layout所以会导致一个偏差，没想到有什么好办法，直接减掉算了
-  // domH -= 16;
+  domH -= 16;
   const layout = imgLayout.value;
   //左右正负45度为横，垂直正负45度为旋转
   const r90 = Math.abs(layout.rotate % 180 - 90) < 45;
+  // console.info('r90:', r90, layout);
   const wRatio = domW / (r90 ? layout.orgH : layout.orgW);
   const hRatio = domH / (r90 ? layout.orgW : layout.orgH);
   //
@@ -174,6 +175,8 @@ async function resetImg() {
   target.h = layout.orgH * ratio;
   target.x = (domW - target.w) / 2;
   target.y = (domH - target.h) / 2;
+  // target.x = (domW - (r90 ? target.h : target.w)) / 2;
+  // target.y = (domH - (r90 ? target.w : target.h)) / 2;
   target.ratio = ratio;
   target.orgRatio = ratio;
   target.ratioTxt = Math.round(ratio * 1000) / 10 + " %";
@@ -182,18 +185,6 @@ async function resetImg() {
 
 }
 
-type TransformData = {
-  //移动偏移的坐标
-  dX: number,
-  dY: number,
-  //目标中点
-  midX: number,
-  midY: number,
-  //缩放
-  scale: number,
-  //旋转
-  rotate: number,
-};
 type DragData = {
   x: number,
   y: number,
@@ -215,9 +206,10 @@ function onPointerDown(e: PointerEvent) {
     // active: true,
     x: e.clientX,
     y: e.clientY,
-    // orgX: layout.x,
-    // orgY: layout.y,
+    // orgX: e.clientX,
+    // orgY: e.clientY,
   };
+  // console.info(orgDragData);
   // Object.assign(dragData, t);
   // console.info(e);
   pointerMap.set(e.pointerId, orgDragData);
@@ -239,6 +231,7 @@ function onPointerUp(e: PointerEvent) {
 function doTransform(e: PointerEvent) {
   const org = pointerMap.get(e.pointerId);
   if (!org) return;
+  if (Math.abs(e.clientX - org.x) < 1 && Math.abs(e.clientY - org.y) < 1) return;
   const layout = imgLayout.value;
   const iDOM = imgDOM.value;
   const cDOM = contentDOM.value;
@@ -255,6 +248,8 @@ function doTransform(e: PointerEvent) {
     pointerMap.set(e.pointerId, {
       x: e.clientX,
       y: e.clientY,
+      // orgX: org.orgX,
+      // orgY: org.orgY,
     });
     return;
   }
@@ -264,16 +259,28 @@ function doTransform(e: PointerEvent) {
   const mid = {
     x: 0,
     y: 0,
+    // xf: 0,
+    // yf: 0,
+    // orgX: 0,
+    // orgY: 0,
     pointerCount: 0,
   };
   pointerMap.forEach((value, key, map) => {
+    // mid.xf += value.x;
+    // mid.yf += value.y;
     if (key == e.pointerId) return;
+    // console.info(value);
     mid.x += value.x;
     mid.y += value.y;
+    // mid.orgX += value.orgX;
+    // mid.orgY += value.orgY;
     mid.pointerCount += 1;
   });
   mid.x = mid.x / mid.pointerCount;
   mid.y = mid.y / mid.pointerCount;
+  // mid.xf = mid.xf / (mid.pointerCount + 1);
+  // mid.yf = mid.yf / (mid.pointerCount + 1);
+  // console.info(mid);
   //
   const d = {
     orgX: org.x - mid.x,
@@ -304,22 +311,28 @@ function doTransform(e: PointerEvent) {
   const imgH = iDOM.clientHeight ?? 0;
   const {x: imgX, y: imgY} = GenFunc.nodeOffsetXY(iDOM);
   //
+  const dcX = (e.clientX - org.x) / 2;
+  const dcY = (e.clientY - org.y) / 2;
+  // console.info(e.clientX, org.x, domX, domW);
+  //
   const ddX = (mid.x - domX) - domW / 2;
   const ddY = (mid.y - domY) - domH / 2;
   //
   const diX = (mid.x - (imgX + imgW / 2)) / layout.ratio * target.ratio;
   const diY = (mid.y - (imgY + imgH / 2)) / layout.ratio * target.ratio;
   //
-  target.x = (domW - target.w) / 2 + ddX - diX;
-  target.y = (domH - target.h) / 2 + ddY - diY;
+  target.x = (domW - target.w) / 2 + ddX - diX + dcX;
+  target.y = (domH - target.h) / 2 + ddY - diY + dcY;
   //
   target.ratioTxt = Math.round(target.ratio * 10000) / 100 + " %";
-  console.info(target.ratio);
+  // console.info(target);
   //
   Object.assign(imgLayout.value, target);
   pointerMap.set(e.pointerId, {
     x: e.clientX,
     y: e.clientY,
+    // orgX: org.orgX,
+    // orgY: org.orgY,
   });
 }
 
@@ -478,6 +491,7 @@ function setRotate(deg) {
       <img
         :data-ref-node-id="props.curNode.id"
         :src="`${props.curNode.file_index?.normal?.path}?filename=${props.curNode.title}`"
+        :data-rotate="imgLayout.rotate"
         @pointerdown="onPointerDown"
         @dblclick="resetImgresetImg"
         @load="onImageLoad"
