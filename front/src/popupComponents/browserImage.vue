@@ -102,6 +102,8 @@ onMounted(() => {
   document.addEventListener("pointermove", onPointerMove);
   document.addEventListener("wheel", onWheel);
   document.addEventListener("keydown", keymap);
+  document.addEventListener("pointercancel", onPointerUp);
+  document.addEventListener("pointerout", onPointerUp);
 });
 //
 const eventStore = useEventStore();
