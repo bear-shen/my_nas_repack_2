@@ -4,7 +4,7 @@ import type {ModalConstruct, ModalStruct} from "../modal";
 import {queryDemo, query} from "@/Helper";
 import type {api_node_col, api_file_list_resp} from "../../../share/Api";
 import GenFunc from "@/GenFunc";
-import {useEventStore} from "@/stores/event";
+// import {useEventStore} from "@/stores/event";
 
 
 const props = defineProps<{

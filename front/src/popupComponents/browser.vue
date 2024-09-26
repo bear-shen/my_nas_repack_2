@@ -13,7 +13,7 @@ import browserVideoVue from "./browserVideo.vue";
 import browserTextVue from "./browserText.vue";
 import browserPDFVue from "./browserPDF.vue";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
-import {useEventStore} from "@/stores/event";
+// import {useEventStore} from "@/stores/event";
 import type {col_node, type_file,} from "../../../share/Database";
 import Config from "@/Config";
 //------------------
@@ -35,36 +35,32 @@ const regComponentLs: { [key: string]: any } = {
   base: browserBaseVue,
 };
 
-const eventStore = useEventStore();
+// const eventStore = useEventStore();
 const localConfigure = useLocalConfigureStore();
 
 // fullscreen btn ------------------
 
 let ifFullscreen = false;
 
-//浏览器的缩放不按照弹窗默认的设置
-const resizingEvtKey = eventStore.listen(
-  `modal_resizing_${props.modalData.nid}`,
-  (data) => {
-    // console.info(ifFullscreen, !props.modalData.layout.fullscreen);
-    if (ifFullscreen && !props.modalData.layout.fullscreen) {
-      //全屏切普通
-      let w = localConfigure.get("browser_layout_w");
-      let h = localConfigure.get("browser_layout_h");
-      // console.info('from fs', w, h);
-      props.modalData.layout.w = w;
-      props.modalData.layout.h = h;
-      props.modalData.layout.x = (window.innerWidth - w) / 2;
-      props.modalData.layout.y = (window.innerHeight - h) / 2;
-    } else if (!props.modalData.layout.fullscreen) {
-      //普通缩放
-      // console.info('set', props.modalData.layout.w);
-      localConfigure.set("browser_layout_w", props.modalData.layout.w);
-      localConfigure.set("browser_layout_h", props.modalData.layout.h);
-    }
-    ifFullscreen = props.modalData.layout.fullscreen;
+function resizingListener() {
+  // console.info(ifFullscreen, !props.modalData.layout.fullscreen);
+  if (ifFullscreen && !props.modalData.layout.fullscreen) {
+    //全屏切普通
+    let w = localConfigure.get("browser_layout_w");
+    let h = localConfigure.get("browser_layout_h");
+    // console.info('from fs', w, h);
+    props.modalData.layout.w = w;
+    props.modalData.layout.h = h;
+    props.modalData.layout.x = (window.innerWidth - w) / 2;
+    props.modalData.layout.y = (window.innerHeight - h) / 2;
+  } else if (!props.modalData.layout.fullscreen) {
+    //普通缩放
+    // console.info('set', props.modalData.layout.w);
+    localConfigure.set("browser_layout_w", props.modalData.layout.w);
+    localConfigure.set("browser_layout_h", props.modalData.layout.h);
   }
-);
+  ifFullscreen = props.modalData.layout.fullscreen;
+}
 
 // mode btn ------------------
 
@@ -95,6 +91,8 @@ function toggleDetail() {
 onMounted(() => {
   // console.info("mounted");
   document.addEventListener("keydown", keymap);
+//浏览器的缩放不按照弹窗默认的设置
+  document.addEventListener(`modal_resizing_${props.modalData.nid}`, resizingListener);
   //popup会自动focus，这边取消focus
   //已经加了auto_focus:false，但是以备万一
   setTimeout(() => {
@@ -105,6 +103,7 @@ onMounted(() => {
 onUnmounted(() => {
   // console.info("unmounted");
   document.removeEventListener("keydown", keymap);
+  document.removeEventListener(`modal_resizing_${props.modalData.nid}`, resizingListener);
 });
 // setTimeout(() => {
 // props.modalData.base.title = "dev browser";
@@ -489,7 +488,7 @@ function setRater(rateVal: string) {
         </template>
         <template v-else>
           <select class="sysIcon" v-model="rateVal" @change="setRater(rateVal)">
-          <option class='sysIcon_A sysIcon' v-for="(type,key) in Config.rate" :value="key" v-html="type" :key="'BROWSER_RATE_'+modalData.nid+'_'+key"></option>
+            <option class='sysIcon_A sysIcon' v-for="(type,key) in Config.rate" :value="key" v-html="type" :key="'BROWSER_RATE_'+modalData.nid+'_'+key"></option>
           </select>
         </template>
 

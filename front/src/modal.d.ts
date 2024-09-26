@@ -57,6 +57,7 @@ export type ModalCallbackConstruct = {
     name: string;
     func: ModalCallbackFunc;
 };
+//模态框内部的类型
 export type ModalStruct = {
     //nid的作用是映射map
     nid: string;
@@ -65,7 +66,11 @@ export type ModalStruct = {
     content: ModalContent;
     callback: Array<ModalCallbackConstruct>;
     closed: boolean;
+    event: {
+        resize: Event
+    },
 };
+//构建模态框用的类型
 export type ModalConstruct = {
     // base
     title: string;

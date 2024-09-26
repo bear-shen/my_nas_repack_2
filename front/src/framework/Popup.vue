@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {useModalStore} from "@/stores/modalStore";
-import {useEventStore} from "@/stores/event";
+// import {useEventStore} from "@/stores/event";
 import {onMounted, onUnmounted, ref,} from "vue";
 import type {ModalCallbackConstruct, ModalConstruct, ModalLayout, ModalStruct,} from "@/modal";
 // import HelloWorldVue from "@/components/HelloWorld.vue";
@@ -60,8 +60,12 @@ function buildModal(modal: ModalConstruct): ModalStruct {
     },
     callback: [],
     closed: false,
+    event: {},
   };
   target.nid = (diffStamp + Math.random()).toString(32);
+  //
+  target.event['resize'] = new Event(`modal_resizing_${target.nid}`);
+  //
   console.info(diffStamp, target.nid);
   //layout
   const layout = {} as ModalLayout;
@@ -252,7 +256,8 @@ window.addEventListener("resize", (e) => {
       };
       //
       Object.assign(modal.layout, t);
-      eventStore.trigger(`modal_resizing_${modal.nid}`, modal.layout);
+      document.dispatchEvent(modal.event.resize);
+      // eventStore.trigger(`modal_resizing_${modal.nid}`, modal.layout);
     }
   });
 });
@@ -332,7 +337,8 @@ function fullscreen(nid: string) {
   //
   Object.assign(modal.layout, t);
   // setTimeout(() =>
-  eventStore.trigger(`modal_resizing_${modal.nid}`, modal.layout);
+  document.dispatchEvent(modal.event.resize);
+  // eventStore.trigger(`modal_resizing_${modal.nid}`, modal.layout);
   // );
 }
 
@@ -356,7 +362,8 @@ function resetWindow(nid: string) {
   //
   Object.assign(modal.layout, t);
   // setTimeout(() =>
-  eventStore.trigger(`modal_resizing_${modal.nid}`, modal.layout);
+  document.dispatchEvent(modal.event.resize);
+  // eventStore.trigger(`modal_resizing_${modal.nid}`, modal.layout);
   // );
 }
 
@@ -379,7 +386,7 @@ function close(nid: string) {
   return modal;
 }
 
-const eventStore = useEventStore();
+// const eventStore = useEventStore();
 let resizing = {
   x: 0,
   y: 0,
@@ -510,10 +517,12 @@ function onResizing(e: PointerEvent) {
   }
   //
   Object.assign(resizing.modal.layout, t);
-  eventStore.trigger(
-    `modal_resizing_${resizing.modal.nid}`,
-    resizing.modal.layout
-  );
+  document.dispatchEvent(resizing.modal.event.resize);
+  // resizing.modal.event['resize'].dispatchEvent()
+  // eventStore.trigger(
+  //   `modal_resizing_${resizing.modal.nid}`,
+  //   resizing.modal.layout
+  // );
 }
 
 function onResizeEnd(e: PointerEvent) {

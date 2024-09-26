@@ -5,13 +5,6 @@ import type {ModalConstruct, ModalStruct} from "@/modal";
 import {queryDemo, query} from "@/Helper";
 import type {api_node_col, api_file_list_resp, api_file_upload_resp} from "../../../share/Api";
 import GenFunc from "@/GenFunc";
-import browserBaseVue from "./browserBase.vue";
-import browserImageVue from "./browserImage.vue";
-import browserAudioVue from "./browserAudio.vue";
-import browserVideoVue from "./browserVideo.vue";
-import {useLocalConfigureStore} from "@/stores/localConfigure";
-import {useEventStore} from "@/stores/event";
-import type {type_file} from "../../../share/Database";
 //------------------
 const props = defineProps<{
   data: {

@@ -3,7 +3,7 @@ import {onMounted, onUnmounted, ref, type Ref, watch} from "vue";
 import type {ModalStruct} from "@/modal";
 import type {api_node_col} from "../../../share/Api";
 import GenFunc from "@/GenFunc";
-import {useEventStore} from "@/stores/event";
+// import {useEventStore} from "@/stores/event";
 import {mayTyping} from "@/Helper";
 import * as kvStore from '@/IndexedKVStore';
 // import piexif from 'piexif-ts';
@@ -98,6 +98,7 @@ onMounted(() => {
   // onImageLoad();
   // document.addEventListener("mouseup", onPointerUp);
   // document.addEventListener("mousemove", onPointerMove);
+  document.addEventListener(`modal_resizing_${props.modalData.nid}`, resetImg);
   document.addEventListener("pointerup", onPointerUp);
   document.addEventListener("pointermove", onPointerMove);
   document.addEventListener("wheel", onWheel);
@@ -106,11 +107,8 @@ onMounted(() => {
   document.addEventListener("pointerout", onPointerUp);
 });
 //
-const eventStore = useEventStore();
-let resizingEvtKey = eventStore.listen(
-  `modal_resizing_${props.modalData.nid}`,
-  (data) => resetImg()
-);
+// const eventStore = useEventStore();
+
 
 watch(
   () => props.curNode,
@@ -136,10 +134,13 @@ onUnmounted(() => {
   // );
   // document.removeEventListener("mouseup", onPointerUp);
   // document.removeEventListener("mousemove", onPointerMove);
+  document.removeEventListener(`modal_resizing_${props.modalData.nid}`, resetImg);
   document.removeEventListener("pointerup", onPointerUp);
   document.removeEventListener("pointermove", onPointerMove);
   document.removeEventListener("wheel", onWheel);
   document.removeEventListener("keydown", keymap);
+  document.removeEventListener("pointercancel", onPointerUp);
+  document.removeEventListener("pointerout", onPointerUp);
 });
 
 async function resetImg() {
