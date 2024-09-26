@@ -302,6 +302,7 @@ function doTransform(e: PointerEvent) {
     ),
     ratioTxt: "0 %",
   };
+  if (target.ratio > 5) target.ratio = 5;
   //
   target.w = layout.orgW * target.ratio;
   target.h = layout.orgH * target.ratio;
