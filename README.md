@@ -5,8 +5,9 @@ a simple net disk frontend for nas
 support tagging, favourite, and user group
 
 -- --
+nodejs
 
-mysql/mariadb, nginx, ffmpeg required
+postgresql, nginx, ffmpeg required
 
 nginx modules required:
 
