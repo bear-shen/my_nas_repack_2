@@ -24,9 +24,7 @@
     "toml": "^3.0.0",
     "typescript": "^5.3.3",
     "xml": "^1.0.1",
-    "xml-js": "^1.6.11"
-  },
-  "devDependencies": {
+    "xml-js": "^1.6.11",
     "@types/formidable": "^2.0.4"
   }
 }

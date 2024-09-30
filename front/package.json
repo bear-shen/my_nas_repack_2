@@ -1,35 +1,35 @@
 {
-  "name": "vue-project",
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite --host 0.0.0.0 --port 8085",
-    "build": "vite build",
-    "preview": "vite preview --port 4173",
-    "build-only": "vite build",
-    "type-check": "vue-tsc --noEmit",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
+  "name"           : "vue-project",
+  "version"        : "0.0.0",
+  "type"           : "module",
+  "scripts"        : {
+	"dev"       : "vite --host 0.0.0.0 --port 8085 -l info",
+	"build"     : "vite build",
+	"preview"   : "vite preview --port 4173",
+	"build-only": "vite build",
+	"type-check": "vue-tsc --noEmit",
+	"lint"      : "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
-  "dependencies": {
-    "@tsconfig/node20": "^20.1.2",
-    "@vue/language-server": "^2.0.22",
-    "jszip": "^3.10.1",
-    "pinia": "^2.1.7",
-    "vite": "^5.0.13",
-    "vue": "^3.4.29",
-    "vue-router": "^4.4.0"
+  "dependencies"   : {
+	"jszip"     : "^3.10.1",
+	"pinia"     : "^2.1.7",
+	"vue"       : "^3.4.29",
+	"vue-router": "^4.4.0"
   },
   "devDependencies": {
-    "@rushstack/eslint-patch": "^1.7.2",
-    "@types/node": "^20.11.7",
-    "@vitejs/plugin-vue": "^5.0.5",
-    "@vue/eslint-config-typescript": "^13.0.0",
-    "@vue/tsconfig": "^0.5.1",
-    "eslint": "^8.56.0",
-    "eslint-plugin-vue": "^9.20.1",
-    "npm-run-all": "^4.1.5",
-    "sass": "^1.77.6",
-    "typescript": "^5.3.3",
-    "vue-tsc": "^2.0.21"
+	"@tsconfig/node20"             : "^20.1.4",
+	"@vue/language-server"         : "^2.1.6",
+	"@rushstack/eslint-patch"      : "^1.8.0",
+	"@types/node"                  : "^20.14.5",
+	"@vitejs/plugin-vue"           : "^5.0.5",
+	"@vue/eslint-config-typescript": "^13.0.0",
+	"@vue/tsconfig"                : "^0.5.1",
+	"eslint"                       : "^8.56.0",
+	"eslint-plugin-vue"            : "^9.23.0",
+	"npm-run-all"                  : "^4.1.5",
+	"sass"                         : "^1.77.6",
+	"typescript"                   : "~5.4.0",
+	"vite"                         : "^5.3.6",
+	"vue-tsc"                      : "^2.0.21"
   }
 }

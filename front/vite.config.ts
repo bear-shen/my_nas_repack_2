@@ -2,7 +2,7 @@ import {fileURLToPath, URL} from 'node:url'
 
 import {defineConfig, UserConfig} from 'vite'
 import vue from '@vitejs/plugin-vue'
-import {relative} from 'node:path'
+import path from 'node:path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -17,6 +17,7 @@ export default defineConfig({
     plugins: [vue()],
     resolve: {
         alias: {
+            // src: path.resolve('./src'),
             '@': fileURLToPath(new URL('./src', import.meta.url))
         }
     },
@@ -27,4 +28,14 @@ export default defineConfig({
             }
         }
     },
+    optimizeDeps: {
+        include: [
+        ],
+    },
+    // publicDir:'public',
+    build: {
+        rollupOptions: {
+            input: '/index.html',
+        }
+    }
 })
