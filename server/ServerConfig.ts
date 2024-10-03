@@ -63,13 +63,6 @@ function mergeToml(pConf: ConfType, pToml: ConfType) {
 
 //
 export let loaded = false;
-let dbInit = false;
-try {
-    fsNp.accessSync(__dirname + '/../../init.db.txt')
-    dbInit = true;
-} catch (e) {
-
-}
 //所以先赋值一下
 export let serverConfig = BaseConfig;
 const dbConf = BaseConfig.db as ConfType;
@@ -91,16 +84,6 @@ const {
 // loadConfig();
 
 export async function loadConfig() {
-    if (!dbInit) {
-        const sqlInitStr = fsNp.readFileSync(__dirname + '/../../init.postgres.sql').toString();
-        console.info(sqlInitStr);
-        await execute(sqlInitStr);
-        const sqlBaseStr = fsNp.readFileSync(__dirname + '/../../init.base.sql').toString();
-        console.info(sqlBaseStr);
-        await execute(sqlBaseStr);
-        fsNp.writeFileSync(__dirname + '/../../init.db.txt', '1', {flag: 'a+'});
-    }
-
     loaded = false;
     //这边如果用SettingModel的话在worker中会提示  Class extends value undefined is not a constructor or null
     //但是主进程里面不会，原因不明
