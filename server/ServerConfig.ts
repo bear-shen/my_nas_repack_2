@@ -1,5 +1,6 @@
 import {type_file} from '../share/Database';
-import fs from "fs";
+import * as fsNp from "fs";
+import * as fs from 'fs/promises';
 import tls, {ConnectionOptions} from "tls";
 import * as toml from "toml";
 import {ORMQueryResult} from "./lib/DBDriver";
@@ -34,7 +35,7 @@ const BaseConfig: ConfType = {
     },
 };
 //
-const tomlConfContent = fs.readFileSync(__dirname + '/../config.toml');
+const tomlConfContent = fsNp.readFileSync(__dirname + '/../config.toml');
 // console.info(__dirname + '/config.toml');
 // console.info(tomlConfContent);
 const tomlConf = toml.parse(tomlConfContent.toString()) as ConfType;
@@ -61,8 +62,14 @@ function mergeToml(pConf: ConfType, pToml: ConfType) {
 }
 
 //
-
 export let loaded = false;
+let dbInit = false;
+try {
+    fsNp.accessSync(__dirname + '/../../init.db.txt')
+    dbInit = true;
+} catch (e) {
+
+}
 //所以先赋值一下
 export let serverConfig = BaseConfig;
 const dbConf = BaseConfig.db as ConfType;
@@ -81,10 +88,19 @@ const {
     SQL_PARAM
 } = require(driverName);
 
-
-loadConfig();
+// loadConfig();
 
 export async function loadConfig() {
+    if (!dbInit) {
+        const sqlInitStr = fsNp.readFileSync(__dirname + '/../../init.postgres.sql').toString();
+        console.info(sqlInitStr);
+        await execute(sqlInitStr);
+        const sqlBaseStr = fsNp.readFileSync(__dirname + '/../../init.base.sql').toString();
+        console.info(sqlBaseStr);
+        await execute(sqlBaseStr);
+        fsNp.writeFileSync(__dirname + '/../../init.db.txt', '1', {flag: 'a+'});
+    }
+
     loaded = false;
     //这边如果用SettingModel的话在worker中会提示  Class extends value undefined is not a constructor or null
     //但是主进程里面不会，原因不明
@@ -105,22 +121,22 @@ export async function loadConfig() {
     const pathConf = BaseConfig.path as ConfType;
     try {
         pathConf.temp = pathConf.root + '/' + pathConf.prefix_temp;
-        fs.mkdirSync(pathConf.temp, {recursive: true, mode: 0o777});
+        fsNp.mkdirSync(pathConf.temp, {recursive: true, mode: 0o777});
     } catch (e) {
     }
     try {
         pathConf.cover = pathConf.root + '/' + pathConf.prefix_cover;
-        fs.mkdirSync(pathConf.cover, {recursive: true, mode: 0o777});
+        fsNp.mkdirSync(pathConf.cover, {recursive: true, mode: 0o777});
     } catch (e) {
     }
     try {
         pathConf.preview = pathConf.root + '/' + pathConf.prefix_preview;
-        fs.mkdirSync(pathConf.preview, {recursive: true, mode: 0o777});
+        fsNp.mkdirSync(pathConf.preview, {recursive: true, mode: 0o777});
     } catch (e) {
     }
     try {
         pathConf.normal = pathConf.root + '/' + pathConf.prefix_normal;
-        fs.mkdirSync(pathConf.normal, {recursive: true, mode: 0o777});
+        fsNp.mkdirSync(pathConf.normal, {recursive: true, mode: 0o777});
     } catch (e) {
     }
     // console.info('==========');

@@ -272,22 +272,18 @@ EXECUTE PROCEDURE update_time_update();
 
 -- ---------------------------------------------------------------------------------------- --
 
-
-select setval('auth_id_seq', (select max(id) + 1 from auth));
+select setval('auth_id_seq', (select coalesce(max(id), 0) + 1 from auth));
 -- select setval('cache_id_seq',(select max(id)+1 from cache));
-select setval('favourite_id_seq', (select max(id) + 1 from favourite));
-select setval('favourite_group_id_seq', (select max(id) + 1 from favourite_group));
-select setval('node_id_seq', (select max(id) + 1 from node));
-select setval('queue_id_seq', (select max(id) + 1 from queue));
-select setval('rate_id_seq', (select max(id) + 1 from rate));
-select setval('settings_id_seq', (select max(id) + 1 from settings));
-select setval('tag_id_seq', (select max(id) + 1 from tag));
-select setval('tag_group_id_seq', (select max(id) + 1 from tag_group));
-select setval('user_id_seq', (select max(id) + 1 from user));
-select setval('user_group_id_seq', (select max(id) + 1 from user_group));
-
-
-
+select setval('favourite_id_seq', (select coalesce(max(id), 0) + 1 from favourite));
+select setval('favourite_group_id_seq', (select coalesce(max(id), 0) + 1 from favourite_group));
+select setval('node_id_seq', (select coalesce(max(id), 0) + 1 from node));
+select setval('queue_id_seq', (select coalesce(max(id), 0) + 1 from queue));
+select setval('rate_id_seq', (select coalesce(max(id), 0) + 1 from rate));
+select setval('settings_id_seq', (select coalesce(max(id), 0) + 1 from "settings"));
+select setval('tag_id_seq', (select coalesce(max(id), 0) + 1 from tag));
+select setval('tag_group_id_seq', (select coalesce(max(id), 0) + 1 from tag_group));
+select setval('user_id_seq', (select coalesce(max(id), 0) + 1 from "user"));
+select setval('user_group_id_seq', (select coalesce(max(id), 0) + 1 from user_group));
 
 
 
