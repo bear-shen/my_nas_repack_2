@@ -2,14 +2,18 @@
 # If you need more help, visit the Dockerfile reference guide at
 # https://docs.docker.com/engine/reference/builder/
 
+
 #ffmpeg 6.0才有av1_nvenc的编码
 #因此至少需要ubuntu(nobel/24.04LTS)
-FROM node:22-bookworm
+FROM ubuntu:oracular
+#FROM node:22-bookworm
 
 # Use production node environment by default.
 ENV NODE_ENV production
 ENV SRC=/app
-
+#https://serverfault.com/questions/949991/how-to-install-tzdata-on-a-ubuntu-docker-image
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=Etc/UTC
 
 WORKDIR ${SRC}
 
@@ -23,7 +27,7 @@ COPY . .
 RUN /app/docker/server_init.sh
 
 # Run the application as a non-root user.
-USER node
+USER www-data
 
 # Expose the port that the application listens on.
 EXPOSE 8090

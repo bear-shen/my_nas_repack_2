@@ -14,7 +14,7 @@ services:
       context: .
     environment:
       NODE_ENV: production
-    user: node
+    user: www-data
     ports:
       - '8190:8090'
     expose:
@@ -60,14 +60,15 @@ services:
       timeout: 5s
       retries: 5
   nginx:
-    image: nginx/1.27-bookworm
+    image: nginx:1.27-bookworm
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       #
       - ./front/dist:/usr/share/nginx/html
+      - ./file:/usr/share/nginx/file
     ports:
-      - "8195:80"
+      - "8196:8195"
     links:
       - server
 #    environment:

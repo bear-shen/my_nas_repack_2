@@ -34,7 +34,7 @@ subtitle = ['vtt', 'ass', 'ssa', 'sub', 'srt', 'pjs']
 pdf = ['pdf']
 
 [path]
-root = '/home/file'
+root = '/app/file'
 root_web = '/file'
 api = '/api'
 webdav = '/webdav'
