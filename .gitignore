@@ -48,3 +48,4 @@ server/archive
 /front/vite.config.d.ts
 /Dockerfile.zzz
 /doc.md
+/init.db.txt
