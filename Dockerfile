@@ -1,6 +1,9 @@
 # Comments are provided throughout this file to help you get started.
 # If you need more help, visit the Dockerfile reference guide at
 # https://docs.docker.com/engine/reference/builder/
+
+#ffmpeg 6.0才有av1_nvenc的编码
+#因此至少需要ubuntu(nobel/24.04LTS)
 FROM node:22-bookworm
 
 # Use production node environment by default.

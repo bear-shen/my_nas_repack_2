@@ -1,5 +1,10 @@
 #!/bin/sh
 
+apt update
+apt upgrade -y
+
+apt install -y ffmpeg nodejs
+
 #useradd node
 cd /app/server
 npm config set registry https://registry.npmmirror.com
