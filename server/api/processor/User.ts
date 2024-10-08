@@ -99,6 +99,7 @@ export default class {
     };
 
     async auth(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<void> {
+        console.info('auth');
         // console.info(req.headers.cookie);
         if (!req.headers.cookie) {
             // console.info('if (!req.headers.cookie) {');
@@ -146,6 +147,10 @@ export default class {
         // const urlInfo = new URL(uri);
         // console.info(urlInfo);
         const pathDef = getConfig('path');
+        // console.info(pathDef, uri, pathDef.root_web);
+        if (uri.indexOf(pathDef.root_web) !== 0) {
+            uri = decodeURIComponent(uri);
+        }
         if (uri.indexOf(pathDef.root_web) !== 0) {
             // console.info('if (uri.indexOf(pathDef.root_web) !== 0) {');
             res.statusCode = 403;
@@ -170,13 +175,19 @@ export default class {
         //预览和封面一类的文件后缀会被修改，所以只针对目录进行判断
         relPath = fp.dirname(relPath);
         // console.info(nodeType, relPath);
-        const nodeDir = await fp.get(relPath);
+        let nodeDir = await fp.get(relPath);
         // console.info(nodeDir);
+        if (!nodeDir) {
+            relPath = decodeURIComponent(relPath);
+            nodeDir = await fp.get(relPath);
+        }
+        console.info(nodeDir, relPath);
         if (!nodeDir) {
             // console.info('if (!nodeDir) {');
             res.statusCode = 403;
             return null;
         }
+        console.info(nodeDir, relPath);
         //
         if (userAuth && userAuth.deny) {
             // console.info(userAuth.deny);

@@ -88,6 +88,14 @@ const {
 } = require(driverName);
 
 async function doInit() {
+    let ifExs = false;
+    try {
+        await execute('select * from settings');
+        ifExs = true;
+    } catch (e) {
+        console.info('db already exists, exit');
+        return;
+    }
     const sqlInitStr = fsNp.readFileSync(__dirname + '/../../init.postgres.sql').toString();
     // console.info(sqlInitStr);
     await execute(sqlInitStr);
