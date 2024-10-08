@@ -196,7 +196,6 @@ async function getList(ext: api_file_list_req = {}) {
   crumbList.value = res.path;
   nodeList.value = res.list;
   // console.info(res);
-  if (!node) node = nodeList.value[0];
   // console.warn(node.title);
   // console.info(curIndex.value);
   // nodeList.value = sortList(res.list);
@@ -204,6 +203,7 @@ async function getList(ext: api_file_list_req = {}) {
   // console.info(crumbList);
   let vList = buildVList();
   vNodeList.value = sortList(vList, sortVal.value);
+  if (!node) node = vNodeList.value[0];
   curIndex.value = locateCurNode(vNodeList.value, node);
   console.info(curIndex.value);
   onModNav();
