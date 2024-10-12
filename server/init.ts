@@ -60,15 +60,24 @@ function mergeToml(pConf: ConfType, pToml: ConfType) {
     }
 }
 
+if (process.env.NAS_DRIVER) (BaseConfig.db as ConfType).driver = process.env.NAS_DRIVER;
+if (process.env.NAS_PORT) (BaseConfig.db as ConfType).port = process.env.NAS_PORT;
+if (process.env.NAS_DB) (BaseConfig.db as ConfType).database = process.env.NAS_DB;
+if (process.env.NAS_USER) (BaseConfig.db as ConfType).account = process.env.NAS_USER;
+if (process.env.NAS_PASSWORD) (BaseConfig.db as ConfType).password = process.env.NAS_PASSWORD;
+
 //
 let dbInit = false;
 try {
-    fsNp.accessSync(__dirname + '/../../init.db.txt')
+    fsNp.readFileSync(__dirname + '/../../init.db.txt')
     dbInit = true;
 } catch (e) {
 
 }
-if (dbInit) throw new Error('already init');
+if (dbInit) {
+    console.info('already inited');
+    process.exit(0);
+}
 //所以先赋值一下
 export let serverConfig = BaseConfig;
 const dbConf = BaseConfig.db as ConfType;
@@ -103,6 +112,7 @@ async function doInit() {
     // console.info(sqlBaseStr);
     await execute(sqlBaseStr);
     fsNp.writeFileSync(__dirname + '/../../init.db.txt', '1', {flag: 'a+'});
+    console.info('db inited');
 }
 
 doInit().then(() => {

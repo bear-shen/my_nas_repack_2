@@ -8,8 +8,16 @@
 FROM ubuntu:oracular
 #FROM node:22-bookworm
 
+#因为json和搜索的一些问题，切去pg以后应该没法回到mysql了
+#先扔着吧
+ENV NAS_DRIVER=postgresql
+ENV NAS_PORT=5432
+ENV NAS_DB=toshokan
+ENV NAS_USER=postgres
+ENV NAS_PASSWORD=1
+
 # Use production node environment by default.
-ENV NODE_ENV production
+ENV NODE_ENV=production
 ENV SRC=/app
 #https://serverfault.com/questions/949991/how-to-install-tzdata-on-a-ubuntu-docker-image
 ARG DEBIAN_FRONTEND=noninteractive

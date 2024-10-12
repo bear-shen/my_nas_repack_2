@@ -61,6 +61,12 @@ function mergeToml(pConf: ConfType, pToml: ConfType) {
     }
 }
 
+if (process.env.NAS_DRIVER) (BaseConfig.db as ConfType).driver = process.env.NAS_DRIVER;
+if (process.env.NAS_PORT) (BaseConfig.db as ConfType).port = process.env.NAS_PORT;
+if (process.env.NAS_DB) (BaseConfig.db as ConfType).database = process.env.NAS_DB;
+if (process.env.NAS_USER) (BaseConfig.db as ConfType).account = process.env.NAS_USER;
+if (process.env.NAS_PASSWORD) (BaseConfig.db as ConfType).password = process.env.NAS_PASSWORD;
+
 //
 export let loaded = false;
 //所以先赋值一下

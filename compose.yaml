@@ -13,7 +13,11 @@ services:
     build:
       context: .
     environment:
-      NODE_ENV: production
+      #- NAS_DRIVER=postgresql
+      - NAS_PORT=5432
+      - NAS_DB=toshokan
+      - NAS_user=postgres
+      - NAS_PASSWORD=1
     user: www-data
     ports:
       - '8190:8090'
