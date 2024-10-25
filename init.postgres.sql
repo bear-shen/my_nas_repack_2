@@ -120,6 +120,7 @@ CREATE TABLE IF NOT EXISTS "queue"
     "time_update" timestamp DEFAULT current_timestamp,
     PRIMARY KEY ("id")
 );
+CREATE INDEX "queue_ind" ON "queue" ("id", "status");
 
 CREATE TABLE IF NOT EXISTS "rate"
 (

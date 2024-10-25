@@ -1498,7 +1498,8 @@ export function manualSort<K extends api_node_col>(list: K[], sort: string) {
                 cb.push(b.title?.toLowerCase());
                 va = ca.join(' ');
                 vb = cb.join(' ');
-                return rev * (natsort(va, vb) == 1 ? 1 : -1);
+                // console.info(rev, va, vb, natsort({desc:rev,insensitive:true})(va, vb));
+                return natsort({desc: rev == 1 ? false : true, insensitive: true})(va, vb);
                 break;
         }
         return (va ? va : 0) > (vb ? vb : 0) ? rev * 1 : rev * -1;
