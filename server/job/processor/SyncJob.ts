@@ -294,7 +294,8 @@ async function syncDir(localRoot: string, rootNode: col_node) {
 async function parseTagFile(localRoot: string, rootId: number) {
     const rootNode = await (new NodeModel).where('id', rootId).first();
     if (!rootNode) return;
-    if (rootNode.tag_id_list.length) {
+    // console.info(rootNode);
+    if (rootNode.tag_id_list && rootNode.tag_id_list.length) {
         return;
     }
     //
@@ -330,7 +331,7 @@ async function parseTagFile(localRoot: string, rootId: number) {
         if (!ifTagExs) {
             await (new TagModel).insert({
                 id_group: ifGroupExs.id,
-                alt: tagName,
+                alt: [tagName],
                 description: tagName,
                 index_tag: [tagName],
                 status: 1,
@@ -343,6 +344,11 @@ async function parseTagFile(localRoot: string, rootId: number) {
     if (!tagIdSet.size) return;
     await (new NodeModel()).where('id', rootId).update({
         tag_id_list: Array.from(tagIdSet),
+    });
+    await (new QueueModel).insert({
+        type: 'file/buildIndex',
+        payload: {id: rootId},
+        status: 1,
     });
 }
 

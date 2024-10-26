@@ -75,7 +75,7 @@ export default class {
                         `%${request.keyword.trim()}%`
                     );
                     //搜索的时候节点短的在前，姑且先这么定义
-                    model.order('CHAR_LENGTH(node_id_list)', 'asc');
+                    model.order('jsonb_array_length(node_id_list)', 'asc');
                 }
                 break;
             case 'tag':
@@ -293,7 +293,7 @@ export default class {
             nodeLs.forEach(node => {
                 node.tag = [];
                 const iTagGroupIdSet = new Set<number>();
-                if (!node.tag_id_list.length) return;
+                if (!node.tag_id_list || !node.tag_id_list.length) return;
                 node.tag_id_list.forEach(tagId => {
                     const tag = tagMap.get(tagId);
                     iTagGroupIdSet.add(tag.id_group);
