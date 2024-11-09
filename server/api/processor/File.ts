@@ -430,7 +430,7 @@ export default class {
         const curPNode = await new NodeModel().where('id', curNode.id_parent).first();
         if (!curPNode) return;
         while (curNode.file_index.rel) {
-            curNode = await new NodeModel().where('id', curNode.id).first();
+            curNode = await new NodeModel().where('id', curNode.file_index.rel).first();
             if (!curNode) throw new Error('rel node not found');
             // if (!curNode.file_index.rel) break;
         }

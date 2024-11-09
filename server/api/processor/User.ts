@@ -99,7 +99,7 @@ export default class {
     };
 
     async auth(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<void> {
-        console.info('auth');
+        // console.info('auth');
         // console.info(req.headers.cookie);
         if (!req.headers.cookie) {
             // console.info('if (!req.headers.cookie) {');
@@ -181,13 +181,13 @@ export default class {
             relPath = decodeURIComponent(relPath);
             nodeDir = await fp.get(relPath);
         }
-        console.info(nodeDir, relPath);
+        // console.info(nodeDir, relPath);
         if (!nodeDir) {
             // console.info('if (!nodeDir) {');
             res.statusCode = 403;
             return null;
         }
-        console.info(nodeDir, relPath);
+        // console.info(nodeDir, relPath);
         //
         if (userAuth && userAuth.deny) {
             // console.info(userAuth.deny);

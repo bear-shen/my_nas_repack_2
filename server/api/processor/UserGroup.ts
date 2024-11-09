@@ -1,7 +1,14 @@
 // import PersistentFile from 'formidable';
 import {IncomingMessage, ServerResponse} from 'http';
 import {ParsedForm} from '../types';
-import type {api_user_group_del_req, api_user_group_del_resp, api_user_group_list_req, api_user_group_list_resp, api_user_group_mod_req, api_user_group_mod_resp} from "../../../share/Api";
+import type {
+    api_user_group_del_req,
+    api_user_group_del_resp,
+    api_user_group_list_req,
+    api_user_group_list_resp,
+    api_user_group_mod_req,
+    api_user_group_mod_resp
+} from "../../../share/Api";
 import UserGroupModel from "../../model/UserGroupModel";
 import {ORMQueryResult} from "../../lib/DBDriver";
 import {col_user_group} from "../../../share/Database";
@@ -44,6 +51,7 @@ export default class {
             authArr = JSON.parse(request.auth);
         if (!authArr) authArr = [];
         let id = parseInt(request.id);
+        id = id ? id : 0;
         const ifExs = await (new UserGroupModel()).where('id', id).first();
         if (ifExs) {
             await (new UserGroupModel()).where('id', id).update({
