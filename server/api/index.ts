@@ -12,6 +12,8 @@ const server = http.createServer(async function (req: IncomingMessage, res: Serv
     // console.info(req.method, req.headers);
     // console.info(req.url);
     //
+    /*
+    //想想好像并不涉及到跨域,直接去掉
     if (req.headers.origin) {
         const config = getConfig();
         const origin = config.origin ? config.origin : req.headers.origin;
@@ -21,7 +23,7 @@ const server = http.createServer(async function (req: IncomingMessage, res: Serv
             if (req.headers['access-control-request-headers'])
                 res.setHeader('Access-Control-Allow-Headers', req.headers['access-control-request-headers']);
         }
-    }
+    }*/
     if (['POST', 'GET',].indexOf(req.method) === -1) {
         res.write('');
         res.end();
