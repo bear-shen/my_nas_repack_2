@@ -18,10 +18,18 @@ const BaseConfig: ConfType = {
     // },
     auth: {
         api: {
+            //[0:admin,1:user,2:admin]
+            //
             '^/api/user/login$': [0],
             '^/api/user/auth$': [0],
             '^/api/dev/[^/]+?$': [0],
+            //
             '^/api/[^/]+?/[^/]+?$': [1],
+            //
+            '^/api/user/[^/]+?$': [2],
+            '^/api/user_group/[^/]+?$': [2],
+            '^/api/log/[^/]+?$': [2],
+            '^/api/setting/[^/]+?$': [2],
         } as { [key: string]: Array<any> },
     },
     //

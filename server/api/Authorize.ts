@@ -12,21 +12,31 @@ async function check(url: URL, req: IncomingMessage): Promise<number | true | fa
     // console.info(url, data,);
     const [_, prefix, c, a] = url.pathname.split('/');
     const fPath = `/api/${c}/${a}`;
+    //
+    let authRole = 0;
     const authLs = getConfig('auth.api');
     for (const path in authLs) {
         const match = new RegExp(path, 'i');
         if (fPath.match(match)) {
-            if (!authLs[path][0]) {
-                return true;
-            }
+            authRole = authLs[path][0];
         }
+    }
+    if (!authRole) {
+        return true;
     }
     // console.info([_, prefix, c, a]);
     // console.info(req.headers);
     if (!req.headers['auth-token']) return false;
-    const ifExs = await (new AuthModel).where('token', req.headers['auth-token']).order('id', 'desc').first();
+    const ifExs = await (new AuthModel).where('token', req.headers['auth-token']).order('id', 'desc').first(['uid']);
     // console.info(ifExs);
     if (!ifExs) return false;
+    if (authRole == 2) {
+        const user = await (new UserModel()).where('id', ifExs.uid).first();
+        const group = await (new UserGroupModel()).where('id', user.id_group).first();
+        if (!group.admin || group.admin != 1) {
+            return false;
+        }
+    }
     //
     return ifExs.uid;
 }
