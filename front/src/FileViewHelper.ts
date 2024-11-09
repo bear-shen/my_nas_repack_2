@@ -17,6 +17,7 @@ import {FileStreamDownloader} from "@/FileStreamDownloader";
 // const route = useRoute();
 import * as kvStore from '@/IndexedKVStore';
 import Config from "@/Config";
+import natsort from "natsort";
 
 let opModuleVal: null | opModule;
 // const scrollLogKey = 'tosho_scroll_log';
@@ -1484,6 +1485,7 @@ export function manualSort<K extends api_node_col>(list: K[], sort: string) {
         let vb: any = '';
         let ca = [];
         let cb = [];
+        const rev = sortType[1] == 'desc' ? -1 : 1;
         switch (sortType[0]) {
             default:
                 va = a[sortType[0]];
@@ -1496,9 +1498,10 @@ export function manualSort<K extends api_node_col>(list: K[], sort: string) {
                 cb.push(b.title?.toLowerCase());
                 va = ca.join(' ');
                 vb = cb.join(' ');
+                // console.info(rev, va, vb, natsort({desc:rev,insensitive:true})(va, vb));
+                return natsort({desc: rev == 1 ? false : true, insensitive: true})(va, vb);
                 break;
         }
-        const rev = sortType[1] == 'desc' ? -1 : 1;
         return (va ? va : 0) > (vb ? vb : 0) ? rev * 1 : rev * -1;
     });
     return list;
