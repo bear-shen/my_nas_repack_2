@@ -1,4 +1,4 @@
-import {get as getConfig} from "../ServerConfig";
+import * as Config from "../Config";
 import pg from "pg";
 import {ORMExecuteResult, ORMQueryResult} from "./DBDriver";
 
@@ -10,7 +10,7 @@ let promisePool: pg.Pool = null;
 //postgres用的模板字符串感觉太奇怪了。。。
 //换成pg
 function init() {
-    const config = getConfig();
+    const config = Config.get();
     promisePool = new Pool({
         host: config.db.host,
         user: config.db.account,

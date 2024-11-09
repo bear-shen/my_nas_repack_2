@@ -1,5 +1,5 @@
 import QueueModel from "../model/QueueModel";
-import {loadConfig} from "../ServerConfig";
+import {init} from "../startServer";
 import jobs from "./jobs";
 import CacheModel from "../model/CacheModel";
 
@@ -55,7 +55,7 @@ async function run() {
             await setStatus(ifExs.id, -1, errMsg);
         }
     }
-    // console.info(getConfig()?.new_key);
+    // console.info(Config.get()?.new_key);
     setTimeout(run, 1000);
 }
 
@@ -67,13 +67,13 @@ async function setStatus(queueId: number, status: number, result?: string) {
         await (new QueueModel).where('id', queueId).update({status: status});
 }
 
-loadConfig().then(() => {
+init().then(() => {
     // console.info('======================================');
     // console.info(get());
-    // if (!getConfig()) {
-    //     // console.info(getConfig());
+    // if (!Config.get()) {
+    //     // console.info(Config.get());
     //     return;
     // }
-    // console.info(getConfig('parser.image'));
+    // console.info(Config.get('parser.image'));
     run();
 });

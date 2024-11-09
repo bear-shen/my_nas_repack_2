@@ -1,5 +1,6 @@
 import http, {IncomingMessage, ServerResponse} from "http";
-import {get as getConfig, loadConfig} from "../ServerConfig";
+import * as Config from "../Config";
+import {init} from "../startServer";
 import Authorize from "./Authorize";
 import formidable, {Fields, Files} from "formidable";
 import Router from "./Router";
@@ -12,7 +13,7 @@ const server = http.createServer(async function (req: IncomingMessage, res: Serv
     // console.info(req.method, req.headers);
     // console.info(req.url);
     //
-    const config = getConfig();
+    const config = Config.get();
     /*
     //想想好像并不涉及到跨域,直接去掉
     if (req.headers.origin) {
@@ -70,8 +71,8 @@ const server = http.createServer(async function (req: IncomingMessage, res: Serv
     }
 });
 
-loadConfig().then(() => {
-    const config = getConfig();
+init().then(() => {
+    const config = Config.get();
     server.listen(config.port.api);
     console.info('server now listen on:', config.port.api);
     console.info('temp dir:', config.path.temp);

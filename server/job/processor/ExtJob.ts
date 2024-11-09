@@ -13,7 +13,7 @@ const exec = util.promisify(require('child_process').exec);
 
 class ExtJob {
     static async rmRaw(payload: { [key: string]: any }): Promise<any> {
-        // const config = getConfig();
+        // const config = Config.get();
         const rootId = payload.id;
         const root = await (new NodeModel).where('id', rootId).first();
         if (!root) throw new Error('root not found');
@@ -48,7 +48,7 @@ class ExtJob {
     }
 
     static async cascadeTag(payload: { [key: string]: any }): Promise<any> {
-        // const config = getConfig();
+        // const config = Config.get();
         const rootId = payload.id;
         let root = null;
         if (rootId) {

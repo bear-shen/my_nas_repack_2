@@ -49,12 +49,12 @@
  *     [ON DUPLICATE KEY UPDATE assignment_list]
  * */
 
-import {get as getConfig} from "../ServerConfig";
+import * as Config from "../Config";
 import {ORMExecuteResult, ORMQueryResult} from "./DBDriver";
 
 
-const dbConfig = getConfig('db');
-// console.info(getConfig());
+const dbConfig = Config.get('db');
+// console.info(Config.get());
 // console.info(dbConfig);
 let driverName = '';
 switch (dbConfig.driver) {
@@ -70,6 +70,7 @@ const {
     execute,
     SQL_PARAM
 } = require(driverName);
+
 
 class queryDefinition {
     type: string; // expression|operator|sub|raw

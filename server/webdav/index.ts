@@ -1,5 +1,6 @@
 import http, {IncomingMessage, ServerResponse} from "http";
-import {get as getConfig, loadConfig} from "../ServerConfig";
+import {init} from "../startServer";
+import * as Config from "../Config";
 import Authorize from "./Authorize";
 import Method from "./Method";
 import {respCode} from "./Lib";
@@ -62,8 +63,8 @@ const server = http.createServer(async function (req: IncomingMessage, res: Serv
     if (!res.writableEnded) res.end();
 });
 
-loadConfig().then(() => {
-    const config = getConfig();
+init().then(() => {
+    const config = Config.get();
     server.listen(config.port.webdav);
     console.info('server now listen on:', config.port.webdav);
 });

@@ -3,7 +3,7 @@ import {URL} from "url";
 import AuthModel from '../model/AuthModel';
 import UserModel from "../model/UserModel";
 import UserGroupModel from "../model/UserGroupModel";
-import {get as getConfig} from "../ServerConfig";
+import * as Config from "../Config";
 
 
 async function check(url: URL, req: IncomingMessage): Promise<number | true | false> {
@@ -13,7 +13,7 @@ async function check(url: URL, req: IncomingMessage): Promise<number | true | fa
     const fPath = `/api/${c}/${a}`;
     //
     let authRole = 0;
-    const authLs = getConfig('auth.api');
+    const authLs = Config.get('auth.api');
     for (const path in authLs) {
         const match = new RegExp(path, 'i');
         if (fPath.match(match)) {

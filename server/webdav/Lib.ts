@@ -1,7 +1,7 @@
 import * as fsNP from "fs";
 import {ReadStream} from "fs";
 import {IncomingMessage, ServerResponse} from "http";
-import {get as getConfig} from "../ServerConfig";
+import * as Config from "../Config";
 import ErrorCode from "../lib/ErrorCode";
 import * as fp from "../lib/FileProcessor";
 
@@ -91,12 +91,12 @@ export function getRelPath(url: string, host: string, res: ServerResponse): stri
     // console.info(url);
     const urlInfo = new URL(url, 'http://' + host);
     const reqPath = decodeURIComponent(urlInfo.pathname);
-    const davRootPos = reqPath.indexOf(getConfig().path.webdav);
+    const davRootPos = reqPath.indexOf(Config.get().path.webdav);
     //
     if (davRootPos === -1) return respCode(404, res);
     if (davRootPos !== 0) return respCode(403, res);
     //
-    let relPath = reqPath.slice(getConfig().path.webdav.length);
+    let relPath = reqPath.slice(Config.get().path.webdav.length);
     if (!relPath.length) relPath = '';
     relPath = fp.pathFilter(relPath);
     return relPath;

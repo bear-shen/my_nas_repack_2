@@ -1,5 +1,5 @@
 import * as crypto from "node:crypto";
-import {get as getConfig} from "../ServerConfig";
+import * as Config from "../Config";
 import {col_node, type_file} from "../../share/Database";
 import NodeModel from "../model/NodeModel";
 import FavouriteModel from "../model/FavouriteModel";
@@ -402,7 +402,7 @@ export function mkRelPath(node: col_node,
                           withPrefix?: 'temp' | 'preview' | 'normal' | 'cover' | 'raw',
                           ext?: string
 ) {
-    const pathConfig = getConfig('path');
+    const pathConfig = Config.get('path');
     let pathPrefix = '';
     switch (withPrefix) {
         default:
@@ -429,7 +429,7 @@ export function mkRelPath(node: col_node,
 
 export function mkLocalPath(fullRelPath: string) {
     let ext = '';
-    const pathConfig = getConfig('path');
+    const pathConfig = Config.get('path');
     /*switch (method) {
         case "temp":
         case "preview":
@@ -460,7 +460,7 @@ export async function buildWebPath(nodeList: col_node[]) {
             relNodeMap.set(relNode.id, relNode);
         });
     }
-    const pathConf = getConfig('path');
+    const pathConf = Config.get('path');
     for (let i1 = 0; i1 < nodeList.length; i1++) {
         const node = nodeList[i1];
         for (const typeKey in node.file_index) {
@@ -575,7 +575,7 @@ export async function copy(srcPath: string, targetPath: string) {
 
 export function genTmpPath(suffix: string) {
     const uuidFN = uuid();
-    return getConfig().path.temp + '/' + uuidFN + '.' + suffix;
+    return Config.get().path.temp + '/' + uuidFN + '.' + suffix;
 }
 
 //---------------------- helper ----------------------
@@ -640,8 +640,8 @@ export function extension(filePath: string): string {
 export function getType(suffix: string): type_file {
     let ifHit = -1;
     // console.info(suffix);
-    for (const key in getConfig().suffix) {
-        ifHit = getConfig().suffix[key].indexOf(suffix);
+    for (const key in Config.get().suffix) {
+        ifHit = Config.get().suffix[key].indexOf(suffix);
         if (ifHit === -1) continue;
         return key as type_file;
     }
@@ -677,12 +677,12 @@ export function rtrimSlash(str: string) {
 }
 
 export function bashTitleFilter(str: string) {
-    if (getConfig('windows')) return str;
+    if (Config.get('windows')) return str;
     return str.replaceAll('`', '\\`');
 }
 
 export async function checksum(localPath: string): Promise<string[]> {
-    const checksumExecLs = getConfig('checksum');
+    const checksumExecLs = Config.get('checksum');
     //
     let hashArr: string[] = [];
     for (let i1 = 0; i1 < checksumExecLs.length; i1++) {

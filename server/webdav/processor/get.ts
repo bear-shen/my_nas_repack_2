@@ -1,7 +1,7 @@
 import {IncomingMessage, ServerResponse} from "http";
 import * as fp from "../../lib/FileProcessor";
 import {mkRelPath} from "../../lib/FileProcessor";
-import {get as getConfig} from "../../ServerConfig";
+import * as Config from "../../Config";
 import {getRelPath, respCode, setResponseFile} from '../Lib';
 import {col_node} from '../../../share/Database';
 import fsNp from "fs";
@@ -55,7 +55,7 @@ async function printDir(curNode: col_node, res: ServerResponse) {
     // const pathArr = [] as string[];
     //
     // nodePathLs.forEach(node => node.id ? pathArr.push('/' + node.title) : null)
-    const webdavRoot = getConfig().path.webdav;
+    const webdavRoot = Config.get().path.webdav;
 
     //
     if (curNode.id) {

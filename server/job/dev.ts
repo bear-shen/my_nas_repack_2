@@ -1,6 +1,6 @@
 //generic
 // import fs from "fs";
-import {loadConfig} from '../ServerConfig'
+import * as startServer from '../startServer'
 import fs from "node:fs/promises";
 import {getCiphers, getHashes, createHash} from "node:crypto";
 // import ExtJob from './processor/ExtJob'
@@ -20,7 +20,7 @@ const salt = genSaltSync(10);
 const hash = hashSync("B4c0//", salt);
 // Store hash in your password DB.
 console.info(salt, hash)
-loadConfig().then(async () => {
+startServer.init().then(async () => {
     console.info('start')
     // await fp.mkdir(0, 'dev1');
     // await fp.mkdir(0, 'dev2');

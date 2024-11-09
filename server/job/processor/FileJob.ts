@@ -3,7 +3,7 @@ import {col_node, col_tag_group} from '../../../share/Database';
 import * as fp from "../../lib/FileProcessor";
 import {mkLocalPath, mkRelPath} from "../../lib/FileProcessor";
 import * as FFMpeg from '../../lib/FFMpeg';
-import {get as getConfig} from "../../ServerConfig";
+import * as Config from "../../Config";
 import util from "util";
 import TagModel from "../../model/TagModel";
 import TagGroupModel from "../../model/TagGroupModel";
@@ -90,7 +90,7 @@ class FileJob {
                 const subMap = await FFMpeg.videoExtractSub(meta);
                 // console.info(subMap);
                 if (subMap.size) {
-                    const parserConfig = getConfig().parser.subtitle;
+                    const parserConfig = Config.get().parser.subtitle;
                     const subArr = Array.from(subMap, ([subTitle, ffStr]) => ({
                         subTitle, ffStr
                     }));
@@ -404,12 +404,12 @@ async function execFFmpeg(
         case 'audio':
             method = FFMpeg.audioStr;
             ffStr = await method(meta);
-            parserConfig = getConfig().parser[targetFileType];
+            parserConfig = Config.get().parser[targetFileType];
             break;
         case 'video':
             method = FFMpeg.videoStr;
             ffStr = await method(meta);
-            parserConfig = getConfig().parser[targetFileType];
+            parserConfig = Config.get().parser[targetFileType];
             // console.info(ffStr);
             break;
         case 'subtitle':
@@ -418,7 +418,7 @@ async function execFFmpeg(
             const ffMap = await method(meta) as Map<string, string>;
             ffStr = ffMap.get('default');
             if (!ffStr) ffStr = false;
-            parserConfig = getConfig().parser[targetFileType];
+            parserConfig = Config.get().parser[targetFileType];
             break;
         case 'image':
         case 'preview':
@@ -426,7 +426,7 @@ async function execFFmpeg(
             method = FFMpeg.imageStr;
             imgLevel = targetFileType;
             ffStr = await method(meta, imgLevel);
-            parserConfig = getConfig().parser[targetFileType];
+            parserConfig = Config.get().parser[targetFileType];
             break;
     }
     if (typeof ffStr === 'boolean') return ffStr;
@@ -449,7 +449,7 @@ async function execFFmpeg(
 
 
 function parseFFStr(str: string, source: string, target: string) {
-    str = str.replace('[execMask.program]', (getConfig()).parser.ffProgram);
+    str = str.replace('[execMask.program]', (Config.get()).parser.ffProgram);
     str = str.replace('[execMask.resource]', '"' + fp.bashTitleFilter(source) + '"');
     str = str.replace('[execMask.target]', '"' + fp.bashTitleFilter(target) + '"');
     // console.info('===============================');

@@ -1,4 +1,4 @@
-import {get as getConfig} from "../ServerConfig";
+import * as Config from "../Config";
 import {PoolOptions, ResultSetHeader} from "mysql2";
 import {Pool as PromisePool} from "mysql2/promise";
 import {ORMExecuteResult, ORMQueryResult} from "./DBDriver";
@@ -8,7 +8,7 @@ const mysql = require('mysql2');
 let promisePool: PromisePool;
 
 function init() {
-    const config = getConfig();
+    const config = Config.get();
     // console.info('init sql');
     let pool = mysql.createPool({
         host: config.db.host,

@@ -6,7 +6,7 @@ import UserModel from '../../model/UserModel';
 import crypto from 'node:crypto';
 import AuthModel from '../../model/AuthModel';
 import UserGroupModel from "../../model/UserGroupModel";
-import {get as getConfig} from "../../ServerConfig";
+import * as Config from "../../Config";
 import * as fp from "../../lib/FileProcessor";
 import userGroupModel from "../../model/UserGroupModel";
 import {col_user} from "../../../share/Database";
@@ -146,7 +146,7 @@ export default class {
         //
         // const urlInfo = new URL(uri);
         // console.info(urlInfo);
-        const pathDef = getConfig('path');
+        const pathDef = Config.get('path');
         // console.info(pathDef, uri, pathDef.root_web);
         if (uri.indexOf(pathDef.root_web) !== 0) {
             uri = decodeURIComponent(uri);

@@ -2,7 +2,7 @@ import {IncomingMessage, ServerResponse} from 'http';
 import {ParsedForm} from '../types';
 import {api_setting_col, api_setting_del_req, api_setting_del_resp, api_setting_list_req, api_setting_list_resp, api_setting_mod_req, api_setting_mod_resp,} from '../../../share/Api';
 import SettingModel from "../../model/SettingModel";
-import {loadConfig} from "../../ServerConfig";
+import * as Config from "../../Config";
 
 import QueueModel from "../../model/QueueModel";
 import ORM from "../../lib/ORM";
@@ -62,7 +62,12 @@ export default class {
             code: 'config_stamp',
             val: curTimeStamp,
         });
-        loadConfig();
+        const {
+            query,
+            execute,
+            SQL_PARAM
+        } = Config.getDBBase();
+        await Config.loadDB(query);
         //@todo 后端队列的数据到时候要记得更新，重启或者重新加载
         return request;
     };

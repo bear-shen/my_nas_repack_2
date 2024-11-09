@@ -1,5 +1,5 @@
 import util from "util";
-import {get as getConfig} from "../../ServerConfig";
+import * as Config from "../../Config";
 import * as fp from "../../lib/FileProcessor";
 import {mkLocalPath, mkRelPath} from "../../lib/FileProcessor";
 import fs from "node:fs/promises";
@@ -18,7 +18,7 @@ const exec = util.promisify(require('child_process').exec);
 
 export default class {
     static async run(payload: { [key: string]: any }): Promise<any> {
-        const pathConfig = getConfig('path');
+        const pathConfig = Config.get('path');
         const curJobLs = await (new QueueModel).where('type', 'sync/run').whereIn('status', [1, 2]).select();
         if (curJobLs.length > 1) throw new Error('sync job running');
         await syncDir(pathConfig.root, fp.rootNode);
@@ -26,7 +26,7 @@ export default class {
     }
 
     static async check(payload: { [key: string]: any }): Promise<any> {
-        const pathConfig = getConfig('path');
+        const pathConfig = Config.get('path');
         const nodeIdQLs = await (new NodeModel).select(['id']);
         const nodeIdLs: number[] = [];
         nodeIdQLs.forEach(n => nodeIdLs.push(n.id));
@@ -118,13 +118,13 @@ let pathConfig: { [key: string]: string } = {};
 
 function filtered(fileName: string) {
     if (!filterCacheLoaded) {
-        if (getConfig().import_ignore.length) {
-            importerTitleFilter = getConfig().import_ignore;
+        if (Config.get().import_ignore.length) {
+            importerTitleFilter = Config.get().import_ignore;
             for (let i1 = 0; i1 < importerTitleFilter.length; i1++) {
                 importerTitleFilter[i1] = importerTitleFilter[i1].toLowerCase();
             }
         }
-        const config = getConfig();
+        const config = Config.get();
         pathConfig = config.path;
         filterCacheLoaded = true;
     }
