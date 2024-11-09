@@ -18,6 +18,7 @@ async function check(url: URL, req: IncomingMessage): Promise<number | true | fa
         const match = new RegExp(path, 'i');
         if (fPath.match(match)) {
             authRole = authLs[path][0];
+            break;
         }
     }
     if (!authRole) {

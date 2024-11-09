@@ -11,15 +11,19 @@ import * as fp from "../../lib/FileProcessor";
 import userGroupModel from "../../model/UserGroupModel";
 import {col_user} from "../../../share/Database";
 
+const {
+    compareSync,
+} = require("bcrypt-ts/node");
 export default class {
     async login(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_user_login_resp> {
         const request = data.fields as api_user_login_req;
-        const pass = makePass(request.password);
+        // const pass = makePass(request.password);
 
         const ifUser = await (new UserModel)
-            .where('name', request.username)
-            .where('password', pass).first();
+            .where('name', request.username).first();
         if (!ifUser) throw new Error('invalid username or password');
+        const ifMatch = compareSync(request.password, ifUser.password);
+        if (!ifMatch) throw new Error('invalid username or password');
         const result = ifUser as api_user_login_resp;
         const group = await (new UserGroupModel).where('id', result.id_group).first();
         result.group = group;
