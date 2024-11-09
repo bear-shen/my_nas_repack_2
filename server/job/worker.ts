@@ -1,6 +1,8 @@
-import QueueModel from "../model/QueueModel";
+//注意加载顺序
 import {init} from "../startServer";
 import jobs from "./jobs";
+//
+import QueueModel from "../model/QueueModel";
 import CacheModel from "../model/CacheModel";
 
 const {workerData, threadId} = require('node:worker_threads');
@@ -11,7 +13,6 @@ console.info('worker:', threadId);
 
 const threads = workerData[0];
 const threadIndex = workerData[1];
-
 let configStamp: string | boolean = false;
 
 async function run() {
