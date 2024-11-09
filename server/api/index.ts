@@ -12,10 +12,10 @@ const server = http.createServer(async function (req: IncomingMessage, res: Serv
     // console.info(req.method, req.headers);
     // console.info(req.url);
     //
+    const config = getConfig();
     /*
     //想想好像并不涉及到跨域,直接去掉
     if (req.headers.origin) {
-        const config = getConfig();
         const origin = config.origin ? config.origin : req.headers.origin;
         if (origin) {
             res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -61,7 +61,7 @@ const server = http.createServer(async function (req: IncomingMessage, res: Serv
         result = {
             'code': 100,
             'msg': `${(e as Error).name}:${(e as Error).message}`,
-            'data': (e as Error).stack,
+            'data': config.public ? [] : (e as Error).stack,
         };
     }
     if (!res.writableEnded) {

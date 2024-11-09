@@ -4,7 +4,7 @@ import * as fs from 'fs/promises';
 import tls, {ConnectionOptions} from "tls";
 import * as toml from "toml";
 import {ORMQueryResult} from "./lib/DBDriver";
-//
+//这里是后端启动的文件
 export type ConfValue = string | number | boolean | ConfValue[];
 export type ConfType = {
     [key: string]: ConfValue | ConfType;
@@ -19,10 +19,18 @@ const BaseConfig: ConfType = {
     // },
     auth: {
         api: {
+            //[0:admin,1:user,2:admin]
+            //
             '^/api/user/login$': [0],
             '^/api/user/auth$': [0],
             '^/api/dev/[^/]+?$': [0],
+            //
             '^/api/[^/]+?/[^/]+?$': [1],
+            //
+            '^/api/user/[^/]+?$': [2],
+            '^/api/user_group/[^/]+?$': [2],
+            '^/api/log/[^/]+?$': [2],
+            '^/api/setting/[^/]+?$': [2],
         } as { [key: string]: Array<any> },
     },
     //
@@ -43,6 +51,7 @@ mergeToml(BaseConfig, tomlConf);
 
 function mergeToml(pConf: ConfType, pToml: ConfType) {
     for (const k in pToml) {
+        if (!pToml.hasOwnProperty(k)) continue;
         let it = false;
         if (typeof pToml[k] == 'object') {
             if (!Array.isArray(pToml[k])) {
@@ -62,7 +71,7 @@ function mergeToml(pConf: ConfType, pToml: ConfType) {
 }
 
 if (process.env.NAS_DRIVER) (BaseConfig.db as ConfType).driver = process.env.NAS_DRIVER;
-if (process.env.NAS_PORT) (BaseConfig.db as ConfType).port = process.env.NAS_PORT;
+if (process.env.NAS_PORT) (BaseConfig.db as ConfType).port = parseInt(process.env.NAS_PORT);
 if (process.env.NAS_DB) (BaseConfig.db as ConfType).database = process.env.NAS_DB;
 if (process.env.NAS_USER) (BaseConfig.db as ConfType).account = process.env.NAS_USER;
 if (process.env.NAS_PASSWORD) (BaseConfig.db as ConfType).password = process.env.NAS_PASSWORD;
