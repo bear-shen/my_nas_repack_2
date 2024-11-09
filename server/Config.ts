@@ -120,7 +120,8 @@ export async function loadDB(query: (sql: string, binds?: Array<any>) => Promise
             if (!target[keyArr[i1]]) target[keyArr[i1]] = {};
             target = target[keyArr[i1]];
         }
-        target[lastKey] = JSON.parse(row.value);
+        // target[lastKey] = JSON.parse(row.value);
+        target[lastKey] = row.value;
     }
     loaded = true;
 }

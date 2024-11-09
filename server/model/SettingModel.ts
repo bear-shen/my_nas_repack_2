@@ -20,16 +20,16 @@ class SettingModel extends BaseModel<col_setting> {
     //     return tVal;
     // }
 
-    _col_set_value(input: any): string {
-        let tVal = '{}';
-        try {
-            tVal = JSON.stringify(input);
-        } catch (e) {
-            // console.info(e);
-            tVal = '{}';
-        }
-        return tVal;
-    }
+    // _col_set_value(input: any): string {
+    //     let tVal = '{}';
+    //     try {
+    //         tVal = JSON.stringify(input);
+    //     } catch (e) {
+    //         // console.info(e);
+    //         tVal = '{}';
+    //     }
+    //     return tVal;
+    // }
 }
 
 export default SettingModel;
