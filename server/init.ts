@@ -50,7 +50,7 @@ mergeToml(BaseConfig, tomlConf);
 
 function mergeToml(pConf: ConfType, pToml: ConfType) {
     for (const k in pToml) {
-        if (!pToml.hasOwnProperty(k)) continue;
+        if (pToml.hasOwnProperty && !pToml.hasOwnProperty(k)) continue;
         let it = false;
         if (typeof pToml[k] == 'object') {
             if (!Array.isArray(pToml[k])) {
