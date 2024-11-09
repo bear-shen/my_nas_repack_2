@@ -13,19 +13,19 @@
   },
   "dependencies": {
 	"@tsconfig/node20" : "^20.1.2",
+	"@types/formidable": "^2.0.4",
 	"@types/node"      : "^20.11.7",
 	"@types/pg"        : "^8.11.10",
 	"base64-js"        : "^1.5.1",
+	"bcrypt-ts"        : "^5.0.2",
 	"formidable"       : "^2.1.1",
 	"http"             : "^0.0.1-security",
 	"install"          : "^0.13.0",
-	"md5"              : "^2.3.0",
 	"mysql2"           : ">=3.9.8",
 	"pg"               : "^8.12.0",
 	"toml"             : "^3.0.0",
 	"typescript"       : "^5.3.3",
 	"xml"              : "^1.0.1",
-	"xml-js"           : "^1.6.11",
-	"@types/formidable": "^2.0.4"
+	"xml-js"           : "^1.6.11"
   }
 }

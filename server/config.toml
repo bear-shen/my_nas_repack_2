@@ -1,6 +1,7 @@
 windows = true
 checksum = ['xxh128sum', 'b3sum']
 import_ignore = ["thumbs.db", "_macosx", "desktop.ini", ".ds_store", "_tags.json"]
+origin = "localhost"
 
 [port]
 api = 8090

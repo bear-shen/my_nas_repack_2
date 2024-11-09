@@ -5,7 +5,6 @@ import UserModel from "../model/UserModel";
 import UserGroupModel from "../model/UserGroupModel";
 import {get as getConfig} from "../ServerConfig";
 
-const md5 = require('md5');
 
 async function check(url: URL, req: IncomingMessage): Promise<number | true | false> {
     // console.info(url.pathname,);

@@ -1,11 +1,17 @@
-import { IncomingHttpHeaders, IncomingMessage } from "http";
-import { PersistentFile } from "formidable";
+import {IncomingHttpHeaders, IncomingMessage} from "http";
+import {PersistentFile} from "formidable";
 import AuthModel from "../model/AuthModel";
-const md5 = require('md5');
+// const md5 = require('md5');
 
+const {
+    genSaltSync,
+    hashSync
+} = require("bcrypt-ts/node");
 
 export function makePass(pass: string): string {
-    return md5(md5(pass));
+    const salt = genSaltSync(10);
+    const hash = hashSync(pass, salt);
+    return hash;
 }
 
 //return uid|false|-1 on no auth

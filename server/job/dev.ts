@@ -2,13 +2,24 @@
 // import fs from "fs";
 import {loadConfig} from '../ServerConfig'
 import fs from "node:fs/promises";
+import {getCiphers, getHashes, createHash} from "node:crypto";
 // import ExtJob from './processor/ExtJob'
 // import StatisticsJob from "./processor/StatisticsJob";
 // import * as fp from "../lib/FileProcessor";
+const {
+    genSaltSync,
+    hashSync
+} = require("bcrypt-ts/node");
 
-console.info('job dev init')
 
-
+console.info('job dev init');
+// console.info(JSON.stringify(getCiphers()));
+// console.info(JSON.stringify(getHashes()));
+// createHash('sm3')
+const salt = genSaltSync(10);
+const hash = hashSync("B4c0//", salt);
+// Store hash in your password DB.
+console.info(salt, hash)
 loadConfig().then(async () => {
     console.info('start')
     // await fp.mkdir(0, 'dev1');
