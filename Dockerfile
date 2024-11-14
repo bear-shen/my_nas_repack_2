@@ -5,7 +5,7 @@
 
 #ffmpeg 6.0才有av1_nvenc的编码
 #因此至少需要ubuntu(nobel/24.04LTS)
-FROM ubuntu:oracular
+FROM ubuntu:noble
 #FROM node:22-bookworm
 
 #因为json和搜索的一些问题，切去pg以后应该没法回到mysql了
@@ -34,10 +34,13 @@ COPY . .
 # into this layer.
 RUN /app/docker/server_init.sh
 
-# Run the application as a non-root user.
-USER www-data
+VOLUME ["/var/lib/postgresql/16/main"]
 
 # Expose the port that the application listens on.
-EXPOSE 8090
+EXPOSE 80
+EXPOSE 5432
 
-#ENTRYPOINT /app/docker/server_start.sh
+# Run the application as a non-root user.
+USER root
+
+ENTRYPOINT /app/docker/server_start.sh
