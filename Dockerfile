@@ -32,7 +32,9 @@ COPY . .
 # Leverage a cache mount to /root/.npm to speed up subsequent builds.
 # Leverage a bind mounts to package.json and package-lock.json to avoid having to copy them into
 # into this layer.
-RUN /app/docker/server_init.sh
+RUN chmod -R 0777 /app/docker/server_init.sh &&\
+    chmod -R 0777 /app/docker/server_start.sh &&\
+    /app/docker/server_init.sh
 
 VOLUME ["/var/lib/postgresql/16/main"]
 
