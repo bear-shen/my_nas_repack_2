@@ -241,7 +241,8 @@ onMounted(async () => {
     emitGo: emitGo
     // queryData: queryData,
   });
-  await getList();
+  const getListRes = await getList();
+  if (!getListRes) return;
   opModule.reloadScroll();
   document.addEventListener("keydown", keymap);
   // if (contentDOM.value) {
