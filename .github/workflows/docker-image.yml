@@ -25,4 +25,4 @@ jobs:
     - name: Push Docker image to Docker Hub
       run: |
         docker push 0xee/my_nas:latest
-        docker push 0xee/my_nas:${{ github.sha }}
+        docker push 0xee/my_nas:$(date +%s)
