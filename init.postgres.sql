@@ -59,6 +59,9 @@ CREATE TABLE IF NOT EXISTS "favourite"
     PRIMARY KEY ("id")
 );
 
+CREATE INDEX "favourite_index_node" ON "favourite" USING btree ("id_node");
+CREATE INDEX "favourite_index_group" ON "favourite" USING btree ("id_group");
+
 CREATE TABLE IF NOT EXISTS "favourite_group"
 (
     "id"          bigserial NOT NULL,
@@ -108,6 +111,7 @@ CREATE INDEX if not EXISTS "node_index_file_index" ON "node" using GIN ("file_in
 CREATE INDEX if not EXISTS "node_index_tag_id_list" ON "node" using GIN ("tag_id_list" jsonb_path_ops);
 -- CREATE INDEX if not EXISTS "node_index_node_index" ON "node" USING GIN (to_tsvector('english', "node_index"));
 CREATE INDEX if not EXISTS "node_index_node_index_pgroonga" ON "node" USING pgroonga ("node_index");
+CREATE INDEX if not EXISTS "node_index_id_parent" ON "node" USING btree ("id_parent", "title");
 
 CREATE TABLE IF NOT EXISTS "queue"
 (

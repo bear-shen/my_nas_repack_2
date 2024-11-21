@@ -112,28 +112,29 @@ export default class {
     }
 }
 
+//@notice 做缓存的话就不能热修改，但是本身修改的就不多。。。
 let filterCacheLoaded: boolean = false;
-let importerTitleFilter: string[] = [];
-let pathConfig: { [key: string]: string } = {};
+let importerTitleFilter: Set<string> = new Set<string>();
+let filterPathConfig: { [key: string]: string } = {};
 
 function filtered(fileName: string) {
     if (!filterCacheLoaded) {
         if (Config.get().import_ignore.length) {
-            importerTitleFilter = Config.get().import_ignore;
-            for (let i1 = 0; i1 < importerTitleFilter.length; i1++) {
-                importerTitleFilter[i1] = importerTitleFilter[i1].toLowerCase();
+            const importerTitleFilterArr: string[] = Config.get('import_ignore');
+            for (let i1 = 0; i1 < importerTitleFilterArr.length; i1++) {
+                importerTitleFilter.add(importerTitleFilterArr[i1].toLowerCase())
             }
         }
-        const config = Config.get();
-        pathConfig = config.path;
+        filterPathConfig = Config.get('path');
         filterCacheLoaded = true;
     }
     const lowerFileName = fileName.toLowerCase();
-    if (importerTitleFilter.indexOf(lowerFileName) !== -1) return true;
-    if (pathConfig.prefix_temp == lowerFileName) return true;
-    if (pathConfig.prefix_preview == lowerFileName) return true;
-    if (pathConfig.prefix_normal == lowerFileName) return true;
-    if (pathConfig.prefix_cover == lowerFileName) return true;
+    if (importerTitleFilter.has(lowerFileName)) return true;
+    if (filterPathConfig.prefix_temp == lowerFileName) return true;
+    if (filterPathConfig.prefix_preview == lowerFileName) return true;
+    if (filterPathConfig.prefix_normal == lowerFileName) return true;
+    if (filterPathConfig.prefix_cover == lowerFileName) return true;
+    //
     return false;
 }
 
