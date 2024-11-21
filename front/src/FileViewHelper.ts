@@ -1492,12 +1492,14 @@ export function manualSort<K extends api_node_col>(list: K[], sort: string) {
                 vb = b[sortType[0]];
                 break;
             case 'title':
-                a?.crumb_node?.forEach(node => ca.push(node.title?.toLowerCase()));
-                b?.crumb_node?.forEach(node => cb.push(node.title?.toLowerCase()));
-                ca.push(a.title?.toLowerCase());
-                cb.push(b.title?.toLowerCase());
-                va = ca.join(' ');
-                vb = cb.join(' ');
+                // a?.crumb_node?.forEach(node => ca.push(node.title?.toLowerCase()));
+                // b?.crumb_node?.forEach(node => cb.push(node.title?.toLowerCase()));
+                // ca.push(a.title?.toLowerCase());
+                // cb.push(b.title?.toLowerCase());
+                // va = ca.join(' ');
+                // vb = cb.join(' ');
+                va = a.node_path + '/' + a.title;
+                vb = b.node_path + '/' + b.title;
                 // console.info(rev, va, vb, natsort({desc:rev,insensitive:true})(va, vb));
                 return natsort({desc: rev == 1 ? false : true, insensitive: true})(va, vb);
                 break;
