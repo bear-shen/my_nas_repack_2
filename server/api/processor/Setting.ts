@@ -107,5 +107,15 @@ export default class {
         return res;
     }
 
+    async full_rebuild_index() {
+        const ifExs = await (new QueueModel).where('type', 'file/rebuildAllIndex').whereIn('status', [1, 2]).first();
+        if (ifExs) throw new Error('chk job running');
+        (new QueueModel).insert({
+            type: 'file/rebuildAllIndex',
+            payload: {},
+            status: 1,
+        });
+    }
+
 
 };

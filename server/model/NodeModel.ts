@@ -52,11 +52,11 @@ class NodeModel extends BaseModel<col_node> {
         return JSON.stringify(input);
     }
 
-    // _col_get_node_index(input: string): { [key: string]: any } {
-    //     if (!input) return {};
-    //     const res = JSON.parse(input);
-    //     return res ? res : null;
-    // }
+    _col_get_node_index(input: string): { [key: string]: any } {
+        if (!input) return {};
+        const res = JSON.parse(input);
+        return res ? res : null;
+    }
 
     _col_set_node_index(input: { [key: string]: any }): string {
         if (!input) return '{}';

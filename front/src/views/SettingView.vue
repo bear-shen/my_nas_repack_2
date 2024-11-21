@@ -150,11 +150,30 @@ type widget = {
 const widgetLs: widget[] = [
   {type: 'button', title: 'syncLocalFile', method: btn_syncLocalFile},
   {type: 'button', title: 'checkLocalFile', method: btn_checkLocalFile},
+  {type: 'button', title: 'rebuildAllIndex', method: btn_rebuildAllIndex},
   // {type: 'button', title: 'nodeStatistics', method: btn_nodeStatistics},
 ];
 
 async function btn_syncLocalFile() {
   const res = await query("setting/sync_local_file", {});
+  const modalStore = useModalStore();
+  modalStore.set({
+    title: "success",
+    text: "queued",
+    w: 320,
+    h: 100,
+    minW: 320,
+    minH: 100,
+    allow_resize: false,
+    callback: {
+      confirm: async function (modal) {
+      },
+    },
+  } as ModalConstruct);
+}
+
+async function btn_rebuildAllIndex() {
+  const res = await query("setting/full_rebuild_index", {});
   const modalStore = useModalStore();
   modalStore.set({
     title: "success",

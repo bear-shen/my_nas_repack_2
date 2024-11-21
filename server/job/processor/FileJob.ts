@@ -1,5 +1,5 @@
 import NodeModel from '../../model/NodeModel';
-import {col_node, col_tag_group} from '../../../share/Database';
+import {col_favourite, col_node, col_tag_group} from '../../../share/Database';
 import * as fp from "../../lib/FileProcessor";
 import {mkLocalPath, mkRelPath} from "../../lib/FileProcessor";
 import * as FFMpeg from '../../lib/FFMpeg';
@@ -9,6 +9,8 @@ import TagModel from "../../model/TagModel";
 import TagGroupModel from "../../model/TagGroupModel";
 import QueueModel from "../../model/QueueModel";
 import fs from "node:fs/promises";
+import {splitQuery} from "../../lib/ModelHelper";
+import FavouriteModel from "../../model/FavouriteModel";
 
 const exec = util.promisify(require('child_process').exec);
 
@@ -300,6 +302,23 @@ class FileJob {
 
     static async rebuildIndex(payload: { [key: string]: any }): Promise<any> {
         await FileJob.buildIndex(payload);
+    }
+
+    static async rebuildAllIndex(payload: { [key: string]: any }): Promise<any> {
+        let preId = 0;
+        let nodeIdSet = new Set<number>();
+        while (true) {
+            const nodeList = await new NodeModel().where('id', '>', preId)
+                .order('id', 'asc').limit(1000).select(['id']);
+            if (!nodeList) break;
+            if (!nodeList.length) break;
+            preId = nodeList[nodeList.length - 1].id;
+            nodeList.forEach(node => nodeIdSet.add(node.id));
+        }
+        const nodeIdList = Array.from(nodeIdSet);
+        for (let i1 = 0; i1 < nodeIdList.length; i1++) {
+            await FileJob.buildIndex({id: nodeIdList[i1]});
+        }
     }
 
     static async deleteForever(payload: { [key: string]: any }): Promise<any> {
