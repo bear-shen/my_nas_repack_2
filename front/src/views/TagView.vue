@@ -370,7 +370,7 @@ async function modTag(index: number) {
 @import "../assets/variables";
 .fr_content.view_tag {
   padding-bottom: 0;
-  height: 100%;
+  width: 100%;
   display: flex;
   justify-content: space-between;
   .list_tag_group {
@@ -469,22 +469,24 @@ async function modTag(index: number) {
       font-size: $fontSize;
       -webkit-column-break-inside: avoid;
     }
-    columns: $fontSize * 15 5;
-    column-gap: 0;
-    //display: flex;
-    //justify-content: left;
-    //flex-wrap: wrap;
+    //columns: $fontSize * 15 5;
+    //column-gap: 0;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
     .tag_add .sysIcon {
       font-size: $fontSize*2;
       line-height: $fontSize*4;
     }
     .tag {
+      min-width: $fontSize*10;
+      width: calc(20% - $fontSize*2);
       //width: $fontSize*15;
       margin: $fontSize*0.5;
       padding: $fontSize*0.5;
       display: inline-block;
       //width: calc(100% - $fontSize);
-      @include fillAvailable(width);
+      //@include fillAvailable(width);
       .title {
         color: map-get($colors, font);
         display: flex;
