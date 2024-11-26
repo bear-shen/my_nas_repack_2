@@ -7,7 +7,6 @@ import fs from "node:fs/promises";
 import ORM from "../lib/ORM";
 import NodeModel from "../model/NodeModel";
 import {col_node} from "../../share/Database";
-import {rootNode} from "../lib/FileProcessor";
 
 const evtMap: Map<string, number> = new Map<string, number>();
 const sleepTime = 5000;
@@ -24,12 +23,15 @@ init().then(() => {
         if (evtMap.has(filename)) return;
         evtMap.set(filename, (new Date()).valueOf());
     });
+    queueLoop();
 });
 
 async function queueLoop() {
     const now = (new Date()).valueOf();
     const before = now - sleepTime;
     const sub = new Set<string>();
+    //
+    const rootPath = Config.get('path.root');
     //
     evtMap.forEach((evtTime, path) => {
         if (evtTime > before) return;
@@ -67,10 +69,19 @@ async function queueLoop() {
                 //不存在，创建
                 //@todo windows未测
                 const relArr = relPath.split('/');
-                const fTitle = fp.titleFilter(relArr.pop());
+                const orgFTitle = relArr.pop();
+                const fTitle = fp.titleFilter(orgFTitle);
                 let parentNode = fp.rootNode;
                 for (let i2 = 0; i2 < relArr.length; i2++) {
                     const nodeTitle = fp.titleFilter(relArr[i2]);
+                    if (nodeTitle != relArr[i2]) {
+                        const relParentPath = fp.mkRelPath(parentNode);
+                        const localParentPath = fp.mkLocalPath(relParentPath);
+                        await fp.rename(
+                            localParentPath + '/' + relArr[i2],
+                            localParentPath + '/' + nodeTitle
+                        );
+                    }
                     const ifSubExs = await fp.ifTitleExist(parentNode, nodeTitle);
                     if (ifSubExs) {
                         parentNode = await fp.mkdir(parentNode, nodeTitle);
@@ -78,6 +89,15 @@ async function queueLoop() {
                     } else {
                         parentNode = ifSubExs;
                     }
+                }
+                //
+                if (orgFTitle != fTitle) {
+                    const relParentPath = fp.mkRelPath(parentNode);
+                    const localParentPath = fp.mkLocalPath(relParentPath);
+                    await fp.rename(
+                        localParentPath + '/' + orgFTitle,
+                        localParentPath + '/' + fTitle
+                    );
                 }
                 const ins: col_node = {
                     id_parent: parentNode.id,
