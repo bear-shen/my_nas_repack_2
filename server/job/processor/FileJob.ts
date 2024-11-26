@@ -18,6 +18,7 @@ class FileJob {
     static async build(payload: { [key: string]: any }): Promise<any> {
         const nodeId = parseInt(payload.id);
         let node: col_node = await fp.get(nodeId);
+        if (!node) return;
         //
         // console.info(node);
         let ifErr = false;
@@ -29,7 +30,7 @@ class FileJob {
         //         .update({status: 0});
         // }
         //
-        if (!node.file_index.raw) return;
+        if (!node?.file_index?.raw) return;
         // node.file_index = {raw: node.file_index.raw};
         //
         // let parsedFile: col_node | boolean;

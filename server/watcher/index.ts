@@ -1,12 +1,11 @@
 import * as Config from "../Config";
-import * as fp from "../lib/FileProcessor";
 import {init} from "../startServer";
+import * as fp from "../lib/FileProcessor";
 import fsNp from "node:fs";
-import QueueModel from "../model/QueueModel";
 import fs from "node:fs/promises";
-import ORM from "../lib/ORM";
-import NodeModel from "../model/NodeModel";
 import {col_node} from "../../share/Database";
+import QueueModel from "../model/QueueModel";
+import NodeModel from "../model/NodeModel";
 
 const evtMap: Map<string, number> = new Map<string, number>();
 const sleepTime = 5000;
@@ -14,13 +13,27 @@ const queueSize = 100;
 
 init().then(() => {
     const rootPath = Config.get('path.root');
+    const pathConf = Config.get('path');
+    const ignoreConf = Config.get('import_ignore');
     console.info('server now listen localPath:', rootPath);
     fsNp.watch(rootPath, {
         persistent: true,
         recursive: true,
     }, function (event, filename) {
-        console.info(event, filename);
-        if (evtMap.has(filename)) return;
+        // console.info(event, filename);
+        // if (evtMap.has(filename)) return;
+        if (filename.indexOf(pathConf.prefix_temp + '/') == 0) return;
+        if (filename.indexOf(pathConf.prefix_preview + '/') == 0) return;
+        if (filename.indexOf(pathConf.prefix_normal + '/') == 0) return;
+        if (filename.indexOf(pathConf.prefix_cover + '/') == 0) return;
+        if (filename == pathConf.prefix_temp) return;
+        if (filename == pathConf.prefix_preview) return;
+        if (filename == pathConf.prefix_normal) return;
+        if (filename == pathConf.prefix_cover) return;
+        if (ignoreConf.indexOf(fp.basename(filename)) != -1) return;
+        // console.info(pathConf);
+        console.info(filename);
+        //拷文件的时候会一直change到拷完，所以用覆盖
         evtMap.set(filename, (new Date()).valueOf());
     });
     queueLoop();
@@ -45,6 +58,7 @@ async function queueLoop() {
     for (let i1 = 0; i1 < subArr.length; i1++) {
         const relPath = subArr[i1];
         const localPath = fp.mkLocalPath(relPath);
+        // console.info(localPath);
         let ifLocalExs = await fp.ifLocalFileExists(localPath);
         if (ifLocalExs) {
             const localStats = await fs.stat(localPath);
@@ -71,6 +85,7 @@ async function queueLoop() {
                 const relArr = relPath.split('/');
                 const orgFTitle = relArr.pop();
                 const fTitle = fp.titleFilter(orgFTitle);
+                // console.info(orgFTitle, fTitle);
                 let parentNode = fp.rootNode;
                 for (let i2 = 0; i2 < relArr.length; i2++) {
                     const nodeTitle = fp.titleFilter(relArr[i2]);
@@ -83,7 +98,7 @@ async function queueLoop() {
                         );
                     }
                     const ifSubExs = await fp.ifTitleExist(parentNode, nodeTitle);
-                    if (ifSubExs) {
+                    if (!ifSubExs) {
                         parentNode = await fp.mkdir(parentNode, nodeTitle);
                         await (new QueueModel).insert({type: 'file/buildIndex', payload: {id: parentNode.id}, status: 1,});
                     } else {

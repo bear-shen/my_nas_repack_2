@@ -81,7 +81,7 @@ export default class {
             case 'tag':
                 break;
             case 'id_iterate':
-                let idList = request.keyword.split(',');
+                let idList = request.keyword?.length ? request.keyword.split(',') : ['0'];
                 model.where((model) => {
                     model.whereIn('id', idList);
                     model.or().whereIn('id_parent', idList);

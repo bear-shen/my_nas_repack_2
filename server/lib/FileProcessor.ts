@@ -1,6 +1,6 @@
 import * as crypto from "node:crypto";
 import * as Config from "../Config";
-import {col_node, type_file} from "../../share/Database";
+import {col_node, col_node_file_index, type_file} from "../../share/Database";
 import NodeModel from "../model/NodeModel";
 import FavouriteModel from "../model/FavouriteModel";
 import * as fs from 'fs/promises';
@@ -136,21 +136,27 @@ export async function rmReal(srcNode: string | number | col_node) {
             await rmReal(subLs[i1]);
         }
     }
-    if (cur.file_index)
-        for (const key in cur.file_index) {
-            const fileIndex = cur.file_index[key];
-            if (!fileIndex || typeof fileIndex === 'number') continue;
-            switch (key) {
-                case 'preview':
-                case 'normal':
-                case 'cover':
-                case 'raw':
-                    const localPath = mkLocalPath(mkRelPath(cur, key, fileIndex.ext));
-                    if (!await ifLocalFileExists(localPath)) break;
-                    await fs.rm(localPath, {recursive: true, force: true});
-                    break;
+    // if (cur.file_index)
+    //无论是否存在都遍历一次
+    const fIndexKeyArr = [
+        'preview',
+        'normal',
+        'cover',
+        'raw',
+    ];
+    for (let i1 = 0; i1 < fIndexKeyArr.length; i1++) {
+        const fIndexKey = fIndexKeyArr[i1] as any;
+        const fIndex = cur?.file_index;
+        let ext: string = null;
+        if (fIndex && fIndex[fIndexKey]) {
+            if ((fIndex[fIndexKey] as col_node_file_index).ext) {
+                ext = (fIndex[fIndexKey] as col_node_file_index).ext;
             }
         }
+        const localPath = mkLocalPath(mkRelPath(cur, fIndexKey, ext));
+        if (!await ifLocalFileExists(localPath)) break;
+        await fs.rm(localPath, {recursive: true, force: true});
+    }
     await (new NodeModel).where('id', cur.id).delete();
     //收藏夹也要删除
     await (new FavouriteModel).where('id_node', cur.id).delete();
@@ -368,24 +374,23 @@ export async function mkdir(
         //mkdir至少需要0755，否则nginx报错
         await fs.mkdir(localPath, {recursive: true, mode: 0o777});
     }
+    if (ifExs) return ifExs;
     let newNode: col_node = {}
-    if (!ifExs) {
-        newNode = {
-            id_parent: parentNode.id,
-            type: 'directory',
-            title: title,
-            description: description,
-            node_id_list: [...parentNode.node_id_list, parentNode.id],
-            node_path: parentPath,
-            file_index: {},
-            status: 1,
-            building: 0,
-        };
-        const res = (await (new NodeModel).insert(newNode)) as col_node[];
-        const id = parseInt(res[0].id as unknown as string);
-        newNode.id = id;
-    } else newNode = ifExs;
-    return ifExs;
+    newNode = {
+        id_parent: parentNode.id,
+        type: 'directory',
+        title: title,
+        description: description,
+        node_id_list: [...parentNode.node_id_list, parentNode.id],
+        node_path: parentPath,
+        file_index: {},
+        status: 1,
+        building: 0,
+    };
+    const res = (await (new NodeModel).insert(newNode)) as col_node[];
+    const id = parseInt(res[0].id as unknown as string);
+    newNode.id = id;
+    return newNode;
 }
 
 export async function ifLocalFileExists(localPath: string) {

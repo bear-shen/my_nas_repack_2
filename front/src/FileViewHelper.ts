@@ -814,6 +814,7 @@ export class opModule {
                 if (mayTyping(target)) return;
                 if (mayInPopup(target)) return;
                 selRes = this.getSelected();
+                if (!selRes.idSet.size) return;
                 if (e.altKey && selRes.idSet.size == 1) {
                     return this.emitGo('node', Array.from(selRes.idSet)[0])
                 }
