@@ -1,6 +1,8 @@
+#目前用于一些bash脚本的转义字符
 windows = true
 checksum = ['xxh128sum', 'b3sum']
 import_ignore = ["thumbs.db", "_macosx", "desktop.ini", ".ds_store", "_tags.json"]
+#为true则会打印报错信息
 public = true
 
 [port]

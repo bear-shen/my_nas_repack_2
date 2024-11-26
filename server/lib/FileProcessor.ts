@@ -39,7 +39,7 @@ export async function put(
     if (parentNode.type !== 'directory') throw new Error('parentNode is not a directory');
     //
     const title = titleFilter(fileName);
-    const type = getType(extension(title))
+    const type = getType(extension(title));
     //
     const ifExs = await ifTitleExist(parentNode, title);
     //
