@@ -80,7 +80,6 @@ allow_container = ['mp4', 'ogg', 'webm', 'm4a', ]
 ff_encoder = '-c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 40 -bf 3 -pix_fmt p010le -multipass qres -rc-lookahead 32'
 
 [parser.audio]
-quality = 1.5
 format = 'aac'
 codec_lib = 'aac'
 allow_codec = ['flac', 'mp3', 'aac', 'wav', 'vorbis', 'ogg', 'opus', ]
