@@ -1,5 +1,6 @@
 #目前用于一些bash脚本的转义字符
-windows = false
+#注意FileProcessor的get方法和watcher也依赖windows的分隔符，且get没有做兼容
+windows = true
 checksum = ['xxh128sum', 'b3sum']
 import_ignore = ["thumbs.db", "_macosx", "desktop.ini", ".ds_store", "_tags.json"]
 #为true则会打印报错信息
@@ -77,7 +78,12 @@ format = 'mp4'
 allow_codec = ['vp8', 'vp9', 'h264', 'hevc', 'av1', 'vp10', ]
 allow_rate = 917504
 allow_container = ['mp4', 'ogg', 'webm', 'm4a', ]
-ff_encoder = '-c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 40 -bf 3 -pix_fmt p010le -multipass qres -rc-lookahead 32'
+#nvenc
+#ff_encoder = '-c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 40 -bf 3 -pix_fmt p010le -multipass qres -rc-lookahead 32'
+#quicksync
+#ff_encoder = '-c:v hevc_qsv -profile:v main10 -preset slow -q:v 27 -bf 3 -pix_fmt p010le'
+#cpu
+ff_encoder = '-c:v libx265 -qp 22 -bf 4 -pix_fmt yuv420p10le'
 
 [parser.audio]
 format = 'aac'

@@ -53,7 +53,7 @@ cp /app/system/nginx.conf /etc/nginx/nginx.conf
 cp /app/system/nginx_default.conf /etc/nginx/sites-enabled/default.conf
 cp /app/system/pg_hba.conf /etc/postgresql/16/main/pg_hba.conf
 
-cp /app/system/wsl.conf /etc/wsl.conf
+#cp /app/system/wsl.conf /etc/wsl.conf
 
 
 ### won't work on default wsl (System has not been booted with systemd as init system (PID 1))
