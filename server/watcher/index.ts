@@ -15,12 +15,14 @@ init().then(() => {
     const rootPath = Config.get('path.root');
     const pathConf = Config.get('path');
     const ignoreConf = Config.get('import_ignore');
+    const isWindows = Config.get('windows');
     console.info('server now listen localPath:', rootPath);
     fsNp.watch(rootPath, {
         persistent: true,
         recursive: true,
     }, function (event, filename) {
         // console.info(event, filename);
+        if (isWindows) filename = filename.replace(/\\/g, '/');
         // if (evtMap.has(filename)) return;
         if (filename.indexOf(pathConf.prefix_temp + '/') == 0) return;
         if (filename.indexOf(pathConf.prefix_preview + '/') == 0) return;
@@ -58,13 +60,15 @@ async function queueLoop() {
     for (let i1 = 0; i1 < subArr.length; i1++) {
         const relPath = subArr[i1];
         const localPath = fp.mkLocalPath(relPath);
-        // console.info(localPath);
+        console.info(localPath);
         let ifLocalExs = await fp.ifLocalFileExists(localPath);
+        console.info('ifLocalExs',ifLocalExs);
         if (ifLocalExs) {
             const localStats = await fs.stat(localPath);
             if (!(localStats.isDirectory() || localStats.isFile())) continue;
             //文件存在 检测数据库
             const ifNodeExs = await fp.get(relPath);
+            console.info('ifNodeExs',ifNodeExs);
             if (ifNodeExs) {
                 //存在，仅更新
                 const noUpd = localStats.mtime.valueOf() < (new Date(ifNodeExs.time_update)).valueOf();
