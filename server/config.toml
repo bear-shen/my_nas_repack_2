@@ -78,7 +78,12 @@ format = 'mp4'
 allow_codec = ['vp8', 'vp9', 'h264', 'hevc', 'av1', 'vp10', ]
 allow_rate = 917504
 allow_container = ['mp4', 'ogg', 'webm', 'm4a', ]
-ff_encoder = '-c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 40 -bf 3 -pix_fmt p010le -multipass qres -rc-lookahead 32'
+#nvenc
+#ff_encoder = '-c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 40 -bf 3 -pix_fmt p010le -multipass qres -rc-lookahead 32'
+#quicksync
+#ff_encoder = '-c:v hevc_qsv -profile:v main10 -preset slow -q:v 27 -bf 3 -pix_fmt p010le'
+#cpu
+ff_encoder = '-c:v libx265 -qp 22 -bf 4 -pix_fmt yuv420p10le'
 
 [parser.audio]
 quality = 1.5
