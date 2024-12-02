@@ -59,20 +59,20 @@ export default class {
                 //一开始没定义这个，是搜索收藏的时候增加的
                 if (typeof request.keyword === 'string' && request.keyword.length) {
                     model.where(
-                        // 'index_node',
-                        'title',
-                        'like',
-                        `%${request.keyword.trim()}%`
+                        'index_node',
+                        // 'title',
+                        '&@',
+                        request.keyword.trim()
                     );
                 }
                 break;
             case 'search':
                 if (request.keyword.length) {
                     model.where(
-                        // 'index_node',
-                        'title',
-                        'like',
-                        `%${request.keyword.trim()}%`
+                        'index_node',
+                        // 'title',
+                        '&@',
+                        request.keyword.trim()
                     );
                     //搜索的时候节点短的在前，姑且先这么定义
                     model.order('jsonb_array_length(node_id_list)', 'asc');
@@ -126,10 +126,10 @@ export default class {
                     //一开始没定义这个，是搜索收藏的时候增加的
                     if (typeof request.keyword === 'string' && request.keyword.length) {
                         model.where(
-                            // 'index_node',
-                            'title',
-                            'like',
-                            `%${request.keyword.trim()}%`
+                            'index_node',
+                            // 'title',
+                            '&@',
+                            request.keyword.trim()
                         );
                     }
                 }
