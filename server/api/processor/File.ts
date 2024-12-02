@@ -59,7 +59,7 @@ export default class {
                 //一开始没定义这个，是搜索收藏的时候增加的
                 if (typeof request.keyword === 'string' && request.keyword.length) {
                     model.where(
-                        'index_node',
+                        'node_index',
                         // 'title',
                         '&@',
                         request.keyword.trim()
@@ -69,7 +69,7 @@ export default class {
             case 'search':
                 if (request.keyword.length) {
                     model.where(
-                        'index_node',
+                        'node_index',
                         // 'title',
                         '&@',
                         request.keyword.trim()
@@ -126,7 +126,7 @@ export default class {
                     //一开始没定义这个，是搜索收藏的时候增加的
                     if (typeof request.keyword === 'string' && request.keyword.length) {
                         model.where(
-                            'index_node',
+                            'node_index',
                             // 'title',
                             '&@',
                             request.keyword.trim()
