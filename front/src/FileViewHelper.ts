@@ -245,6 +245,7 @@ export class opModule {
         // console.info(this);
         // console.info(this.inDetailView);
         if (!this.inDetailView(e)) return;
+        if (e.button === 1) return;
         // console.info('here');
         // if (inTaggingDOM(e)) return;
         // console.info(e);

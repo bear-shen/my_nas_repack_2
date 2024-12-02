@@ -59,9 +59,11 @@ onMounted(async () => {
     await getList();
     await opModule.reloadScroll();
   }
+  document.addEventListener("keydown", keymap);
 });
 onUnmounted(() => {
   opModule.destructor();
+  document.removeEventListener("keydown", keymap);
 });
 
 onBeforeRouteUpdate(async (to) => {
@@ -222,6 +224,26 @@ function emitGo(type: string, code?: number) {
   }
 }
 
+function keymap(e: KeyboardEvent) {
+  // console.info(e);
+  //这俩快捷键基本没占用，屏蔽target反而很麻烦
+  // if ((e.target as HTMLElement).tagName !== "BODY") return;
+  if (!(crumbList.value.length || queryData.pid)) return;
+  const keyMap = [];
+  if (e.ctrlKey) keyMap.push('ctrl');
+  if (e.shiftKey) keyMap.push('shift');
+  keyMap.push(e.code);
+  switch (keyMap.join('_')) {
+    default:
+      return;
+      break;
+    case 'Enter':
+      if (!e.target) return;
+      if (e.target.id !== 'searchBarInput') return;
+      search();
+      break;
+  }
+}
 //
 
 async function node_hint(text: string): Promise<api_node_col[] | false> {
@@ -449,7 +471,7 @@ function tag_del(groupIndex: number, tagIndex: number) {
       <div class='content_meta'>
         <div class='search'>
           <label>
-            <span>Title : </span><input type='text' v-model='nodeQueryData.keyword'/>
+            <span>Title : </span><input id="searchBarInput" type='text' v-model='nodeQueryData.keyword'/>
           </label>
           <label>
             <span>Type : </span>

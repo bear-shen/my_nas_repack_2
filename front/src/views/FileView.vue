@@ -284,6 +284,11 @@ function keymap(e: KeyboardEvent) {
         addFolder();
       }
       break;
+    case 'Enter':
+      if (!e.target) return;
+      if (e.target.id !== 'searchBarInput') return;
+      search();
+      break;
   }
 }
 
@@ -310,7 +315,7 @@ function onDragover(e: DragEvent) {
       </div>
       <div class='search'>
         <label>
-          <span>Title : </span><input type='text' v-model='queryData.keyword'/>
+          <span>Title : </span><input id="searchBarInput" type='text' v-model='queryData.keyword'/>
         </label>
         <label>
           <span>Type : </span>
