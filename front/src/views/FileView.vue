@@ -260,10 +260,9 @@ onUnmounted(() => {
 });
 
 function keymap(e: KeyboardEvent) {
-  // console.info(e);
+  console.info(e);
   //这俩快捷键基本没占用，屏蔽target反而很麻烦
   // if ((e.target as HTMLElement).tagName !== "BODY") return;
-  if (!(crumbList.value.length || queryData.pid)) return;
   const keyMap = [];
   if (e.ctrlKey) keyMap.push('ctrl');
   if (e.shiftKey) keyMap.push('shift');
@@ -273,12 +272,14 @@ function keymap(e: KeyboardEvent) {
       return;
       break;
     case 'ctrl_KeyU':
+      if (!(crumbList.value.length || queryData.pid)) return;
       if (opModule && opModule.showSelectionOp) {
         e.preventDefault();
         addFile();
       }
       break;
     case 'ctrl_KeyM':
+      if (!(crumbList.value.length || queryData.pid)) return;
       if (opModule && opModule.showSelectionOp) {
         e.preventDefault();
         addFolder();

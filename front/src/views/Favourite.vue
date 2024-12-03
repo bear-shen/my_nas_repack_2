@@ -237,6 +237,7 @@ function keymap(e: KeyboardEvent) {
     default:
       return;
       break;
+    case 'NumpadEnter':
     case 'Enter':
       if (!e.target) return;
       if (e.target.id !== 'searchBarInput') return;
@@ -244,6 +245,7 @@ function keymap(e: KeyboardEvent) {
       break;
   }
 }
+
 //
 
 async function node_hint(text: string): Promise<api_node_col[] | false> {
@@ -483,7 +485,7 @@ function tag_del(groupIndex: number, tagIndex: number) {
             <span>Rate : </span>
             <template v-if="isMobile">
               <select v-model='nodeQueryData.rate'>
-                <option v-for='(type,key) in Config.rateMobile' :value='key' :key="`FAV_SCH_CON_RATE_${key}`">{{type}}</option>
+                <option v-for='(type,key) in Config.rateMobile' :value='key' :key="`FAV_SCH_CON_RATE_${key}`">{{ type }}</option>
               </select>
             </template>
             <template v-else>

@@ -603,13 +603,13 @@ function keymap(e: KeyboardEvent) {
         if (!target.parentElement) break;
         target = target.parentElement;
         const isModalDOM = target.classList.contains('modal_dom');
-        console.info(isModalDOM);
+        // console.info(isModalDOM);
         if (!isModalDOM) continue;
         const nid = target.getAttribute('data-ref-id');
-        console.info(nid);
+        // console.info(nid);
         if (!nid) break;
         const modal = modalList.value.get(nid);
-        console.info(modal);
+        // console.info(modal);
         if (!modal) break;
         for (let i1 = 0; i1 < modal.callback.length; i1++) {
           const key = modal.callback[i1].key;
