@@ -115,6 +115,16 @@ export default class {
                         request.keyword.trim()
                     );
                 }
+                //屏蔽一下root下开遍历的情况
+                if (request.cascade_dir == '1') {
+                    let isSearch = false;
+                    if (request.keyword && request.keyword.length) isSearch = true;
+                    if (request.rate && request.rate.length) isSearch = true;
+                    if (request.node_type && request.node_type != 'any') isSearch = true;
+                    if (!isSearch) {
+                        request.cascade_dir = '';
+                    }
+                }
                 //
                 let parentId = -1;
                 if (request.status != 'deleted') {
@@ -122,7 +132,7 @@ export default class {
                 }
                 if (parentId !== -1) {
                     target.path = await buildCrumb(parentId);
-                    if (request.cascade_dir)
+                    if (request.cascade_dir == '1')
                         model.whereRaw('node_id_list @> $0', parentId);
                     else
                         model.where('id_parent', parentId);
@@ -131,7 +141,7 @@ export default class {
             case 'id_iterate':
                 let idList = request.keyword?.length ? request.keyword.split(',') : ['0'];
                 model.where((model) => {
-                    if (request.cascade_dir) {
+                    if (request.cascade_dir == '1') {
                         model.whereIn('id_parent', idList);
                         model.or().whereIn('id', idList);
                     } else
