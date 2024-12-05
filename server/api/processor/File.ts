@@ -42,104 +42,48 @@ export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_file_list_resp> {
         const request = data.fields as api_file_list_req;
         // console.info(request);
+        //
+        let curFav = null;
+        if (request.id_fav) {
+            curFav = await (new FavouriteGroupModel).where('id', request.id_fav).where('id_user', data.uid).first();
+            if (!curFav) throw new Error('fav group not exist');
+            if (curFav.auto) {
+                //auto=1的情况下会将fav的meta字段作为查询条件，重新进行一次查询
+                //但是这样会有一个问题，在收藏夹里无法二级搜索
+                //所以针对各种字段单独做一下
+                const newReq = curFav.meta;
+                if (request.keyword) {
+                    newReq.keyword = request.keyword;
+                }
+                if (!newReq.node_type && request.node_type) {
+                    //指定节点类型的时候不能覆盖
+                    newReq.node_type = request.node_type;
+                }
+                if (request.rate) {
+                    if (newReq.rate < request.rate)
+                        newReq.rate = request.rate;
+                }
+                // console.info(request);
+                return await this.get({
+                    uid: data.uid,
+                    fields: Object.assign(newReq, {
+                        // cascade_dir: '1',
+                        mode: 'directory',
+                        id_fav: null,
+                    } as api_file_list_req),
+                    files: data.files,
+                }, req, res);
+            }
+        }
+        //
         const treeLs = [];
         const listLs = [];
         const target = {
             path: [] as col_node[],
             list: [] as api_node_col[],
         };
-        const model = new NodeModel();
         //
-        switch (request.mode) {
-            default:
-            case 'directory':
-                if (typeof request.pid == 'undefined' || request.pid === null) {
-                    throw new Error('no def pid');
-                }
-                //一开始没定义这个，是搜索收藏的时候增加的
-                if (typeof request.keyword === 'string' && request.keyword.length) {
-                    model.where(
-                        'node_index',
-                        // 'title',
-                        '&@',
-                        request.keyword.trim()
-                    );
-                }
-                break;
-            case 'search':
-                if (request.keyword.length) {
-                    model.where(
-                        'node_index',
-                        // 'title',
-                        '&@',
-                        request.keyword.trim()
-                    );
-                    //搜索的时候节点短的在前，姑且先这么定义
-                    model.order('jsonb_array_length(node_id_list)', 'asc');
-                }
-                break;
-            case 'tag':
-                break;
-            case 'id_iterate':
-                let idList = request.keyword?.length ? request.keyword.split(',') : ['0'];
-                model.where((model) => {
-                    model.whereIn('id', idList);
-                    model.or().whereIn('id_parent', idList);
-                    //参考 HoneyView 的话应该只看 parent
-                    //但是参考 PotPlayer 就是用 find_in_set
-                    //这样有性能问题，但是没想到什么好办法
-                    //考虑到还是书多，所以还是只看 parent
-                    // idList.forEach(id =>
-                    //     model.or().whereRaw('node_id_list @> $0',id)
-                    // );
-                });
-                break;
-            case 'favourite':
-                const curFav = await (new FavouriteGroupModel).where('id', request.fav_id).first();
-                if (!curFav) throw new Error('fav group not exist');
-                if (curFav.auto) {
-                    //auto=1的情况下会将fav的meta字段作为查询条件，重新进行一次查询
-                    //但是这样会有一个问题，在收藏夹里无法二级搜索
-                    //所以针对各种字段单独做一下
-                    const newReq = curFav.meta;
-                    if (request.keyword) {
-                        newReq.keyword = request.keyword;
-                    }
-                    if (!newReq.node_type && request.node_type) {
-                        //指定节点类型的时候不能覆盖
-                        newReq.node_type = request.node_type;
-                    }
-                    if (request.rate) {
-                        if (newReq.rate < request.rate)
-                            newReq.rate = request.rate;
-                    }
-                    // console.info(request);
-                    return await this.get({
-                        uid: data.uid,
-                        fields: Object.assign({
-                            // cascade_dir: '1',
-                            mode: 'directory',
-                        } as api_file_list_req, newReq),
-                        files: data.files,
-                    }, req, res);
-                } else {
-                    //一开始没定义这个，是搜索收藏的时候增加的
-                    if (typeof request.keyword === 'string' && request.keyword.length) {
-                        model.where(
-                            'node_index',
-                            // 'title',
-                            '&@',
-                            request.keyword.trim()
-                        );
-                    }
-                }
-                model.whereRaw(
-                    'id in (select id_node from favourite where id_group = ? and id_user = ?)'
-                    , request.fav_id, data.uid
-                ).where('status', 1)
-                ;
-                break;
-        }
+        const model = new NodeModel();
         //
         const user = await (new UserModel).where('id', data.uid).first();
         const userGroup = await (new UserGroupModel).where('id', user.id_group).first();
@@ -151,10 +95,56 @@ export default class {
             })
         }
         //
-        if (request.tag_id) {
-            let tagOr = !!request.tag_or;
+        if (curFav) {
+            const favList = await (new FavouriteModel).where('id_group', request.id_fav).where('id_user', data.uid).select(['id_node']);
+            if (!favList.length) return target;
+            const nodeIdList: number[] = [];
+            favList.forEach(fav => nodeIdList.push(fav.id_node));
+            model.whereIn('id', nodeIdList);
+        }
+        //mode keyword id_dir
+        switch (request.mode) {
+            default:
+            case 'search':
+            case 'directory':
+                if (typeof request.keyword === 'string' && request.keyword.length) {
+                    model.where(
+                        'node_index',
+                        // 'title',
+                        '&@',
+                        request.keyword.trim()
+                    );
+                }
+                //
+                let parentId = -1;
+                if (request.status != 'deleted') {
+                    if (request.id_dir) parentId = parseInt(request.id_dir);
+                }
+                if (parentId !== -1) {
+                    target.path = await buildCrumb(parentId);
+                    if (request.cascade_dir)
+                        model.whereRaw('node_id_list @> $0', parentId);
+                    else
+                        model.where('id_parent', parentId);
+                }
+                break;
+            case 'id_iterate':
+                let idList = request.keyword?.length ? request.keyword.split(',') : ['0'];
+                model.where((model) => {
+                    if (request.cascade_dir) {
+                        model.whereIn('id_parent', idList);
+                        model.or().whereIn('id', idList);
+                    } else
+                        model.whereIn('id', idList);
+                });
+                break;
+        }
+        //id_tag tag_or
+        if (request.id_tag) {
+            const tagOr = !!request.tag_or;
+            const tagIdArr = request.id_tag.split(',');
             model.where((model) => {
-                request.tag_id.split(',').forEach(tagId => {
+                tagIdArr.forEach(tagId => {
                         if (tagOr)
                             model.or().whereRaw('tag_id_list @> $0', tagId);
                         else
@@ -163,19 +153,6 @@ export default class {
                 )
             })
         }
-        let crumbPid = -1;
-        if (request.pid && request.group != 'deleted') crumbPid = parseInt(request.pid);
-        // if(request.mode=='id_iterate' && request.keyword.indexOf(',')===-1){
-        //     crumbPid=parseInt(request.keyword);
-        // }
-        if (crumbPid !== -1) {
-            target.path = await buildCrumb(crumbPid);
-            if (request.cascade_dir)
-                model.whereRaw('node_id_list @> $0', crumbPid);
-            else
-                model.where('id_parent', crumbPid);
-        }
-        model.where('cascade_status', 1);
         if (request.node_type) {
             switch (request.node_type) {
                 case 'any':
@@ -189,9 +166,17 @@ export default class {
                     break;
             }
         }
-        switch (request.group) {
+        if (request.rate) {
+            model.whereRaw(
+                'id in (select id_node from rate where id_user = ? and rate >= ?)'
+                , data.uid, request.rate
+            )
+            ;
+        }
+        model.where('cascade_status', 1);
+        switch (request.status) {
             default:
-            case 'directory':
+            case 'normal':
                 model.where('status', 1);
                 break;
             case 'deleted':
@@ -200,13 +185,6 @@ export default class {
         }
         if (request.limit) {
             model.limit(parseInt(request.limit));
-        }
-        if (request.rate) {
-            model.whereRaw(
-                'id in (select id_node from rate where id_user = ? and rate >= ?)'
-                , data.uid, request.rate
-            )
-            ;
         }
         // console.info(model.l)
         // ORM.dumpSql = true;
@@ -218,7 +196,6 @@ export default class {
         // console.info(nodeLs);
         //
         const tagIdSet = new Set<number>();
-        const fileIdSet = new Set<number>();
         const parentIdSet = new Set<number>();
         const nodeIdSet = new Set<number>();
         nodeLs.forEach(node => {
@@ -228,11 +205,6 @@ export default class {
                 node.tag_id_list.forEach(tagId => {
                     tagIdSet.add(tagId);
                 });
-            // for (const key in node.index_file_id) {
-            //     if (!Object.prototype.hasOwnProperty.call(node.index_file_id, key)) continue;
-            //     const fileId = node.index_file_id[key];
-            //     fileIdSet.add(fileId);
-            // }
             node.node_id_list.forEach(nodeId => {
                 if (nodeId) parentIdSet.add(nodeId);
             });
@@ -242,7 +214,7 @@ export default class {
         if (nodeIdSet.size) {
             const favList = await splitQuery<col_favourite>(FavouriteModel, Array.from(nodeIdSet), (orm) => {
                 orm.where('id_user', data.uid).where('status', 1)
-            });
+            }, ['*'], 'id_node');
             const favMap = new Map<number, number[]>();
             favList.forEach(fav => {
                 let arr = favMap.get(fav.id_node);
@@ -311,11 +283,11 @@ export default class {
             });
         }
         //面包屑
-        const parentMap = new Map<number, col_node>();
         if (withConf.indexOf('crumb') !== -1) {
+            const parentMap = new Map<number, col_node>();
             if (parentIdSet.size) {
                 const parentLs = await splitQuery<col_node>(NodeModel, Array.from(parentIdSet), undefined, [
-                    'id', 'title', 'status', 'type',
+                    'id', 'title', 'status', 'type', 'id_parent',
                 ]);
                 parentLs.forEach(node => {
                     parentMap.set(node.id, node);

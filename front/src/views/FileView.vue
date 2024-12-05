@@ -19,35 +19,57 @@ const contentDOM: Ref<HTMLElement | null> = ref(null);
 //
 const router = useRouter();
 const route = useRoute();
+const isMobile = window.navigator.userAgent.toLowerCase().indexOf('mobile') !== -1;
 let queryData: api_file_list_req = {
   mode: 'directory',
-  pid: '0',
-  keyword: '',
-  tag_id: '',
-  node_type: '',
-  cascade_dir: '',
-  with: '',
-  group: '',
-  rate: ''
+  id_dir: '0',
+  id_tag: '',
 };
-const isMobile = window.navigator.userAgent.toLowerCase().indexOf('mobile') !== -1;
+let searchBarQuery: api_file_list_req = {
+  keyword: '',
+  node_type: '',
+  rate: '',
+  cascade_dir: '1',
+};
+
+function syncQuery(tQuery) {
+  if (!tQuery) return;
+  for (let key in queryData) {
+    if (!Object.prototype.hasOwnProperty.call(queryData, key)) continue;
+    // if (typeof tQuery[key] === 'undefined') continue;
+    switch (key) {
+      default:
+        queryData[key] = tQuery[key] ?? '';
+        break;
+      case 'mode':
+        queryData[key] = tQuery[key] ?? 'directory';
+        break;
+      case 'id_dir':
+        queryData[key] = tQuery[key] ?? '0';
+        break;
+    }
+  }
+  for (let key in searchBarQuery) {
+    if (!Object.prototype.hasOwnProperty.call(searchBarQuery, key)) continue;
+    // if (typeof tQuery[key] === 'undefined') continue;
+    switch (key) {
+      default:
+        searchBarQuery[key] = tQuery[key] ?? '';
+        break;
+      case 'cascade_dir':
+        searchBarQuery[key] = tQuery[key] ?? '1';
+        break;
+    }
+  }
+}
 
 // let usePid = false;
 onBeforeRouteUpdate(async (to) => {
-  console.info('onBeforeRouteUpdate', to);
-  queryData = Object.assign({
-    mode: 'directory',
-    pid: '0',
-    keyword: '',
-    tag_id: '',
-    node_type: '',
-    cascade_dir: '',
-    with: '',
-    group: '',
-    rate: ''
-  } as api_file_list_req, GenFunc.copyObject(to.query));
+  // console.info('onBeforeRouteUpdate', to);
+  console.warn('onBeforeRouteUpdate', to, JSON.stringify(to.query));
+  if (to.query) syncQuery(to.query);
   await getList();
-})
+});
 
 //
 let crumbList: Ref<api_node_col[]> = ref([]);
@@ -55,7 +77,8 @@ let nodeList: Ref<api_node_col[]> = ref([]);
 let opModule: opModuleClass;
 
 async function getList(replaceWith?: api_file_list_resp[]) {
-  console.info('getList', route.name)
+  console.info('getList', route.name);
+  // console.warn('getList', route.name, JSON.stringify(queryData), JSON.stringify(searchBarQuery));
   nodeList.value = [];
   if (!replaceWith) {
     crumbList.value = [];
@@ -63,13 +86,22 @@ async function getList(replaceWith?: api_file_list_resp[]) {
       default:
         break;
       case 'Recycle':
-        queryData.group = 'deleted';
+        queryData.status = 'deleted';
         break
       case 'Favourite':
-        queryData.group = 'favourite';
+        // queryData.group = 'favourite';
         break
     }
-    const res = await query<api_file_list_resp>('file/get', queryData);
+    let tQueryData: api_file_list_req = {};
+    switch (queryData.mode) {
+      case 'directory':
+        tQueryData = Object.assign(tQueryData, queryData);
+        break;
+      case 'search':
+        tQueryData = Object.assign(tQueryData, queryData, searchBarQuery);
+        break;
+    }
+    const res = await query<api_file_list_resp>('file/get', tQueryData);
     if (!res) return;
     // console.info(res);
     crumbList.value = res.path;
@@ -115,29 +147,29 @@ function addFolder() {
     callback: {
       submit: async (modal) => {
         // console.info(modal);
-        const formData = modal.content.form
-        const targetTitle = formData[0].value
+        const formData = modal.content.form;
+        const targetTitle = formData[0].value;
         // console.info(targetTitle)
-        if (!targetTitle) return true
+        if (!targetTitle) return true;
         const res = await query<api_file_mkdir_resp>('file/mkdir', {
           title: targetTitle,
           pid: `${pid}`
-        } as api_file_mkdir_req)
-        getList()
-        if (!res) return
+        } as api_file_mkdir_req);
+        getList();
+        if (!res) return;
       }
     }
   })
 }
 
 function addFile() {
-  let pid = 0
-  let title = 'root'
+  let pid = 0;
+  let title = 'root';
   if (crumbList.value.length) {
-    let curNode = crumbList.value[crumbList.value.length - 1]
+    let curNode = crumbList.value[crumbList.value.length - 1];
     if (curNode) {
-      pid = curNode.id ?? 0
-      title = curNode.title ?? 'root'
+      pid = curNode.id ?? 0;
+      title = curNode.title ?? 'root';
     }
   }
   modalStore.set({
@@ -172,55 +204,44 @@ const localConfigure = useLocalConfigureStore()
 
 //
 function search() {
-  const tQuery = GenFunc.copyObject(queryData)
-  if (crumbList.value.length) {
-    tQuery.pid =
-      crumbList.value[crumbList.value.length - 1].id?.toString() ?? ''
-    // } else {
-    //   delete tQuery.pid;
+  const tQuery = GenFunc.copyObject(searchBarQuery);
+  if (queryData.id_tag) tQuery.id_tag = queryData.id_tag;
+  if (queryData.id_dir) tQuery.id_dir = queryData.id_dir;
+  let isSearch = false;
+  if (searchBarQuery.rate) isSearch = true;
+  if (searchBarQuery.keyword.trim()) isSearch = true;
+  if (searchBarQuery.node_type && searchBarQuery.node_type != 'any') isSearch = true;
+  if (isSearch) {
+    tQuery.mode = 'search';
+  } else {
+    tQuery.mode = 'directory';
   }
-  tQuery.mode = 'search'
-  // console.info(tQuery);
-  console.info(!queryData.node_type || queryData.node_type == 'any' || !queryData.rate)
-  if (
-    !queryData.keyword
-    && (
-      !queryData.node_type || queryData.node_type == 'any'
-    )
-    && !queryData.rate
-  ) {
-    return opModule.go({pid: queryData.pid, mode: 'directory'})
-  }
-  console.info(tQuery)
-  router.push({
-    path: route.path,
-    query: tQuery
-  })
+  opModule.go(tQuery);
 }
 
 function emitGo(type: string, code?: number) {
-  console.info('emitGo', type, code)
+  console.info('emitGo', type, code);
   switch (type) {
     case 'reload':
-      getList()
+      getList();
       break
     case 'tag':
-      opModule.go({tag_id: `${code}`, mode: 'tag'})
+      opModule.go({mode: 'directory', id_tag: `${code}`});
       break
     case 'node':
       let node
       for (let i1 = 0; i1 < nodeList.value.length; i1++) {
-        if (nodeList.value[i1].id !== code) continue
-        node = nodeList.value[i1]
-        break
+        if (nodeList.value[i1].id !== code) continue;
+        node = nodeList.value[i1];
+        break;
       }
-      if (!node) break
+      if (!node) break;
       switch (node.type) {
         case 'directory':
-          opModule.go({pid: `${node.id}`, mode: 'directory'})
+          opModule.go({mode: 'directory', id_dir: `${node.id}`});
           break
         default:
-          fHelper.popupDetail(GenFunc.copyObject(queryData), node.id ?? 0)
+          fHelper.popupDetail(GenFunc.copyObject(queryData), node.id ?? 0);
           break
       }
       break
@@ -231,7 +252,7 @@ function emitGo(type: string, code?: number) {
 onMounted(async () => {
   console.info('onMounted');
   // localConfigure.release('file_view_mode', modeKey);
-  Object.assign(queryData, GenFunc.copyObject(route.query));
+  if (route.query) syncQuery(route.query);
   opModule = new fHelper.opModule({
     route: route,
     router: router,
@@ -260,7 +281,7 @@ onUnmounted(() => {
 });
 
 function keymap(e: KeyboardEvent) {
-  console.info(e);
+  // console.info(e);
   //这俩快捷键基本没占用，屏蔽target反而很麻烦
   // if ((e.target as HTMLElement).tagName !== "BODY") return;
   const keyMap = [];
@@ -272,20 +293,21 @@ function keymap(e: KeyboardEvent) {
       return;
       break;
     case 'ctrl_KeyU':
-      if (!(crumbList.value.length || queryData.pid)) return;
+      if (!(crumbList.value.length || queryData.id_dir)) return;
       if (opModule && opModule.showSelectionOp) {
         e.preventDefault();
         addFile();
       }
       break;
     case 'ctrl_KeyM':
-      if (!(crumbList.value.length || queryData.pid)) return;
+      if (!(crumbList.value.length || queryData.id_dir)) return;
       if (opModule && opModule.showSelectionOp) {
         e.preventDefault();
         addFolder();
       }
       break;
     case 'Enter':
+    case 'NumpadEnter':
       if (!e.target) return;
       if (e.target.id !== 'searchBarInput') return;
       search();
@@ -295,7 +317,7 @@ function keymap(e: KeyboardEvent) {
 
 function onDragover(e: DragEvent) {
   // console.info(e);
-  if (!(crumbList.value.length || queryData.pid)) return;
+  if (!(crumbList.value.length || queryData.id_dir)) return;
   e.stopPropagation();
   e.preventDefault();
   addFile();
@@ -310,17 +332,17 @@ function onDragover(e: DragEvent) {
            class='item'
            v-for='(node, nodeIndex) in crumbList'
            :key='nodeIndex'
-           @click="opModule.go({ pid: `${node?.id}`,mode:'directory' })"
+           @click="opModule.go({ id_dir: `${node?.id}`,mode:'directory' })"
            :title='node.title'
         >{{ node.title }}</a>
       </div>
       <div class='search'>
         <label>
-          <span>Title : </span><input id="searchBarInput" type='text' v-model='queryData.keyword'/>
+          <span>Title : </span><input id="searchBarInput" type='text' v-model='searchBarQuery.keyword'/>
         </label>
         <label>
           <span>Type : </span>
-          <select v-model='queryData.node_type'>
+          <select v-model='searchBarQuery.node_type'>
             <option v-for='(type,key) in Config.fileType'
                     :key="`FV_SCH_NODE_TYPE_${key}`"
             >{{ type }}
@@ -330,23 +352,23 @@ function onDragover(e: DragEvent) {
         <label>
           <span>Rate : </span>
           <template v-if="isMobile">
-            <select class='sysIcon' v-model='queryData.rate'>
+            <select class='sysIcon' v-model='searchBarQuery.rate'>
               <option v-for='(type,key) in Config.rateMobile' :value='key' v-html='type'
                       :key="`FV_SCH_CON_RATE_${key}`"
               ></option>
             </select>
           </template>
           <template v-else>
-            <select class='sysIcon' v-model='queryData.rate'>
+            <select class='sysIcon' v-model='searchBarQuery.rate'>
               <option v-for='(type,key) in Config.rate' :value='key' v-html='type'
                       :key="`FV_SCH_CON_RATE_${key}`"
               ></option>
             </select>
           </template>
         </label>
-        <label v-if='crumbList.length'>
+        <label>
           <span>Cascade : </span>
-          <input type='checkbox' v-model='(queryData.cascade_dir as any)' id='FV_S_CB'
+          <input type='checkbox' v-model='(searchBarQuery.cascade_dir as any)' id='FV_S_CB'
                  :true-value='1'
                  false-value=''
           />
@@ -376,7 +398,7 @@ function onDragover(e: DragEvent) {
           <a class="buttonStyle" v-if="route.name==='Recycle'" @click="opModule.bathOp('delete_forever')">rDEL</a>
           <a class='sysIcon sysIcon_fengefu'></a>
         </template>
-        <template v-if="crumbList.length || queryData.pid=='0'">
+        <template v-if="crumbList.length || queryData.id_dir=='0'">
           <a class='buttonStyle sysIcon sysIcon_addfolder' @click='addFolder'></a>
           <a class='buttonStyle sysIcon sysIcon_addfile' @click='addFile'></a>
           <a class='buttonStyle sysIcon sysIcon_fengefu'></a>

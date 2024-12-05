@@ -717,6 +717,7 @@ export class opModule {
         }
         //
         const preNode = this.nodeList.value[preSelIndex];
+        if (!preNode) return;
         if (!preNode._offsets) preNode._offsets = [];
         const nodeW = preNode._offsets[2] - preNode._offsets[0];
         const domW = this.contentDOM.offsetWidth;
@@ -816,6 +817,7 @@ export class opModule {
                 if (mayInPopup(target)) return;
                 selRes = this.getSelected();
                 if (!selRes.idSet.size) return;
+                console.info(selRes.idSet.size);
                 if (e.altKey && selRes.idSet.size == 1) {
                     return this.emitGo('node', Array.from(selRes.idSet)[0])
                 }
@@ -876,20 +878,15 @@ export class opModule {
     }
 
     public go(ext: api_file_list_req) {
-        if (!ext.tag_id) ext.tag_id = "";
-        if (!ext.keyword) ext.keyword = "";
-        if (!ext.node_type) ext.node_type = "";
-        const tQuery = Object.assign({
-            mode: "",
-            pid: "",
-            keyword: "",
-            tag_id: "",
-            node_type: "",
-            cascade_dir: "",
-            with: "",
-            group: "",
-            rate: "",
+        const tQuery: api_file_list_req = Object.assign({
+            id_dir: "",
+            id_tag: "",
+            // keyword: "",
+            // node_type: "",
+            // rate: "",
+            // cascade_dir: "",
         }, ext);
+        // console.info('go', JSON.stringify(tQuery));
         this.router.push({
             // path: this.route.path,
             path: '/',
@@ -1205,6 +1202,7 @@ export class opFunctionModule {
             })
         }
         if (!opModuleVal) return;
+        // console.info(node);
         opModuleVal.modalStore.set({
             title: `select fav group:`,
             alpha: false,
@@ -1223,7 +1221,7 @@ export class opFunctionModule {
             form: [
                 {
                     type: "checkbox",
-                    label: "attach to:",
+                    label: "attach to",
                     key: "target_group",
                     value: node.list_fav,
                     options: favGroupOpts,
@@ -1232,12 +1230,15 @@ export class opFunctionModule {
             callback: {
                 submit: async function (modal) {
                     // console.info(modal)
-                    const groupIdLs = modal.content.form[0].value.join(',');
+                    const groupIdArr = modal.content.form[0].value;
+                    // if (!groupIdArr) return;
+                    // if (!groupIdArr.length) return;
+                    const groupIdLs = groupIdArr.join(',');
                     await query<api_favourite_attach_resp>("favourite/attach", {
                         id_node: node.id,
                         list_group: groupIdLs,
                     });
-
+                    location.reload();
                 },
             },
         });
@@ -1299,11 +1300,12 @@ export class opFunctionModule {
         query.with = 'crumb,file';
         if (idArr.length == 1) {
             query.mode = 'directory';
-            query.pid = `${idArr[0]}`;
+            query.id_dir = `${idArr[0]}`;
         } else {
             query.mode = 'id_iterate';
             query.keyword = idArr.join(',');
         }
+        query.cascade_dir = 1;
         // if (idSet.size > 1) {
         // let query = GenFunc.copyObject(this.queryData);
         popupDetail(query, idArr[0]);

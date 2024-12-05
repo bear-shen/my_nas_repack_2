@@ -64,31 +64,39 @@ export type api_file_list_resp = {
  *      fav_id
  * */
 export type api_file_list_req = {
+    id_fav?: string,
+    //页面上会有两种模式
+    // 一种是搜索，使用搜索条的内容覆盖
+    // 一种是目录
+    // 主要是搜索自带了级联的选项，所以有必要做一个区分
+    // 所以search还是得留着，后端和directory等价，只是专供前端判断
     mode?:
-        'directory' | 'search' | 'tag'
-        | 'favourite'
+        'directory'
+        | 'search'
+        // | 'tag'
+        // | 'favourite'
         | 'id_iterate'
         | string,
-    pid?: string,
     keyword?: string,
-    tag_id?: string,
+    id_dir?: string,
+    id_tag?: string,
     tag_or?: string,
-    fav_id?: string,
     //
     //这个只是表示在当前文件夹中搜索
-    cascade_dir?: '1' | '' | string,
+    cascade_dir?: '1' | '0' | string,
     //
-    node_type?: type_file | string,
+    node_type?: type_file | 'any' | 'file',
     // sort?: string,
     rate?: string,
     // detail: string,
-    with?: 'file' | 'tag' | 'crumb' | 'none' | string,
-    group?: 'directory' | 'deleted' | string,
+    status?: 'normal' | 'deleted',
     // favourite?: string,
     // no_file?: string,
     // no_tag?: string,
     // with_crumb?: string,
     limit?: string,
+    //非搜索项
+    with?: 'file' | 'tag' | 'crumb' | 'none' | string,
 }
 
 export type api_user_login_req = {

@@ -60,17 +60,7 @@ export class FileStreamDownloader {
         for (let i1 = 0; i1 < pidArr.length; i1++) {
             const pid = pidArr[i1];
             const res = await query<api_file_list_resp>("file/get", Object.assign({
-                mode: "",
-                pid: "",
-                keyword: "",
-                tag_id: "",
-                node_type: "",
-                cascade_dir: "",
-                with: "",
-                group: "",
-                rate: "",
-            }, this.query, {
-                mode: 'directory',
+                mode: 'id_iterate',
                 cascade_dir: '1',
                 pid: pid.toString(),
                 with: 'file',

@@ -13,14 +13,13 @@ type valType = api_node_col & { _sel?: boolean };
 const locatorInput: Ref<HTMLInputElement | null> = ref(null);
 
 let queryData: api_file_list_req = {
-  mode: 'search',
-  pid: '',
+  mode: 'directory',
+  id_dir: '',
   keyword: '',
-  tag_id: '',
+  id_tag: '',
   cascade_dir: '',
   node_type: 'directory',
   with: 'crumb',
-  group: '',
   limit: '20',
 };
 
@@ -35,7 +34,7 @@ const props = defineProps<{
 // const list = ref(new Map() as Map<string, uploadFile>);
 const list: Ref<valType[]> = ref([] as valType[]);
 onMounted(() => {
-  Object.assign(queryData, JSON.parse(JSON.stringify(props.data.query)));
+  Object.assign(queryData, JSON.parse(JSON.stringify(props.data.id_dir)));
   locatorInput.value?.focus();
 });
 onUnmounted(() => {

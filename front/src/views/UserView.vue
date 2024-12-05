@@ -166,7 +166,7 @@ async function delAuth(groupIndex: number, authIndex: number) {
 async function node_hint(text: string): Promise<api_node_col[] | false> {
   console.info('node_hint');
   let queryData: api_file_list_req = {
-    mode: "search",
+    mode: "directory",
     node_type: "directory",
     keyword: text,
     with: 'none',

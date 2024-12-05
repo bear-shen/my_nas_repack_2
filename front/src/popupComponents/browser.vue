@@ -129,7 +129,7 @@ const curNode: Ref<api_node_col> = ref({});
 // })
 /*async function getParent(): Promise<api_file_list_resp> {
   const res = await query<api_file_list_resp>("file/get", {
-    pid: props.data.query.pid,
+    pid: props.data.query.id_dir,
     with: 'none',
   } as api_file_list_req);
   if (!res) return {path: [], list: []};
@@ -139,7 +139,7 @@ const curNode: Ref<api_node_col> = ref({});
 async function getParentDir(pid: number | string): Promise<api_file_list_resp> {
   const res = await query<api_file_list_resp>("file/get", {
     node_type: 'directory',
-    pid: `${pid}`,
+    id_dir: `${pid}`,
     with: 'none',
   } as api_file_list_req);
   if (!res) return {path: [], list: []};
@@ -311,18 +311,18 @@ async function keymap(e: KeyboardEvent) {
       break;
     case '[':
       //根据全局的排序方法选择下一个目录
-      if (!crumbList.value.length) return;
+      if (!curNode.value.crumb_node.length) return;
       // const crumbLs = await getParent();
       // if (!crumbLs.path || !crumbLs.path.length) return;
       // console.info(crumbLs);
-      dirNode = crumbList.value[crumbList.value.length - 1];
+      dirNode = curNode.value.crumb_node[curNode.value.crumb_node.length - 1];
       parentLsQ = await getParentDir(dirNode.id_parent ?? '');
       parentLs = sortList(parentLsQ.list, sortVal.value);
       len = parentLs.length;
       if (len < 2) return;
       curParentIndex = 0;
       parentLs.forEach((node, index) => {
-        if (node.id == props.data.query.pid) curParentIndex = index;
+        if (node.id == props.data.query.id_dir) curParentIndex = index;
       });
       retryCount = parentLs.length;
       do {
@@ -330,25 +330,26 @@ async function keymap(e: KeyboardEvent) {
         while (curParentIndex < 0) curParentIndex += len;
         while (curParentIndex > len - 1) curParentIndex -= len;
         targetNode = parentLs[curParentIndex];
-        props.data.query.pid = `${targetNode.id}`;
+        props.data.query.id_dir = `${targetNode.id}`;
         const getNxtRst = await getList();
         if (getNxtRst) break;
       } while (--retryCount > 0);
       break;
     case ']':
       // console.info(crumbList.value);
-      if (!crumbList.value.length) return;
+      if (!curNode.value.crumb_node.length) return;
       // const crumbLs = await getParent();
       // if (!crumbLs.path || !crumbLs.path.length) return;
       // console.info(crumbLs);
-      dirNode = crumbList.value[crumbList.value.length - 1];
+      dirNode = curNode.value.crumb_node[curNode.value.crumb_node.length - 1];
+      console.warn(dirNode);
       parentLsQ = await getParentDir(dirNode.id_parent ?? '');
       parentLs = sortList(parentLsQ.list, sortVal.value);
       len = parentLs.length;
       if (len < 2) return;
       curParentIndex = 0;
       parentLs.forEach((node, index) => {
-        if (node.id == props.data.query.pid) curParentIndex = index;
+        if (node.id == props.data.query.id_dir) curParentIndex = index;
       });
       retryCount = parentLs.length;
       do {
@@ -356,7 +357,7 @@ async function keymap(e: KeyboardEvent) {
         while (curParentIndex < 0) curParentIndex += len;
         while (curParentIndex > len - 1) curParentIndex -= len;
         targetNode = parentLs[curParentIndex];
-        props.data.query.pid = `${targetNode.id}`;
+        props.data.query.id_dir = `${targetNode.id}`;
         const getNxtRst = await getList();
         if (getNxtRst) break;
       } while (--retryCount > 0);

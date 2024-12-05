@@ -577,7 +577,7 @@ onUnmounted(() => {
 });
 
 function keymap(e: KeyboardEvent) {
-  console.info(e);
+  // console.info(e);
   switch (e.key) {
     case 'Escape':
       // 这个想不起来是为啥加的了，
@@ -757,6 +757,8 @@ function keymap(e: KeyboardEvent) {
             <span v-if="form.label">
               {{ form.label }}
             </span>
+            <!--排版用的-->
+            <span></span>
             <span>
               <template v-if="form.type === 'text'">
                 <input type="text" v-model="form.value"/>
@@ -1026,6 +1028,8 @@ function keymap(e: KeyboardEvent) {
       > span:first-child {
         text-align: right;
         padding-right: $fontSize * 0.25;
+        width: 1px;
+        white-space: nowrap;
         &::after {
           content: " :";
         }
