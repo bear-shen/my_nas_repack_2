@@ -219,6 +219,9 @@ function onPointerDown(e: PointerEvent) {
 }
 
 function onPointerMove(e: PointerEvent) {
+  if (!props.modalData.layout.active) return;
+  // console.info(e);
+  if (!e.pointerId) return;
   e.preventDefault();
   e.stopPropagation();
   doTransform(e);
