@@ -727,6 +727,7 @@ function tag_del(groupIndex: number, tagIndex: number) {
       //justify-content: space-around;
       justify-content: left;
       align-content: flex-start;
+      min-height: calc(100% - $fontSize * 4);
     }
     .list_fav.mode_text {
       display: table;

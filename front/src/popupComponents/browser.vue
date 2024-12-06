@@ -311,56 +311,127 @@ async function keymap(e: KeyboardEvent) {
       break;
     case '[':
       //根据全局的排序方法选择下一个目录
-      if (!curNode.value.crumb_node.length) return;
-      // const crumbLs = await getParent();
-      // if (!crumbLs.path || !crumbLs.path.length) return;
-      // console.info(crumbLs);
-      dirNode = curNode.value.crumb_node[curNode.value.crumb_node.length - 1];
-      parentLsQ = await getParentDir(dirNode.id_parent ?? '');
-      parentLs = sortList(parentLsQ.list, sortVal.value);
-      len = parentLs.length;
-      if (len < 2) return;
-      curParentIndex = 0;
-      parentLs.forEach((node, index) => {
-        if (node.id == props.data.query.id_dir) curParentIndex = index;
-      });
-      retryCount = parentLs.length;
-      do {
-        curParentIndex -= 1;
-        while (curParentIndex < 0) curParentIndex += len;
-        while (curParentIndex > len - 1) curParentIndex -= len;
-        targetNode = parentLs[curParentIndex];
-        props.data.query.id_dir = `${targetNode.id}`;
-        const getNxtRst = await getList();
-        if (getNxtRst) break;
-      } while (--retryCount > 0);
+      switch (props.data.query.mode) {
+        default:
+          const curDir =
+            crumbList.value.length ?
+              crumbList.value[crumbList.value.length - 1] : {
+                id: 0,
+                id_parent: 0,
+                type: 'directory',
+                title: 'root',
+                description: '',
+                status: 1,
+                building: 0,
+              };
+          parentLsQ = await getParentDir(curDir.id_parent);
+          parentLs = sortList(parentLsQ.list, sortVal.value);
+          len = parentLs.length;
+          if (len < 2) return;
+          curParentIndex = 0;
+          parentLs.forEach((node, index) => {
+            if (node.id == props.data.query.id_dir) curParentIndex = index;
+          });
+          retryCount = parentLs.length;
+          do {
+            curParentIndex -= 1;
+            while (curParentIndex < 0) curParentIndex += len;
+            while (curParentIndex > len - 1) curParentIndex -= len;
+            targetNode = parentLs[curParentIndex];
+            props.data.query.id_dir = `${targetNode.id}`;
+            const getNxtRst = await getList();
+            if (getNxtRst) break;
+          } while (--retryCount > 0);
+          break;
+        case 'id_iterate':
+          const idStrArr = props.data.query.keyword.split(',');
+          const idArr: number[] = [];
+          idStrArr.forEach(str => idArr.push(parseInt(str)));
+          let curPid = null;
+          for (let i1 = 0; i1 < curNode.value.crumb_node.length; i1++) {
+            const node = curNode.value.crumb_node[i1];
+            if (idArr.indexOf(node.id) === -1) continue;
+            curPid = node.id;
+            break;
+          }
+          if (!curPid) break;
+          //定位到下一个文件夹的第一个
+          const curPidIndex = idArr.indexOf(curPid);
+          len = idArr.length;
+          let tPidIndex = curPidIndex - 1;
+          while (tPidIndex < 0) tPidIndex += len;
+          while (tPidIndex > len - 1) tPidIndex -= len;
+          const tPid = idArr[tPidIndex];
+          for (let i1 = 0; i1 < vNodeList.value.length; i1++) {
+            const node = vNodeList.value[i1];
+            for (let i2 = 0; i2 < node.crumb_node.length; i2++) {
+              if (node.crumb_node[i2].id !== tPid) continue;
+              return goNav(i1, 0);
+            }
+          }
+      }
       break;
     case ']':
-      // console.info(crumbList.value);
-      if (!curNode.value.crumb_node.length) return;
-      // const crumbLs = await getParent();
-      // if (!crumbLs.path || !crumbLs.path.length) return;
-      // console.info(crumbLs);
-      dirNode = curNode.value.crumb_node[curNode.value.crumb_node.length - 1];
-      console.warn(dirNode);
-      parentLsQ = await getParentDir(dirNode.id_parent ?? '');
-      parentLs = sortList(parentLsQ.list, sortVal.value);
-      len = parentLs.length;
-      if (len < 2) return;
-      curParentIndex = 0;
-      parentLs.forEach((node, index) => {
-        if (node.id == props.data.query.id_dir) curParentIndex = index;
-      });
-      retryCount = parentLs.length;
-      do {
-        curParentIndex += 1;
-        while (curParentIndex < 0) curParentIndex += len;
-        while (curParentIndex > len - 1) curParentIndex -= len;
-        targetNode = parentLs[curParentIndex];
-        props.data.query.id_dir = `${targetNode.id}`;
-        const getNxtRst = await getList();
-        if (getNxtRst) break;
-      } while (--retryCount > 0);
+      switch (props.data.query.mode) {
+        default:
+          const curDir =
+            crumbList.value.length ?
+              crumbList.value[crumbList.value.length - 1] : {
+                id: 0,
+                id_parent: 0,
+                type: 'directory',
+                title: 'root',
+                description: '',
+                status: 1,
+                building: 0,
+              };
+          parentLsQ = await getParentDir(curDir.id_parent);
+          parentLs = sortList(parentLsQ.list, sortVal.value);
+          len = parentLs.length;
+          if (len < 2) return;
+          curParentIndex = 0;
+          parentLs.forEach((node, index) => {
+            if (node.id == props.data.query.id_dir) curParentIndex = index;
+          });
+          retryCount = parentLs.length;
+          do {
+            curParentIndex += 1;
+            while (curParentIndex < 0) curParentIndex += len;
+            while (curParentIndex > len - 1) curParentIndex -= len;
+            targetNode = parentLs[curParentIndex];
+            props.data.query.id_dir = `${targetNode.id}`;
+            const getNxtRst = await getList();
+            if (getNxtRst) break;
+          } while (--retryCount > 0);
+          break;
+        case 'id_iterate':
+          const idStrArr = props.data.query.keyword.split(',');
+          const idArr: number[] = [];
+          idStrArr.forEach(str => idArr.push(parseInt(str)));
+          let curPid = null;
+          for (let i1 = 0; i1 < curNode.value.crumb_node.length; i1++) {
+            const node = curNode.value.crumb_node[i1];
+            if (idArr.indexOf(node.id) === -1) continue;
+            curPid = node.id;
+            break;
+          }
+          if (!curPid) break;
+          //定位到下一个文件夹的第一个
+          const curPidIndex = idArr.indexOf(curPid);
+          len = idArr.length;
+          let tPidIndex = curPidIndex + 1;
+          while (tPidIndex < 0) tPidIndex += len;
+          while (tPidIndex > len - 1) tPidIndex -= len;
+          const tPid = idArr[tPidIndex];
+          for (let i1 = 0; i1 < vNodeList.value.length; i1++) {
+            const node = vNodeList.value[i1];
+            for (let i2 = 0; i2 < node.crumb_node.length; i2++) {
+              if (node.crumb_node[i2].id !== tPid) continue;
+              return goNav(i1, 0);
+            }
+          }
+          break;
+      }
       break;
     case 'NumpadEnter':
     case 'Enter':

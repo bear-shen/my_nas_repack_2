@@ -115,8 +115,13 @@ export default class {
                         request.keyword.trim()
                     );
                 }
+                //
+                let parentId = -1;
+                if (request.status != 'deleted') {
+                    if (request.id_dir) parentId = parseInt(request.id_dir);
+                }
                 //屏蔽一下root下开遍历的情况
-                if (request.cascade_dir == '1') {
+                if (request.cascade_dir == '1' && parentId < 1) {
                     let isSearch = false;
                     if (request.keyword && request.keyword.length) isSearch = true;
                     if (request.rate && request.rate.length) isSearch = true;
@@ -126,10 +131,6 @@ export default class {
                     }
                 }
                 //
-                let parentId = -1;
-                if (request.status != 'deleted') {
-                    if (request.id_dir) parentId = parseInt(request.id_dir);
-                }
                 if (parentId !== -1) {
                     target.path = await buildCrumb(parentId);
                     if (request.cascade_dir == '1')
@@ -142,10 +143,11 @@ export default class {
                 let idList = request.keyword?.length ? request.keyword.split(',') : ['0'];
                 model.where((model) => {
                     if (request.cascade_dir == '1') {
-                        model.whereIn('id_parent', idList);
-                        model.or().whereIn('id', idList);
+                        idList.forEach(id => {
+                            model.or().whereRaw('node_id_list @> $0', id);
+                        });
                     } else
-                        model.whereIn('id', idList);
+                        model.whereIn('id_parent', idList);
                 });
                 break;
         }
