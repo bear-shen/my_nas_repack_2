@@ -157,6 +157,7 @@ CREATE TABLE IF NOT EXISTS "tag"
     "description" text               DEFAULT NULL,
     "index_tag"   jsonb              DEFAULT NULL,
     "status"      smallint           DEFAULT 1,
+    "id_bgm"      bigint             DEFAULT 1,
     "time_create" timestamp NOT NULL DEFAULT current_timestamp,
     "time_update" timestamp NOT NULL DEFAULT current_timestamp,
     PRIMARY KEY ("id")
@@ -290,8 +291,92 @@ select setval('tag_group_id_seq', (select coalesce(max(id), 0) + 1 from tag_grou
 select setval('user_id_seq', (select coalesce(max(id), 0) + 1 from "user"));
 select setval('user_group_id_seq', (select coalesce(max(id), 0) + 1 from user_group));
 
+-- ---------------------------------------------------------------------------------------- --
+CREATE TABLE "public"."bgm_character"
+(
+    "id"       int4,
+    "role"     int4,
+    "name"     text COLLATE "pg_catalog"."default",
+    "infobox"  text COLLATE "pg_catalog"."default",
+    "summary"  text COLLATE "pg_catalog"."default",
+    "comments" int4,
+    "collects" int4
+);
+CREATE TABLE "public"."bgm_episode"
+(
+    "id"          int4,
+    "name"        text COLLATE "pg_catalog"."default",
+    "name_cn"     text COLLATE "pg_catalog"."default",
+    "description" text COLLATE "pg_catalog"."default",
+    "airdate"     text COLLATE "pg_catalog"."default",
+    "disc"        int4,
+    "duration"    text COLLATE "pg_catalog"."default",
+    "subject_id"  int4,
+    "sort"        float8,
+    "type"        int4
+);
+CREATE TABLE "public"."bgm_person"
+(
+    "id"       int4,
+    "name"     text COLLATE "pg_catalog"."default",
+    "type"     int4,
+    "career"   text COLLATE "pg_catalog"."default",
+    "infobox"  text COLLATE "pg_catalog"."default",
+    "summary"  text COLLATE "pg_catalog"."default",
+    "comments" int4,
+    "collects" int4
+);
+CREATE TABLE "public"."bgm_person_characters"
+(
+    "person_id"    int4,
+    "subject_id"   int4,
+    "character_id" int4,
+    "summary"      text COLLATE "pg_catalog"."default"
+);
+CREATE TABLE "public"."bgm_subject"
+(
+    "id"            int4 NOT NULL,
+    "type"          int4,
+    "name"          text COLLATE "pg_catalog"."default",
+    "name_cn"       text COLLATE "pg_catalog"."default",
+    "infobox"       text COLLATE "pg_catalog"."default",
+    "platform"      int4,
+    "summary"       text COLLATE "pg_catalog"."default",
+    "nsfw"          int4,
+    "tags"          text COLLATE "pg_catalog"."default",
+    "score"         float8,
+    "score_details" text COLLATE "pg_catalog"."default",
+    "rank"          int4,
+    "date"          text COLLATE "pg_catalog"."default",
+    "favorite"      text COLLATE "pg_catalog"."default",
+    "series"        int4,
+    CONSTRAINT "bgm_subject_pkey" PRIMARY KEY ("id")
+);
+CREATE TABLE "public"."bgm_subject_characters"
+(
+    "character_id" int4,
+    "subject_id"   int4,
+    "type"         int4,
+    "order"        int4
+);
+CREATE TABLE "public"."bgm_subject_persons"
+(
+    "person_id"  int4,
+    "subject_id" int4,
+    "position"   int4
+);
+CREATE TABLE "public"."bgm_subject_relations"
+(
+    "subject_id"         int4,
+    "relation_type"      int4,
+    "related_subject_id" int4,
+    "order"              int4
+);
 
+CREATE INDEX if not EXISTS "bgm_character_index" ON "bgm_character" USING pgroonga ("infobox", "name");
+CREATE INDEX if not EXISTS "bgm_subject_index" ON "bgm_subject" USING pgroonga ("infobox", "name", "name_cn", "summary");
 
+-- ---------------------------------------------------------------------------------------- --
 
 
 

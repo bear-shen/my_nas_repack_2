@@ -27,27 +27,45 @@ $dbConf = [
 
 $dir    = __DIR__ . '/bgm/';
 $fileLs = [
-    'bgm_subject'            => $dir . 'subject.jsonlines',
-    'bgm_episode'            => $dir . 'episode.jsonlines',
-    'bgm_character'          => $dir . 'character.jsonlines',
-    'bgm_subject_persons'    => $dir . 'subject-persons.jsonlines',
-    'bgm_subject_relations'  => $dir . 'subject-relations.jsonlines',
-    'bgm_person'             => $dir . 'person.jsonlines',
-    'bgm_subject_characters' => $dir . 'subject-characters.jsonlines',
-    'bgm_person_characters'  => $dir . 'person-characters.jsonlines',
+    'bgm_subject' => $dir . 'subject.jsonlines',
+    //    'bgm_episode'            => $dir . 'episode.jsonlines',
+    //    'bgm_character'          => $dir . 'character.jsonlines',
+    //    'bgm_subject_persons'    => $dir . 'subject-persons.jsonlines',
+    //    'bgm_subject_relations'  => $dir . 'subject-relations.jsonlines',
+    //    'bgm_person'             => $dir . 'person.jsonlines',
+    //    'bgm_subject_characters' => $dir . 'subject-characters.jsonlines',
+    //    'bgm_person_characters'  => $dir . 'person-characters.jsonlines',
 ];
 
 /*foreach ($fileLs as $dbName => $file) {
     $content = file_get_contents($file);
     $arr     = explode("\n", $content);
     $col     = [];
+    ORMPG::table($dbName)->delete();
     foreach ($arr as $row) {
-        $row   = trim($row);
-        $row   = json_decode($row, true);
+        $row = trim($row);
+        if (empty($row)) continue;
+        $row = json_decode($row, true);
+        if (empty($row)) continue;
+        echo $row['name'], "\r\n";
         $col[] = $row;
-        $ifExs = ORM::table($dbName)->where('id', $row['id'])->first();
-        if ($ifExs) ORM::table($dbName)->where('id', $row['id'])->delete();
-        ORM::table($dbName)->insert($row);
+        $ifExs = ORMPG::table($dbName)->where('id', $row['id'])->first(['id']);
+        if ($ifExs) ORMPG::table($dbName)->where('id', $row['id'])->delete();
+        $tRow = [];
+        foreach ($row as $k => $v) {
+            switch (gettype($v)) {
+                default:
+                    $tRow[$k] = $v;
+                    break;
+                case 'array':
+                    $tRow[$k] = json_encode($v, JSON_UNESCAPED_UNICODE);
+                    break;
+                case 'boolean':
+                    $tRow[$k] = $v ? 1 : 0;
+                    break;
+            }
+        }
+        ORMPG::table($dbName)->insert($tRow);
     }
     file_put_contents($dir . $dbName . '.json', json_encode($col, JSON_UNESCAPED_UNICODE));
 }*/
@@ -65,7 +83,7 @@ foreach ($groupLs as $group) {
             foreach ($tagLs as $tag) {
                 echo $tag['title'], "\r\n";
                 $ifSuccess = syncParody($tag);
-                if (!$ifSuccess) $ifSuccess = syncParody_sim($tag);
+//                if (!$ifSuccess) $ifSuccess = syncParody_sim($tag);
             }
             break;
         case 'character':
@@ -75,7 +93,7 @@ foreach ($groupLs as $group) {
             foreach ($tagLs as $tag) {
                 echo $tag['title'], "\r\n";
                 $ifSuccess = syncCharacter($tag);
-                if (!$ifSuccess) $ifSuccess = syncCharacter_sim($tag);
+//                if (!$ifSuccess) $ifSuccess = syncCharacter_sim($tag);
             }
             break;
     }
