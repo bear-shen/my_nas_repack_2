@@ -111,7 +111,7 @@ export default class {
                     model.where(
                         'node_index',
                         // 'title',
-                        '&@',
+                        '&@~',
                         request.keyword.trim()
                     );
                 }
