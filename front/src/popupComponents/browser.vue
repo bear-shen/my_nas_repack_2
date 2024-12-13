@@ -167,22 +167,33 @@ async function getList(ext: api_file_list_req = {}) {
   // let queryData = GenFunc.copyObject(props.data.query);
   if (ext)
     props.data.query = Object.assign(props.data.query, ext);
-  const res = await query<api_file_list_resp>("file/get", props.data.query);
+  let res: api_file_list_resp;
+  //先查询当前目录，如果当前目录下面没有，尝试级联
+  res = await query<api_file_list_resp>("file/get", props.data.query);
   if (!res) return false;
   if (!res.list.length) return false;
-  //先过滤掉文件夹
-  let dirCount = 0;
+  //过滤文件夹
+  let tList: api_node_col[] = [];
   res.list.forEach(node => {
-    if (!node.is_file) dirCount++;
+    if (node.is_file) tList.push(node);
   });
-  //有文件的时候才清理
-  if (dirCount != res.list.length) {
-    const tList: api_node_col[] = [];
+  res.list = tList;
+  //
+  if (!res.list.length) {
+    if (props.data.query.cascade_dir) return false;
+    const query2 = GenFunc.copyObject(props.data.query);
+    query2.cascade_dir = 1;
+    res = await query<api_file_list_resp>("file/get", query2);
+    if (!res) return false;
+    if (!res.list.length) return false;
+    //过滤文件夹
+    tList = [];
     res.list.forEach(node => {
       if (node.is_file) tList.push(node);
     });
     res.list = tList;
   }
+  if (!res.list.length) return false;
   //
   let index = 0;
   let node = null;
@@ -299,16 +310,19 @@ async function keymap(e: KeyboardEvent) {
       if (["audio", "video"].indexOf(curNode.value.type ?? "") !== -1) return;
       goNav(curIndex.value, +1);
       break;
+    case "a":
     case "PageUp":
       e.preventDefault();
       e.stopPropagation();
       goNav(curIndex.value, -1);
       break;
+    case "d":
     case "PageDown":
       e.preventDefault();
       e.stopPropagation();
       goNav(curIndex.value, +1);
       break;
+    case 'w':
     case '[':
       //根据全局的排序方法选择下一个目录
       switch (props.data.query.mode) {
@@ -371,6 +385,7 @@ async function keymap(e: KeyboardEvent) {
           }
       }
       break;
+    case 's':
     case ']':
       switch (props.data.query.mode) {
         default:

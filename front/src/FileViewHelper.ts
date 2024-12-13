@@ -1305,7 +1305,9 @@ export class opFunctionModule {
             query.mode = 'id_iterate';
             query.keyword = idArr.join(',');
         }
-        query.cascade_dir = 1;
+        //打开弹窗默认是展示的当前文件夹里的内容
+        //如果文件夹里没有可以展示的内容，才会尝试查找级联的内容
+        query.cascade_dir = 0;
         // if (idSet.size > 1) {
         // let query = GenFunc.copyObject(this.queryData);
         popupDetail(query, idArr[0]);

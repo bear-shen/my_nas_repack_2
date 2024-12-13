@@ -56,12 +56,12 @@ npm run dev
 ## popup window :
 - `Escape` close
 - ### browser :
-  - `left` go prev 
-  - `right` go next
+  - `left` `a` go prev 
+  - `right` `d` go next
   - `pageup` go prev
   - `pagedown` go next
-  - `[` prev directory
-  - `]` next directory
+  - `[` `w` prev directory
+  - `]` `s` next directory
 - ### audio/video browser :
   - `left` - 5s
   - `right` + 5s
