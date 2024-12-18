@@ -112,6 +112,7 @@ CREATE INDEX if not EXISTS "node_index_tag_id_list" ON "node" using GIN ("tag_id
 -- CREATE INDEX if not EXISTS "node_index_node_index" ON "node" USING GIN (to_tsvector('english', "node_index"));
 CREATE INDEX if not EXISTS "node_index_node_index_pgroonga" ON "node" USING pgroonga ("node_index");
 CREATE INDEX if not EXISTS "node_index_id_parent" ON "node" USING btree ("id_parent", "title");
+CREATE INDEX "node_index_rel_node_id" ON "node" USING btree ("rel_node_id");
 
 CREATE TABLE IF NOT EXISTS "queue"
 (
@@ -124,7 +125,7 @@ CREATE TABLE IF NOT EXISTS "queue"
     "time_update" timestamp DEFAULT current_timestamp,
     PRIMARY KEY ("id")
 );
-CREATE INDEX "queue_ind" ON "queue" ("id", "status");
+CREATE INDEX "queue_ind" ON "queue" ("status","id");
 
 CREATE TABLE IF NOT EXISTS "rate"
 (
