@@ -81,7 +81,7 @@ allow_container = ['mp4', 'ogg', 'webm', 'm4a', ]
 #nvenc
 #ff_encoder = '-c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 40 -bf 3 -pix_fmt p010le -multipass qres -rc-lookahead 32'
 #quicksync
-#ff_encoder = '-c:v hevc_qsv -profile:v main10 -preset slow -q:v 27 -bf 3 -pix_fmt p010le'
+#ff_encoder = '-c:v av1_qsv -profile:v main -preset slow -q:v 27 -bf 3 -pix_fmt p010le'
 #cpu
 ff_encoder = '-c:v libx265 -qp 22 -bf 4 -pix_fmt yuv420p10le'
 

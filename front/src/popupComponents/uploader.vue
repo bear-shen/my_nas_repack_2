@@ -41,10 +41,11 @@ function onDrop(e: DragEvent) {
     const entry = item.webkitGetAsEntry();
     // list.value.set(Math.random().toString(32), {
     if (entry.isFile) {
+      const file = item.getAsFile();
       list.value.push({
         name: entry.fullPath,
-        size: item.size,
-        file: item,
+        size: file.size,
+        file: file,
         isDir: false,
         status: "waiting",
         start: 0,
@@ -56,6 +57,7 @@ function onDrop(e: DragEvent) {
       });
     }
   }
+  console.info(list.value);
 }
 
 async function recursiveReader(dirEntry: FileSystemDirectoryEntry): Promise<uploadFileType[]> {
