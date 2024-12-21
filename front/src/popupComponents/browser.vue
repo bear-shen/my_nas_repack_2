@@ -12,6 +12,7 @@ import browserAudioVue from "./browserAudio.vue";
 import browserVideoVue from "./browserVideo.vue";
 import browserTextVue from "./browserText.vue";
 import browserPDFVue from "./browserPDF.vue";
+import browserOffice from "./browserOffice.vue";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 // import {useEventStore} from "@/stores/event";
 import type {col_node, type_file,} from "../../../share/Database";
@@ -32,7 +33,8 @@ const regComponentLs: { [key: string]: any } = {
   image: browserImageVue,
   pdf: browserPDFVue,
   text: browserTextVue,
-  base: browserBaseVue,
+  base: browserOffice,
+  // base: browserBaseVue,
 };
 
 // const eventStore = useEventStore();
