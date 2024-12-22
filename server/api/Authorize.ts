@@ -26,8 +26,19 @@ async function check(url: URL, req: IncomingMessage): Promise<number | true | fa
     }
     // console.info([_, prefix, c, a]);
     // console.info(req.headers);
-    if (!req.headers['auth-token']) return false;
-    const ifExs = await (new AuthModel).where('token', req.headers['auth-token']).order('id', 'desc').first(['uid']);
+    let token = req.headers['auth-token'];
+    if (!token) {
+        if (req.url) {
+            let uriInfo = new URL('http://0.0.0.0' + req.url);
+            if (uriInfo) {
+                if (uriInfo.searchParams && uriInfo.searchParams.has('token')) {
+                    token = uriInfo.searchParams.get('token');
+                }
+            }
+        }
+    }
+    if (!token) return false;
+    const ifExs = await (new AuthModel).where('token', token).order('id', 'desc').first(['uid']);
     // console.info(ifExs);
     if (!ifExs) return false;
     if (authRole == 2) {

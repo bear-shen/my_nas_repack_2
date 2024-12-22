@@ -105,19 +105,40 @@ export default class {
     async auth(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<void> {
         // console.info('auth');
         // console.info(req.headers.cookie);
-        if (!req.headers.cookie) {
-            // console.info('if (!req.headers.cookie) {');
-            res.statusCode = 401;
+        // console.info(req.url);
+        // console.info(req.rawHeaders);
+        //-------------------------------------------------------------
+        if (!req.headers['x-original-uri']) {
+            res.statusCode = 400;
             return null;
         }
-        //
-        const tokenReg = req.headers.cookie.match(/\btoken=(\w+)/);
-        if (!tokenReg) {
+        let uri = req.headers['x-original-uri'];
+        if (typeof uri !== 'string') uri = uri[0];
+        let uriInfo = new URL('http://0.0.0.0' + uri);
+        if (!uriInfo) {
+            res.statusCode = 400;
+            return null;
+        }
+        uri = uriInfo.pathname;
+        //-------------------------------------------------------------
+        let token: string;
+        if (uriInfo.searchParams && uriInfo.searchParams.has('token')) {
+            token = uriInfo.searchParams.get('token');
+        }
+        if (!token && req.headers.cookie) {
+            const tokenReg = req.headers.cookie.match(/\btoken=(\w+)/);
+            if (!tokenReg) {
+                res.statusCode = 401;
+                return null;
+            }
+            token = tokenReg[1];
+        }
+        if (!token) {
             // console.info('if (!tokenReg) {');
             res.statusCode = 401;
             return null;
         }
-        const token = tokenReg[1];
+        //-------------------------------------------------------------
         const auth = await (new AuthModel).where('token', token).first(['uid']);
         if (!auth) {
             // console.info('if (!auth) {');
@@ -125,29 +146,21 @@ export default class {
             return null;
         }
         //
-        const user = await (new UserModel).where('id', auth.uid).first();
+        const user = await (new UserModel).where('id', auth.uid).first(['id', 'id_group']);
         if (!user) {
             // console.info('if (!user) {');
             res.statusCode = 401;
             return null;
         }
         //
-        const userGroup = await (new userGroupModel).where('id', user.id_group).first();
+        const userGroup = await (new userGroupModel).where('id', user.id_group).first(['id', 'auth']);
         if (!userGroup) {
             // console.info('if (!userGroup) {');
             res.statusCode = 401;
             return null;
         }
         const userAuth = userGroup.auth;
-        //
-        if (!req.headers['x-original-uri']) {
-            // console.info('if (!req.headers[\'x-original-uri\']) {');
-            res.statusCode = 401;
-            return null;
-        }
-        let uri = req.headers['x-original-uri'];
-        if (typeof uri !== 'string') uri = uri[0];
-        //
+        //-------------------------------------------------------------
         // const urlInfo = new URL(uri);
         // console.info(urlInfo);
         const pathDef = Config.get('path');
