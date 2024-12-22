@@ -1,8 +1,8 @@
 @font-face {
   font-family: "listIcon"; /* Project id 1893485 */
-  src: url('iconfont.woff2?t=1651564756141') format('woff2'),
-       url('iconfont.woff?t=1651564756141') format('woff'),
-       url('iconfont.ttf?t=1651564756141') format('truetype');
+  src: url('iconfont.woff2?t=1734884021689') format('woff2'),
+       url('iconfont.woff?t=1734884021689') format('woff'),
+       url('iconfont.ttf?t=1734884021689') format('truetype');
 }
 
 .listIcon {
@@ -79,6 +79,10 @@
 
 .listIcon_21mutil:before {
   content: "\e6a5";
+}
+
+.listIcon_file_office:before {
+  content: "\e6df";
 }
 
 .listIcon_file_subtitle:before {

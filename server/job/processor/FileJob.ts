@@ -162,8 +162,9 @@ class FileJob {
                 if (typeof tmpFilePath === 'string')
                     await fp.put(tmpFilePath, node.id_parent, node.title, 'normal', fp.extension(tmpFilePath));
                 break;
+            default:
+            case 'office':
             case 'pdf':
-                break;
             case 'directory':
                 break;
         }

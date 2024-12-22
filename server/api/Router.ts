@@ -14,6 +14,7 @@ import Log from "./processor/Log";
 import Favourite from "./processor/Favourite";
 import FavouriteGroup from "./processor/FavouriteGroup";
 import Rate from "./processor/Rate";
+import OnlyOffice from "./processor/OnlyOffice";
 
 // type t = RowDataPacket;
 const controllers: { [key: string]: any } = {
@@ -28,6 +29,7 @@ const controllers: { [key: string]: any } = {
     log: Log,
     setting: Setting,
     rate: Rate,
+    onlyoffice: OnlyOffice,
     dev: 0,
 }
 

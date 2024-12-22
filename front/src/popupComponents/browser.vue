@@ -33,8 +33,8 @@ const regComponentLs: { [key: string]: any } = {
   image: browserImageVue,
   pdf: browserPDFVue,
   text: browserTextVue,
-  base: browserOffice,
-  // base: browserBaseVue,
+  office: browserOffice,
+  base: browserBaseVue,
 };
 
 // const eventStore = useEventStore();

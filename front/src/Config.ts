@@ -11,7 +11,8 @@ export default {
         'image',
         'binary',
         'text',
-        'pdf'
+        'pdf',
+        'office',
     ],
     indexedDBName: 'tosho_db',
     timeouts: {

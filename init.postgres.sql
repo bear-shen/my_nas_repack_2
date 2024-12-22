@@ -76,7 +76,8 @@ CREATE TABLE IF NOT EXISTS "favourite_group"
 );
 
 DROP TYPE IF EXISTS NodeType;
-CREATE TYPE NodeType as ENUM ('audio', 'video', 'image', 'binary', 'text', 'directory', 'subtitle', 'pdf');
+CREATE TYPE NodeType as ENUM ('audio', 'video', 'image', 'binary', 'text', 'directory', 'subtitle', 'pdf', 'office');
+-- ALTER TYPE NodeType add value 'office' after 'pdf';
 
 CREATE TABLE IF NOT EXISTS "node"
 (
