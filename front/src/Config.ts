@@ -72,4 +72,10 @@ export default {
         'directory',
         'subtitle',
     ] as type_file[],
+    onlyOffice: {
+        origin: '',
+        enabled: false,
+        apiSrc: '',
+        jwtSecret: '',
+    },
 }

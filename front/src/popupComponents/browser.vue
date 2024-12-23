@@ -12,7 +12,7 @@ import browserAudioVue from "./browserAudio.vue";
 import browserVideoVue from "./browserVideo.vue";
 import browserTextVue from "./browserText.vue";
 import browserPDFVue from "./browserPDF.vue";
-import browserOffice from "./browserOffice.vue";
+import browserOfficeVue from "./browserOffice.vue";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 // import {useEventStore} from "@/stores/event";
 import type {col_node, type_file,} from "../../../share/Database";
@@ -33,9 +33,12 @@ const regComponentLs: { [key: string]: any } = {
   image: browserImageVue,
   pdf: browserPDFVue,
   text: browserTextVue,
-  office: browserOffice,
+  office: browserBaseVue,
   base: browserBaseVue,
 };
+if (Config.onlyOffice.enabled) {
+  regComponentLs.office = browserOfficeVue;
+}
 
 // const eventStore = useEventStore();
 const localConfigure = useLocalConfigureStore();
@@ -554,39 +557,43 @@ function setRater(rateVal: string) {
   >
     <template v-slot:info>
       <div :class="{info:true,detail:showDetail}">
-        <p v-if="showDetail">
-          {{ curNode.title }} ({{
-            GenFunc.kmgt(curNode.file_index?.raw?.size ?? 0, 2)
-          }})
-        </p>
-        <p v-else>{{ curNode.title }}</p>
-        <p v-if="curNode.crumb_node">Dir :
-          <template v-for="node in curNode.crumb_node">/{{ node.title }}</template>
-        </p>
-        <p v-if="showDetail" class="preLine">{{ curNode.description }}</p>
+        <template v-if="showDetail">
+          <p>
+            {{ curNode.title }} ({{
+              GenFunc.kmgt(curNode.file_index?.raw?.size ?? 0, 2)
+            }})
+          </p>
+          <p v-if="curNode.crumb_node">Dir :
+            <template v-for="node in curNode.crumb_node">/{{ node.title }}</template>
+          </p>
+          <p class="preLine">{{ curNode.description }}</p>
+        </template>
+        <!--        <p v-else>{{ curNode.title }}</p>-->
       </div>
     </template>
     <template v-slot:btnContainer>
       <!--      <div class="btnContainer">-->
       <!--      </div>-->
       <div class="btnContainer">
-        <template v-if="isMobile">
-          <select v-model="rateVal" @change="setRater(rateVal)">
-            <option v-for="(type,key) in Config.rateMobile" :value="key" :key="'BROWSER_RATE_'+modalData.nid+'_'+key">{{ type }}</option>
-          </select>
-        </template>
-        <template v-else>
-          <select class="sysIcon" v-model="rateVal" @change="setRater(rateVal)">
-            <option class='sysIcon_A sysIcon' v-for="(type,key) in Config.rate" :value="key" v-html="type" :key="'BROWSER_RATE_'+modalData.nid+'_'+key"></option>
-          </select>
-        </template>
+        <template v-if="showDetail">
+          <template v-if="isMobile">
+            <select v-model="rateVal" @change="setRater(rateVal)">
+              <option v-for="(type,key) in Config.rateMobile" :value="key" :key="'BROWSER_RATE_'+modalData.nid+'_'+key">{{ type }}</option>
+            </select>
+          </template>
+          <template v-else>
+            <select class="sysIcon" v-model="rateVal" @change="setRater(rateVal)">
+              <option class='sysIcon_A sysIcon' v-for="(type,key) in Config.rate" :value="key" v-html="type" :key="'BROWSER_RATE_'+modalData.nid+'_'+key"></option>
+            </select>
+          </template>
 
-        <select v-model="filterVal" @change="setFilter(filterVal)">
-          <option v-for="(fileType, key) in Config.fileType" :value="fileType" :key="'BROWSER_TYPE_'+modalData.nid+'_'+key">
-            {{ fileType }}
-          </option>
-        </select>
-        <br>
+          <select v-model="filterVal" @change="setFilter(filterVal)">
+            <option v-for="(fileType, key) in Config.fileType" :value="fileType" :key="'BROWSER_TYPE_'+modalData.nid+'_'+key">
+              {{ fileType }}
+            </option>
+          </select>
+          <br>
+        </template>
         <select v-model="sortVal" @change="setSort($event)">
           <option v-for="(sortItem, key) in Config.sort" :value="key" :key="'BROWSER_SORT_'+modalData.nid+'_'+key">
             {{ sortItem }}

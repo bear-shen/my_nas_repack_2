@@ -7,6 +7,7 @@ import GenFunc from "@/GenFunc";
 import {useUserStore} from "@/stores/userStore";
 import sign from "jwt-encode";
 // import {useEventStore} from "@/stores/event";
+import Config from "@/Config";
 
 
 const props = defineProps<{
@@ -19,20 +20,26 @@ const props = defineProps<{
 let filePath = null;
 const viewerId = 'pdvViewer_' + props.modalData.nid;
 const contentDOM: Ref<HTMLIFrameElement | null> = ref(null);
-const src: Ref<string | null> = ref(null);
 let docEditor = null;
 const userStore = useUserStore();
 const user = userStore.get();
+const stInterval = 100;
 
 onMounted(() => {
   console.warn("mounted");
-  loadScript('http://192.168.110.152:8001/web-apps/apps/api/documents/api.js');
-  setTimeout(() => startOnlyOffice(), 100);
+  loadScript(Config.onlyOffice.apiSrc);
+  setTimeout(() => startOnlyOffice(), stInterval);
 });
 
+
 function startOnlyOffice() {
-  const secret = 'Ru857DNvRDsfdQ4TxX0yE15r022R0kk1';
-  const origin = 'http://192.168.110.235:85';
+  if (!scriptReady) return setTimeout(() => startOnlyOffice(), stInterval);
+  const domId = 'modal_office_' + props.modalData.nid;
+  const ifDomExs = document.getElementById(domId);
+  if (!ifDomExs) return setTimeout(() => startOnlyOffice(), stInterval);
+  //
+  const secret = Config.onlyOffice.jwtSecret;
+  const origin = Config.onlyOffice.origin;
   const curNode = props.curNode;
   console.info(props);
   console.info(curNode);
@@ -54,7 +61,7 @@ function startOnlyOffice() {
     },
   };
   payload.token = sign(payload, secret);
-  docEditor = new DocsAPI.DocEditor('modal_office_' + props.modalData.nid, payload);
+  docEditor = new DocsAPI.DocEditor(domI, payload);
   console.info(docEditor);
 }
 
@@ -62,17 +69,22 @@ watch(
   () => props.curNode,
   async (to) => {
     console.info('onMod props.curNode');
-    src.value = '/pdfjs/web/viewer.html?file=' + to.file_index?.raw?.path + '&filename=' + to.title;
   });
 onUnmounted(() => {
-  src.value = null;
 });
+
+let scriptReady = false;
 
 function loadScript(url) {
   //@see https://lengyun.github.io/js/3-2-1dynamicAddJS.html#%E5%8A%A8%E6%80%81%E6%8F%92%E5%85%A5js%E7%9A%84%E6%96%B9%E5%BC%8F%EF%BC%9A
   var script = document.createElement("script");
   script.type = "text/javascript";
   script.src = url;
+  script.onload = (e: Event) => {
+    console.info(e);
+    if (e.readyState != "complete") return;
+    scriptReady = true;
+  }
   document.body.appendChild(script);
 }
 

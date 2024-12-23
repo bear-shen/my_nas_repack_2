@@ -5,13 +5,30 @@ import FrNavi from "./framework/Navi.vue";
 import Popup from "./framework/Popup.vue";
 import Context from "./framework/Context.vue";
 import {useUserStore} from "@/stores/userStore";
+import {query} from "@/Helper";
+import {type api_file_list_resp, api_setting_front_conf} from "../../share/Api";
 // import dev from "../../share/dev";
+import Config from "@/Config";
 
 const userStore = useUserStore();
 const userData = userStore.get();
 if (userData) {
   document.cookie = `token=${userData.token}; max-age=31536000`
+  loadFeConf();
 }
+
+async function loadFeConf() {
+  const res = await query<api_setting_front_conf>('setting/get_front_conf');
+  if (!res) return;
+  console.info(res);
+  if (res.onlyoffice_enabled === 'true') {
+    Config.onlyOffice.enabled = true;
+    Config.onlyOffice.origin = res.origin;
+    Config.onlyOffice.apiSrc = res.onlyoffice_api_src;
+    Config.onlyOffice.jwtSecret = res.onlyoffice_jwt_secret;
+  }
+}
+
 // dev();
 const containerDef = {};
 </script>

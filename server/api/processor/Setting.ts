@@ -1,6 +1,6 @@
 import {IncomingMessage, ServerResponse} from 'http';
 import {ParsedForm} from '../types';
-import {api_setting_col, api_setting_del_req, api_setting_del_resp, api_setting_list_req, api_setting_list_resp, api_setting_mod_req, api_setting_mod_resp,} from '../../../share/Api';
+import {api_setting_col, api_setting_del_req, api_setting_del_resp, api_setting_front_conf, api_setting_list_req, api_setting_list_resp, api_setting_mod_req, api_setting_mod_resp,} from '../../../share/Api';
 import SettingModel from "../../model/SettingModel";
 import * as Config from "../../Config";
 
@@ -115,6 +115,11 @@ export default class {
             payload: {},
             status: 1,
         });
+    }
+
+    async get_front_conf(): Promise<api_setting_front_conf> {
+        const feConf = Config.get('web');
+        return feConf;
     }
 
 

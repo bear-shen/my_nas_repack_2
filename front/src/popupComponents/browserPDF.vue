@@ -96,6 +96,7 @@ loadPDF();
 .modal_dom.resizing {
   .modal_browser.pdf {
     iframe {
+      //调整尺寸的时候把iframe置底
       z-index: -1;
       position: relative;
     }

@@ -101,7 +101,12 @@ allow_container = ['webvtt', ]
 allow_codec = ['ass', 'ssa', 'vtt', 'srt', 'subrip', 'mov_text', 'webvtt', ]
 priority_kw = ['cht', 'chs', 'chin', 'zh-', '中', 'jpn', 'jps', 'japan', 'jp', '日', 'us', 'en', '英', ]
 
-
+[web]
+origin = 'http://192.168.110.235:85'
+#onlyoffice_enabled = 'false'
+onlyoffice_enabled = 'true'
+onlyoffice_api_src = 'http://192.168.110.152:8001/web-apps/apps/api/documents/api.js'
+onlyoffice_jwt_secret = 'Ru857DNvRDsfdQ4TxX0yE15r022R0kk1'
 
 
 

@@ -49,12 +49,18 @@ export function loadLocal() {
 // console.info(tomlConfContent);
     const tomlConf = toml.parse(tomlConfContent.toString()) as ConfType;
     mergeToml(BaseConfig, tomlConf);
-
+    //
     if (process.env.NAS_DRIVER) (BaseConfig.db as ConfType).driver = process.env.NAS_DRIVER;
     if (process.env.NAS_PORT) (BaseConfig.db as ConfType).port = parseInt(process.env.NAS_PORT);
     if (process.env.NAS_DB) (BaseConfig.db as ConfType).database = process.env.NAS_DB;
     if (process.env.NAS_USER) (BaseConfig.db as ConfType).account = process.env.NAS_USER;
     if (process.env.NAS_PASSWORD) (BaseConfig.db as ConfType).password = process.env.NAS_PASSWORD;
+    //
+    if (process.env.NAS_ORIGIN) (BaseConfig.web as ConfType).origin = process.env.NAS_ORIGIN;
+    if (process.env.onlyoffice_enabled) (BaseConfig.web as ConfType).onlyoffice_enabled = process.env.onlyoffice_enabled;
+    if (process.env.onlyoffice_api_src) (BaseConfig.web as ConfType).onlyoffice_api_src = process.env.onlyoffice_api_src;
+    if (process.env.onlyoffice_jwt_secret) (BaseConfig.web as ConfType).onlyoffice_jwt_secret = process.env.onlyoffice_jwt_secret;
+    //
     return BaseConfig;
 }
 
