@@ -86,7 +86,7 @@ loadPDF();
     </div>
     <slot name="navigator"></slot>
     <div class="content">
-      <iframe v-if="src" :src="src" width="100%" height="100%" allowfullscreen/>
+      <iframe v-if="src" :src="src" allowfullscreen/>
     </div>
   </div>
 </template>
@@ -105,27 +105,42 @@ loadPDF();
 .modal_browser.pdf {
   .content {
     text-align: center;
-    embed {
+    position: relative;
+    iframe {
       width: 100%;
-      height: 100%;
+      height: calc(100% - $fontSize * 1.5);
     }
   }
   .pagination {
+    height: $fontSize*1.5;
+    top: unset;
+    bottom: 0;
+    text-align: center;
     .left, .right {
+      top: unset;
+      display: inline-block;
+      position: relative;
       opacity: 1;
       //background-color: blue;
-      height: 10%;
-      top: 40%;
+      height: 100%;
+      line-height: $fontSize*1.5;
+      //top: 40%;
       cursor: pointer;
+      //
+      background-color: map-get($colors, button);
+      color: map-get($colors, font);
+      &:hover,
+      &.active,
+      &.disabled,
+      option:checked {
+        background-color: map-get($colors, button_active);
+        color: map-get($colors, font_active);
+      }
+      //
       span {
-        //width: $fontSize * 2;
-        //height: $fontSize * 2;
-        //line-height: $fontSize * 2;
-        //border-radius: $fontSize * 2;
-        //background-color: map-get($colors, popup_active);
-        $blurSize: $fontSize * 0.25;
-        text-shadow: 0 0 $blurSize black, 0 0 $blurSize black, 0 0 $blurSize black,
-        0 0 $blurSize black;
+        vertical-align: top;
+        height: $fontSize * 1.5;
+        line-height: $fontSize * 1.5;
       }
     }
   }
