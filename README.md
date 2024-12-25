@@ -10,12 +10,19 @@ nodejs
 postgresql, nginx, ffmpeg required
 
 nginx modules required:
-
-  http_auth_request
-
-  http_proxy
+  - http_auth_request
+  - http_proxy
 
 php optional
+
+onlyoffice optional
+  - work with conf.toml
+  - in docker, use 
+    - `-e NAS_ORIGIN=[your site]` 
+    - `-e onlyoffice_enabled=[true|false]` 
+    - `-e onlyoffice_api_src=[{onlyoffice}/web-apps/apps/api/documents/api.js]` 
+    - `-e onlyoffice_jwt_secret=[JWTToken]` 
+    
 
 ```bash
 npm install -g pm2
