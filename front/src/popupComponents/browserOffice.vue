@@ -41,8 +41,6 @@ function startOnlyOffice() {
   const secret = Config.onlyOffice.jwtSecret;
   const origin = Config.onlyOffice.origin;
   const curNode = props.curNode;
-  console.info(props);
-  console.info(curNode);
   const suffixInd = curNode.title.lastIndexOf('.');
   const suffix = curNode.title.substring(suffixInd + 1);
   const documentType = getDocumentTypeBySuffix(suffix);
@@ -61,7 +59,8 @@ function startOnlyOffice() {
     },
   };
   payload.token = sign(payload, secret);
-  docEditor = new DocsAPI.DocEditor(domI, payload);
+  console.info(payload);
+  docEditor = new DocsAPI.DocEditor(domId, payload);
   console.info(docEditor);
 }
 
@@ -82,7 +81,7 @@ function loadScript(url) {
   script.src = url;
   script.onload = (e: Event) => {
     console.info(e);
-    if (e.readyState != "complete") return;
+    // if (e.readyState != "complete") return;
     scriptReady = true;
   }
   document.body.appendChild(script);
@@ -167,7 +166,8 @@ function getDocumentTypeBySuffix(suffix): string {
       </div>
     </div>
     <slot name="navigator"></slot>
-    <div class="content" :id="'modal_office_'+modalData.nid">
+    <div class="content">
+      <div :id="'modal_office_'+modalData.nid"></div>
     </div>
   </div>
 </template>

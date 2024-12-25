@@ -58,15 +58,26 @@ export default class {
         const resTxt = JSON.stringify({error: 0});
         const nodeId = parseInt(fields.key, 16);
         const node = await new NodeModel().where('id', nodeId).first();
+        // console.info(fields.status);
         switch (fields.status) {
             default:
                 break;
             case 2:
+                // console.info('onsave');
+                console.info(fields.url);
                 const rawLocalPath = fp.mkLocalPath(fp.mkRelPath(node));
                 const downResult = await downloadFile(fields.url, rawLocalPath + '.tmp');
                 if (!downResult) {
                     res.write(JSON.stringify({error: 1}));
                     res.end();
+                    try {
+                        await fs.rm(rawLocalPath + '.tmp', {
+                            force: true,
+                        });
+                    } catch (e) {
+                        console.info(e);
+                    }
+                    return;
                 }
                 await fs.rm(rawLocalPath, {
                     // recursive:true,
@@ -78,6 +89,7 @@ export default class {
                     payload: {id: node.id},
                     status: 1,
                 });
+                // console.info('complete');
                 break;
         }
         // console.info(data.fields.actions);
@@ -91,21 +103,34 @@ export default class {
 
 function downloadFile(sourceUrl: string, targetPath: string): Promise<boolean> {
     return new Promise((resolve) => {
-        const file = fsNp.createWriteStream(targetPath);
+        // console.info(sourceUrl, targetPath);
+        const file = fsNp.createWriteStream(targetPath, {
+            autoClose: true,
+        });
         const req = request(sourceUrl, (response) => {
+            // console.info('req callback');
             if (response.statusCode !== 200) {
                 console.info(`download failed: ${response.statusCode}`);
+                file.close();
                 resolve(false);
             }
             response.pipe(file);
             file.on('finish', () => {
+                // console.info('file finish');
                 file.close();
                 resolve(true);
-            })
+            });
         });
+        req.on('finish', () => {
+            // console.info('req finish');
+            file.close();
+            resolve(true);
+        })
         req.on('error', (error) => {
             console.info(`download failed:`, error);
+            file.close();
             resolve(false);
         });
+        req.end();
     })
 }
