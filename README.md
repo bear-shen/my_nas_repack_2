@@ -17,9 +17,9 @@ php optional
 
 onlyoffice optional
   - work with conf.toml
-  - in docker, use 
-    - `-e NAS_ORIGIN=[your site]` 
-    - `-e onlyoffice_enabled=[true|false]` 
+  - in docker, use
+    - `-e onlyoffice_enabled=true`
+    - `-e NAS_ORIGIN=[your site]`  
     - `-e onlyoffice_api_src=[{onlyoffice}/web-apps/apps/api/documents/api.js]` 
     - `-e onlyoffice_jwt_secret=[JWTToken]` 
     
