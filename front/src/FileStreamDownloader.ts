@@ -60,9 +60,9 @@ export class FileStreamDownloader {
         for (let i1 = 0; i1 < pidArr.length; i1++) {
             const pid = pidArr[i1];
             const res = await query<api_file_list_resp>("file/get", Object.assign({
-                mode: 'id_iterate',
+                mode: 'directory',
                 cascade_dir: '1',
-                pid: pid.toString(),
+                id_dir: pid.toString(),
                 with: 'file',
             }) as api_file_list_req);
             // console.info(res);
@@ -70,7 +70,7 @@ export class FileStreamDownloader {
             this.nodeList.push(...res.list);
         }
         this.nodeList.sort((a, b) => {
-            //做个id的排序，本意是方便建树，但是可能用处不大
+            //做个id的排序，方便建树
             let kA = a.type === 'directory' ? '0' : '1';
             if (a.node_id_list) a.node_id_list.forEach(id => kA += id.toString().padStart(15, '0'))
             let kB = b.type === 'directory' ? '0' : '1';
@@ -85,16 +85,17 @@ export class FileStreamDownloader {
         for (let i1 = 0; i1 < this.nodeList.length; i1++) {
             const node = this.nodeList[i1];
             if (!node.id) continue;
-            if (!node.file_index?.raw) continue;
-            const file = node.file_index?.raw;
+            if (!node.type === 'directory') continue;
+            if (!node.file_index.raw) continue;
+            const file = node.file_index.raw;
             if (!file.path) continue;
             const src = file.path + '?filename=' + node.title;
-            const res = await this.basename(src, this.downloadProcess.bind(this));
+            const res = await this.downloadFile(src, this.downloadProcess.bind(this));
             this.fileMap.set(node.id, res);
             this.downCur = 0;
             this.downFile += file.size;
         }
-        console.info(this.fileMap);
+        // console.info(this.fileMap);
     }
 
     public downloadProcess(ev: ProgressEvent) {
@@ -102,7 +103,7 @@ export class FileStreamDownloader {
         this.downCur = ev.loaded;
     }
 
-    public basename(src: string, progress?: typeof XMLHttpRequest.on): Promise<ArrayBuffer> {
+    public downloadFile(src: string, progress?: typeof XMLHttpRequest.on): Promise<ArrayBuffer> {
         return new Promise(resolve => {
             const xhr = new XMLHttpRequest();
             xhr.withCredentials = true;

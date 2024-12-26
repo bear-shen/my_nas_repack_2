@@ -140,7 +140,10 @@ export default class {
                 }
                 break;
             case 'id_iterate':
-                let idList = request.keyword?.length ? request.keyword.split(',') : ['0'];
+                if (!request.keyword || !request.keyword.length) {
+                    throw new Error('keyword required');
+                }
+                let idList = request.keyword.split(',');
                 model.where((model) => {
                     if (request.cascade_dir == '1') {
                         idList.forEach(id => {

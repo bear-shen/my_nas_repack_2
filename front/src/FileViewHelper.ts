@@ -447,7 +447,6 @@ export class opModule {
                     console.info(this, nodeLs);
                     if (!opModuleVal || !opModuleVal.modalStore) return;
                     //
-
                     const fd = new FileStreamDownloader(nodeLs);
                     //
                     const resRef: Ref<string> = ref('downloading 0/0 (0%)');

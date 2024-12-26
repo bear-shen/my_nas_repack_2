@@ -460,7 +460,9 @@ export async function buildWebPath(nodeList: col_node[]) {
     }
     const relNodeMap = new Map<number, col_node>();
     if (relNodeIdSet.size) {
-        const relNodeLs = await (new NodeModel).whereIn('id', Array.from(relNodeIdSet)).select();
+        const relNodeLs = await (new NodeModel).whereIn('id', Array.from(relNodeIdSet)).select([
+            'id', 'node_path', 'title', 'file_index',
+        ]);
         relNodeLs.forEach(relNode => {
             relNodeMap.set(relNode.id, relNode);
         });
@@ -473,20 +475,23 @@ export async function buildWebPath(nodeList: col_node[]) {
                 case 'rel':
                     const relNodeId = <number>node.file_index.rel;
                     if (!relNodeMap.has(relNodeId)) break;
-                    const relNode = relNodeMap.get(relNodeId)
+                    const relNode = relNodeMap.get(relNodeId);
+                    //rel只映射cover
                     for (const relTypeKey in relNode.file_index) {
                         const fileIndex = relNode.file_index[relTypeKey];
                         if (!fileIndex || typeof fileIndex === 'number') continue;
                         switch (relTypeKey) {
                             case 'cover':
-                            case 'preview':
-                            case 'normal':
-                            case 'raw':
-                                relNode.file_index[relTypeKey].path = pathConf.root_web + '/' + mkRelPath(relNode, relTypeKey, fileIndex.ext);
+                                // case 'preview':
+                                // case 'normal':
+                                // case 'raw':
+                                // relNode.file_index[relTypeKey].path = pathConf.root_web + '/' + mkRelPath(relNode, relTypeKey, fileIndex.ext);
+                                node.file_index[relTypeKey] = relNode.file_index[relTypeKey];
+                                node.file_index[relTypeKey].path = pathConf.root_web + '/' + mkRelPath(relNode, relTypeKey, fileIndex.ext);
                                 break;
                         }
                     }
-                    node.file_index = relNode.file_index;
+                    // node.file_index = relNode.file_index;
                     break;
                 case 'cover':
                 case 'preview':
@@ -507,11 +512,13 @@ export async function buildWebPath(nodeList: col_node[]) {
         // if (node.type === 'image' && node.file_index.preview && !node.file_index.cover) {
         //     node.file_index.cover = node.file_index.preview;
         // }
-        if (node.file_index.preview && !node.file_index.cover) {
-            node.file_index.cover = node.file_index.preview;
-        }
-        if (node.file_index.cover && !node.file_index.preview) {
-            node.file_index.preview = node.file_index.cover;
+        if (!node.file_index.rel) {
+            if (node.file_index.preview && !node.file_index.cover) {
+                node.file_index.cover = node.file_index.preview;
+            }
+            if (node.file_index.cover && !node.file_index.preview) {
+                node.file_index.preview = node.file_index.cover;
+            }
         }
     }
     return nodeList;
