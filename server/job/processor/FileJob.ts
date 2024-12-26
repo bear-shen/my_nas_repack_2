@@ -399,8 +399,8 @@ class FileJob {
         if (!subNodeLs || !subNodeLs.length) return;
         const nodePath = mkRelPath(parentNode);
         const nodeIdList = parentNode.node_id_list;
-        // console.info(parentNode.node_id_list);
         nodeIdList.push(parentNode.id);
+        // console.info(parentNode.node_id_list);
         const subNodeIdLs: number[] = [];
         for (let i1 = 0; i1 < subNodeLs.length; i1++) {
             subNodeIdLs.push(subNodeLs[i1].id);
@@ -415,7 +415,7 @@ class FileJob {
                 await FileJob.cascadeMoveFile({id: node.id});
             }
         }
-        cascadeCover(payload.id)
+        await cascadeCover(payload.id)
     }
 
     static async cascadeCopyFile(payload: { [key: string]: any }): Promise<any> {
