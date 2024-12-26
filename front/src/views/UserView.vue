@@ -584,7 +584,7 @@ async function modUser(index: number) {
       background-color: map-get($colors, bk_active);
     }
   }
-  @media (max-width: $fontSize*50) {
+  @media (max-width: ($fontSize * 50)) {
     display: block;
     .list_user_group {
       width: 100%;

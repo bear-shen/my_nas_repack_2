@@ -735,7 +735,7 @@ function tag_del(groupIndex: number, tagIndex: number) {
       height: auto;
     }
   }
-  @media (max-width: $fontSize*50) {
+  @media (max-width: ($fontSize*50)) {
     display: block;
     .list_fav_group {
       width: 100%;

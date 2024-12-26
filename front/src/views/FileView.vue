@@ -4,7 +4,7 @@ import type {Ref} from 'vue';
 import {onMounted, onUnmounted, ref} from 'vue';
 import {onBeforeRouteUpdate, useRoute, useRouter} from 'vue-router';
 import {useLocalConfigureStore} from '@/stores/localConfigure';
-import {query} from '@/Helper';
+import {query,mayTyping} from '@/Helper';
 import type {opModule as opModuleClass} from '@/FileViewHelper';
 import * as fHelper from '@/FileViewHelper';
 // import {manualSort} from '@/FileViewHelper';
@@ -306,6 +306,13 @@ function keymap(e: KeyboardEvent) {
         addFolder();
       }
       break;
+      case 'ctrl_KeyC':
+      case 'ctrl_KeyV':
+      case 'ctrl_KeyX':
+      if (e.target)
+        if(mayTyping(e.target))return;
+      onPasteBinOperate(keyMap);
+      break;
     case 'Enter':
     case 'NumpadEnter':
       if (!e.target) return;
@@ -321,6 +328,9 @@ function onDragover(e: DragEvent) {
   e.stopPropagation();
   e.preventDefault();
   addFile();
+}
+function onPasteBinOperate(operate:string){
+  console.info();
 }
 </script>
 

@@ -32,7 +32,7 @@ let opModuleVal: null | opModule;
 * */
 export class opModule {
     public nodeList: Ref<api_node_col[]> = ref([]);
-    public getList: () => any;
+    public getList: (list?:api_node_col[]) => any;
     public route: RouteLocationNormalizedLoaded;
     public router: Router;
     public contentDOM: HTMLElement;
@@ -1111,7 +1111,7 @@ export class opFunctionModule {
         formData.set('id', `${node.id}`);
         const res = await query<api_file_delete_resp>('file/delete', formData);
         console.info(opModuleVal);
-        if (opModuleVal) opModuleVal.deleteFromList([node.id]);
+        if (opModuleVal && node.id) opModuleVal.deleteFromList([node.id]);
         return res;
     }
 
@@ -1154,7 +1154,7 @@ export class opFunctionModule {
         const formData = new FormData();
         formData.set('id', `${node.id}`);
         const res = await query<api_file_delete_resp>('file/delete_forever', formData);
-        if (opModuleVal) opModuleVal.deleteFromList([node.id]);
+        if (opModuleVal && node.id) opModuleVal.deleteFromList([node.id]);
         return res;
     }
 
@@ -1307,7 +1307,7 @@ export class opFunctionModule {
         }
         //打开弹窗默认是展示的当前文件夹里的内容
         //如果文件夹里没有可以展示的内容，才会尝试查找级联的内容
-        query.cascade_dir = 0;
+        query.cascade_dir = '0';
         // if (idSet.size > 1) {
         // let query = GenFunc.copyObject(this.queryData);
         popupDetail(query, idArr[0]);
