@@ -5,6 +5,7 @@ import NodeModel from "../model/NodeModel";
 import FavouriteModel from "../model/FavouriteModel";
 import * as fs from 'fs/promises';
 import util from "util";
+import QueueModel from "../model/QueueModel";
 
 const exec = util.promisify(require('child_process').exec);
 
@@ -187,7 +188,7 @@ export async function rmFile(srcNode: string | number | col_node, fileKey: 'prev
 export async function mv(
     srcNode: string | number | col_node, targetDir: string | number | col_node
     , targetTitle: string = '', targetDescription: string = ''
-) {
+): Promise<col_node[]> {
     const cur = await get(srcNode);
     if (!cur) throw new Error('node not found');
     //
@@ -195,78 +196,90 @@ export async function mv(
     const ifExs = await ifLocalFileExists(localPath);
     // console.info(localPath, ifExs, targetDir);
     if (!ifExs) throw new Error('local node not found');
-    //不输入target的时候只进行重命名，这个用于批量处理
-    if (targetDir == -1) {
-        if (!targetTitle) throw new Error('no title');
-        //
-        const upd: col_node = {
-            title: titleFilter(targetTitle),
-            // node_path: cur.node_path,
-        };
-        if (upd.title == cur.title) return;
-        if (await ifTitleExist(cur.id_parent, upd.title)) throw new Error('file already exists');
-        // let targetNodeLocalPath = mkLocalPath(mkRelPath(upd));
-        // console.info('mv to', localPath, targetNodeLocalPath, upd);
-        // return;
-        for (const key in cur.file_index) {
-            const fileIndex = cur.file_index[key];
-            if (!fileIndex || typeof fileIndex === 'number') continue;
-            switch (key) {
-                case 'preview':
-                case 'normal':
-                case 'cover':
-                case 'raw':
-                    let curNodeLocalPath = mkLocalPath(mkRelPath(cur, key, fileIndex.ext));
-                    let targetNodeLocalPath = mkLocalPath(mkRelPath(upd, key, fileIndex.ext));
-                    await rename(curNodeLocalPath, targetNodeLocalPath);
-                    break;
-            }
-        }
-        // await rename(localPath, targetNodeLocalPath);
-        //
-        await (new NodeModel).where('id', cur.id).update(upd);
-        return;
-    }
-    const targetDirNode = await get(targetDir);
-    if (!targetDirNode) throw new Error('parentNode not found');
-    if (targetDirNode.node_id_list.indexOf(cur.id) !== -1)
-        throw new Error('cannot mv to subNode');
-    //
-    const targetDirPath = mkRelPath(targetDirNode);
-    const targetDirLocalPath = mkLocalPath(targetDirPath);
-    const ifTargetExs = await ifLocalFileExists(targetDirLocalPath);
-    if (!ifTargetExs) throw new Error('local target dir not found');
     //
     const upd: col_node = {
-        id_parent: targetDirNode.id,
-        node_id_list: [...targetDirNode.node_id_list, targetDirNode.id],
-        node_path: mkRelPath(targetDirNode),
+        // title: titleFilter(targetTitle),
+        // id_parent: targetDirNode.id,
+        // node_id_list: [...targetDirNode.node_id_list, targetDirNode.id],
+        // node_path: mkRelPath(targetDirNode),
     };
-    if (targetTitle.length) {
+    if (targetDir == -1) {
+        //纯改名
+        if (!targetTitle || !targetTitle.length) throw new Error('no title');
+    } else {
+        //移动
+        const targetDirNode = await get(targetDir);
+        if (!targetDirNode) throw new Error('parentNode not found');
+        //不能移动到子目录
+        if (targetDirNode.node_id_list.indexOf(cur.id) !== -1)
+            throw new Error('cannot mv to subNode');
+        //检查一下新的上级
+        const targetDirPath = mkRelPath(targetDirNode);
+        const targetDirLocalPath = mkLocalPath(targetDirPath);
+        const ifTargetExs = await ifLocalFileExists(targetDirLocalPath);
+        if (!ifTargetExs) throw new Error('local target dir not found');
+        //
+        upd.id_parent = targetDirNode.id;
+        upd.node_id_list = [...targetDirNode.node_id_list, targetDirNode.id];
+        upd.node_path = mkRelPath(targetDirNode);
+    }
+    //
+    if (targetTitle && targetTitle.length) {
         upd.title = titleFilter(targetTitle);
         if (!upd.title) throw new Error('invalid title');
+        if (upd.title == cur.title) return [cur];
+        if (await ifTitleExist(cur.id_parent, upd.title)) throw new Error('file already exists');
+        //
         upd.description = targetDescription;
     } else {
+        //这边主要是方便移动文件
         upd.title = cur.title;
     }
-    //
-    for (const key in cur.file_index) {
-        const fileIndex = cur.file_index[key];
-        if (!fileIndex || typeof fileIndex === 'number') continue;
-        switch (key) {
-            case 'preview':
-            case 'normal':
-            case 'cover':
-            case 'raw':
-                let curNodeLocalPath = mkLocalPath(mkRelPath(cur, key, fileIndex.ext));
-                let targetNodeLocalPath = mkLocalPath(mkRelPath(upd, key, fileIndex.ext));
+    //先移动文件，再修改数据
+    //文件直接就移动了，文件夹单独处理一下
+    switch (cur.type) {
+        case "directory":
+            const typeLs = [
+                'preview', 'normal', 'cover', 'raw',
+            ];
+            for (let i1 = 0; i1 < typeLs.length; i1++) {
+                const type = typeLs[i1];
+                let curNodeLocalPath = mkLocalPath(mkRelPath(cur, type as any));
+                if (!await ifLocalFileExists(curNodeLocalPath)) continue;
+                let targetNodeLocalPath = mkLocalPath(mkRelPath(upd, type as any));
                 // console.info(curNodeLocalPath, targetNodeLocalPath);
                 await rename(curNodeLocalPath, targetNodeLocalPath);
-                break;
-        }
+            }
+            break;
+        default:
+            for (const key in cur.file_index) {
+                // console.info(key);
+                const fileIndex = cur.file_index[key];
+                if (!fileIndex || typeof fileIndex === 'number') continue;
+                switch (key) {
+                    case 'preview':
+                    case 'normal':
+                    case 'cover':
+                    case 'raw':
+                        let curNodeLocalPath = mkLocalPath(mkRelPath(cur, key, fileIndex.ext));
+                        if (!await ifLocalFileExists(curNodeLocalPath)) continue;
+                        let targetNodeLocalPath = mkLocalPath(mkRelPath(upd, key, fileIndex.ext));
+                        // console.info(curNodeLocalPath, targetNodeLocalPath);
+                        await rename(curNodeLocalPath, targetNodeLocalPath);
+                        break;
+                }
+            }
+            break;
     }
-    //
     await (new NodeModel).where('id', cur.id).update(upd);
+    if (cur.type === 'directory') {
+        await (new QueueModel).insert({
+            type: 'file/cascadeMoveFile',
+            payload: {id: cur.id},
+            status: 1,
+        });
+    }
+    return [cur];
 }
 
 export async function cp(
@@ -543,7 +556,7 @@ export async function rename(srcPath: string, targetPath: string) {
     hasErr = null;
     try {
         await fs.rename(srcPath, targetPath);
-        await fs.chmod(targetPath, 0o666);
+        await fs.chmod(targetPath, 0o777);
         return true;
     } catch (e) {
         hasErr = e;
@@ -554,7 +567,7 @@ export async function rename(srcPath: string, targetPath: string) {
     try {
         await fs.cp(srcPath, targetPath, {recursive: true, force: true});
         await fs.rm(srcPath, {recursive: true, force: true});
-        await fs.chmod(targetPath, 0o666);
+        await fs.chmod(targetPath, 0o777);
         return true;
     } catch (e) {
         hasErr = e;
@@ -677,12 +690,14 @@ export function trimSlash(str: string) {
 }
 
 export function ltrimSlash(str: string) {
+    if (!str || !str.length) return '';
     str = str.trim();
     if (str.indexOf('/') !== 0) return str;
     return ltrimSlash(str.substring(1, str.length));
 }
 
 export function rtrimSlash(str: string) {
+    if (!str || !str.length) return '';
     str = str.trim();
     if (str.lastIndexOf('/') !== str.length - 1) return str;
     return rtrimSlash(str.substring(0, str.length - 1));

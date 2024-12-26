@@ -344,14 +344,16 @@ export default class {
     // };
 
     async mov(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<any> {
+        //注意fp.mv方法没有支持文件夹内部的移动
         const request = data.fields as api_file_mov_req;
         // const fromNode = await (new NodeModel()).where('id', request.node_id).first();
         await fp.mv(parseInt(request.id_node), parseInt(request.id_target));
-        (new QueueModel).insert({
+        //不涉及到文件索引
+        /*(new QueueModel).insert({
             type: 'file/rebuildIndex',
             payload: {id: parseInt(request.id_node)},
             status: 1,
-        });
+        });*/
         return null;
     };
 

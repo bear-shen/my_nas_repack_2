@@ -372,6 +372,54 @@ class FileJob {
             })
         }
     }
+
+    /**
+     * 级联更新文件
+     * 前置的 FileProcessor/mv 已经移动了物理文件
+     * 这里只需要重建修改后的 node_id_list 和 node_path
+     * */
+    static async cascadeMoveFile(payload: { [key: string]: any }): Promise<any> {
+        const srcId = parseInt(payload.id);
+        let parentNode: col_node;
+        if (srcId)
+            parentNode = await new NodeModel().where('id', srcId).first([
+                'id', "node_id_list", "node_path"
+            ]);
+        else
+            parentNode = fp.rootNode;
+        if (!parentNode) throw new Error('node not found');
+        //
+        // const nodeCacheMap: Map<number, col_node> = new Map();
+        // nodeCacheMap.set(parentNode.id, parentNode);
+        //直接丢进递归里，不然比较麻烦
+        const subNodeLs = await new NodeModel()
+            // .whereRaw('node_id_list @> $0', srcId)
+            .where('id_parent', srcId)
+            .select(['id', 'type']);
+        if (!subNodeLs || !subNodeLs.length) return;
+        const nodePath = mkRelPath(parentNode);
+        const nodeIdList = parentNode.node_id_list;
+        // console.info(parentNode.node_id_list);
+        nodeIdList.push(parentNode.id);
+        const subNodeIdLs: number[] = [];
+        for (let i1 = 0; i1 < subNodeLs.length; i1++) {
+            subNodeIdLs.push(subNodeLs[i1].id);
+        }
+        await new NodeModel().whereIn('id', subNodeIdLs).update({
+            node_id_list: nodeIdList,
+            node_path: nodePath,
+        });
+        for (let i1 = 0; i1 < subNodeLs.length; i1++) {
+            const node = subNodeLs[i1];
+            if (node.type === 'directory') {
+                await FileJob.cascadeMoveFile({id: node.id});
+            }
+        }
+        cascadeCover(payload.id)
+    }
+
+    static async cascadeCopyFile(payload: { [key: string]: any }): Promise<any> {
+    }
 }
 
 async function cascadeCover(nodeId: number) {

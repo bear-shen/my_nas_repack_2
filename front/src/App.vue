@@ -83,6 +83,7 @@ const containerDef = {};
   height: $footerHeight;
 }
 .content_meta {
+  position: relative;
   /*position: fixed;
   top: $fontSize*1.5;
   @include fillAvailable(width);
@@ -181,6 +182,14 @@ const containerDef = {};
   }
   .display a {
     cursor: pointer;
+  }
+
+  .pastebin{
+    position: absolute;
+    right: 0;
+    top: $fontSize*1.5;
+    $metaBk: map-get($colors, bar_meta);
+    background-color: $metaBk;
   }
 }
 </style>

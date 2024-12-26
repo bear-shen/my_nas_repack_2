@@ -4,7 +4,7 @@ import type {Ref} from 'vue';
 import {onMounted, onUnmounted, ref} from 'vue';
 import {onBeforeRouteUpdate, useRoute, useRouter} from 'vue-router';
 import {useLocalConfigureStore} from '@/stores/localConfigure';
-import {query,mayTyping} from '@/Helper';
+import {query, mayTyping} from '@/Helper';
 import type {opModule as opModuleClass} from '@/FileViewHelper';
 import * as fHelper from '@/FileViewHelper';
 // import {manualSort} from '@/FileViewHelper';
@@ -13,8 +13,10 @@ import type {api_file_list_req, api_file_list_resp, api_file_mkdir_req, api_file
 import {useModalStore} from '@/stores/modalStore';
 import FileItem from '@/components/FileItem.vue';
 import Config from "@/Config";
+import {usePastebinStore} from "@/stores/usePastebinStore";
 
 const modalStore = useModalStore();
+const pastebinStore = usePastebinStore();
 const contentDOM: Ref<HTMLElement | null> = ref(null);
 //
 const router = useRouter();
@@ -306,11 +308,10 @@ function keymap(e: KeyboardEvent) {
         addFolder();
       }
       break;
-      case 'ctrl_KeyC':
-      case 'ctrl_KeyV':
-      case 'ctrl_KeyX':
-      if (e.target)
-        if(mayTyping(e.target))return;
+    case 'ctrl_KeyC':
+    case 'ctrl_KeyV':
+    case 'ctrl_KeyX':
+      if (mayTyping(e.target)) return;
       onPasteBinOperate(keyMap);
       break;
     case 'Enter':
@@ -329,8 +330,25 @@ function onDragover(e: DragEvent) {
   e.preventDefault();
   addFile();
 }
-function onPasteBinOperate(operate:string){
-  console.info();
+
+function onPasteBinOperate(operate: string) {
+  console.info(operate, crumbList.value, queryData.id_dir);
+  let {idSet, nodeLs} = opModule.getSelected();
+  if (!nodeLs.length) return;
+  switch (operate.join('_')) {
+    case 'ctrl_KeyC':
+      pastebinStore.nodeList = nodeLs;
+      pastebinStore.mode = 'copy';
+      break;
+    case 'ctrl_KeyV':
+      if (queryData.id_dir) return;
+      pastebinStore.doPaste(queryData.id_dir);
+      break;
+    case 'ctrl_KeyX':
+      pastebinStore.nodeList = nodeLs;
+      pastebinStore.mode = 'cut';
+      break;
+  }
 }
 </script>
 
@@ -437,6 +455,12 @@ function onPasteBinOperate(operate:string){
             :key="`FAV_SCH_BTN_${index}`"
           ></a>
         </template>
+      </div>
+      <div class="pastebin"
+           v-if="pastebinStore && pastebinStore.nodeList.length"
+      >
+        <span>{{ pastebinStore.mode }}</span>
+        <span>{{ pastebinStore.nodeList.length }}</span>
       </div>
     </div>
     <div :class="['content_detail', `mode_${opModule?opModule.mode.value:''}`]" ref='contentDOM'>

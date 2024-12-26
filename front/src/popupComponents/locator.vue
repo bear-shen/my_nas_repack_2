@@ -17,7 +17,7 @@ let queryData: api_file_list_req = {
   id_dir: '',
   keyword: '',
   id_tag: '',
-  cascade_dir: '',
+  cascade_dir: '1',
   node_type: 'directory',
   with: 'crumb',
   limit: '20',
@@ -34,7 +34,7 @@ const props = defineProps<{
 // const list = ref(new Map() as Map<string, uploadFile>);
 const list: Ref<valType[]> = ref([] as valType[]);
 onMounted(() => {
-  Object.assign(queryData, JSON.parse(JSON.stringify(props.data.id_dir)));
+  // Object.assign(queryData, JSON.parse(JSON.stringify(props.data.query)));
   locatorInput.value?.focus();
 });
 onUnmounted(() => {
