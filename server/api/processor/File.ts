@@ -346,19 +346,34 @@ export default class {
     async mov(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<any> {
         const request = data.fields as api_file_mov_req;
         // const fromNode = await (new NodeModel()).where('id', request.node_id).first();
-        await fp.mv(parseInt(request.id_node), parseInt(request.id_target));
-        //不涉及到文件索引
-        /*(new QueueModel).insert({
-            type: 'file/rebuildIndex',
-            payload: {id: parseInt(request.id_node)},
-            status: 1,
-        });*/
+        const sourceIdList = request.id_node.split(',');
+        if (!sourceIdList.length) return null;
+        for (let i1 = 0; i1 < sourceIdList.length; i1++) {
+            await fp.mv(parseInt(sourceIdList[i1]), parseInt(request.id_target));
+            //不涉及到文件索引
+            /*(new QueueModel).insert({
+                type: 'file/rebuildIndex',
+                payload: {id: parseInt(request.id_node)},
+                status: 1,
+            });*/
+        }
         return null;
     };
+
     async copy(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<any> {
         const request = data.fields as api_file_mov_req;
         // const fromNode = await (new NodeModel()).where('id', request.node_id).first();
-        await fp.cp(parseInt(request.id_node), parseInt(request.id_target));
+        const sourceIdList = request.id_node.split(',');
+        if (!sourceIdList.length) return null;
+        for (let i1 = 0; i1 < sourceIdList.length; i1++) {
+            await fp.cp(parseInt(sourceIdList[i1]), parseInt(request.id_target));
+            //不涉及到文件索引
+            /*(new QueueModel).insert({
+                type: 'file/rebuildIndex',
+                payload: {id: parseInt(request.id_node)},
+                status: 1,
+            });*/
+        }
         return null;
     };
 

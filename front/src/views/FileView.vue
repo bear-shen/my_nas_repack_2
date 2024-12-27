@@ -331,7 +331,7 @@ function onDragover(e: DragEvent) {
   addFile();
 }
 
-function onPasteBinOperate(operate: string) {
+async function onPasteBinOperate(operate: string) {
   console.info(operate, crumbList.value, queryData.id_dir);
   let {idSet, nodeLs} = opModule.getSelected();
   if (!nodeLs.length) return;
@@ -340,13 +340,14 @@ function onPasteBinOperate(operate: string) {
       pastebinStore.nodeList = nodeLs;
       pastebinStore.mode = 'copy';
       break;
-    case 'ctrl_KeyV':
-      if (queryData.id_dir) return;
-      pastebinStore.doPaste(queryData.id_dir);
-      break;
     case 'ctrl_KeyX':
       pastebinStore.nodeList = nodeLs;
       pastebinStore.mode = 'cut';
+      break;
+    case 'ctrl_KeyV':
+      if (!queryData.id_dir) return;
+      await pastebinStore.doPaste(queryData.id_dir);
+      await getList();
       break;
   }
 }
@@ -459,8 +460,9 @@ function onPasteBinOperate(operate: string) {
       <div class="pastebin"
            v-if="pastebinStore && pastebinStore.nodeList.length"
       >
-        <span>{{ pastebinStore.mode }}</span>
-        <span>{{ pastebinStore.nodeList.length }}</span>
+        <span :class="['sysIcon', `sysIcon_${pastebinStore.mode}`,]">
+          {{ pastebinStore.nodeList.length }}
+        </span>
       </div>
     </div>
     <div :class="['content_detail', `mode_${opModule?opModule.mode.value:''}`]" ref='contentDOM'>

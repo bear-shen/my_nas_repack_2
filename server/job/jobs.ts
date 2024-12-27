@@ -19,6 +19,7 @@ export default {
     'file/deleteForever': FileJob.deleteForever,
     'file/cascadeDeleteStatus': FileJob.cascadeDeleteStatus,
     'file/cascadeMoveFile': FileJob.cascadeMoveFile,
+    'file/cascadeCopyFile': FileJob.cascadeCopyFile,
     // 'import/run': ImportJob.run,
     'sync/run': SyncJob.run,
     'sync/check': SyncJob.check,

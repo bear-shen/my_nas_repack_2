@@ -183,13 +183,20 @@ const containerDef = {};
   .display a {
     cursor: pointer;
   }
-
-  .pastebin{
+  .pastebin {
     position: absolute;
     right: 0;
     top: $fontSize*1.5;
     $metaBk: map-get($colors, bar_meta);
     background-color: $metaBk;
+    padding: $fontSize*0.25 $fontSize*0.5;
+    span{
+      font-size: $fontSize*1.25;
+      line-height: $fontSize*1.25;
+    }
+    span::before {
+      padding-right: $fontSize*0.25;
+    }
   }
 }
 </style>
