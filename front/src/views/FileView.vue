@@ -333,18 +333,25 @@ function onDragover(e: DragEvent) {
 
 async function onPasteBinOperate(operate: string) {
   console.info(operate, crumbList.value, queryData.id_dir);
-  let {idSet, nodeLs} = opModule.getSelected();
-  if (!nodeLs.length) return;
+  let resVal: {
+    idSet: Set<number>,
+    nodeLs: api_node_col[],
+  };
   switch (operate.join('_')) {
     case 'ctrl_KeyC':
-      pastebinStore.nodeList = nodeLs;
+      resVal = opModule.getSelected();
+      if (!resVal.nodeLs.length) return;
+      pastebinStore.nodeList = resVal.nodeLs;
       pastebinStore.mode = 'copy';
       break;
     case 'ctrl_KeyX':
-      pastebinStore.nodeList = nodeLs;
+      resVal = opModule.getSelected();
+      if (!resVal.nodeLs.length) return;
+      pastebinStore.nodeList = resVal.nodeLs;
       pastebinStore.mode = 'cut';
       break;
     case 'ctrl_KeyV':
+      if (!pastebinStore.nodeList.length) return;
       if (!queryData.id_dir) return;
       await pastebinStore.doPaste(queryData.id_dir);
       await getList();

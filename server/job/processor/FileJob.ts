@@ -377,7 +377,12 @@ class FileJob {
     /**
      * 级联更新文件
      * 前置的 FileProcessor/mv 已经移动了物理文件
-     * 这里只需要重建修改后的 node_id_list 和 node_path
+     * 这里需要重建修改后的
+     * node_id_list
+     * node_path
+     *
+     * copy需要对文件重新设置封面级联
+     * 目前对旧的根目录会有影响， file_index.rel 没有重置，先不管
      * */
     static async cascadeMoveFile(payload: { [key: string]: any }): Promise<any> {
         const srcId = parseInt(payload.id);
@@ -414,9 +419,11 @@ class FileJob {
             const node = subNodeLs[i1];
             if (node.type === 'directory') {
                 await FileJob.cascadeMoveFile({id: node.id});
+            } else {
+                //移动应该不需要级联
+                //await cascadeCover(payload.id);
             }
         }
-        await cascadeCover(payload.id);
     }
 
     static async cascadeCopyFile(payload: { [key: string]: any }): Promise<any> {
@@ -455,34 +462,48 @@ class FileJob {
         for (let i1 = 0; i1 < subNodeLs.length; i1++) {
             const subNode = subNodeLs[i1];
             const subPNodeId = subNode.id;
-            delete subNode.id;
-            subNode.id_parent = srcTNode.id;
-            subNode.node_path = nodePath;
-            subNode.node_id_list = nodeIdList;
-            const ifCurNodeExs = await (new NodeModel()).where('id_parent', subNode.id_parent).where('title', subNode.title).first();
+            const subTNode: col_node = {
+                type: subNode.type,
+                title: subNode.title,
+                description: subNode.description,
+                id_parent: srcTNode.id,
+                node_id_list: nodeIdList,
+                node_path: nodePath,
+                file_index: subNode.file_index,
+                tag_id_list: subNode.tag_id_list,
+                node_index: subNode.node_index,
+                status: subNode.status,
+                cascade_status: subNode.cascade_status,
+                building: subNode.building,
+            };
+            //删掉关联文件，去索引里面重建
+            if (subTNode.file_index.rel) delete subTNode.file_index.rel;
+            const ifCurNodeExs = await (new NodeModel()).where('id_parent', subTNode.id_parent).where('title', subTNode.title).first();
             let subTNodeId: number;
             if (!ifCurNodeExs) {
-                const subNodeResLs = await (new NodeModel()).insert(subNode) as col_node[];
+                const subNodeResLs = await (new NodeModel()).insert(subTNode) as col_node[];
                 if (subNodeResLs && subNodeResLs[0])
                     subTNodeId = subNodeResLs[0].id;
             } else {
-                await (new NodeModel()).where('id', ifCurNodeExs.id).update(subNode);
+                await (new NodeModel()).where('id', ifCurNodeExs.id).update(subTNode);
                 subTNodeId = ifCurNodeExs.id;
             }
             if (subTNodeId) {
-                if (subNode.type === 'directory') {
-                    await FileJob.cascadeMoveFile({
+                if (subTNode.type === 'directory') {
+                    await FileJob.cascadeCopyFile({
                         src: subPNodeId,
                         target: subTNodeId,
                     });
+                } else {
+                    await cascadeCover(subTNodeId);
                 }
             }
         }
-        await cascadeCover(payload.id);
     }
 }
 
 async function cascadeCover(nodeId: number) {
+    if (!nodeId) return;
     const node = await (new NodeModel()).where('id', nodeId).first();
     if (!node.file_index?.cover) return;
     const nodeLs = node.node_id_list.reverse();

@@ -242,9 +242,16 @@ export async function mv(
     ];
     for (let i1 = 0; i1 < typeLs.length; i1++) {
         const type = typeLs[i1];
-        let curNodeLocalPath = mkLocalPath(mkRelPath(cur, type as any));
+        let ext = null;
+        if (cur.file_index[type]) {
+            const curFileIndex = cur.file_index[type] as col_node_file_index;
+            if (curFileIndex.ext) {
+                ext = curFileIndex.ext;
+            }
+        }
+        let curNodeLocalPath = mkLocalPath(mkRelPath(cur, type as any, ext));
         if (!await ifLocalFileExists(curNodeLocalPath)) continue;
-        let targetNodeLocalPath = mkLocalPath(mkRelPath(upd, type as any));
+        let targetNodeLocalPath = mkLocalPath(mkRelPath(upd, type as any, ext));
         // console.info(curNodeLocalPath, targetNodeLocalPath);
         await rename(curNodeLocalPath, targetNodeLocalPath);
     }
@@ -296,6 +303,8 @@ export async function cp(
         cascade_status: cur.cascade_status,
         building: cur.building,
     };
+    //删掉关联文件，去索引里面重建
+    if (ins.file_index.rel) delete ins.file_index.rel;
     //
     if (targetTitle && targetTitle.length) {
         ins.title = titleFilter(targetTitle);
@@ -314,9 +323,11 @@ export async function cp(
     neighbourNodeLs.forEach(node => neighbourTitleSet.add(node.title));
     if (neighbourTitleSet.has(ins.title)) {
         let insTitleInd = 0;
+        const fileName = filename(ins.title);
+        const suffix = extension(ins.title);
         do {
             insTitleInd += 1;
-            let tTitle = `${ins.title} (${insTitleInd})`;
+            let tTitle = titleFilter(`${fileName} (${insTitleInd})${suffix.length ? '.' + suffix : ''}`);
             if (!neighbourTitleSet.has(tTitle)) {
                 ins.title = tTitle;
                 break;
@@ -329,10 +340,17 @@ export async function cp(
     ];
     for (let i1 = 0; i1 < typeLs.length; i1++) {
         const type = typeLs[i1];
-        let curNodeLocalPath = mkLocalPath(mkRelPath(cur, type as any));
+        let ext = null;
+        if (cur.file_index[type]) {
+            const curFileIndex = cur.file_index[type] as col_node_file_index;
+            if (curFileIndex.ext) {
+                ext = curFileIndex.ext;
+            }
+        }
+        let curNodeLocalPath = mkLocalPath(mkRelPath(cur, type as any, ext));
         if (!await ifLocalFileExists(curNodeLocalPath)) continue;
-        let targetNodeLocalPath = mkLocalPath(mkRelPath(ins, type as any));
-        // console.info(curNodeLocalPath, targetNodeLocalPath);
+        let targetNodeLocalPath = mkLocalPath(mkRelPath(ins, type as any, ext));
+        // console.info(type, curNodeLocalPath, targetNodeLocalPath);
         await copy(curNodeLocalPath, targetNodeLocalPath);
     }
     //
