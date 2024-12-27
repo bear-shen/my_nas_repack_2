@@ -11,6 +11,7 @@ import QueueModel from "../../model/QueueModel";
 import fs from "node:fs/promises";
 import {splitQuery} from "../../lib/ModelHelper";
 import FavouriteModel from "../../model/FavouriteModel";
+import ORM from "../../lib/ORM";
 
 const exec = util.promisify(require('child_process').exec);
 
@@ -415,10 +416,69 @@ class FileJob {
                 await FileJob.cascadeMoveFile({id: node.id});
             }
         }
-        await cascadeCover(payload.id)
+        await cascadeCover(payload.id);
     }
 
     static async cascadeCopyFile(payload: { [key: string]: any }): Promise<any> {
+        const srcId = parseInt(payload.src);
+        const tgtId = parseInt(payload.target);
+        //
+        let srcPNode: col_node;
+        if (srcId)
+            srcPNode = await new NodeModel().where('id', srcId).first([
+                'id', "node_id_list", "node_path"
+            ]);
+        else
+            srcPNode = fp.rootNode;
+        if (!srcPNode) throw new Error('node not found');
+        //
+        let srcTNode: col_node;
+        if (srcId)
+            srcTNode = await new NodeModel().where('id', tgtId).first([
+                'id', "node_id_list", "node_path"
+            ]);
+        else
+            srcTNode = fp.rootNode;
+        if (!srcTNode) throw new Error('node not found');
+        //
+        if (srcPNode.id == srcTNode.id) return;
+        const subNodeLs = await new NodeModel()
+            // .whereRaw('node_id_list @> $0', srcId)
+            .where('id_parent', srcPNode.id)
+            .select();
+        if (!subNodeLs || !subNodeLs.length) return;
+        //
+        const nodePath = mkRelPath(srcTNode);
+        const nodeIdList = srcTNode.node_id_list;
+        nodeIdList.push(srcTNode.id);
+        //
+        for (let i1 = 0; i1 < subNodeLs.length; i1++) {
+            const subNode = subNodeLs[i1];
+            const subPNodeId = subNode.id;
+            delete subNode.id;
+            subNode.id_parent = srcTNode.id;
+            subNode.node_path = nodePath;
+            subNode.node_id_list = nodeIdList;
+            const ifCurNodeExs = await (new NodeModel()).where('id_parent', subNode.id_parent).where('title', subNode.title).first();
+            let subTNodeId: number;
+            if (!ifCurNodeExs) {
+                const subNodeResLs = await (new NodeModel()).insert(subNode) as col_node[];
+                if (subNodeResLs && subNodeResLs[0])
+                    subTNodeId = subNodeResLs[0].id;
+            } else {
+                await (new NodeModel()).where('id', ifCurNodeExs.id).update(subNode);
+                subTNodeId = ifCurNodeExs.id;
+            }
+            if (subTNodeId) {
+                if (subNode.type === 'directory') {
+                    await FileJob.cascadeMoveFile({
+                        src: subPNodeId,
+                        target: subTNodeId,
+                    });
+                }
+            }
+        }
+        await cascadeCover(payload.id);
     }
 }
 

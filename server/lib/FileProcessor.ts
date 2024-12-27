@@ -71,6 +71,7 @@ export async function put(
             file_index: {
                 raw: {size: 0, checksum: [], ext: ext}
             },
+            cascade_status: 1,
             status: 1,
             building: 1,
         };
@@ -236,41 +237,18 @@ export async function mv(
         upd.title = cur.title;
     }
     //先移动文件，再修改数据
-    //文件直接就移动了，文件夹单独处理一下
-    switch (cur.type) {
-        case "directory":
-            const typeLs = [
-                'preview', 'normal', 'cover', 'raw',
-            ];
-            for (let i1 = 0; i1 < typeLs.length; i1++) {
-                const type = typeLs[i1];
-                let curNodeLocalPath = mkLocalPath(mkRelPath(cur, type as any));
-                if (!await ifLocalFileExists(curNodeLocalPath)) continue;
-                let targetNodeLocalPath = mkLocalPath(mkRelPath(upd, type as any));
-                // console.info(curNodeLocalPath, targetNodeLocalPath);
-                await rename(curNodeLocalPath, targetNodeLocalPath);
-            }
-            break;
-        default:
-            for (const key in cur.file_index) {
-                // console.info(key);
-                const fileIndex = cur.file_index[key];
-                if (!fileIndex || typeof fileIndex === 'number') continue;
-                switch (key) {
-                    case 'preview':
-                    case 'normal':
-                    case 'cover':
-                    case 'raw':
-                        let curNodeLocalPath = mkLocalPath(mkRelPath(cur, key, fileIndex.ext));
-                        if (!await ifLocalFileExists(curNodeLocalPath)) continue;
-                        let targetNodeLocalPath = mkLocalPath(mkRelPath(upd, key, fileIndex.ext));
-                        // console.info(curNodeLocalPath, targetNodeLocalPath);
-                        await rename(curNodeLocalPath, targetNodeLocalPath);
-                        break;
-                }
-            }
-            break;
+    const typeLs = [
+        'preview', 'normal', 'cover', 'raw',
+    ];
+    for (let i1 = 0; i1 < typeLs.length; i1++) {
+        const type = typeLs[i1];
+        let curNodeLocalPath = mkLocalPath(mkRelPath(cur, type as any));
+        if (!await ifLocalFileExists(curNodeLocalPath)) continue;
+        let targetNodeLocalPath = mkLocalPath(mkRelPath(upd, type as any));
+        // console.info(curNodeLocalPath, targetNodeLocalPath);
+        await rename(curNodeLocalPath, targetNodeLocalPath);
     }
+    //
     await (new NodeModel).where('id', cur.id).update(upd);
     if (cur.type === 'directory') {
         await (new QueueModel).insert({
@@ -282,6 +260,9 @@ export async function mv(
     return [cur];
 }
 
+/**
+ * 旧版主要是用于webdav的，目前不用了，所以根据web版本重新适配
+ * */
 export async function cp(
     srcNode: string | number | col_node, targetDir: string | number | col_node
     , targetTitle: string = '', targetDescription: string = ''
@@ -291,82 +272,79 @@ export async function cp(
     //
     const localPath = mkLocalPath(mkRelPath(cur, 'raw'));
     const ifExs = await ifLocalFileExists(localPath);
-    // console.info(localPath, ifExs);
+    // console.info(localPath, ifExs, targetDir);
     if (!ifExs) throw new Error('local node not found');
-    //不输入target的时候只进行重命名，这个用于批量处理
+    let targetDirNode: col_node;
     if (targetDir == -1) {
-        if (!targetTitle) throw new Error('no title');
-        //
-        const ins: col_node = cur;
-        delete ins.id;
-        cur.title = titleFilter(targetTitle);
-        if (ins.title == cur.title) return;
-        if (await ifTitleExist(cur.id_parent, ins.title)) throw new Error('file already exists');
-        // let targetNodeLocalPath = mkLocalPath(mkRelPath(upd));
-        // console.info('mv to', localPath, targetNodeLocalPath, upd);
-        // return;
-        for (const key in ins.file_index) {
-            const fileIndex = cur.file_index[key];
-            if (!fileIndex || typeof fileIndex === 'number') continue;
-            switch (key) {
-                case 'preview':
-                case 'normal':
-                case 'cover':
-                case 'raw':
-                    let curNodeLocalPath = mkLocalPath(mkRelPath(cur, key, fileIndex.ext));
-                    let targetNodeLocalPath = mkLocalPath(mkRelPath(ins, key, fileIndex.ext));
-                    await copy(curNodeLocalPath, targetNodeLocalPath);
-                    break;
-            }
-        }
-        // await rename(localPath, targetNodeLocalPath);
-        //
-        const insRes = await (new NodeModel).insert(ins) as col_node[];
-        ins.id = insRes[0].id;
-        return ins;
+        targetDirNode = await get(cur.id_parent);
+    } else {
+        targetDirNode = await get(targetDir);
     }
-    const targetDirNode = await get(targetDir);
     if (!targetDirNode) throw new Error('parentNode not found');
-    if (targetDirNode.node_id_list.indexOf(cur.id) !== -1)
-        throw new Error('cannot mv to subNode');
     //
-    const targetDirPath = mkRelPath(targetDirNode);
-    const targetDirLocalPath = mkLocalPath(targetDirPath);
-    const ifTargetExs = await ifLocalFileExists(targetDirLocalPath);
-    if (!ifTargetExs) throw new Error('local target dir not found');
-    //
-    const ins: col_node = cur;
-    delete ins.id;
-    Object.assign(ins, {
+    const ins: col_node = {
+        type: cur.type,
+        title: cur.title,
+        description: cur.description,
         id_parent: targetDirNode.id,
         node_id_list: [...targetDirNode.node_id_list, targetDirNode.id],
         node_path: mkRelPath(targetDirNode),
-    });
-    if (targetTitle.length) {
+        file_index: cur.file_index,
+        tag_id_list: cur.tag_id_list,
+        node_index: cur.node_index,
+        status: cur.status,
+        cascade_status: cur.cascade_status,
+        building: cur.building,
+    };
+    //
+    if (targetTitle && targetTitle.length) {
         ins.title = titleFilter(targetTitle);
         if (!ins.title) throw new Error('invalid title');
         ins.description = targetDescription;
     } else {
+        //这边主要是方便移动文件
         ins.title = cur.title;
     }
-    //
-    for (const key in ins.file_index) {
-        const fileIndex = cur.file_index[key];
-        if (!fileIndex || typeof fileIndex === 'number') continue;
-        switch (key) {
-            case 'preview':
-            case 'normal':
-            case 'cover':
-            case 'raw':
-                let curNodeLocalPath = mkLocalPath(mkRelPath(cur, key, fileIndex.ext));
-                let targetNodeLocalPath = mkLocalPath(mkRelPath(ins, key, fileIndex.ext));
-                await copy(curNodeLocalPath, targetNodeLocalPath);
+    //检测文件名重复
+    const neighbourNodeLs = await new NodeModel()
+        .where('id_parent', ins.id_parent)
+        .select(['id', 'title'])
+    ;
+    const neighbourTitleSet = new Set<string>();
+    neighbourNodeLs.forEach(node => neighbourTitleSet.add(node.title));
+    if (neighbourTitleSet.has(ins.title)) {
+        let insTitleInd = 0;
+        do {
+            insTitleInd += 1;
+            let tTitle = `${ins.title} (${insTitleInd})`;
+            if (!neighbourTitleSet.has(tTitle)) {
+                ins.title = tTitle;
                 break;
-        }
+            }
+        } while (true);
     }
     //
-    const insRes = await (new NodeModel).insert(ins) as col_node[];
-    ins.id = insRes[0].id;
+    const typeLs = [
+        'preview', 'normal', 'cover', 'raw',
+    ];
+    for (let i1 = 0; i1 < typeLs.length; i1++) {
+        const type = typeLs[i1];
+        let curNodeLocalPath = mkLocalPath(mkRelPath(cur, type as any));
+        if (!await ifLocalFileExists(curNodeLocalPath)) continue;
+        let targetNodeLocalPath = mkLocalPath(mkRelPath(ins, type as any));
+        // console.info(curNodeLocalPath, targetNodeLocalPath);
+        await copy(curNodeLocalPath, targetNodeLocalPath);
+    }
+    //
+    const insNode = await (new NodeModel).insert(ins) as col_node[];
+    ins.id = insNode[0].id;
+    if (cur.type === 'directory') {
+        await (new QueueModel).insert({
+            type: 'file/cascadeCopyFile',
+            payload: {src: cur.id, target: ins.id},
+            status: 1,
+        });
+    }
     return ins;
 }
 
