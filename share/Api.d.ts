@@ -27,6 +27,7 @@ export type api_node_col = {
     _tagging?: boolean,
     _dom?: HTMLElement,
     _in_screen?: boolean,
+    _sort_index?:string,
 } & col_node
 
 export type api_file_list_resp = {

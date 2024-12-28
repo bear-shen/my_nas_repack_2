@@ -32,7 +32,7 @@ let opModuleVal: null | opModule;
 * */
 export class opModule {
     public nodeList: Ref<api_node_col[]> = ref([]);
-    public getList: (list?:api_node_col[]) => any;
+    public getList: (list?: api_node_col[]) => any;
     public route: RouteLocationNormalizedLoaded;
     public router: Router;
     public contentDOM: HTMLElement;
@@ -1485,31 +1485,30 @@ export function manualSort<K extends api_node_col>(list: K[], sort: string) {
             sortType = ['rate', 'desc',];
             break;
     }
+    for (let i1 = 0; i1 < list.length; i1++) {
+        const node = list[i1];
+        if (node._sort_index) continue;
+        node._sort_index = node.node_path + '/' + node.title;
+    }
+    const rev = sortType[1] == 'desc' ? -1 : 1;
     list.sort((a, b) => {
         let va: any = '';
         let vb: any = '';
-        let ca = [];
-        let cb = [];
-        const rev = sortType[1] == 'desc' ? -1 : 1;
         switch (sortType[0]) {
             default:
                 va = a[sortType[0]];
                 vb = b[sortType[0]];
                 break;
             case 'title':
-                // a?.crumb_node?.forEach(node => ca.push(node.title?.toLowerCase()));
-                // b?.crumb_node?.forEach(node => cb.push(node.title?.toLowerCase()));
-                // ca.push(a.title?.toLowerCase());
-                // cb.push(b.title?.toLowerCase());
-                // va = ca.join(' ');
-                // vb = cb.join(' ');
-                va = a.node_path + '/' + a.title;
-                vb = b.node_path + '/' + b.title;
+                //文件夹在前，文件在后
+                va = rev * (a.type === 'directory' ? 0 : 1) + a._sort_index;
+                vb = rev * (b.type === 'directory' ? 0 : 1) + b._sort_index;
                 // console.info(rev, va, vb, natsort({desc:rev,insensitive:true})(va, vb));
-                return natsort({desc: rev == 1 ? false : true, insensitive: true})(va, vb);
+                return natsort({desc: rev !== 1, insensitive: true})(va, vb);
                 break;
         }
         return (va ? va : 0) > (vb ? vb : 0) ? rev * 1 : rev * -1;
     });
+    console.info(list)
     return list;
 }
