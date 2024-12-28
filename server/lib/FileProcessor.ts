@@ -6,6 +6,7 @@ import FavouriteModel from "../model/FavouriteModel";
 import * as fs from 'fs/promises';
 import util from "util";
 import QueueModel from "../model/QueueModel";
+import ORM from "./ORM";
 
 const exec = util.promisify(require('child_process').exec);
 
@@ -264,6 +265,33 @@ export async function mv(
             status: 1,
         });
     }
+    //清理封面
+    if (cur.node_id_list && cur.node_id_list.length) {
+        const parentLs = await new NodeModel().whereIn('id', cur.node_id_list).select([
+            'id', 'rel_node_id', 'file_index'
+        ]);
+        if (parentLs.length) {
+            // console.info(parentLs);
+            for (let i1 = 0; i1 < parentLs.length; i1++) {
+                const parentNode = parentLs[i1];
+                if (!parentNode.rel_node_id) continue;
+                const coverNode = await new NodeModel().where('id', parentNode.rel_node_id).first([
+                    'id',
+                    'node_id_list',
+                ]);
+                if (!coverNode.node_id_list || !coverNode.node_id_list.length) continue;
+                if (
+                    !(coverNode.node_id_list.indexOf(cur.id) !== -1 || coverNode.id === cur.id)
+                ) continue;
+                const parentNodeFileIndex = parentNode.file_index;
+                delete parentNodeFileIndex.rel;
+                await new NodeModel().where('id', parentNode.id).update({
+                    file_index: parentNodeFileIndex,
+                });
+            }
+        }
+    }
+    //
     return [cur];
 }
 

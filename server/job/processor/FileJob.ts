@@ -381,8 +381,9 @@ class FileJob {
      * node_id_list
      * node_path
      *
-     * copy需要对文件重新设置封面级联
-     * 目前对旧的根目录会有影响， file_index.rel 没有重置，先不管
+     * copy需要对内部文件重新设置封面级联
+     * move需要删除父目录中的rel
+     *      但是还没想好要不要重新设置
      * */
     static async cascadeMoveFile(payload: { [key: string]: any }): Promise<any> {
         const srcId = parseInt(payload.id);
