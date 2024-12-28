@@ -55,6 +55,9 @@ npm run dev
 - `Enter` open browser
 - `alt + Enter` enter dir
 - `↑ ↓ ← →` nav
+- `ctrl + x` cut
+- `ctrl + c` copy
+- `ctrl + v` paste
 
 ## directory list :
 - `ctrl + U` upload
