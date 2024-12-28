@@ -1490,10 +1490,11 @@ export function manualSort<K extends api_node_col>(list: K[], sort: string) {
         if (node._sort_index) continue;
         node._sort_index = node.node_path + '/' + node.title;
     }
-    const rev = sortType[1] == 'desc' ? -1 : 1;
-    list.sort((a, b) => {
-        let va: any = '';
-        let vb: any = '';
+    const rev = sortType[1] === 'desc';
+    const revNum = rev ? -1 : 1;
+    list.sort((a: api_node_col, b: api_node_col) => {
+        let va: string | number = '';
+        let vb: string | number = '';
         switch (sortType[0]) {
             default:
                 va = a[sortType[0]];
@@ -1501,14 +1502,14 @@ export function manualSort<K extends api_node_col>(list: K[], sort: string) {
                 break;
             case 'title':
                 //文件夹在前，文件在后
-                va = rev * (a.type === 'directory' ? 0 : 1) + a._sort_index;
-                vb = rev * (b.type === 'directory' ? 0 : 1) + b._sort_index;
+                va = revNum * (a.type === 'directory' ? 0 : 1) + a._sort_index;
+                vb = revNum * (b.type === 'directory' ? 0 : 1) + b._sort_index;
                 // console.info(rev, va, vb, natsort({desc:rev,insensitive:true})(va, vb));
-                return natsort({desc: rev !== 1, insensitive: true})(va, vb);
+                return natsort({desc: rev, insensitive: true})(va, vb);
                 break;
         }
-        return (va ? va : 0) > (vb ? vb : 0) ? rev * 1 : rev * -1;
+        return (va > vb ? 1 : -1) * revNum;
     });
-    console.info(list)
+    // list.forEach(node => console.info(node[sortType[0]]));
     return list;
 }
