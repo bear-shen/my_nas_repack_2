@@ -49,7 +49,8 @@ function startOnlyOffice() {
   const payload = {
     document: {
       fileType: suffix,
-      key: curNode.id.toString(16),
+      //https://api.onlyoffice.com/docs/docs-api/usage-api/config/document/#referencedata
+      key: curNode.id.toString(16) + '_' + parseInt(new Date(curNode.time_update).valueOf()),
       title: curNode.title,
       url: `${origin}${curNode.file_index.raw.path}?token=${user?.token}`,
     },
@@ -131,6 +132,7 @@ function getDocumentTypeBySuffix(suffix): string {
     case 'xltm':
     case 'xltx':
       documentType = 'cell';
+      break;
     case 'dps':
     case 'dpt':
     case 'fodp':

@@ -56,7 +56,13 @@ export default class {
             notmodified: string,
         } = data.fields as any;
         const resTxt = JSON.stringify({error: 0});
-        const nodeId = parseInt(fields.key, 16);
+        const keyArr = fields.key.split('_');
+        if (!keyArr || keyArr.length < 2) {
+            res.write(JSON.stringify({error: 1}));
+            res.end();
+            return;
+        }
+        const nodeId = parseInt(keyArr[0], 16);
         const node = await new NodeModel().where('id', nodeId).first();
         // console.info(fields.status);
         switch (fields.status) {
@@ -111,24 +117,24 @@ function downloadFile(sourceUrl: string, targetPath: string): Promise<boolean> {
             // console.info('req callback');
             if (response.statusCode !== 200) {
                 console.info(`download failed: ${response.statusCode}`);
-                file.close();
+                //file.close();
                 resolve(false);
             }
             response.pipe(file);
             file.on('finish', () => {
-                // console.info('file finish');
+                console.info('file finish');
                 file.close();
                 resolve(true);
             });
         });
         req.on('finish', () => {
-            // console.info('req finish');
-            file.close();
-            resolve(true);
+            console.info('req finish');
+            //file.close();
+            //resolve(true);
         })
         req.on('error', (error) => {
             console.info(`download failed:`, error);
-            file.close();
+            //file.close();
             resolve(false);
         });
         req.end();
