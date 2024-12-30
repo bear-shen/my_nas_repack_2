@@ -23,6 +23,7 @@ export default {
     // 'import/run': ImportJob.run,
     'sync/run': SyncJob.run,
     'sync/check': SyncJob.check,
+    'sync/runLocal': SyncJob.runLocal,
     // 'sys/scanOrphanFile': SysJob.scanOrphanFile,
     'ext/cascadeTag': ExtJob.cascadeTag,
     'ext/rmRaw': ExtJob.rmRaw,

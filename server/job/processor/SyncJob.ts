@@ -19,10 +19,19 @@ const exec = util.promisify(require('child_process').exec);
 export default class {
     static async run(payload: { [key: string]: any }): Promise<any> {
         const pathConfig = Config.get('path');
-        const curJobLs = await (new QueueModel).where('type', 'sync/run').whereIn('status', [1, 2]).select();
+        const curJobLs = await (new QueueModel).whereIn('type', ['sync/run', 'sync/runLocal',]).whereIn('status', [1, 2]).select();
         if (curJobLs.length > 1) throw new Error('sync job running');
         await syncDir(pathConfig.root, fp.rootNode);
         // await syncDir(Buffer.from(pathConfig.root), fp.rootNode);
+    }
+
+    static async runLocal(payload: { [key: string]: any }): Promise<any> {
+        const pathConfig = Config.get('path');
+        const curJobLs = await (new QueueModel).whereIn('type', ['sync/run', 'sync/runLocal',]).whereIn('status', [1, 2]).select();
+        if (curJobLs.length > 1) throw new Error('sync job running');
+        await syncGeneratedDir(pathConfig.preview, fp.rootNode);
+        await syncGeneratedDir(pathConfig.normal, fp.rootNode);
+        await syncGeneratedDir(pathConfig.cover, fp.rootNode);
     }
 
     static async check(payload: { [key: string]: any }): Promise<any> {
@@ -108,7 +117,6 @@ export default class {
                 status: 1,
             });
         }
-
     }
 }
 
@@ -163,6 +171,9 @@ async function scanLocalDir(localRoot: string): Promise<Set<string>> {
 }
 
 /**
+ * 根据本地文件同步检测数据库记录
+ * 有数据的根据更新时间更新，没有数据的自动创建
+ *
  * @notice readdir在一定版本下不能很好的支持emoji字符，不行就换一个
  * xftp传输文件时候emoji处理不好
  *
@@ -191,15 +202,15 @@ async function syncDir(localRoot: string, rootNode: col_node) {
     // subNodeLs.forEach(node => {
     //     subNodeMap.set(node.title, node);
     // });
-    const curSubNodeTitleSet: Set<string> = new Set();
+    const curSubFileTitleSet: Set<string> = new Set();
     for (let i1 = 0; i1 < subFileLs.length; i1++) {
         //写入标签文件
         if (subFileLs[i1].name == '_tags.json') {
             await parseTagFile(localRoot, rootNode.id);
             continue;
         }
-        const fTitle = fp.titleFilter(subFileLs[i1].name);
         //规范化文件名
+        const fTitle = fp.titleFilter(subFileLs[i1].name);
         if (subFileLs[i1].name != fTitle) {
             await fp.rename(
                 localRoot + '/' + subFileLs[i1].name,
@@ -210,7 +221,7 @@ async function syncDir(localRoot: string, rootNode: col_node) {
         //排除多余的文件
         if (filtered(subFileLs[i1].name)) continue;
         //
-        curSubNodeTitleSet.add(fTitle);
+        curSubFileTitleSet.add(fTitle);
         const fPath = localRoot + '/' + fTitle;
         // console.info(fPath, fTitle,)
         const fStat = subFileLs[i1];
@@ -287,9 +298,81 @@ async function syncDir(localRoot: string, rootNode: col_node) {
     //
     for (let i1 = 0; i1 < subNodeLs.length; i1++) {
         const curNode = subNodeLs[i1];
-        if (curSubNodeTitleSet.has(curNode.title)) continue;
+        if (curSubFileTitleSet.has(curNode.title)) continue;
         await fp.rmReal(curNode);
     }
+}
+
+/**
+ * 根据数据库文件检测生成过的文件
+ * 有文件但是没有数据的删除
+ * */
+async function syncGeneratedDir(localRoot: string, rootNode: col_node) {
+    let subFileLs: Dirent[];
+    try {
+        subFileLs = await fs.readdir(localRoot, {encoding: 'utf-8', withFileTypes: true});
+    } catch (e) {
+        // throw new Error(`cannot read dir: ${localRoot}`)
+        console.error(`cannot read dir: ${localRoot}`);
+        return;
+    }
+    const subNodeLs = await fp.ls(rootNode);
+    //
+    const typeLs = ['cover', 'normal', 'preview'];
+    const subNodeMap = new Map<string, col_node>();
+    for (let i1 = 0; i1 < subNodeLs.length; i1++) {
+        const subNode = subNodeLs[i1];
+        subNodeMap.set(subNode.title, subNode);
+        if (subNode.type === 'directory') continue;
+        for (let i2 = 0; i2 < typeLs.length; i2++) {
+            const type = typeLs[i2];
+            const fileIndex = subNode.file_index[type];
+            if (!fileIndex) continue;
+            if (typeof fileIndex === 'number') continue;
+            if (!fileIndex.ext) continue;
+            subNodeMap.set(subNode.title + '.' + fileIndex.ext, subNode);
+        }
+    }
+    //
+    for (let i1 = 0; i1 < subFileLs.length; i1++) {
+        const subFile = subFileLs[i1];
+        if (!(subFile.isDirectory() || subFile.isFile())) continue;
+        const subTitle = subFile.name;
+        const subPath = subFile.parentPath + '/' + subTitle;
+        const ifNodeExs = subNodeMap.get(subTitle);
+        //不存在的文件和文件/文件名类型不对的文件都删除
+        let toDel = false;
+        if (!ifNodeExs) {
+            toDel = true;
+        } else {
+            //存在的文件不处理
+            if (subFile.isFile()) {
+                if (ifNodeExs.type === 'directory')
+                    toDel = true;
+            }
+            if (subFile.isDirectory()) {
+                if (ifNodeExs.type !== 'directory')
+                    toDel = true;
+            }
+        }
+        if (toDel) {
+            console.info('syncGeneratedDir rm:', subPath);
+            try {
+                await fs.rm(subPath, {
+                    force: true,
+                    recursive: true,
+                });
+            } catch (e) {
+                console.error(e);
+            }
+            continue;
+        }
+        //遍历文件夹
+        if (subFile.isDirectory()) {
+            await syncGeneratedDir(subPath, ifNodeExs);
+        }
+    }
+
 }
 
 async function parseTagFile(localRoot: string, rootId: number) {

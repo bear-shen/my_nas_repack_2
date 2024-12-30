@@ -73,10 +73,20 @@ export default class {
     };
 
     async sync_local_file() {
-        const ifExs = await (new QueueModel).where('type', 'sync/run').whereIn('status', [1, 2]).first();
+        const ifExs = await (new QueueModel).where('type', ['sync/run', 'sync/runLocal',]).whereIn('status', [1, 2]).first();
         if (ifExs) throw new Error('sync job running');
         (new QueueModel).insert({
             type: 'sync/run',
+            payload: {},
+            status: 1,
+        });
+    }
+
+    async sync_database_file() {
+        const ifExs = await (new QueueModel).where('type', ['sync/run', 'sync/runLocal',]).whereIn('status', [1, 2]).first();
+        if (ifExs) throw new Error('sync job running');
+        (new QueueModel).insert({
+            type: 'sync/runLocal',
             payload: {},
             status: 1,
         });

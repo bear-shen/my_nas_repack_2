@@ -10,7 +10,7 @@ import ORM from "./ORM";
 
 const exec = util.promisify(require('child_process').exec);
 
-export const selNodeCol = [
+export const selNodeCol: (keyof col_node | '*')[] = [
     'id',
     'id_parent',
     'type',
@@ -84,9 +84,9 @@ export async function put(
     return res;
 }
 
-export async function ls(input: string | number | col_node) {
+export async function ls(input: string | number | col_node, col: (keyof col_node | '*')[] = selNodeCol) {
     const cur = await get(input);
-    const ls = await (new NodeModel).where('id_parent', cur.id).select(selNodeCol);
+    const ls = await (new NodeModel).where('id_parent', cur.id).select(col);
     return ls;
 }
 
@@ -483,10 +483,10 @@ export function mkLocalPath(fullRelPath: string) {
     return `${pathConfig.root}/${pathFilter(fullRelPath)}`;
 }
 
-export async function ifTitleExist(parent: string | number | col_node, title: string) {
+export async function ifTitleExist(parent: string | number | col_node, title: string, col: (keyof col_node | '*')[] = ['*']) {
     const parentNode = await get(parent);
     if (!parentNode) throw new Error('parentNode not found');
-    return await (new NodeModel).where('id_parent', parentNode.id).where('title', title).first();
+    return await (new NodeModel).where('id_parent', parentNode.id).where('title', title).first(col);
 }
 
 export async function buildWebPath(nodeList: col_node[]) {
