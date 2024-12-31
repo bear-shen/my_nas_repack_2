@@ -520,7 +520,6 @@ function setRotate(deg) {
 </template>
 
 <style lang="scss">
-@import "../assets/variables";
 .modal_browser.image {
   .content {
     img {

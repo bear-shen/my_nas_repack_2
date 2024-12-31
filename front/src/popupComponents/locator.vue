@@ -177,7 +177,6 @@ async function keydownEvt(e: KeyboardEvent): Promise<boolean> {
 </template>
 
 <style lang="scss">
-@import "../assets/variables";
 .modal_locator {
   width: 100%;
   //min-height: 90%;
@@ -210,9 +209,9 @@ async function keydownEvt(e: KeyboardEvent): Promise<boolean> {
         display: inline;
         > span {
           &:first-child {
-            color: map-get($colors, font);
+            color:  map.get($colors, font);
           }
-          color: map-get($colors, font_sub);
+          color:  map.get($colors, font_sub);
           &::after {
             content: '/';
             padding: 0 $fontSize*0.25;
@@ -220,7 +219,7 @@ async function keydownEvt(e: KeyboardEvent): Promise<boolean> {
         }
       }
       &:hover, &.active {
-        background-color: map-get($colors, bk_active);
+        background-color:  map.get($colors, bk_active);
         cursor: pointer;
       }
     }
@@ -243,7 +242,7 @@ async function keydownEvt(e: KeyboardEvent): Promise<boolean> {
         max-width: 50%;
       }
       &:nth-child(2n) {
-        background-color: map-get($colors, bk), 4
+        background-color:  map.get($colors, bk), 4
       }
       > span {
         display: inline-block;

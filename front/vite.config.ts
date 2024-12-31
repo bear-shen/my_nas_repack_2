@@ -24,13 +24,13 @@ export default defineConfig({
     css: {
         preprocessorOptions: {
             scss: {
-                additionalData: '@import "@/assets/variables.scss";'
+                additionalData: '@use "sass:map"; @use "@/assets/variables.scss" as *;',
+                silenceDeprecations: ['legacy-js-api'],
             }
         }
     },
     optimizeDeps: {
-        include: [
-        ],
+        include: [],
     },
     // publicDir:'public',
     build: {

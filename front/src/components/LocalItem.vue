@@ -119,7 +119,6 @@ if (props.depth == 1) {
 </template>
 
 <style scoped lang="scss">
-@import "../assets/variables";
 .local_item {
   td {
     font-size: $fontSize;

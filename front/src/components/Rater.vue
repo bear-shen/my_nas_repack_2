@@ -126,11 +126,10 @@ function prepStar() {
 </template>
 
 <style scoped lang="scss">
-@import "../assets/variables";
 .rater {
   cursor: pointer;
   &:hover {
-    color: map-get($colors, font_active);
+    color:  map.get($colors, font_active);
   }
   span {
     vertical-align: top;

@@ -204,7 +204,6 @@ function remove(index: number) {
 </template>
 
 <style lang="scss">
-@import "../assets/variables";
 .modal_uploader {
   width: 100%;
   //height: calc(100% - $fontSize);
@@ -227,7 +226,7 @@ function remove(index: number) {
       line-height: $fontSize * 1.5;
       padding: 0 $fontSize * 0.25;
       &:nth-child(2n) {
-        background-color: map-get($colors, popup_active);
+        background-color:  map.get($colors, popup_active);
       }
       > span {
         display: inline-block;

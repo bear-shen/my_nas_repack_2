@@ -295,7 +295,6 @@ async function btn_checkLocalFile() {
 </template>
 
 <style lang="scss">
-@import "../assets/variables";
 .fr_content.view_setting {
   table {
     th, td {
@@ -307,7 +306,7 @@ async function btn_checkLocalFile() {
       font-size: $fontSize;
     }
     td.editing, td:hover {
-      background-color: map-get($colors, bk_active);
+      background-color:  map.get($colors, bk_active);
     }
     td.add {
       font-size: $fontSize;

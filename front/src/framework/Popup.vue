@@ -869,7 +869,6 @@ function keymap(e: KeyboardEvent) {
 </template>
 
 <style lang="scss">
-@import "../assets/variables";
 .fr_popup {
   pointer-events: none;
   left: 0;
@@ -880,9 +879,9 @@ function keymap(e: KeyboardEvent) {
   z-index: 100;
 }
 .modal_dom.active {
-  background-color: map-get($colors, popup_active);
+  background-color:  map.get($colors, popup_active);
   .modal_header {
-    background-color: map-get($colors, popup_title);
+    background-color:  map.get($colors, popup_title);
   }
 }
 .modal_dom {
@@ -890,7 +889,7 @@ function keymap(e: KeyboardEvent) {
   pointer-events: all;
   $controllerWidth: $fontSize * 0.5;
   font-size: $fontSize;
-  background-color: map-get($colors, popup);
+  background-color:  map.get($colors, popup);
   position: absolute;
   padding: $fontSize * 0.25;
   @include blurBackground();
@@ -903,7 +902,7 @@ function keymap(e: KeyboardEvent) {
       padding: $fontSize*0.25;
     }
     white-space: nowrap;
-    background-color: map-get($colors, popup_title);
+    background-color:  map.get($colors, popup_title);
     width: 100%;
     display: flex;
     justify-content: space-between;
@@ -1037,7 +1036,7 @@ function keymap(e: KeyboardEvent) {
       > span:last-child {
         input,
         textarea {
-          border-bottom: 1px solid map-get($colors, popup_title);
+          border-bottom: 1px solid  map.get($colors, popup_title);
         }
       }
       input,

@@ -1,4 +1,4 @@
-@import "variables";
+@use "sass:map" as sass_map;
 * {
   list-style: none;
   margin: 0;
@@ -15,8 +15,8 @@
 }
 body {
   font-size: 0;
-  background-color: map-get($colors, bk);
-  color: map-get($colors, font);
+  background-color: sass_map.get($colors, bk);
+  color: sass_map.get($colors, font);
 }
 table {
   border-collapse: collapse;
@@ -36,46 +36,46 @@ textarea, .btn {
 }
 button,
 select, .btn {
-  background-color: map-get($colors, button);
-  color: map-get($colors, font);
+  background-color: sass_map.get($colors, button);
+  color: sass_map.get($colors, font);
   padding: $fontSize*0.25;
   &:hover,
   &.active,
   &.disabled,
   option:checked {
-    background-color: map-get($colors, button_active);
-    color: map-get($colors, font_active);
+    background-color: sass_map.get($colors, button_active);
+    color: sass_map.get($colors, font_active);
   }
   //@include smallScroll();
 }
 input {
-  background-color: map-get($colors, bk);
-  color: map-get($colors, font);
+  background-color: sass_map.get($colors, bk);
+  color: sass_map.get($colors, font);
   padding: $fontSize*0.25;
   &:hover,
   &:focus,
   &.active,
   &.disabled {
-    background-color: map-get($colors, bk_active);
-    color: map-get($colors, font_active);
+    background-color: sass_map.get($colors, bk_active);
+    color: sass_map.get($colors, font_active);
   }
 }
 textarea {
-  background-color: map-get($colors, bk);
-  color: map-get($colors, font);
+  background-color: sass_map.get($colors, bk);
+  color: sass_map.get($colors, font);
   padding: $fontSize*0.25;
   //@include smallScroll();
   &:hover,
   &:focus,
   &.active,
   &.disabled {
-    background-color: map-get($colors, bk_active);
-    color: map-get($colors, font_active);
+    background-color: sass_map.get($colors, bk_active);
+    color: sass_map.get($colors, font_active);
   }
 }
 ::selection {
-  background-color: map-get($colors, selection_bk);
-  color: map-get($colors, selection);
+  background-color: sass_map.get($colors, selection_bk);
+  color: sass_map.get($colors, selection);
 }
 input[type='checkbox'],
 input[type='radio'] {
@@ -84,7 +84,7 @@ input[type='radio'] {
     display: inline-block;
     width: max-content;
     /*background-image: linear-gradient(0deg, hsla(250, 30%, 30%, 1) 0%, rgb(25, 25, 25) 100%);*/
-    //background-color: map-get($colors, negative);
+    //background-color:  sass_map.get($colors, negative);
     font-size: $fontSize;
     padding: 0.25*$fontSize 0.5*$fontSize;
     line-height: $fontSize;
@@ -100,7 +100,7 @@ input[type='radio'] {
   &:checked {
     + label {
       //background-image: linear-gradient(0deg, rgba(100, 100, 100, 1) 0%, rgba(150, 150, 150, 1) 100%);
-      //background-color: map-get($colors, positive);
+      //background-color:  sass_map.get($colors, positive);
       &::after {
         content: '\e62c';
       }
@@ -108,12 +108,12 @@ input[type='radio'] {
   }
   + label.no_bg {
     background-color: transparent;
-    //color: map-get($colors, negative);
+    //color:  sass_map.get($colors, negative);
   }
   &:checked {
     + label.no_bg {
       background-color: transparent;
-      //color: map-get($colors, positive);
+      //color:  sass_map.get($colors, positive);
     }
   }
 }
@@ -143,10 +143,10 @@ input[type='radio'] {
   cursor: pointer;
   padding: 0.5em;
   //
-  background-color: map-get($colors, transparent);
-  color: map-get($colors, font);
+  background-color: sass_map.get($colors, transparent);
+  color: sass_map.get($colors, font);
   &:hover, &.active {
-    background-color: map-get($colors, font_active);
-    color: map-get($colors, button_active);
+    background-color: sass_map.get($colors, font_active);
+    color: sass_map.get($colors, button_active);
   }
 }

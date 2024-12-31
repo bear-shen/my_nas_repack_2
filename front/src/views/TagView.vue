@@ -367,7 +367,6 @@ async function modTag(index: number) {
 </template>
 
 <style lang="scss">
-@import "../assets/variables";
 .fr_content.view_tag {
   padding-bottom: 0;
   width: 100%;
@@ -375,7 +374,7 @@ async function modTag(index: number) {
   justify-content: space-between;
   .list_tag_group {
     width: $fontSize*20;
-    background-color: map-get($colors, bar_meta);
+    background-color:  map.get($colors, bar_meta);
     height: 100%;
     //@include smallScroll();
     overflow-y: scroll;
@@ -389,14 +388,14 @@ async function modTag(index: number) {
     .tag_group {
       padding: $fontSize*0.5 $fontSize;
       &:hover, &.active {
-        background-color: map-get($colors, bar_meta_active);
+        background-color:  map.get($colors, bar_meta_active);
       }
       > div {
         font-size: $fontSize;
-        color: map-get($colors, font_sub);
+        color:  map.get($colors, font_sub);
       }
       .title {
-        color: map-get($colors, font);
+        color:  map.get($colors, font);
         display: flex;
         justify-content: space-between;
       }
@@ -406,8 +405,8 @@ async function modTag(index: number) {
           content: '/';
         }
         span:last-child {
-          color: map-get($colors, font_sub);
-          //color: map-get($colors, font_sub);
+          color:  map.get($colors, font_sub);
+          //color:  map.get($colors, font_sub);
         }
         span {
         }
@@ -432,7 +431,7 @@ async function modTag(index: number) {
         }
         .title, .description, .operator, .hinter > div, .content_editor {
           display: block;
-          background-color: map-get($colors, bar_meta_active);
+          background-color:  map.get($colors, bar_meta_active);
         }
         .title::before {
           content: 'T: ';
@@ -457,7 +456,7 @@ async function modTag(index: number) {
       }
     }
     .hinter > div, .content_editor {
-      background-color: map-get($colors, bk_active);
+      background-color:  map.get($colors, bk_active);
     }
   }
   .list_tag {
@@ -488,7 +487,7 @@ async function modTag(index: number) {
       //width: calc(100% - $fontSize);
       //@include fillAvailable(width);
       .title {
-        color: map-get($colors, font);
+        color:  map.get($colors, font);
         display: flex;
         justify-content: space-between;
         span {
@@ -502,13 +501,13 @@ async function modTag(index: number) {
       > div {
         word-break: break-all;
       }
-      //color: map-get($colors, font_sub);
-      color: map-get($colors, font_sub);
+      //color:  map.get($colors, font_sub);
+      color:  map.get($colors, font_sub);
     }
     .tag.edit {
-      background-color: map-get($colors, bk_active);
+      background-color:  map.get($colors, bk_active);
       > div, > div .content_editor {
-        background-color: map-get($colors, bk_active);
+        background-color:  map.get($colors, bk_active);
       }
       .title .content_editor::before {
         content: 'T: ';
@@ -521,7 +520,7 @@ async function modTag(index: number) {
       }
     }
     .tag:hover, .tag.active {
-      background-color: map-get($colors, bk_active);
+      background-color:  map.get($colors, bk_active);
     }
   }
   @media (max-width: ($fontSize*50)) {

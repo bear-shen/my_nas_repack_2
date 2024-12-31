@@ -490,7 +490,6 @@ async function onPasteBinOperate(operate: string) {
 </template>
 
 <style lang='scss'>
-@import "../assets/variables";
 .fr_content.view_file {
   display: flex;
   flex-direction: column;

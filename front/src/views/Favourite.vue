@@ -599,7 +599,6 @@ function tag_del(groupIndex: number, tagIndex: number) {
 </template>
 
 <style lang="scss">
-@import "../assets/variables";
 .fr_content.view_fav {
   padding-bottom: 0;
   height: 100%;
@@ -607,7 +606,7 @@ function tag_del(groupIndex: number, tagIndex: number) {
   justify-content: space-between;
   .list_fav_group {
     width: $fontSize*20;
-    background-color: map-get($colors, bar_meta);
+    background-color:  map.get($colors, bar_meta);
     height: 100%;
     //@include smallScroll();
     overflow-y: scroll;
@@ -625,12 +624,12 @@ function tag_del(groupIndex: number, tagIndex: number) {
       padding: $fontSize*0.25 $fontSize;
       line-height: $fontSize*2;
       &:hover, &.active {
-        background-color: map-get($colors, bar_meta_active);
+        background-color:  map.get($colors, bar_meta_active);
       }
       > div {
         cursor: pointer;
         font-size: $fontSize;
-        color: map-get($colors, font_sub);
+        color:  map.get($colors, font_sub);
         display: flex;
         justify-content: space-between;
         flex-wrap: wrap;
@@ -655,7 +654,7 @@ function tag_del(groupIndex: number, tagIndex: number) {
       }
       //>div
       .title {
-        color: map-get($colors, font);
+        color:  map.get($colors, font);
         padding: 0 $fontSize*0.5;
         background-color: transparent;
         overflow: hidden;
@@ -672,7 +671,7 @@ function tag_del(groupIndex: number, tagIndex: number) {
       table {
         margin-top: $fontSize*0.5;
         font-size: $fontSize*0.9;
-        color: map-get($colors, font_sub);
+        color:  map.get($colors, font_sub);
         width: 100%;
         overflow: hidden;
         display: block;
@@ -690,7 +689,7 @@ function tag_del(groupIndex: number, tagIndex: number) {
             //display: none;
           }
           select {
-            color: map-get($colors, font_sub);
+            color:  map.get($colors, font_sub);
             padding: 0 $fontSize;
             text-align: center;
           }

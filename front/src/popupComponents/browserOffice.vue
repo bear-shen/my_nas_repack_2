@@ -175,8 +175,6 @@ function getDocumentTypeBySuffix(suffix): string {
 </template>
 
 <style lang="scss">
-@import "../assets/variables";
-@import "../assets/basic";
 .modal_dom.resizing {
   .modal_browser.office {
     iframe {
@@ -210,14 +208,14 @@ function getDocumentTypeBySuffix(suffix): string {
       //top: 40%;
       cursor: pointer;
       //
-      background-color: map-get($colors, button);
-      color: map-get($colors, font);
+      background-color:  map.get($colors, button);
+      color:  map.get($colors, font);
       &:hover,
       &.active,
       &.disabled,
       option:checked {
-        background-color: map-get($colors, button_active);
-        color: map-get($colors, font_active);
+        background-color:  map.get($colors, button_active);
+        color:  map.get($colors, font_active);
       }
       //
       span {

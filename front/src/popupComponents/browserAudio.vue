@@ -493,7 +493,6 @@ function parseTime(t: number) {
 </template>
 
 <style lang="scss">
-@import "../assets/variables";
 .modal_browser.audio {
   .content {
     touch-action: none;
@@ -529,20 +528,20 @@ function parseTime(t: number) {
     .audio_bar {
       touch-action: none;
       display: inline-block;
-      //background-color: map_get($colors, input_button_bk);
-      color: map_get($colors, font_sub_active);
+      //background-color: map.get($colors, input_button_bk);
+      color: map.get($colors, font_sub_active);
       width: calc(100% - $fontSize * 10);
       //      padding: 0 $fontSize * 0.5;
-      border-right: 1px solid map_get($colors, font_sub_active);
+      border-right: 1px solid map.get($colors, font_sub_active);
       height: $fontSize * 1.5;
       line-height: $fontSize * 1.5;
       position: relative;
       &::before {
-        border-bottom: $fontSize*0.25 solid map_get($colors, font_sub);
+        border-bottom: $fontSize*0.25 solid map.get($colors, font_sub);
         content: "";
       }
       span.buffer {
-        border-bottom: $fontSize*0.25 solid map_get($colors, font_sub_active);
+        border-bottom: $fontSize*0.25 solid map.get($colors, font_sub_active);
       }
       &::before, span.buffer {
         height: $fontSize * 0.625;
@@ -554,7 +553,7 @@ function parseTime(t: number) {
         left: 0;
       }
       span.duration {
-        border-right: 1px solid map_get($colors, font_sub_active);
+        border-right: 1px solid map.get($colors, font_sub_active);
         height: 100%;
         position: absolute;
         left: 0;

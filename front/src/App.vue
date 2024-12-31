@@ -44,7 +44,6 @@ const containerDef = {};
 </template>
 
 <style lang="scss">
-@import "./assets/variables";
 .fr_header,
 .fr_body,
 .fr_footer {
@@ -53,7 +52,7 @@ const containerDef = {};
 }
 .fr_header,
 .fr_footer {
-  background-color: map-get($colors, bar_horizon);
+  background-color:  map.get($colors, bar_horizon);
 }
 .fr_header {
   padding: 0 $fontSize;
@@ -65,7 +64,7 @@ const containerDef = {};
   // height: calc(100vh - $headerHeight - $footerHeight);
   height: calc(100vh - $headerHeight);
   display: flex;
-  background-color: map-get($colors, bar_vertical);
+  background-color:  map.get($colors, bar_vertical);
 }
 .fr_navi {
   height: 100%;
@@ -74,7 +73,7 @@ const containerDef = {};
 .fr_content {
   padding: $headerPad 0 $footerPad;
   height: calc(100% - $headerPad - $footerPad);
-  background-color: map-get($colors, bk);
+  background-color:  map.get($colors, bk);
   width: calc(100vw - $navWidth);
   //@include smallScroll();
   overflow: auto;
@@ -90,7 +89,7 @@ const containerDef = {};
   z-index: 1;
   //left:0;*/
   font-size: 0;
-  $metaBk: map-get($colors, bar_meta);
+  $metaBk:  map.get($colors, bar_meta);
   background-color: $metaBk;
   display: flex;
   justify-content: space-between;
@@ -134,7 +133,7 @@ const containerDef = {};
     display: inline-block;
   }
   a:hover {
-    //background-color: map-get($colors, bar_meta_active);
+    //background-color:  map.get($colors, bar_meta_active);
   }
   @media (min-width: 640px) {
     .crumb {
@@ -171,7 +170,7 @@ const containerDef = {};
       max-width: $fontSize * 10;
     }
     .item:hover {
-      background-color: map-get($colors, bar_meta_active);
+      background-color:  map.get($colors, bar_meta_active);
     }
     .item::before {
       content: "/";
@@ -187,7 +186,7 @@ const containerDef = {};
     position: absolute;
     right: 0;
     top: $fontSize*1.5;
-    $metaBk: map-get($colors, bar_meta);
+    $metaBk:  map.get($colors, bar_meta);
     background-color: $metaBk;
     padding: $fontSize*0.25 $fontSize*0.5;
     span{

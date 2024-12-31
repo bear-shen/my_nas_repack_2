@@ -174,7 +174,6 @@ function setFocus() {
 </template>
 
 <style scoped lang="scss">
-@import "../assets/variables";
 .hinter {
   position: relative;
   > div, > ul > li {
@@ -185,7 +184,7 @@ function setFocus() {
     overflow: hidden;
   }
   > div {
-    background-color: map-get($colors, popup_active);
+    background-color:  map.get($colors, popup_active);
   }
   > ul {
     position: relative;
@@ -199,7 +198,7 @@ function setFocus() {
       //@include fillAvailable(width);
       //background-color: fade-out(map-get($colors, bk), 3), 0.5
       &:hover, &.active {
-        background-color: map-get($colors, popup_active);
+        background-color:  map.get($colors, popup_active);
         //background-color: fade-out(map-get($colors, bk), 8), 0.5
       }
     }

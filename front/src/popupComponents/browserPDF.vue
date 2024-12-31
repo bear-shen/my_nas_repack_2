@@ -92,7 +92,6 @@ loadPDF();
 </template>
 
 <style lang="scss">
-@import "../assets/variables";
 .modal_dom.resizing {
   .modal_browser.pdf {
     iframe {
@@ -127,14 +126,14 @@ loadPDF();
       //top: 40%;
       cursor: pointer;
       //
-      background-color: map-get($colors, button);
-      color: map-get($colors, font);
+      background-color:  map.get($colors, button);
+      color:  map.get($colors, font);
       &:hover,
       &.active,
       &.disabled,
       option:checked {
-        background-color: map-get($colors, button_active);
-        color: map-get($colors, font_active);
+        background-color:  map.get($colors, button_active);
+        color:  map.get($colors, font_active);
       }
       //
       span {
