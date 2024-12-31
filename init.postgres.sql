@@ -59,8 +59,8 @@ CREATE TABLE IF NOT EXISTS "favourite"
     PRIMARY KEY ("id")
 );
 
-CREATE INDEX "favourite_index_node" ON "favourite" USING btree ("id_node");
-CREATE INDEX "favourite_index_group" ON "favourite" USING btree ("id_group");
+CREATE INDEX if not EXISTS "favourite_index_node" ON "favourite" USING btree ("id_node");
+CREATE INDEX if not EXISTS "favourite_index_group" ON "favourite" USING btree ("id_group");
 
 CREATE TABLE IF NOT EXISTS "favourite_group"
 (
@@ -113,7 +113,7 @@ CREATE INDEX if not EXISTS "node_index_tag_id_list" ON "node" using GIN ("tag_id
 -- CREATE INDEX if not EXISTS "node_index_node_index" ON "node" USING GIN (to_tsvector('english', "node_index"));
 CREATE INDEX if not EXISTS "node_index_node_index_pgroonga" ON "node" USING pgroonga ("node_index");
 CREATE INDEX if not EXISTS "node_index_id_parent" ON "node" USING btree ("id_parent", "title");
-CREATE INDEX "node_index_rel_node_id" ON "node" USING btree ("rel_node_id");
+CREATE INDEX if not EXISTS "node_index_rel_node_id" ON "node" USING btree ("rel_node_id");
 
 CREATE TABLE IF NOT EXISTS "queue"
 (
@@ -126,7 +126,7 @@ CREATE TABLE IF NOT EXISTS "queue"
     "time_update" timestamp DEFAULT current_timestamp,
     PRIMARY KEY ("id")
 );
-CREATE INDEX "queue_ind" ON "queue" ("status","id");
+CREATE INDEX if not EXISTS "queue_ind" ON "queue" ("status","id");
 
 CREATE TABLE IF NOT EXISTS "rate"
 (
@@ -206,73 +206,73 @@ CREATE TABLE IF NOT EXISTS "user_group"
 
 -- ---------------------------------------------------------------------------------------- --
 
-CREATE TRIGGER update_auth_time_update
+CREATE OR REPLACE TRIGGER update_auth_time_update
     BEFORE UPDATE
     ON "auth"
     FOR EACH ROW
 EXECUTE PROCEDURE update_time_update();
 
-CREATE TRIGGER update_cache_time_update
+CREATE OR REPLACE TRIGGER update_cache_time_update
     BEFORE UPDATE
     ON "cache"
     FOR EACH ROW
 EXECUTE PROCEDURE update_time_update();
 
-CREATE TRIGGER update_favourite_time_update
+CREATE OR REPLACE TRIGGER update_favourite_time_update
     BEFORE UPDATE
     ON "favourite"
     FOR EACH ROW
 EXECUTE PROCEDURE update_time_update();
 
-CREATE TRIGGER update_favourite_group_time_update
+CREATE OR REPLACE TRIGGER update_favourite_group_time_update
     BEFORE UPDATE
     ON "favourite_group"
     FOR EACH ROW
 EXECUTE PROCEDURE update_time_update();
 
-CREATE TRIGGER update_node_time_update
+CREATE OR REPLACE TRIGGER update_node_time_update
     BEFORE UPDATE
     ON "node"
     FOR EACH ROW
 EXECUTE PROCEDURE update_time_update();
 
-CREATE TRIGGER update_queue_time_update
+CREATE OR REPLACE TRIGGER update_queue_time_update
     BEFORE UPDATE
     ON "queue"
     FOR EACH ROW
 EXECUTE PROCEDURE update_time_update();
 
-CREATE TRIGGER update_rate_time_update
+CREATE OR REPLACE TRIGGER update_rate_time_update
     BEFORE UPDATE
     ON "rate"
     FOR EACH ROW
 EXECUTE PROCEDURE update_time_update();
 
-CREATE TRIGGER update_settings_time_update
+CREATE OR REPLACE TRIGGER update_settings_time_update
     BEFORE UPDATE
     ON "settings"
     FOR EACH ROW
 EXECUTE PROCEDURE update_time_update();
 
-CREATE TRIGGER update_tag_time_update
+CREATE OR REPLACE TRIGGER update_tag_time_update
     BEFORE UPDATE
     ON "tag"
     FOR EACH ROW
 EXECUTE PROCEDURE update_time_update();
 
-CREATE TRIGGER update_tag_group_time_update
+CREATE OR REPLACE TRIGGER update_tag_group_time_update
     BEFORE UPDATE
     ON "tag_group"
     FOR EACH ROW
 EXECUTE PROCEDURE update_time_update();
 
-CREATE TRIGGER update_user_time_update
+CREATE OR REPLACE TRIGGER update_user_time_update
     BEFORE UPDATE
     ON "user"
     FOR EACH ROW
 EXECUTE PROCEDURE update_time_update();
 
-CREATE TRIGGER update_user_group_time_update
+CREATE OR REPLACE TRIGGER update_user_group_time_update
     BEFORE UPDATE
     ON "user_group"
     FOR EACH ROW
@@ -294,7 +294,7 @@ select setval('user_id_seq', (select coalesce(max(id), 0) + 1 from "user"));
 select setval('user_group_id_seq', (select coalesce(max(id), 0) + 1 from user_group));
 
 -- ---------------------------------------------------------------------------------------- --
-CREATE TABLE "public"."bgm_character"
+CREATE TABLE if not EXISTS "public"."bgm_character"
 (
     "id"       int4,
     "role"     int4,
@@ -304,7 +304,7 @@ CREATE TABLE "public"."bgm_character"
     "comments" int4,
     "collects" int4
 );
-CREATE TABLE "public"."bgm_episode"
+CREATE TABLE if not EXISTS "public"."bgm_episode"
 (
     "id"          int4,
     "name"        text COLLATE "pg_catalog"."default",
@@ -317,7 +317,7 @@ CREATE TABLE "public"."bgm_episode"
     "sort"        float8,
     "type"        int4
 );
-CREATE TABLE "public"."bgm_person"
+CREATE TABLE if not EXISTS "public"."bgm_person"
 (
     "id"       int4,
     "name"     text COLLATE "pg_catalog"."default",
@@ -328,14 +328,14 @@ CREATE TABLE "public"."bgm_person"
     "comments" int4,
     "collects" int4
 );
-CREATE TABLE "public"."bgm_person_characters"
+CREATE TABLE if not EXISTS "public"."bgm_person_characters"
 (
     "person_id"    int4,
     "subject_id"   int4,
     "character_id" int4,
     "summary"      text COLLATE "pg_catalog"."default"
 );
-CREATE TABLE "public"."bgm_subject"
+CREATE TABLE if not EXISTS "public"."bgm_subject"
 (
     "id"            int4 NOT NULL,
     "type"          int4,
@@ -354,20 +354,20 @@ CREATE TABLE "public"."bgm_subject"
     "series"        int4,
     CONSTRAINT "bgm_subject_pkey" PRIMARY KEY ("id")
 );
-CREATE TABLE "public"."bgm_subject_characters"
+CREATE TABLE if not EXISTS "public"."bgm_subject_characters"
 (
     "character_id" int4,
     "subject_id"   int4,
     "type"         int4,
     "order"        int4
 );
-CREATE TABLE "public"."bgm_subject_persons"
+CREATE TABLE if not EXISTS "public"."bgm_subject_persons"
 (
     "person_id"  int4,
     "subject_id" int4,
     "position"   int4
 );
-CREATE TABLE "public"."bgm_subject_relations"
+CREATE TABLE if not EXISTS "public"."bgm_subject_relations"
 (
     "subject_id"         int4,
     "relation_type"      int4,
