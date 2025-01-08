@@ -27,7 +27,7 @@ driver = 'postgresql'
 port = 5432
 database = 'toshokan'
 account = 'postgres'
-password = '1'
+password = 'postgres'
 
 [suffix]
 video = ['mp4', 'avi', 'mkv', 'm4a', '3gp', 'flv', 'hlv', 'rm', 'rmvb']
