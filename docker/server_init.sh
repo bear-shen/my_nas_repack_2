@@ -54,6 +54,7 @@ cp /app/system/nginx.conf /etc/nginx/nginx.conf
 cp /app/system/nginx_mime.types /etc/nginx/mime.types
 cp /app/system/nginx_default.conf /etc/nginx/sites-enabled/default.conf
 cp /app/system/pg_hba.conf /etc/postgresql/16/main/pg_hba.conf
+cp /app/system/postgresql.conf /etc/postgresql/16/main/postgresql.conf
 
 #cp /app/system/wsl.conf /etc/wsl.conf
 
