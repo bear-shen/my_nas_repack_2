@@ -2,7 +2,7 @@
 #注意FileProcessor的get方法和watcher也依赖windows的分隔符，且get没有做兼容
 windows = false
 checksum = ['xxh128sum', 'b3sum']
-import_ignore = ["thumbs.db", "_macosx", "desktop.ini", ".ds_store", "_tags.json"]
+import_ignore = ["thumbs.db", "_macosx", "desktop.ini", ".ds_store", "_tags.json", ".sync", ".git", ".idea", ".vscode"]
 #为true则会打印报错信息
 public = true
 
@@ -27,7 +27,7 @@ driver = 'postgresql'
 port = 5432
 database = 'toshokan'
 account = 'postgres'
-password = 'postgres'
+password = '1'
 
 [suffix]
 video = ['mp4', 'avi', 'mkv', 'm4a', '3gp', 'flv', 'hlv', 'rm', 'rmvb']

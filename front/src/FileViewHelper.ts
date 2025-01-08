@@ -794,11 +794,11 @@ export class opModule {
         const target = e.target as HTMLElement;
         switch (e.key) {
             case 'F2':
-                //@todo
                 if (mayTyping(target)) return;
                 if (mayInPopup(target)) return;
                 selRes = this.getSelected();
-                await opFunctionModule.op_bath_rename(selRes.idSet, selRes.nodeLs);
+                if (selRes.nodeLs.length !== 1) await opFunctionModule.op_bath_rename(selRes.idSet, selRes.nodeLs);
+                else await opFunctionModule.op_rename(selRes.nodeLs[0]);
                 break;
             case 'Delete':
                 if (mayTyping(target)) return;

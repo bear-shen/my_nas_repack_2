@@ -189,8 +189,11 @@ export async function rmFile(srcNode: string | number | col_node, fileKey: 'prev
 
 export async function mv(
     srcNode: string | number | col_node, targetDir: string | number | col_node
-    , targetTitle: string = '', targetDescription: string = ''
+    , targetTitle: string | false = false, targetDescription: string | false = false
 ): Promise<col_node[]> {
+    /**
+     * 这边的调用比较乱，需要整理一下
+     * */
     const cur = await get(srcNode);
     if (!cur) throw new Error('node not found');
     //
@@ -199,43 +202,62 @@ export async function mv(
     // console.info(localPath, ifExs, targetDir);
     if (!ifExs) throw new Error('local node not found');
     //
-    const upd: col_node = {
-        // title: titleFilter(targetTitle),
-        // id_parent: targetDirNode.id,
-        // node_id_list: [...targetDirNode.node_id_list, targetDirNode.id],
-        // node_path: mkRelPath(targetDirNode),
+    //移动
+    let targetDirNode;
+    //
+    const flag = {
+        dir: false,
+        title: false,
+        description: false,
     };
-    if (targetDir == -1) {
-        //纯改名
-        if (!targetTitle || !targetTitle.length) throw new Error('no title');
-    } else {
-        //移动
-        const targetDirNode = await get(targetDir);
+    if (targetDir !== -1) {
+        targetDirNode = await get(targetDir);
         if (!targetDirNode) throw new Error('parentNode not found');
         //不能移动到子目录
         if (targetDirNode.node_id_list.indexOf(cur.id) !== -1)
             throw new Error('cannot mv to subNode');
-        //检查一下新的上级
-        const targetDirPath = mkRelPath(targetDirNode);
-        const targetDirLocalPath = mkLocalPath(targetDirPath);
-        const ifTargetExs = await ifLocalFileExists(targetDirLocalPath);
-        if (!ifTargetExs) throw new Error('local target dir not found');
         //
+        if (cur.id_parent != targetDirNode.id) {
+            //检查一下新的上级
+            const targetDirPath = mkRelPath(targetDirNode);
+            const targetDirLocalPath = mkLocalPath(targetDirPath);
+            const ifTargetExs = await ifLocalFileExists(targetDirLocalPath);
+            if (!ifTargetExs) throw new Error('local target dir not found');
+            //
+            flag.dir = true;
+        }
+    }
+    if (targetTitle === false) targetTitle = cur.title;
+    targetTitle = titleFilter(targetTitle);
+    if (!targetTitle) throw new Error('invalid title');
+    //
+    if (flag.dir) flag.title = true;
+    else {
+        //只改名不移动目录
+        if (cur.title != targetTitle) {
+            targetDirNode = await get(cur.id_parent);
+            flag.title = true;
+        }
+    }
+    if (flag.title || flag.dir) {
+        const ifExs = await ifTitleExist(targetDirNode, targetTitle);
+        if (ifExs && ifExs.id != cur.id) throw new Error('file already exists');
+    }
+    if (targetDescription !== false) {
+        if (cur.description != targetDescription) {
+            flag.description = true;
+        }
+    }
+    const upd: col_node = {};
+    if (flag.description) upd.description = targetDescription as string;
+    if (flag.title) upd.title = targetTitle as string;
+    if (flag.dir || flag.title) {
         upd.id_parent = targetDirNode.id;
         upd.node_id_list = [...targetDirNode.node_id_list, targetDirNode.id];
         upd.node_path = mkRelPath(targetDirNode);
-    }
-    //
-    if (targetTitle && targetTitle.length) {
-        upd.title = titleFilter(targetTitle);
-        if (!upd.title) throw new Error('invalid title');
-        if (upd.title == cur.title) return [cur];
-        if (await ifTitleExist(cur.id_parent, upd.title)) throw new Error('file already exists');
-        //
-        upd.description = targetDescription;
     } else {
-        //这边主要是方便移动文件
-        upd.title = cur.title;
+        await (new NodeModel).where('id', cur.id).update(upd);
+        return [];
     }
     //先移动文件，再修改数据
     const typeLs = [
@@ -265,34 +287,37 @@ export async function mv(
             status: 1,
         });
     }
-    //清理封面
-    if (cur.node_id_list && cur.node_id_list.length) {
-        const parentLs = await new NodeModel().whereIn('id', cur.node_id_list).select([
-            'id', 'rel_node_id', 'file_index'
-        ]);
-        if (parentLs.length) {
-            // console.info(parentLs);
-            for (let i1 = 0; i1 < parentLs.length; i1++) {
-                const parentNode = parentLs[i1];
-                if (!parentNode.rel_node_id) continue;
-                const coverNode = await new NodeModel().where('id', parentNode.rel_node_id).first([
-                    'id',
-                    'node_id_list',
-                ]);
-                if (!coverNode.node_id_list || !coverNode.node_id_list.length) continue;
-                if (
-                    !(coverNode.node_id_list.indexOf(cur.id) !== -1 || coverNode.id === cur.id)
-                ) continue;
-                const parentNodeFileIndex = parentNode.file_index;
-                delete parentNodeFileIndex.rel;
-                await new NodeModel().where('id', parentNode.id).update({
-                    file_index: parentNodeFileIndex,
-                });
+    if (flag.dir) {
+        //清理封面
+        if (cur.node_id_list && cur.node_id_list.length) {
+            const parentLs = await new NodeModel().whereIn('id', cur.node_id_list).select([
+                'id', 'rel_node_id', 'file_index'
+            ]);
+            if (parentLs.length) {
+                // console.info(parentLs);
+                for (let i1 = 0; i1 < parentLs.length; i1++) {
+                    const parentNode = parentLs[i1];
+                    if (!parentNode.rel_node_id) continue;
+                    const coverNode = await new NodeModel().where('id', parentNode.rel_node_id).first([
+                        'id',
+                        'node_id_list',
+                    ]);
+                    if (!coverNode.node_id_list || !coverNode.node_id_list.length) continue;
+                    if (
+                        !(coverNode.node_id_list.indexOf(cur.id) !== -1 || coverNode.id === cur.id)
+                    ) continue;
+                    const parentNodeFileIndex = parentNode.file_index;
+                    delete parentNodeFileIndex.rel;
+                    await new NodeModel().where('id', parentNode.id).update({
+                        file_index: parentNodeFileIndex,
+                    });
+                }
             }
         }
     }
     //
-    return [cur];
+    return [];
+    // return [await get(cur.id)];
 }
 
 /**
