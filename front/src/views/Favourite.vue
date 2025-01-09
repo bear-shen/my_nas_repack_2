@@ -359,7 +359,7 @@ function tag_add(item: api_tag_col, groupIndex: number) {
   const tagIdLs: number[] = [];
   curGroup.tag.forEach(tag => tagIdLs.push(tag.id ?? 0));
   curGroup.meta = Object.assign(curGroup.meta ?? {}, {
-    tag_id: tagIdLs.join(','),
+    id_tag: tagIdLs.join(','),
   });
 }
 
@@ -376,7 +376,7 @@ function tag_del(groupIndex: number, tagIndex: number) {
   const tagIdLs: number[] = [];
   curGroup.tag.forEach(tag => tagIdLs.push(tag.id ?? 0));
   curGroup.meta = Object.assign(curGroup.meta ?? {}, {
-    tag_id: tagIdLs.join(','),
+    id_tag: tagIdLs.join(','),
   });
 }
 
