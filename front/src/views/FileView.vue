@@ -295,6 +295,7 @@ function keymap(e: KeyboardEvent) {
       return;
       break;
     case 'ctrl_KeyU':
+      if (route.name !== 'Directory') return;
       if (!(crumbList.value.length || queryData.id_dir)) return;
       if (opModule && opModule.showSelectionOp) {
         e.preventDefault();
@@ -302,6 +303,7 @@ function keymap(e: KeyboardEvent) {
       }
       break;
     case 'ctrl_KeyM':
+      if (route.name !== 'Directory') return;
       if (!(crumbList.value.length || queryData.id_dir)) return;
       if (opModule && opModule.showSelectionOp) {
         e.preventDefault();
@@ -311,6 +313,7 @@ function keymap(e: KeyboardEvent) {
     case 'ctrl_KeyC':
     case 'ctrl_KeyV':
     case 'ctrl_KeyX':
+      if (route.name !== 'Directory') return;
       if (mayTyping(e.target)) return;
       onPasteBinOperate(keyMap);
       break;

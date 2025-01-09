@@ -50,11 +50,11 @@ export function loadLocal() {
     const tomlConf = toml.parse(tomlConfContent.toString()) as ConfType;
     mergeToml(BaseConfig, tomlConf);
     //
-    if (process.env.NAS_DRIVER) (BaseConfig.db as ConfType).driver = process.env.NAS_DRIVER;
-    if (process.env.NAS_PORT) (BaseConfig.db as ConfType).port = parseInt(process.env.NAS_PORT);
-    if (process.env.NAS_DB) (BaseConfig.db as ConfType).database = process.env.NAS_DB;
-    if (process.env.NAS_USER) (BaseConfig.db as ConfType).account = process.env.NAS_USER;
-    if (process.env.NAS_PASSWORD) (BaseConfig.db as ConfType).password = process.env.NAS_PASSWORD;
+    // if (process.env.NAS_DRIVER) (BaseConfig.db as ConfType).driver = process.env.NAS_DRIVER;
+    // if (process.env.NAS_PORT) (BaseConfig.db as ConfType).port = parseInt(process.env.NAS_PORT);
+    // if (process.env.NAS_DB) (BaseConfig.db as ConfType).database = process.env.NAS_DB;
+    // if (process.env.NAS_USER) (BaseConfig.db as ConfType).account = process.env.NAS_USER;
+    // if (process.env.NAS_PASSWORD) (BaseConfig.db as ConfType).password = process.env.NAS_PASSWORD;
     //
     if (process.env.NAS_ORIGIN) (BaseConfig.web as ConfType).origin = process.env.NAS_ORIGIN;
     if (process.env.onlyoffice_enabled) (BaseConfig.web as ConfType).onlyoffice_enabled = process.env.onlyoffice_enabled;
@@ -91,20 +91,20 @@ export function getDBBase() {
     const dbConfig = get('db');
 // console.info(Config.get());
 // console.info(dbConfig);
-    let driverName = '';
-    switch (dbConfig.driver) {
-        case 'mysql':
-            driverName = "./lib/MySQL";
-            break
-        case 'postgresql':
-            driverName = "./lib/PostgreSQL";
-            break
-    }
+//     let driverName = '';
+//     switch (dbConfig.driver) {
+//         case 'mysql':
+//             driverName = "./lib/MySQL";
+//             break
+//         case 'postgresql':
+//             driverName = "./lib/PostgreSQL";
+//             break
+//     }
     const {
         query,
         execute,
         SQL_PARAM
-    } = require(driverName);
+    } = require("./lib/PostgreSQL");
     return {
         query, execute, SQL_PARAM
     }

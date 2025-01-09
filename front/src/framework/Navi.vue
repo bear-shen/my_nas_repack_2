@@ -15,6 +15,7 @@ import NaviContent from "./NaviContent.vue";
 
 <style lang="scss">
 .fr_navi {
+  z-index: 10;
   text-align: center;
   .title.active {
     background-color:  map.get($colors, bar_vertical_active);

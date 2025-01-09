@@ -185,10 +185,11 @@ const containerDef = {};
   .pastebin {
     position: absolute;
     right: 0;
-    top: $fontSize*1.5;
+    bottom: $fontSize*-2;
     $metaBk:  map.get($colors, bar_meta);
     background-color: $metaBk;
     padding: $fontSize*0.25 $fontSize*0.5;
+    z-index: 1;
     span{
       font-size: $fontSize*1.25;
       line-height: $fontSize*1.25;
