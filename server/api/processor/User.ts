@@ -128,7 +128,7 @@ export default class {
         if (!token && req.headers.cookie) {
             const cookiesArr = req.headers.cookie.split(';');
             cookiesArr.forEach(cookie => {
-                const cookieArr = cookie.split('=');
+                const cookieArr = cookie.trim().split('=');
                 if (cookieArr[0] !== 'tosho_token') return;
                 cookieArr.shift();
                 const cookieVal = cookieArr.join('=');
@@ -141,7 +141,7 @@ export default class {
             return null;
         }
         //-------------------------------------------------------------
-        const auth = await (new AuthModel).where('tosho_token', token).first(['uid']);
+        const auth = await (new AuthModel).where('token', token).first(['uid']);
         if (!auth) {
             // console.info('if (!auth) {');
             res.statusCode = 401;
