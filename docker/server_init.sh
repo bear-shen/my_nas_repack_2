@@ -13,7 +13,7 @@ dpkg -i *.deb
 cd /app/pkg/24.04/ffmpeg
 dpkg -i *.deb
 cd /app/pkg/24.04
-dpkg -i sudo_1.9.15p5-3ubuntu5_amd64.deb
+dpkg -i sudo_*.deb
 
 rm -rf /app/pkg/24.04/nginx
 rm -rf /app/pkg/24.04/generic
@@ -21,12 +21,12 @@ rm -rf /app/pkg/24.04/php
 rm -rf /app/pkg/24.04/software-properties-common
 rm -rf /app/pkg/24.04/pgroonga
 rm -rf /app/pkg/24.04/ffmpeg
-rm /app/pkg/24.04/sudo_1.9.15p5-3ubuntu5_amd64.deb
+rm /app/pkg/24.04/sudo_*.deb
 
 cd /app/pkg/24.04
-tar -xvf node-v20.18.0-linux-x64.tar.xz
-ln -s /app/pkg/24.04/node-v20.18.0-linux-x64/bin/node /usr/bin/node
-ln -s /app/pkg/24.04/node-v20.18.0-linux-x64/bin/npm /usr/bin/npm
+tar -xvf node-v20.18.1-linux-x64.tar.xz
+ln -s /app/pkg/24.04/node-v20.18.1-linux-x64/bin/node /usr/bin/node
+ln -s /app/pkg/24.04/node-v20.18.1-linux-x64/bin/npm /usr/bin/npm
 
 sleep 1
 
