@@ -15,6 +15,11 @@ ENV NAS_PORT=5432
 ENV NAS_DB=toshokan
 ENV NAS_USER=postgres
 ENV NAS_PASSWORD=1
+#only for onlyoffice
+ENV NAS_ORIGIN = http://192.168.110.235:85
+ENV onlyoffice_enabled = false
+ENV onlyoffice_api_src = http://192.168.110.152:8001/web-apps/apps/api/documents/api.js
+ENV onlyoffice_jwt_secret = YOUR_JWT_SECRET
 
 # Use production node environment by default.
 ENV NODE_ENV=production

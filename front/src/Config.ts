@@ -11,7 +11,8 @@ export default {
         'image',
         'binary',
         'text',
-        'pdf'
+        'pdf',
+        'office',
     ],
     indexedDBName: 'tosho_db',
     timeouts: {
@@ -71,4 +72,10 @@ export default {
         'directory',
         'subtitle',
     ] as type_file[],
+    onlyOffice: {
+        origin: '',
+        enabled: false,
+        apiSrc: '',
+        jwtSecret: '',
+    },
 }

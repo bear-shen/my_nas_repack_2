@@ -152,10 +152,9 @@ async function getList(clear: boolean = false) {
 </template>
 
 <style lang="scss">
-@import "../assets/variables";
 .fr_content.view_log {
   .form {
-    $metaBk: map-get($colors, bar_meta);
+    $metaBk:  map.get($colors, bar_meta);
     background-color: $metaBk;
     padding: 0 $fontSize * 0.5;
     //line-height: $fontSize * 1.5;
@@ -189,7 +188,7 @@ async function getList(clear: boolean = false) {
       font-size: $fontSize*1.5;
     }
     tr:hover {
-      background-color: map-get($colors, bk_active);
+      background-color:  map.get($colors, bk_active);
     }
   }
 }

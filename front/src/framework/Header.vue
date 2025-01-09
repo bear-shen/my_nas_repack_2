@@ -47,7 +47,6 @@ function logout() {
 </template>
 
 <style scoped lang="scss">
-@import "../assets/variables";
 .fr_header {
   display: flex;
   justify-content: space-between;
@@ -82,7 +81,7 @@ function logout() {
   }
   .action {
     display: none;
-    background-color: map-get($colors, bar_meta);
+    background-color:  map.get($colors, bar_meta);
     position: absolute;
     width: 100%;
     text-align: right;
@@ -94,7 +93,7 @@ function logout() {
 .active,
 .user li:hover,
 .navi div:hover {
-  background-color: map-get($colors, bar_meta);
-  color: map-get($colors, font);
+  background-color:  map.get($colors, bar_meta);
+  color:  map.get($colors, font);
 }
 </style>

@@ -13,14 +13,13 @@ type valType = api_node_col & { _sel?: boolean };
 const locatorInput: Ref<HTMLInputElement | null> = ref(null);
 
 let queryData: api_file_list_req = {
-  mode: 'search',
-  pid: '',
+  mode: 'directory',
+  id_dir: '',
   keyword: '',
-  tag_id: '',
-  cascade_dir: '',
+  id_tag: '',
+  cascade_dir: '1',
   node_type: 'directory',
   with: 'crumb',
-  group: '',
   limit: '20',
 };
 
@@ -35,7 +34,7 @@ const props = defineProps<{
 // const list = ref(new Map() as Map<string, uploadFile>);
 const list: Ref<valType[]> = ref([] as valType[]);
 onMounted(() => {
-  Object.assign(queryData, JSON.parse(JSON.stringify(props.data.query)));
+  // Object.assign(queryData, JSON.parse(JSON.stringify(props.data.query)));
   locatorInput.value?.focus();
 });
 onUnmounted(() => {
@@ -178,7 +177,6 @@ async function keydownEvt(e: KeyboardEvent): Promise<boolean> {
 </template>
 
 <style lang="scss">
-@import "../assets/variables";
 .modal_locator {
   width: 100%;
   //min-height: 90%;
@@ -211,9 +209,9 @@ async function keydownEvt(e: KeyboardEvent): Promise<boolean> {
         display: inline;
         > span {
           &:first-child {
-            color: map-get($colors, font);
+            color:  map.get($colors, font);
           }
-          color: map-get($colors, font_sub);
+          color:  map.get($colors, font_sub);
           &::after {
             content: '/';
             padding: 0 $fontSize*0.25;
@@ -221,7 +219,7 @@ async function keydownEvt(e: KeyboardEvent): Promise<boolean> {
         }
       }
       &:hover, &.active {
-        background-color: map-get($colors, bk_active);
+        background-color:  map.get($colors, bk_active);
         cursor: pointer;
       }
     }
@@ -244,7 +242,7 @@ async function keydownEvt(e: KeyboardEvent): Promise<boolean> {
         max-width: 50%;
       }
       &:nth-child(2n) {
-        background-color: map-get($colors, bk), 4
+        background-color:  map.get($colors, bk), 4
       }
       > span {
         display: inline-block;

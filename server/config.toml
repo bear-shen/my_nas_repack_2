@@ -1,8 +1,8 @@
 #目前用于一些bash脚本的转义字符
 #注意FileProcessor的get方法和watcher也依赖windows的分隔符，且get没有做兼容
-windows = true
+windows = false
 checksum = ['xxh128sum', 'b3sum']
-import_ignore = ["thumbs.db", "_macosx", "desktop.ini", ".ds_store", "_tags.json"]
+import_ignore = ["thumbs.db", "_macosx", "desktop.ini", ".ds_store", "_tags.json", ".sync", ".git", ".idea", ".vscode"]
 #为true则会打印报错信息
 public = true
 
@@ -36,6 +36,7 @@ image = ['jpg', 'png', 'jpeg', 'tif', 'tiff', 'bmp', 'gif', 'webp']
 text = ['txt', 'html', 'json', 'sql', 'csv', 'htm', 'conf', 'md', 'log']
 subtitle = ['vtt', 'ass', 'ssa', 'sub', 'srt', 'pjs']
 pdf = ['pdf']
+office = ['doc', 'docm', 'docx', 'dot', 'dotm', 'dotx', 'epub', 'odt', 'ott', 'rtf', 'wps', 'wpt', 'csv', 'et', 'ett', 'xls', 'xlsb', 'xlsm', 'xlsx', 'xlt', 'xltm', 'xltx', 'dps', 'dpt', 'pot', 'potm', 'potx', 'pps', 'ppsm', 'ppsx', 'ppt', 'pptm', 'pptx']
 
 [path]
 root = '/app/file'
@@ -81,12 +82,11 @@ allow_container = ['mp4', 'ogg', 'webm', 'm4a', ]
 #nvenc
 #ff_encoder = '-c:v av1_nvenc -profile:v main10 -preset slow -tune hq -qp 40 -bf 3 -pix_fmt p010le -multipass qres -rc-lookahead 32'
 #quicksync
-#ff_encoder = '-c:v hevc_qsv -profile:v main10 -preset slow -q:v 27 -bf 3 -pix_fmt p010le'
+#ff_encoder = '-c:v av1_qsv -profile:v main -preset slow -q:v 27 -bf 3 -pix_fmt p010le'
 #cpu
 ff_encoder = '-c:v libx265 -qp 22 -bf 4 -pix_fmt yuv420p10le'
 
 [parser.audio]
-quality = 1.5
 format = 'aac'
 codec_lib = 'aac'
 allow_codec = ['flac', 'mp3', 'aac', 'wav', 'vorbis', 'ogg', 'opus', ]
@@ -101,7 +101,12 @@ allow_container = ['webvtt', ]
 allow_codec = ['ass', 'ssa', 'vtt', 'srt', 'subrip', 'mov_text', 'webvtt', ]
 priority_kw = ['cht', 'chs', 'chin', 'zh-', '中', 'jpn', 'jps', 'japan', 'jp', '日', 'us', 'en', '英', ]
 
-
+[web]
+origin = 'http://172.17.0.1:85'
+onlyoffice_enabled = 'false'
+#onlyoffice_enabled = 'true'
+onlyoffice_api_src = 'http://127.0.0.1:8001/web-apps/apps/api/documents/api.js'
+onlyoffice_jwt_secret = 'YOUR_JWT_SECRET'
 
 
 

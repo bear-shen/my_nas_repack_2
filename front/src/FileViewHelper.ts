@@ -32,7 +32,7 @@ let opModuleVal: null | opModule;
 * */
 export class opModule {
     public nodeList: Ref<api_node_col[]> = ref([]);
-    public getList: () => any;
+    public getList: (list?: api_node_col[]) => any;
     public route: RouteLocationNormalizedLoaded;
     public router: Router;
     public contentDOM: HTMLElement;
@@ -245,6 +245,7 @@ export class opModule {
         // console.info(this);
         // console.info(this.inDetailView);
         if (!this.inDetailView(e)) return;
+        if (e.button === 1) return;
         // console.info('here');
         // if (inTaggingDOM(e)) return;
         // console.info(e);
@@ -446,7 +447,6 @@ export class opModule {
                     console.info(this, nodeLs);
                     if (!opModuleVal || !opModuleVal.modalStore) return;
                     //
-
                     const fd = new FileStreamDownloader(nodeLs);
                     //
                     const resRef: Ref<string> = ref('downloading 0/0 (0%)');
@@ -716,6 +716,7 @@ export class opModule {
         }
         //
         const preNode = this.nodeList.value[preSelIndex];
+        if (!preNode) return;
         if (!preNode._offsets) preNode._offsets = [];
         const nodeW = preNode._offsets[2] - preNode._offsets[0];
         const domW = this.contentDOM.offsetWidth;
@@ -793,11 +794,11 @@ export class opModule {
         const target = e.target as HTMLElement;
         switch (e.key) {
             case 'F2':
-                //@todo
                 if (mayTyping(target)) return;
                 if (mayInPopup(target)) return;
                 selRes = this.getSelected();
-                await opFunctionModule.op_bath_rename(selRes.idSet, selRes.nodeLs);
+                if (selRes.nodeLs.length !== 1) await opFunctionModule.op_bath_rename(selRes.idSet, selRes.nodeLs);
+                else await opFunctionModule.op_rename(selRes.nodeLs[0]);
                 break;
             case 'Delete':
                 if (mayTyping(target)) return;
@@ -815,6 +816,7 @@ export class opModule {
                 if (mayInPopup(target)) return;
                 selRes = this.getSelected();
                 if (!selRes.idSet.size) return;
+                console.info(selRes.idSet.size);
                 if (e.altKey && selRes.idSet.size == 1) {
                     return this.emitGo('node', Array.from(selRes.idSet)[0])
                 }
@@ -875,20 +877,15 @@ export class opModule {
     }
 
     public go(ext: api_file_list_req) {
-        if (!ext.tag_id) ext.tag_id = "";
-        if (!ext.keyword) ext.keyword = "";
-        if (!ext.node_type) ext.node_type = "";
-        const tQuery = Object.assign({
-            mode: "",
-            pid: "",
-            keyword: "",
-            tag_id: "",
-            node_type: "",
-            cascade_dir: "",
-            with: "",
-            group: "",
-            rate: "",
+        const tQuery: api_file_list_req = Object.assign({
+            id_dir: "",
+            id_tag: "",
+            // keyword: "",
+            // node_type: "",
+            // rate: "",
+            // cascade_dir: "",
         }, ext);
+        // console.info('go', JSON.stringify(tQuery));
         this.router.push({
             // path: this.route.path,
             path: '/',
@@ -1113,7 +1110,7 @@ export class opFunctionModule {
         formData.set('id', `${node.id}`);
         const res = await query<api_file_delete_resp>('file/delete', formData);
         console.info(opModuleVal);
-        if (opModuleVal) opModuleVal.deleteFromList([node.id]);
+        if (opModuleVal && node.id) opModuleVal.deleteFromList([node.id]);
         return res;
     }
 
@@ -1156,7 +1153,7 @@ export class opFunctionModule {
         const formData = new FormData();
         formData.set('id', `${node.id}`);
         const res = await query<api_file_delete_resp>('file/delete_forever', formData);
-        if (opModuleVal) opModuleVal.deleteFromList([node.id]);
+        if (opModuleVal && node.id) opModuleVal.deleteFromList([node.id]);
         return res;
     }
 
@@ -1204,6 +1201,7 @@ export class opFunctionModule {
             })
         }
         if (!opModuleVal) return;
+        // console.info(node);
         opModuleVal.modalStore.set({
             title: `select fav group:`,
             alpha: false,
@@ -1222,7 +1220,7 @@ export class opFunctionModule {
             form: [
                 {
                     type: "checkbox",
-                    label: "attach to:",
+                    label: "attach to",
                     key: "target_group",
                     value: node.list_fav,
                     options: favGroupOpts,
@@ -1231,12 +1229,15 @@ export class opFunctionModule {
             callback: {
                 submit: async function (modal) {
                     // console.info(modal)
-                    const groupIdLs = modal.content.form[0].value.join(',');
+                    const groupIdArr = modal.content.form[0].value;
+                    // if (!groupIdArr) return;
+                    // if (!groupIdArr.length) return;
+                    const groupIdLs = groupIdArr.join(',');
                     await query<api_favourite_attach_resp>("favourite/attach", {
                         id_node: node.id,
                         list_group: groupIdLs,
                     });
-
+                    location.reload();
                 },
             },
         });
@@ -1298,11 +1299,14 @@ export class opFunctionModule {
         query.with = 'crumb,file';
         if (idArr.length == 1) {
             query.mode = 'directory';
-            query.pid = `${idArr[0]}`;
+            query.id_dir = `${idArr[0]}`;
         } else {
             query.mode = 'id_iterate';
             query.keyword = idArr.join(',');
         }
+        //打开弹窗默认是展示的当前文件夹里的内容
+        //如果文件夹里没有可以展示的内容，才会尝试查找级联的内容
+        query.cascade_dir = '0';
         // if (idSet.size > 1) {
         // let query = GenFunc.copyObject(this.queryData);
         popupDetail(query, idArr[0]);
@@ -1481,31 +1485,31 @@ export function manualSort<K extends api_node_col>(list: K[], sort: string) {
             sortType = ['rate', 'desc',];
             break;
     }
-    list.sort((a, b) => {
-        let va: any = '';
-        let vb: any = '';
-        let ca = [];
-        let cb = [];
-        const rev = sortType[1] == 'desc' ? -1 : 1;
+    for (let i1 = 0; i1 < list.length; i1++) {
+        const node = list[i1];
+        if (node._sort_index) continue;
+        node._sort_index = node.node_path + '/' + node.title;
+    }
+    const rev = sortType[1] === 'desc';
+    const revNum = rev ? -1 : 1;
+    list.sort((a: api_node_col, b: api_node_col) => {
+        let va: string | number = '';
+        let vb: string | number = '';
         switch (sortType[0]) {
             default:
                 va = a[sortType[0]];
                 vb = b[sortType[0]];
                 break;
             case 'title':
-                // a?.crumb_node?.forEach(node => ca.push(node.title?.toLowerCase()));
-                // b?.crumb_node?.forEach(node => cb.push(node.title?.toLowerCase()));
-                // ca.push(a.title?.toLowerCase());
-                // cb.push(b.title?.toLowerCase());
-                // va = ca.join(' ');
-                // vb = cb.join(' ');
-                va = a.node_path + '/' + a.title;
-                vb = b.node_path + '/' + b.title;
+                //文件夹在前，文件在后
+                va = revNum * (a.type === 'directory' ? 0 : 1) + a._sort_index;
+                vb = revNum * (b.type === 'directory' ? 0 : 1) + b._sort_index;
                 // console.info(rev, va, vb, natsort({desc:rev,insensitive:true})(va, vb));
-                return natsort({desc: rev == 1 ? false : true, insensitive: true})(va, vb);
+                return natsort({desc: rev, insensitive: true})(va, vb);
                 break;
         }
-        return (va ? va : 0) > (vb ? vb : 0) ? rev * 1 : rev * -1;
+        return (va > vb ? 1 : -1) * revNum;
     });
+    // list.forEach(node => console.info(node[sortType[0]]));
     return list;
 }

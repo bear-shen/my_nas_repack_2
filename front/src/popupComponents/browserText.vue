@@ -104,7 +104,6 @@ onBeforeUnmount(() => {
 </template>
 
 <style lang="scss">
-@import "../assets/variables";
 .modal_browser.txt {
   .content .textContent {
     width: calc(100% - $fontSize * 4);

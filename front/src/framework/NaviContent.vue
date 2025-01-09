@@ -60,5 +60,4 @@ const user = userStore.get();
 </template>
 
 <style scoped lang="scss">
-@import "../assets/variables";
 </style>

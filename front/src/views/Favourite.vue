@@ -40,9 +40,6 @@ onMounted(async () => {
   // Object.assign(groupQueryData, GenFunc.copyObject(route.query));
   //
   groupQueryData.id = (route.query.id as string) ?? '';
-  nodeQueryData.keyword = route.query.keyword as string ?? '';
-  nodeQueryData.node_type = route.query.node_type as string ?? '';
-  nodeQueryData.rate = route.query.rate as string ?? '';
   //
   await getGroup();
   opModule = new fHelper.opModule({
@@ -56,24 +53,24 @@ onMounted(async () => {
   });
   if (groupQueryData.id) {
     locateGroup();
+    syncQuery(route.query);
     await getList();
     await opModule.reloadScroll();
   }
+  document.addEventListener("keydown", keymap);
 });
 onUnmounted(() => {
   opModule.destructor();
+  document.removeEventListener("keydown", keymap);
 });
 
 onBeforeRouteUpdate(async (to) => {
   console.info(to);
   groupQueryData.id = (to.query.id as string) ?? '';
-  nodeQueryData.keyword = to.query.keyword as string ?? '';
-  nodeQueryData.node_type = to.query.node_type as string ?? '';
-  nodeQueryData.rate = to.query.rate as string ?? '';
-
   // await getGroup();
   if (groupQueryData.id) {
     locateGroup();
+    syncQuery(to.query);
     await getList();
   }
 });
@@ -92,6 +89,7 @@ async function getGroup() {
 async function delGroup(index: number) {
   const target = groupList.value[index];
   const res = await query<api_favourite_group_mod_resp>("favourite_group/del", target);
+  location.reload();
 }
 
 async function modGroup(index: number) {
@@ -115,9 +113,9 @@ function addGroup(auto: 0 | 1) {
     auto: auto,
     meta: {
       node_type: 'any',
-      tag_id: '',
+      id_tag: '',
       rate: '',
-      pid: '',
+      id_dir: '',
       cascade_dir: '1',
       tag_or: '1',
     },
@@ -148,44 +146,100 @@ async function goGroup(index: number) {
   });
 }
 
-let nodeQueryData: api_file_list_req = {
-  // mode: 'directory',
-  // pid: '0',
-  keyword: '',
-  // tag_id: '',
-  node_type: 'any',
-  // cascade_dir: '',
-  // with: '',
-  // group: '',
-  rate: ''
+let queryData: api_file_list_req = {
+  mode: 'directory',
+  id_dir: '',
+  id_tag: '',
 };
+let searchBarQuery: api_file_list_req = {
+  keyword: '',
+  node_type: '',
+  rate: '',
+  cascade_dir: '1',
+};
+
+function syncQuery(tQuery) {
+  if (!tQuery) return;
+  for (let key in queryData) {
+    if (!Object.prototype.hasOwnProperty.call(queryData, key)) continue;
+    // if (typeof tQuery[key] === 'undefined') continue;
+    switch (key) {
+      default:
+        queryData[key] = tQuery[key] ?? '';
+        break;
+      case 'mode':
+        queryData[key] = tQuery[key] ?? 'directory';
+        break;
+      case 'id_dir':
+        queryData[key] = tQuery[key] ?? '';
+        break;
+    }
+  }
+  for (let key in searchBarQuery) {
+    if (!Object.prototype.hasOwnProperty.call(searchBarQuery, key)) continue;
+    // if (typeof tQuery[key] === 'undefined') continue;
+    switch (key) {
+      default:
+        searchBarQuery[key] = tQuery[key] ?? '';
+        break;
+      case 'cascade_dir':
+        searchBarQuery[key] = tQuery[key] ?? '1';
+        break;
+    }
+  }
+}
+
 const nodeList: Ref<api_node_col[]> = ref([]);
 let opModule: opModuleClass;
 
 function search() {
-  const tQuery = Object.assign({}, groupQueryData, nodeQueryData);
-  router.push({
-    path: route.path,
-    query: tQuery
-  })
+  const tQuery = GenFunc.copyObject(searchBarQuery);
+  if (queryData.id_tag) tQuery.id_tag = queryData.id_tag;
+  if (queryData.id_dir) tQuery.id_dir = queryData.id_dir;
+  if (!searchBarQuery.rate && !searchBarQuery.node_type && !searchBarQuery.keyword.trim()) {
+    tQuery.mode = 'directory';
+  } else {
+    tQuery.mode = 'search';
+  }
+  opModule.go(tQuery);
 }
 
 async function getList(replaceWith?: api_file_list_resp[]) {
-  // const group = groupList.value[index];
+  console.info('getList', route.name);
+  // console.warn('getList', route.name, JSON.stringify(queryData), JSON.stringify(searchBarQuery));
   nodeList.value = [];
   if (!replaceWith) {
-    const res = await query<api_file_list_resp>("file/get", Object.assign({},
-      {
-        mode: 'favourite',
-        fav_id: groupQueryData.id,
-        with: 'file,tag',
-      }, nodeQueryData ? nodeQueryData : {}) as api_file_list_req);
+    // crumbList.value = [];
+    switch (route.name) {
+      default:
+        break;
+      case 'Recycle':
+        queryData.status = 'deleted';
+        break;
+      case 'Favourite':
+        // queryData.group = 'favourite';
+        break;
+    }
+    let tQueryData: api_file_list_req = {id_fav: curGroup.value?.id};
+    switch (queryData.mode) {
+      case 'directory':
+        tQueryData = Object.assign(tQueryData, queryData);
+        break;
+      case 'search':
+        tQueryData = Object.assign(tQueryData, queryData, searchBarQuery);
+        break;
+    }
+    const res = await query<api_file_list_resp>('file/get', tQueryData);
     if (!res) return;
-    nodeList.value = manualSort(res.list, 'name_asc');
+    // console.info(res);
+    // crumbList.value = res.path;
+    nodeList.value = opModule.sortList(res.list, opModule.sortVal.value);
   } else {
     nodeList.value = replaceWith;
   }
-  opModule.setList(nodeList.value);
+  if (opModule) opModule.setList(nodeList.value);
+  // console.info(crumbList);
+  // return {crumb: crumbList.value, node: nodeList.value};
 }
 
 function emitGo(type: string, code?: number) {
@@ -195,7 +249,7 @@ function emitGo(type: string, code?: number) {
       getList();
       break;
     case "tag":
-      opModule.go({tag_id: `${code}`, mode: 'tag'});
+      opModule.go({id_tag: `${code}`, mode: 'tag'});
       break;
     case "node":
       let node;
@@ -204,20 +258,41 @@ function emitGo(type: string, code?: number) {
         node = nodeList.value[i1];
         break;
       }
-      // console.info(node);
       if (!node) break;
       switch (node.type) {
         case "directory":
-          opModule.go({pid: `${node.id}`, mode: 'directory'});
+          opModule.go({id_dir: `${node.id}`, mode: 'directory'});
           break;
         default:
           fHelper.popupDetail({
             mode: 'favourite',
-            fav_id: groupQueryData.id,
+            id_fav: groupQueryData.id,
             with: 'file,crumb',
           }, node.id ?? 0);
           break;
       }
+      break;
+  }
+}
+
+function keymap(e: KeyboardEvent) {
+  // console.info(e);
+  //这俩快捷键基本没占用，屏蔽target反而很麻烦
+  // if ((e.target as HTMLElement).tagName !== "BODY") return;
+  // if (!(crumbList.value.length || queryData.id_dir)) return;
+  const keyMap = [];
+  if (e.ctrlKey) keyMap.push('ctrl');
+  if (e.shiftKey) keyMap.push('shift');
+  keyMap.push(e.code);
+  switch (keyMap.join('_')) {
+    default:
+      return;
+      break;
+    case 'NumpadEnter':
+    case 'Enter':
+      if (!e.target) return;
+      if (e.target.id !== 'searchBarInput') return;
+      search();
       break;
   }
 }
@@ -449,23 +524,23 @@ function tag_del(groupIndex: number, tagIndex: number) {
       <div class='content_meta'>
         <div class='search'>
           <label>
-            <span>Title : </span><input type='text' v-model='nodeQueryData.keyword'/>
+            <span>Title : </span><input id="searchBarInput" type='text' v-model='searchBarQuery.keyword'/>
           </label>
           <label>
             <span>Type : </span>
-            <select v-model='nodeQueryData.node_type'>
+            <select v-model='searchBarQuery.node_type'>
               <option v-for='(type,index) in Config.fileType' :key="`FAV_SCH_CON_TYPE_${index}`">{{ type }}</option>
             </select>
           </label>
           <label>
             <span>Rate : </span>
             <template v-if="isMobile">
-              <select v-model='nodeQueryData.rate'>
-                <option v-for='(type,key) in Config.rateMobile' :value='key' :key="`FAV_SCH_CON_RATE_${key}`">{{type}}</option>
+              <select v-model='searchBarQuery.rate'>
+                <option v-for='(type,key) in Config.rateMobile' :value='key' :key="`FAV_SCH_CON_RATE_${key}`">{{ type }}</option>
               </select>
             </template>
             <template v-else>
-              <select class='sysIcon' v-model='nodeQueryData.rate'>
+              <select class='sysIcon' v-model='searchBarQuery.rate'>
                 <option v-for='(type,key) in Config.rate' :value='key' v-html='type' :key="`FAV_SCH_CON_RATE_${key}`"></option>
               </select>
             </template>
@@ -524,7 +599,6 @@ function tag_del(groupIndex: number, tagIndex: number) {
 </template>
 
 <style lang="scss">
-@import "../assets/variables";
 .fr_content.view_fav {
   padding-bottom: 0;
   height: 100%;
@@ -532,7 +606,7 @@ function tag_del(groupIndex: number, tagIndex: number) {
   justify-content: space-between;
   .list_fav_group {
     width: $fontSize*20;
-    background-color: map-get($colors, bar_meta);
+    background-color:  map.get($colors, bar_meta);
     height: 100%;
     //@include smallScroll();
     overflow-y: scroll;
@@ -550,12 +624,12 @@ function tag_del(groupIndex: number, tagIndex: number) {
       padding: $fontSize*0.25 $fontSize;
       line-height: $fontSize*2;
       &:hover, &.active {
-        background-color: map-get($colors, bar_meta_active);
+        background-color:  map.get($colors, bar_meta_active);
       }
       > div {
         cursor: pointer;
         font-size: $fontSize;
-        color: map-get($colors, font_sub);
+        color:  map.get($colors, font_sub);
         display: flex;
         justify-content: space-between;
         flex-wrap: wrap;
@@ -580,7 +654,7 @@ function tag_del(groupIndex: number, tagIndex: number) {
       }
       //>div
       .title {
-        color: map-get($colors, font);
+        color:  map.get($colors, font);
         padding: 0 $fontSize*0.5;
         background-color: transparent;
         overflow: hidden;
@@ -597,7 +671,7 @@ function tag_del(groupIndex: number, tagIndex: number) {
       table {
         margin-top: $fontSize*0.5;
         font-size: $fontSize*0.9;
-        color: map-get($colors, font_sub);
+        color:  map.get($colors, font_sub);
         width: 100%;
         overflow: hidden;
         display: block;
@@ -615,7 +689,7 @@ function tag_del(groupIndex: number, tagIndex: number) {
             //display: none;
           }
           select {
-            color: map-get($colors, font_sub);
+            color:  map.get($colors, font_sub);
             padding: 0 $fontSize;
             text-align: center;
           }
@@ -652,6 +726,7 @@ function tag_del(groupIndex: number, tagIndex: number) {
       //justify-content: space-around;
       justify-content: left;
       align-content: flex-start;
+      min-height: calc(100% - $fontSize * 4);
     }
     .list_fav.mode_text {
       display: table;
@@ -659,7 +734,7 @@ function tag_del(groupIndex: number, tagIndex: number) {
       height: auto;
     }
   }
-  @media (max-width: $fontSize*50) {
+  @media (max-width: ($fontSize*50)) {
     display: block;
     .list_fav_group {
       width: 100%;

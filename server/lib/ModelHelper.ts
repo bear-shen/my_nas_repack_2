@@ -3,7 +3,7 @@ import BaseModel from "../model/BaseModel";
 export async function splitQuery<field>(
     instance: typeof BaseModel<field>, idList: (number | string)[]
     , ext?: (orm: BaseModel<field>) => any
-    , column: (keyof field | string)[] = ['*'], key: string = 'id'
+    , column: (keyof field | string)[] = ['*'], key: keyof field | string = 'id'
     , size: number = 1000
 ): Promise<field[]> {
     let startInd = 0;

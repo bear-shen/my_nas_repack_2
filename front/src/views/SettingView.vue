@@ -149,6 +149,7 @@ type widget = {
 };
 const widgetLs: widget[] = [
   {type: 'button', title: 'syncLocalFile', method: btn_syncLocalFile},
+  {type: 'button', title: 'syncDatabaseFile', method: btn_syncDatabaseFile},
   {type: 'button', title: 'checkLocalFile', method: btn_checkLocalFile},
   {type: 'button', title: 'rebuildAllIndex', method: btn_rebuildAllIndex},
   // {type: 'button', title: 'nodeStatistics', method: btn_nodeStatistics},
@@ -156,6 +157,24 @@ const widgetLs: widget[] = [
 
 async function btn_syncLocalFile() {
   const res = await query("setting/sync_local_file", {});
+  const modalStore = useModalStore();
+  modalStore.set({
+    title: "success",
+    text: "queued",
+    w: 320,
+    h: 100,
+    minW: 320,
+    minH: 100,
+    allow_resize: false,
+    callback: {
+      confirm: async function (modal) {
+      },
+    },
+  } as ModalConstruct);
+}
+
+async function btn_syncDatabaseFile() {
+  const res = await query("setting/sync_database_file", {});
   const modalStore = useModalStore();
   modalStore.set({
     title: "success",
@@ -276,7 +295,6 @@ async function btn_checkLocalFile() {
 </template>
 
 <style lang="scss">
-@import "../assets/variables";
 .fr_content.view_setting {
   table {
     th, td {
@@ -288,7 +306,7 @@ async function btn_checkLocalFile() {
       font-size: $fontSize;
     }
     td.editing, td:hover {
-      background-color: map-get($colors, bk_active);
+      background-color:  map.get($colors, bk_active);
     }
     td.add {
       font-size: $fontSize;

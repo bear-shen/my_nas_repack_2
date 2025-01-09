@@ -7,6 +7,7 @@ import NodeModel from "../../model/NodeModel";
 import {col_favourite_group, col_node, col_tag_group} from "../../../share/Database";
 import TagModel from "../../model/TagModel";
 import TagGroupModel from "../../model/TagGroupModel";
+import FavouriteModel from "../../model/FavouriteModel";
 
 export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_favourite_group_list_resp> {
@@ -39,8 +40,8 @@ export default class {
             const favGroup = favGroupLs[i1];
             if (favGroup.auto) {
                 let node: col_node = null;
-                if (favGroup.meta.pid) {
-                    node = await new NodeModel().where('id', favGroup.meta.pid).first();
+                if (favGroup.meta.id_dir) {
+                    node = await new NodeModel().where('id', favGroup.meta.id_dir).first();
                 } else {
                     node = {
                         id: 0,
@@ -54,8 +55,8 @@ export default class {
                 favGroup.node = node;
                 favGroup.tag = [];
                 // let tagLs: col_tag[] = [];
-                if (favGroup.meta.tag_id) {
-                    favGroup.meta.tag_id.split(',').forEach(tagId => {
+                if (favGroup.meta.id_tag) {
+                    favGroup.meta.id_tag.split(',').forEach(tagId => {
                         tagIdSet.add(parseInt(tagId));
                     });
                 }
@@ -76,8 +77,8 @@ export default class {
                 });
                 //
                 favGroupLs.forEach(favGroup => {
-                    if (favGroup.meta.tag_id) {
-                        favGroup.meta.tag_id.split(',').forEach(tagId => {
+                    if (favGroup.meta.id_tag) {
+                        favGroup.meta.id_tag.split(',').forEach(tagId => {
                             const id = parseInt(tagId);
                             favGroup.tag.push(tagMap.get(id));
                         });
@@ -93,7 +94,11 @@ export default class {
         const model = await (new FavouriteGroupModel())
             .where('id', request.id)
             .where('id_user', data.uid)
-            .update({status: 0});
+            .delete();
+        //一起删除得了
+        await (new FavouriteModel())
+            .where('id_group', request.id)
+            .delete();
         return null;
     };
 
@@ -108,7 +113,7 @@ export default class {
                 //
             });
         } else {
-            const res= await (new FavouriteGroupModel()).insert({
+            const res = await (new FavouriteGroupModel()).insert({
                 title: request.title,
                 status: request.status,
                 meta: request.meta ? JSON.parse(request.meta) : {},

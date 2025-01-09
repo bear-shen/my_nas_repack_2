@@ -33,6 +33,8 @@ init().then(() => {
         if (filename == pathConf.prefix_normal) return;
         if (filename == pathConf.prefix_cover) return;
         if (ignoreConf.indexOf(fp.basename(filename)) != -1) return;
+        //忽略tmp
+        if (fp.extension(filename) == 'tmp') return;
         // console.info(pathConf);
         console.info(filename);
         //拷文件的时候会一直change到拷完，所以用覆盖

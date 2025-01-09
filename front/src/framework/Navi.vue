@@ -14,14 +14,13 @@ import NaviContent from "./NaviContent.vue";
 </template>
 
 <style lang="scss">
-@import "../assets/variables";
 .fr_navi {
   text-align: center;
   .title.active {
-    background-color: map-get($colors, bar_vertical_active);
+    background-color:  map.get($colors, bar_vertical_active);
   }
   .title:hover {
-    background-color: map-get($colors, bar_vertical_active);
+    background-color:  map.get($colors, bar_vertical_active);
     .content {
       display: inline-block;
     }
@@ -37,7 +36,7 @@ import NaviContent from "./NaviContent.vue";
       font-size: $fontSize * 1.25;
     }
     .content {
-      background-color: map-get($colors, bar_vertical);
+      background-color:  map.get($colors, bar_vertical);
       padding: 0 $fontSize * 0.5;
       display: none;
       position: absolute;

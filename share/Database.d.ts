@@ -3,7 +3,7 @@ import {api_file_list_req} from "./Api";
 export type type_file = 'audio' | 'video' |
     'image' | 'binary' |
     'text' | 'subtitle' |
-    'pdf' | 'directory';
+    'pdf' | 'office' | 'directory';
 
 export type col_node_file_index = {
     size: number, checksum: string[],

@@ -45,13 +45,16 @@ sudo -u postgres -H psql -d toshokan -a -f /app/init.postgres.sql
 sudo -u postgres -H psql -d toshokan -a -f /app/init.base.sql
 
 rm -f /etc/nginx/nginx.conf
+rm -f /etc/nginx/mime.types
 rm -f /etc/nginx/sites-enabled/default
 rm -f /etc/nginx/sites-available/default
 rm -f /etc/postgresql/16/main/pg_hba.conf
 
 cp /app/system/nginx.conf /etc/nginx/nginx.conf
+cp /app/system/nginx_mime.types /etc/nginx/mime.types
 cp /app/system/nginx_default.conf /etc/nginx/sites-enabled/default.conf
 cp /app/system/pg_hba.conf /etc/postgresql/16/main/pg_hba.conf
+cp /app/system/postgresql.conf /etc/postgresql/16/main/postgresql.conf
 
 #cp /app/system/wsl.conf /etc/wsl.conf
 

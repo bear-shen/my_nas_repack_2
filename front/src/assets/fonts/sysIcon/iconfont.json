@@ -6,6 +6,27 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "14421425",
+      "name": "剪切蒙版",
+      "font_class": "jianqiemengban_huaban1",
+      "unicode": "e66f",
+      "unicode_decimal": 58991
+    },
+    {
+      "icon_id": "15838468",
+      "name": "export",
+      "font_class": "cut",
+      "unicode": "e670",
+      "unicode_decimal": 58992
+    },
+    {
+      "icon_id": "15838477",
+      "name": "file-add",
+      "font_class": "copy",
+      "unicode": "e671",
+      "unicode_decimal": 58993
+    },
+    {
       "icon_id": "2685822",
       "name": "A",
       "font_class": "A",
@@ -365,7 +386,7 @@
     {
       "icon_id": "15218145",
       "name": "copy",
-      "font_class": "copy",
+      "font_class": "copy_old",
       "unicode": "e625",
       "unicode_decimal": 58917
     },

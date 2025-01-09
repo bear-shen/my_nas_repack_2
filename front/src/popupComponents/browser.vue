@@ -12,6 +12,7 @@ import browserAudioVue from "./browserAudio.vue";
 import browserVideoVue from "./browserVideo.vue";
 import browserTextVue from "./browserText.vue";
 import browserPDFVue from "./browserPDF.vue";
+import browserOfficeVue from "./browserOffice.vue";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 // import {useEventStore} from "@/stores/event";
 import type {col_node, type_file,} from "../../../share/Database";
@@ -32,8 +33,12 @@ const regComponentLs: { [key: string]: any } = {
   image: browserImageVue,
   pdf: browserPDFVue,
   text: browserTextVue,
+  office: browserBaseVue,
   base: browserBaseVue,
 };
+if (Config.onlyOffice.enabled) {
+  regComponentLs.office = browserOfficeVue;
+}
 
 // const eventStore = useEventStore();
 const localConfigure = useLocalConfigureStore();
@@ -129,7 +134,7 @@ const curNode: Ref<api_node_col> = ref({});
 // })
 /*async function getParent(): Promise<api_file_list_resp> {
   const res = await query<api_file_list_resp>("file/get", {
-    pid: props.data.query.pid,
+    pid: props.data.query.id_dir,
     with: 'none',
   } as api_file_list_req);
   if (!res) return {path: [], list: []};
@@ -139,7 +144,7 @@ const curNode: Ref<api_node_col> = ref({});
 async function getParentDir(pid: number | string): Promise<api_file_list_resp> {
   const res = await query<api_file_list_resp>("file/get", {
     node_type: 'directory',
-    pid: `${pid}`,
+    id_dir: `${pid}`,
     with: 'none',
   } as api_file_list_req);
   if (!res) return {path: [], list: []};
@@ -167,22 +172,33 @@ async function getList(ext: api_file_list_req = {}) {
   // let queryData = GenFunc.copyObject(props.data.query);
   if (ext)
     props.data.query = Object.assign(props.data.query, ext);
-  const res = await query<api_file_list_resp>("file/get", props.data.query);
+  let res: api_file_list_resp;
+  //先查询当前目录，如果当前目录下面没有，尝试级联
+  res = await query<api_file_list_resp>("file/get", props.data.query);
   if (!res) return false;
   if (!res.list.length) return false;
-  //先过滤掉文件夹
-  let dirCount = 0;
+  //过滤文件夹
+  let tList: api_node_col[] = [];
   res.list.forEach(node => {
-    if (!node.is_file) dirCount++;
+    if (node.is_file) tList.push(node);
   });
-  //有文件的时候才清理
-  if (dirCount != res.list.length) {
-    const tList: api_node_col[] = [];
+  res.list = tList;
+  //
+  if (!res.list.length) {
+    if (props.data.query.cascade_dir) return false;
+    const query2 = GenFunc.copyObject(props.data.query);
+    query2.cascade_dir = 1;
+    res = await query<api_file_list_resp>("file/get", query2);
+    if (!res) return false;
+    if (!res.list.length) return false;
+    //过滤文件夹
+    tList = [];
     res.list.forEach(node => {
       if (node.is_file) tList.push(node);
     });
     res.list = tList;
   }
+  if (!res.list.length) return false;
   //
   let index = 0;
   let node = null;
@@ -299,67 +315,143 @@ async function keymap(e: KeyboardEvent) {
       if (["audio", "video"].indexOf(curNode.value.type ?? "") !== -1) return;
       goNav(curIndex.value, +1);
       break;
+    case "a":
     case "PageUp":
       e.preventDefault();
       e.stopPropagation();
       goNav(curIndex.value, -1);
       break;
+    case "d":
     case "PageDown":
       e.preventDefault();
       e.stopPropagation();
       goNav(curIndex.value, +1);
       break;
+    case 'w':
     case '[':
       //根据全局的排序方法选择下一个目录
-      if (!crumbList.value.length) return;
-      // const crumbLs = await getParent();
-      // if (!crumbLs.path || !crumbLs.path.length) return;
-      // console.info(crumbLs);
-      dirNode = crumbList.value[crumbList.value.length - 1];
-      parentLsQ = await getParentDir(dirNode.id_parent ?? '');
-      parentLs = sortList(parentLsQ.list, sortVal.value);
-      len = parentLs.length;
-      if (len < 2) return;
-      curParentIndex = 0;
-      parentLs.forEach((node, index) => {
-        if (node.id == props.data.query.pid) curParentIndex = index;
-      });
-      retryCount = parentLs.length;
-      do {
-        curParentIndex -= 1;
-        while (curParentIndex < 0) curParentIndex += len;
-        while (curParentIndex > len - 1) curParentIndex -= len;
-        targetNode = parentLs[curParentIndex];
-        props.data.query.pid = `${targetNode.id}`;
-        const getNxtRst = await getList();
-        if (getNxtRst) break;
-      } while (--retryCount > 0);
+      switch (props.data.query.mode) {
+        default:
+          const curDir =
+            crumbList.value.length ?
+              crumbList.value[crumbList.value.length - 1] : {
+                id: 0,
+                id_parent: 0,
+                type: 'directory',
+                title: 'root',
+                description: '',
+                status: 1,
+                building: 0,
+              };
+          parentLsQ = await getParentDir(curDir.id_parent);
+          parentLs = sortList(parentLsQ.list, sortVal.value);
+          len = parentLs.length;
+          if (len < 2) return;
+          curParentIndex = 0;
+          parentLs.forEach((node, index) => {
+            if (node.id == props.data.query.id_dir) curParentIndex = index;
+          });
+          retryCount = parentLs.length;
+          do {
+            curParentIndex -= 1;
+            while (curParentIndex < 0) curParentIndex += len;
+            while (curParentIndex > len - 1) curParentIndex -= len;
+            targetNode = parentLs[curParentIndex];
+            props.data.query.id_dir = `${targetNode.id}`;
+            const getNxtRst = await getList();
+            if (getNxtRst) break;
+          } while (--retryCount > 0);
+          break;
+        case 'id_iterate':
+          const idStrArr = props.data.query.keyword.split(',');
+          const idArr: number[] = [];
+          idStrArr.forEach(str => idArr.push(parseInt(str)));
+          let curPid = null;
+          for (let i1 = 0; i1 < curNode.value.crumb_node.length; i1++) {
+            const node = curNode.value.crumb_node[i1];
+            if (idArr.indexOf(node.id) === -1) continue;
+            curPid = node.id;
+            break;
+          }
+          if (!curPid) break;
+          //定位到下一个文件夹的第一个
+          const curPidIndex = idArr.indexOf(curPid);
+          len = idArr.length;
+          let tPidIndex = curPidIndex - 1;
+          while (tPidIndex < 0) tPidIndex += len;
+          while (tPidIndex > len - 1) tPidIndex -= len;
+          const tPid = idArr[tPidIndex];
+          for (let i1 = 0; i1 < vNodeList.value.length; i1++) {
+            const node = vNodeList.value[i1];
+            for (let i2 = 0; i2 < node.crumb_node.length; i2++) {
+              if (node.crumb_node[i2].id !== tPid) continue;
+              return goNav(i1, 0);
+            }
+          }
+      }
       break;
+    case 's':
     case ']':
-      // console.info(crumbList.value);
-      if (!crumbList.value.length) return;
-      // const crumbLs = await getParent();
-      // if (!crumbLs.path || !crumbLs.path.length) return;
-      // console.info(crumbLs);
-      dirNode = crumbList.value[crumbList.value.length - 1];
-      parentLsQ = await getParentDir(dirNode.id_parent ?? '');
-      parentLs = sortList(parentLsQ.list, sortVal.value);
-      len = parentLs.length;
-      if (len < 2) return;
-      curParentIndex = 0;
-      parentLs.forEach((node, index) => {
-        if (node.id == props.data.query.pid) curParentIndex = index;
-      });
-      retryCount = parentLs.length;
-      do {
-        curParentIndex += 1;
-        while (curParentIndex < 0) curParentIndex += len;
-        while (curParentIndex > len - 1) curParentIndex -= len;
-        targetNode = parentLs[curParentIndex];
-        props.data.query.pid = `${targetNode.id}`;
-        const getNxtRst = await getList();
-        if (getNxtRst) break;
-      } while (--retryCount > 0);
+      switch (props.data.query.mode) {
+        default:
+          const curDir =
+            crumbList.value.length ?
+              crumbList.value[crumbList.value.length - 1] : {
+                id: 0,
+                id_parent: 0,
+                type: 'directory',
+                title: 'root',
+                description: '',
+                status: 1,
+                building: 0,
+              };
+          parentLsQ = await getParentDir(curDir.id_parent);
+          parentLs = sortList(parentLsQ.list, sortVal.value);
+          len = parentLs.length;
+          if (len < 2) return;
+          curParentIndex = 0;
+          parentLs.forEach((node, index) => {
+            if (node.id == props.data.query.id_dir) curParentIndex = index;
+          });
+          retryCount = parentLs.length;
+          do {
+            curParentIndex += 1;
+            while (curParentIndex < 0) curParentIndex += len;
+            while (curParentIndex > len - 1) curParentIndex -= len;
+            targetNode = parentLs[curParentIndex];
+            props.data.query.id_dir = `${targetNode.id}`;
+            const getNxtRst = await getList();
+            if (getNxtRst) break;
+          } while (--retryCount > 0);
+          break;
+        case 'id_iterate':
+          const idStrArr = props.data.query.keyword.split(',');
+          const idArr: number[] = [];
+          idStrArr.forEach(str => idArr.push(parseInt(str)));
+          let curPid = null;
+          for (let i1 = 0; i1 < curNode.value.crumb_node.length; i1++) {
+            const node = curNode.value.crumb_node[i1];
+            if (idArr.indexOf(node.id) === -1) continue;
+            curPid = node.id;
+            break;
+          }
+          if (!curPid) break;
+          //定位到下一个文件夹的第一个
+          const curPidIndex = idArr.indexOf(curPid);
+          len = idArr.length;
+          let tPidIndex = curPidIndex + 1;
+          while (tPidIndex < 0) tPidIndex += len;
+          while (tPidIndex > len - 1) tPidIndex -= len;
+          const tPid = idArr[tPidIndex];
+          for (let i1 = 0; i1 < vNodeList.value.length; i1++) {
+            const node = vNodeList.value[i1];
+            for (let i2 = 0; i2 < node.crumb_node.length; i2++) {
+              if (node.crumb_node[i2].id !== tPid) continue;
+              return goNav(i1, 0);
+            }
+          }
+          break;
+      }
       break;
     case 'NumpadEnter':
     case 'Enter':
@@ -465,39 +557,43 @@ function setRater(rateVal: string) {
   >
     <template v-slot:info>
       <div :class="{info:true,detail:showDetail}">
-        <p v-if="showDetail">
-          {{ curNode.title }} ({{
-            GenFunc.kmgt(curNode.file_index?.raw?.size ?? 0, 2)
-          }})
-        </p>
-        <p v-else>{{ curNode.title }}</p>
-        <p v-if="curNode.crumb_node">Dir :
-          <template v-for="node in curNode.crumb_node">/{{ node.title }}</template>
-        </p>
-        <p v-if="showDetail" class="preLine">{{ curNode.description }}</p>
+        <template v-if="showDetail">
+          <p>
+            {{ curNode.title }} ({{
+              GenFunc.kmgt(curNode.file_index?.raw?.size ?? 0, 2)
+            }})
+          </p>
+          <p v-if="curNode.crumb_node">Dir :
+            <template v-for="node in curNode.crumb_node">/{{ node.title }}</template>
+          </p>
+          <p class="preLine">{{ curNode.description }}</p>
+        </template>
+        <!--        <p v-else>{{ curNode.title }}</p>-->
       </div>
     </template>
     <template v-slot:btnContainer>
       <!--      <div class="btnContainer">-->
       <!--      </div>-->
       <div class="btnContainer">
-        <template v-if="isMobile">
-          <select v-model="rateVal" @change="setRater(rateVal)">
-            <option v-for="(type,key) in Config.rateMobile" :value="key" :key="'BROWSER_RATE_'+modalData.nid+'_'+key">{{ type }}</option>
-          </select>
-        </template>
-        <template v-else>
-          <select class="sysIcon" v-model="rateVal" @change="setRater(rateVal)">
-            <option class='sysIcon_A sysIcon' v-for="(type,key) in Config.rate" :value="key" v-html="type" :key="'BROWSER_RATE_'+modalData.nid+'_'+key"></option>
-          </select>
-        </template>
+        <template v-if="showDetail">
+          <template v-if="isMobile">
+            <select v-model="rateVal" @change="setRater(rateVal)">
+              <option v-for="(type,key) in Config.rateMobile" :value="key" :key="'BROWSER_RATE_'+modalData.nid+'_'+key">{{ type }}</option>
+            </select>
+          </template>
+          <template v-else>
+            <select class="sysIcon" v-model="rateVal" @change="setRater(rateVal)">
+              <option class='sysIcon_A sysIcon' v-for="(type,key) in Config.rate" :value="key" v-html="type" :key="'BROWSER_RATE_'+modalData.nid+'_'+key"></option>
+            </select>
+          </template>
 
-        <select v-model="filterVal" @change="setFilter(filterVal)">
-          <option v-for="(fileType, key) in Config.fileType" :value="fileType" :key="'BROWSER_TYPE_'+modalData.nid+'_'+key">
-            {{ fileType }}
-          </option>
-        </select>
-        <br>
+          <select v-model="filterVal" @change="setFilter(filterVal)">
+            <option v-for="(fileType, key) in Config.fileType" :value="fileType" :key="'BROWSER_TYPE_'+modalData.nid+'_'+key">
+              {{ fileType }}
+            </option>
+          </select>
+          <br>
+        </template>
         <select v-model="sortVal" @change="setSort($event)">
           <option v-for="(sortItem, key) in Config.sort" :value="key" :key="'BROWSER_SORT_'+modalData.nid+'_'+key">
             {{ sortItem }}
@@ -533,7 +629,6 @@ function setRater(rateVal: string) {
 </template>
 
 <style lang="scss">
-@import "../assets/variables";
 @keyframes rotateAnimate {
   0% {
     transform: rotate(0);
@@ -559,9 +654,9 @@ function setRater(rateVal: string) {
     $blurSize: $fontSize * 0.25;
     text-shadow: 0 0 $blurSize black, 0 0 $blurSize black, 0 0 $blurSize black,
     0 0 $blurSize black;
-    color: map-get($colors, font);
+    color:  map.get($colors, font);
     p:first-child {
-      color: map-get($colors, font_active);
+      color:  map.get($colors, font_active);
     }
     p:first-child {
       overflow: hidden;
@@ -599,7 +694,7 @@ function setRater(rateVal: string) {
       flex-direction: column;
       justify-content: center;
       opacity: 0;
-      background-color: map-get($colors, popup_active);
+      background-color:  map.get($colors, popup_active);
       &:hover {
         opacity: 1;
       }
@@ -620,7 +715,7 @@ function setRater(rateVal: string) {
         //height: $fontSize * 2;
         //line-height: $fontSize * 2;
         //border-radius: $fontSize * 2;
-        //background-color: map-get($colors, popup_active);
+        //background-color:  map.get($colors, popup_active);
         $blurSize: $fontSize * 0.25;
         text-shadow: 0 0 $blurSize black, 0 0 $blurSize black, 0 0 $blurSize black,
         0 0 $blurSize black;
@@ -671,7 +766,7 @@ function setRater(rateVal: string) {
   //display: block;
   text-align: center;
   z-index: 1;
-  color: map-get($colors, font);
+  color:  map.get($colors, font);
   height: 100%;
   position: relative;
   display: flex;

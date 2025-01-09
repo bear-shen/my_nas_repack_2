@@ -11,6 +11,7 @@ import QueueModel from "../../model/QueueModel";
 import fs from "node:fs/promises";
 import {splitQuery} from "../../lib/ModelHelper";
 import FavouriteModel from "../../model/FavouriteModel";
+import ORM from "../../lib/ORM";
 
 const exec = util.promisify(require('child_process').exec);
 
@@ -162,8 +163,9 @@ class FileJob {
                 if (typeof tmpFilePath === 'string')
                     await fp.put(tmpFilePath, node.id_parent, node.title, 'normal', fp.extension(tmpFilePath));
                 break;
+            default:
+            case 'office':
             case 'pdf':
-                break;
             case 'directory':
                 break;
         }
@@ -371,9 +373,138 @@ class FileJob {
             })
         }
     }
+
+    /**
+     * 级联更新文件
+     * 前置的 FileProcessor/mv 已经移动了物理文件
+     * 这里需要重建修改后的
+     * node_id_list
+     * node_path
+     *
+     * copy需要对内部文件重新设置封面级联
+     * move需要删除父目录中的rel
+     *      但是还没想好要不要重新设置
+     * */
+    static async cascadeMoveFile(payload: { [key: string]: any }): Promise<any> {
+        const srcId = parseInt(payload.id);
+        let parentNode: col_node;
+        if (srcId)
+            parentNode = await new NodeModel().where('id', srcId).first([
+                'id', "node_id_list", "node_path"
+            ]);
+        else
+            parentNode = fp.rootNode;
+        if (!parentNode) throw new Error('node not found');
+        //
+        // const nodeCacheMap: Map<number, col_node> = new Map();
+        // nodeCacheMap.set(parentNode.id, parentNode);
+        //直接丢进递归里，不然比较麻烦
+        const subNodeLs = await new NodeModel()
+            // .whereRaw('node_id_list @> $0', srcId)
+            .where('id_parent', srcId)
+            .select(['id', 'type']);
+        if (!subNodeLs || !subNodeLs.length) return;
+        const nodePath = mkRelPath(parentNode);
+        const nodeIdList = parentNode.node_id_list;
+        nodeIdList.push(parentNode.id);
+        // console.info(parentNode.node_id_list);
+        const subNodeIdLs: number[] = [];
+        for (let i1 = 0; i1 < subNodeLs.length; i1++) {
+            subNodeIdLs.push(subNodeLs[i1].id);
+        }
+        await new NodeModel().whereIn('id', subNodeIdLs).update({
+            node_id_list: nodeIdList,
+            node_path: nodePath,
+        });
+        for (let i1 = 0; i1 < subNodeLs.length; i1++) {
+            const node = subNodeLs[i1];
+            if (node.type === 'directory') {
+                await FileJob.cascadeMoveFile({id: node.id});
+            } else {
+                //移动应该不需要级联
+                //await cascadeCover(payload.id);
+            }
+        }
+    }
+
+    static async cascadeCopyFile(payload: { [key: string]: any }): Promise<any> {
+        const srcId = parseInt(payload.src);
+        const tgtId = parseInt(payload.target);
+        //
+        let srcPNode: col_node;
+        if (srcId)
+            srcPNode = await new NodeModel().where('id', srcId).first([
+                'id', "node_id_list", "node_path"
+            ]);
+        else
+            srcPNode = fp.rootNode;
+        if (!srcPNode) throw new Error('node not found');
+        //
+        let srcTNode: col_node;
+        if (srcId)
+            srcTNode = await new NodeModel().where('id', tgtId).first([
+                'id', "node_id_list", "node_path"
+            ]);
+        else
+            srcTNode = fp.rootNode;
+        if (!srcTNode) throw new Error('node not found');
+        //
+        if (srcPNode.id == srcTNode.id) return;
+        const subNodeLs = await new NodeModel()
+            // .whereRaw('node_id_list @> $0', srcId)
+            .where('id_parent', srcPNode.id)
+            .select();
+        if (!subNodeLs || !subNodeLs.length) return;
+        //
+        const nodePath = mkRelPath(srcTNode);
+        const nodeIdList = srcTNode.node_id_list;
+        nodeIdList.push(srcTNode.id);
+        //
+        for (let i1 = 0; i1 < subNodeLs.length; i1++) {
+            const subNode = subNodeLs[i1];
+            const subPNodeId = subNode.id;
+            const subTNode: col_node = {
+                type: subNode.type,
+                title: subNode.title,
+                description: subNode.description,
+                id_parent: srcTNode.id,
+                node_id_list: nodeIdList,
+                node_path: nodePath,
+                file_index: subNode.file_index,
+                tag_id_list: subNode.tag_id_list,
+                node_index: subNode.node_index,
+                status: subNode.status,
+                cascade_status: subNode.cascade_status,
+                building: subNode.building,
+            };
+            //删掉关联文件，去索引里面重建
+            if (subTNode.file_index.rel) delete subTNode.file_index.rel;
+            const ifCurNodeExs = await (new NodeModel()).where('id_parent', subTNode.id_parent).where('title', subTNode.title).first();
+            let subTNodeId: number;
+            if (!ifCurNodeExs) {
+                const subNodeResLs = await (new NodeModel()).insert(subTNode) as col_node[];
+                if (subNodeResLs && subNodeResLs[0])
+                    subTNodeId = subNodeResLs[0].id;
+            } else {
+                await (new NodeModel()).where('id', ifCurNodeExs.id).update(subTNode);
+                subTNodeId = ifCurNodeExs.id;
+            }
+            if (subTNodeId) {
+                if (subTNode.type === 'directory') {
+                    await FileJob.cascadeCopyFile({
+                        src: subPNodeId,
+                        target: subTNodeId,
+                    });
+                } else {
+                    await cascadeCover(subTNodeId);
+                }
+            }
+        }
+    }
 }
 
 async function cascadeCover(nodeId: number) {
+    if (!nodeId) return;
     const node = await (new NodeModel()).where('id', nodeId).first();
     if (!node.file_index?.cover) return;
     const nodeLs = node.node_id_list.reverse();

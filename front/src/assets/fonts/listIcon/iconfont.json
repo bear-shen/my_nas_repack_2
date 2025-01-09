@@ -125,6 +125,13 @@
       "unicode_decimal": 59045
     },
     {
+      "icon_id": "42899105",
+      "name": "文件编辑-copy",
+      "font_class": "file_office",
+      "unicode": "e6df",
+      "unicode_decimal": 59103
+    },
+    {
       "icon_id": "28530657",
       "name": "文件",
       "font_class": "file_subtitle",

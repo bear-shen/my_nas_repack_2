@@ -21,7 +21,6 @@ const active = true;
 </template>
 
 <style scoped lang="scss">
-@import "../assets/variables";
 .fr_footer {
   display: flex;
   justify-content: space-between;
@@ -41,7 +40,7 @@ const active = true;
 }
 .active,
 .paginator li:hover {
-  background-color: map-get($colors, bk);
-  color: map-get($colors, font);
+  background-color:  map.get($colors, bk);
+  color:  map.get($colors, font);
 }
 </style>

@@ -166,7 +166,7 @@ async function delAuth(groupIndex: number, authIndex: number) {
 async function node_hint(text: string): Promise<api_node_col[] | false> {
   console.info('node_hint');
   let queryData: api_file_list_req = {
-    mode: "search",
+    mode: "directory",
     node_type: "directory",
     keyword: text,
     with: 'none',
@@ -409,7 +409,6 @@ async function modUser(index: number) {
 </template>
 
 <style lang="scss">
-@import "../assets/variables";
 .fr_content.view_user {
   padding-bottom: 0;
   height: 100%;
@@ -417,7 +416,7 @@ async function modUser(index: number) {
   justify-content: space-between;
   .list_user_group {
     width: $fontSize*20;
-    background-color: map-get($colors, bar_meta);
+    background-color:  map.get($colors, bar_meta);
     height: 100%;
     //@include smallScroll();
     overflow-y: scroll;
@@ -431,15 +430,15 @@ async function modUser(index: number) {
     .user_group {
       padding: $fontSize*0.5 $fontSize;
       &:hover, &.active {
-        background-color: map-get($colors, bar_meta_active);
+        background-color:  map.get($colors, bar_meta_active);
       }
       > * {
         font-size: $fontSize;
         line-height: $fontSize*1.5;
-        color: map-get($colors, font_sub);
+        color:  map.get($colors, font_sub);
       }
       .title {
-        color: map-get($colors, font);
+        color:  map.get($colors, font);
         display: flex;
         justify-content: space-between;
       }
@@ -463,7 +462,7 @@ async function modUser(index: number) {
         }
         > .content_editor, dl, > div {
           display: block;
-          background-color: map-get($colors, bar_meta_active);
+          background-color:  map.get($colors, bar_meta_active);
         }
         .title::before {
           content: 'T: ';
@@ -485,20 +484,20 @@ async function modUser(index: number) {
           }
           input[type='checkbox'], input[type='radio'] {
             &:checked + label {
-              color: map-get($colors, font);
+              color:  map.get($colors, font);
             }
           }
         }
         .auth dt {
-          color: map-get($colors, font);
+          color:  map.get($colors, font);
         }
         .auth .add {
           text-indent: 0.5em;
-          color: map-get($colors, font);
+          color:  map.get($colors, font);
           text-align: center;
           width: 100%;
           &:hover {
-            background-color: map-get($colors, bk_active);
+            background-color:  map.get($colors, bk_active);
           }
         }
         .auth dd {
@@ -519,7 +518,7 @@ async function modUser(index: number) {
       }
     }
     .hinter > div, .content_editor {
-      background-color: map-get($colors, bk_active);
+      background-color:  map.get($colors, bk_active);
     }
   }
   .list_user {
@@ -548,7 +547,7 @@ async function modUser(index: number) {
       //width: calc(100% - $fontSize);
       @include fillAvailable(width);
       .title {
-        color: map-get($colors, font);
+        color:  map.get($colors, font);
         display: flex;
         justify-content: space-between;
         span {
@@ -562,13 +561,13 @@ async function modUser(index: number) {
       > div {
         word-break: break-all;
       }
-      //color: map-get($colors, font_sub);
-      color: map-get($colors, font_sub);
+      //color:  map.get($colors, font_sub);
+      color:  map.get($colors, font_sub);
     }
     .user.edit {
-      background-color: map-get($colors, bk_active);
+      background-color:  map.get($colors, bk_active);
       > div, > div .content_editor {
-        background-color: map-get($colors, bk_active);
+        background-color:  map.get($colors, bk_active);
       }
       .title .content_editor::before {
         content: 'N: ';
@@ -581,10 +580,10 @@ async function modUser(index: number) {
       }
     }
     .user:hover {
-      background-color: map-get($colors, bk_active);
+      background-color:  map.get($colors, bk_active);
     }
   }
-  @media (max-width: $fontSize*50) {
+  @media (max-width: ($fontSize * 50)) {
     display: block;
     .list_user_group {
       width: 100%;

@@ -577,7 +577,7 @@ onUnmounted(() => {
 });
 
 function keymap(e: KeyboardEvent) {
-  console.info(e);
+  // console.info(e);
   switch (e.key) {
     case 'Escape':
       // 这个想不起来是为啥加的了，
@@ -603,13 +603,13 @@ function keymap(e: KeyboardEvent) {
         if (!target.parentElement) break;
         target = target.parentElement;
         const isModalDOM = target.classList.contains('modal_dom');
-        console.info(isModalDOM);
+        // console.info(isModalDOM);
         if (!isModalDOM) continue;
         const nid = target.getAttribute('data-ref-id');
-        console.info(nid);
+        // console.info(nid);
         if (!nid) break;
         const modal = modalList.value.get(nid);
-        console.info(modal);
+        // console.info(modal);
         if (!modal) break;
         for (let i1 = 0; i1 < modal.callback.length; i1++) {
           const key = modal.callback[i1].key;
@@ -757,6 +757,8 @@ function keymap(e: KeyboardEvent) {
             <span v-if="form.label">
               {{ form.label }}
             </span>
+            <!--排版用的-->
+            <span></span>
             <span>
               <template v-if="form.type === 'text'">
                 <input type="text" v-model="form.value"/>
@@ -867,7 +869,6 @@ function keymap(e: KeyboardEvent) {
 </template>
 
 <style lang="scss">
-@import "../assets/variables";
 .fr_popup {
   pointer-events: none;
   left: 0;
@@ -878,9 +879,9 @@ function keymap(e: KeyboardEvent) {
   z-index: 100;
 }
 .modal_dom.active {
-  background-color: map-get($colors, popup_active);
+  background-color:  map.get($colors, popup_active);
   .modal_header {
-    background-color: map-get($colors, popup_title);
+    background-color:  map.get($colors, popup_title);
   }
 }
 .modal_dom {
@@ -888,7 +889,7 @@ function keymap(e: KeyboardEvent) {
   pointer-events: all;
   $controllerWidth: $fontSize * 0.5;
   font-size: $fontSize;
-  background-color: map-get($colors, popup);
+  background-color:  map.get($colors, popup);
   position: absolute;
   padding: $fontSize * 0.25;
   @include blurBackground();
@@ -901,7 +902,7 @@ function keymap(e: KeyboardEvent) {
       padding: $fontSize*0.25;
     }
     white-space: nowrap;
-    background-color: map-get($colors, popup_title);
+    background-color:  map.get($colors, popup_title);
     width: 100%;
     display: flex;
     justify-content: space-between;
@@ -1026,6 +1027,8 @@ function keymap(e: KeyboardEvent) {
       > span:first-child {
         text-align: right;
         padding-right: $fontSize * 0.25;
+        width: 1px;
+        white-space: nowrap;
         &::after {
           content: " :";
         }
@@ -1033,7 +1036,7 @@ function keymap(e: KeyboardEvent) {
       > span:last-child {
         input,
         textarea {
-          border-bottom: 1px solid map-get($colors, popup_title);
+          border-bottom: 1px solid  map.get($colors, popup_title);
         }
       }
       input,

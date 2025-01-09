@@ -316,11 +316,10 @@ function emp(e: Event) {
 </template>
 
 <style scoped lang="scss">
-@import "../assets/variables";
 .node_node {
   //touch-action: none;
   &:hover, &.select {
-    background-color: map-get($colors, bk_active);
+    background-color:  map.get($colors, bk_active);
   }
 }
 .node_node.mode_detail {
@@ -365,7 +364,7 @@ function emp(e: Event) {
       }
       .title {
         //&.listIcon {
-        //background-color: map-get($colors, bar_meta);
+        //background-color:  map.get($colors, bar_meta);
         //}
         &.listIcon::before {
           padding-right: $fontSize*0.5;
@@ -375,14 +374,14 @@ function emp(e: Event) {
         white-space: normal;
         overflow: hidden;
         text-overflow: ellipsis;
-        color: map-get($colors, font);
+        color:  map.get($colors, font);
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
       }
       .editing {
         font-size: $fontSize;
-        background-color: map-get($colors, bk_active);
+        background-color:  map.get($colors, bk_active);
         white-space: normal;
       }
       .bar {
@@ -397,7 +396,7 @@ function emp(e: Event) {
           margin-right: $fontSize*0.5;
         }
       }
-      color: map-get($colors, font_sub);
+      color:  map.get($colors, font_sub);
       .sysIcon::before {
         margin-right: $fontSize*0.25;
       }
@@ -459,13 +458,13 @@ function emp(e: Event) {
     }
     dd {
       margin-left: $fontSize * 0.5;
-      color: map-get($colors, font_sub);
+      color:  map.get($colors, font_sub);
       word-break: break-all;
       max-width: 90%;
       //overflow: hidden;
       //text-overflow: ellipsis;
       &:hover {
-        color: map-get($colors, font);
+        color:  map.get($colors, font);
       }
     }
     dt::after {
@@ -536,7 +535,7 @@ function emp(e: Event) {
     margin-top: $fontSize * 0.2;
     font-size: $fontSize * 0.75;
     line-height: $fontSize;
-    color: map-get($colors, font_sub);
+    color:  map.get($colors, font_sub);
     //word-break: break-all;
     white-space: nowrap;
     overflow: hidden;
@@ -549,7 +548,7 @@ function emp(e: Event) {
     }
   }
   &:hover .title, &.select .title {
-    color: map-get($colors, font);
+    color:  map.get($colors, font);
   }
   //margin: 0 0 $fontSize * 0.5 0;
   padding: $fontSize * 0.5;

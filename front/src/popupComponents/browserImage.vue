@@ -219,6 +219,9 @@ function onPointerDown(e: PointerEvent) {
 }
 
 function onPointerMove(e: PointerEvent) {
+  if (!props.modalData.layout.active) return;
+  // console.info(e);
+  if (!e.pointerId) return;
   e.preventDefault();
   e.stopPropagation();
   doTransform(e);
@@ -517,7 +520,6 @@ function setRotate(deg) {
 </template>
 
 <style lang="scss">
-@import "../assets/variables";
 .modal_browser.image {
   .content {
     img {

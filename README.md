@@ -10,12 +10,19 @@ nodejs
 postgresql, nginx, ffmpeg required
 
 nginx modules required:
-
-  http_auth_request
-
-  http_proxy
+  - http_auth_request
+  - http_proxy
 
 php optional
+
+onlyoffice optional
+  - work with conf.toml
+  - in docker, use
+    - `-e onlyoffice_enabled=true`
+    - `-e NAS_ORIGIN=[your site]`  
+    - `-e onlyoffice_api_src=[{onlyoffice}/web-apps/apps/api/documents/api.js]` 
+    - `-e onlyoffice_jwt_secret=[JWTToken]` 
+    
 
 ```bash
 npm install -g pm2
@@ -48,6 +55,9 @@ npm run dev
 - `Enter` open browser
 - `alt + Enter` enter dir
 - `↑ ↓ ← →` nav
+- `ctrl + x` cut
+- `ctrl + c` copy
+- `ctrl + v` paste
 
 ## directory list :
 - `ctrl + U` upload
@@ -56,12 +66,12 @@ npm run dev
 ## popup window :
 - `Escape` close
 - ### browser :
-  - `left` go prev 
-  - `right` go next
+  - `left` `a` go prev 
+  - `right` `d` go next
   - `pageup` go prev
   - `pagedown` go next
-  - `[` prev directory
-  - `]` next directory
+  - `[` `w` prev directory
+  - `]` `s` next directory
 - ### audio/video browser :
   - `left` - 5s
   - `right` + 5s

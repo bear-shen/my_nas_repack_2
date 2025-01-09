@@ -218,7 +218,6 @@ addEventListener('click', (e: MouseEvent) => {
 </template>
 
 <style lang="scss">
-@import "../assets/variables";
 .fr_context {
   pointer-events: none;
   left: 0;
@@ -246,10 +245,10 @@ addEventListener('click', (e: MouseEvent) => {
     width: $fontSize*10;
     white-space: nowrap;
     padding: $fontSize*0.25 $fontSize*0.5;
-    background-color: map-get($colors, context);
-    //border-bottom: 1px solid map-get($colors, context_active);
+    background-color:  map.get($colors, context);
+    //border-bottom: 1px solid  map.get($colors, context_active);
     &:hover {
-      background-color: map-get($colors, context_active);
+      background-color:  map.get($colors, context_active);
     }
   }
   .context_item span, .context_item.has_sub:after {
