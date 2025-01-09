@@ -24,20 +24,20 @@ if (dbInit) {
 //所以先赋值一下
 export let serverConfig = BaseConfig;
 const dbConf = BaseConfig.db as ConfType;
-let driverName = '';
-switch (dbConf.driver) {
-    case 'mysql':
-        driverName = "./lib/MySQL";
-        break;
-    case 'postgresql':
-        driverName = "./lib/PostgreSQL";
-        break;
-}
+// let driverName = '';
+// switch (dbConf.driver) {
+//     case 'mysql':
+//         driverName = "./lib/MySQL";
+//         break;
+//     case 'postgresql':
+//         driverName = "./lib/PostgreSQL";
+//         break;
+// }
 const {
     query,
     execute,
     SQL_PARAM
-} = require(driverName);
+} = require("./lib/PostgreSQL");
 
 async function doInit() {
     let ifExs = false;
