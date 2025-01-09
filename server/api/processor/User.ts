@@ -122,16 +122,18 @@ export default class {
         uri = uriInfo.pathname;
         //-------------------------------------------------------------
         let token: string;
-        if (uriInfo.searchParams && uriInfo.searchParams.has('token')) {
-            token = uriInfo.searchParams.get('token');
+        if (uriInfo.searchParams && uriInfo.searchParams.has('tosho_token')) {
+            token = uriInfo.searchParams.get('tosho_token');
         }
         if (!token && req.headers.cookie) {
-            const tokenReg = req.headers.cookie.match(/\btoken=(\w+)/);
-            if (!tokenReg) {
-                res.statusCode = 401;
-                return null;
-            }
-            token = tokenReg[1];
+            const cookiesArr = req.headers.cookie.split(';');
+            cookiesArr.forEach(cookie => {
+                const cookieArr = cookie.split('=');
+                if (cookieArr[0] !== 'tosho_token') return;
+                cookieArr.shift();
+                const cookieVal = cookieArr.join('=');
+                token = cookieVal;
+            });
         }
         if (!token) {
             // console.info('if (!tokenReg) {');
@@ -139,7 +141,7 @@ export default class {
             return null;
         }
         //-------------------------------------------------------------
-        const auth = await (new AuthModel).where('token', token).first(['uid']);
+        const auth = await (new AuthModel).where('tosho_token', token).first(['uid']);
         if (!auth) {
             // console.info('if (!auth) {');
             res.statusCode = 401;

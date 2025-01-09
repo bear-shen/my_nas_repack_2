@@ -52,11 +52,11 @@ function startOnlyOffice() {
       //https://api.onlyoffice.com/docs/docs-api/usage-api/config/document/#referencedata
       key: curNode.id.toString(16) + '_' + parseInt(new Date(curNode.time_update).valueOf()),
       title: curNode.title,
-      url: `${origin}${curNode.file_index.raw.path}?token=${user?.token}`,
+      url: `${origin}${curNode.file_index.raw.path}?tosho_token=${user?.token}`,
     },
     documentType: documentType,
     editorConfig: {
-      callbackUrl: `${origin}/api/onlyoffice/callback?id=${curNode.id}&token=${user?.token}`,
+      callbackUrl: `${origin}/api/onlyoffice/callback?id=${curNode.id}&tosho_token=${user?.token}`,
     },
   };
   payload.token = sign(payload, secret);

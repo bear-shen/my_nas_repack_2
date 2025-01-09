@@ -13,7 +13,7 @@ import Config from "@/Config";
 const userStore = useUserStore();
 const userData = userStore.get();
 if (userData) {
-  document.cookie = `token=${userData.token}; max-age=31536000`
+  document.cookie = `tosho_token=${userData.token}; max-age=31536000`
   loadFeConf();
 }
 
