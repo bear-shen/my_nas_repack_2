@@ -4,9 +4,9 @@ import {createPinia} from 'pinia'
 import App from './App.vue'
 import {router} from './router'
 
-import './assets/basic.scss';
 import '@/assets/fonts/sysIcon/iconfont.css';
 import '@/assets/fonts/listIcon/iconfont.css';
+import '@/assets/basic.scss';
 
 import * as kvStore from '@/IndexedKVStore';
 kvStore.init();

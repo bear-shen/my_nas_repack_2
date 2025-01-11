@@ -12,11 +12,13 @@
   outline: 0;
   transition: 0.2s opacity;
   vertical-align: top;
+  //font-family: inherit;
 }
 body {
   font-size: 0;
   background-color: sass_map.get($colors, bk);
   color: sass_map.get($colors, font);
+  font-family: sans-serif;
 }
 table {
   border-collapse: collapse;
@@ -26,6 +28,12 @@ table {
 }
 .sysIcon {
   vertical-align: middle;
+}
+.listIcon {
+  font-family: "listIcon", sans-serif !important;
+}
+.sysIcon {
+  font-family: "sysIcon", sans-serif !important;
 }
 // ----------------------------------------------------
 input,
