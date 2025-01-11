@@ -52,7 +52,7 @@ const containerDef = {};
 }
 .fr_header,
 .fr_footer {
-  background-color:  map.get($colors, bar_horizon);
+  background-color: map.get($colors, bar_horizon);
 }
 .fr_header {
   padding: 0 $fontSize;
@@ -64,7 +64,7 @@ const containerDef = {};
   // height: calc(100vh - $headerHeight - $footerHeight);
   height: calc(100vh - $headerHeight);
   display: flex;
-  background-color:  map.get($colors, bar_vertical);
+  background-color: map.get($colors, bar_vertical);
 }
 .fr_navi {
   height: 100%;
@@ -73,7 +73,7 @@ const containerDef = {};
 .fr_content {
   padding: $headerPad 0 $footerPad;
   height: calc(100% - $headerPad - $footerPad);
-  background-color:  map.get($colors, bk);
+  background-color: map.get($colors, bk);
   width: calc(100vw - $navWidth);
   //@include smallScroll();
   overflow: auto;
@@ -89,7 +89,7 @@ const containerDef = {};
   z-index: 1;
   //left:0;*/
   font-size: 0;
-  $metaBk:  map.get($colors, bar_meta);
+  $metaBk: map.get($colors, bar_meta);
   background-color: $metaBk;
   display: flex;
   justify-content: space-between;
@@ -170,7 +170,7 @@ const containerDef = {};
       max-width: $fontSize * 10;
     }
     .item:hover {
-      background-color:  map.get($colors, bar_meta_active);
+      background-color: map.get($colors, bar_meta_active);
     }
     .item::before {
       content: "/";
@@ -186,11 +186,11 @@ const containerDef = {};
     position: absolute;
     right: 0;
     bottom: $fontSize*-2;
-    $metaBk:  map.get($colors, bar_meta);
+    $metaBk: map.get($colors, bar_meta);
     background-color: $metaBk;
     padding: $fontSize*0.25 $fontSize*0.5;
     z-index: 1;
-    span{
+    span {
       font-size: $fontSize*1.25;
       line-height: $fontSize*1.25;
     }
@@ -198,5 +198,18 @@ const containerDef = {};
       padding-right: $fontSize*0.25;
     }
   }
+}
+@media (pointer: coarse) {
+  /* 在触摸屏设备上应用的样式 */
+  .fr_body {
+    height: auto;
+    min-height: calc(100vh - $headerHeight);
+  }
+  .fr_content {
+    min-height: calc(100vh - $headerHeight - $headerPad - $footerPad);
+  }
+}
+@media (pointer: fine) {
+  /* 在非触摸屏设备上应用的样式 */
 }
 </style>
