@@ -218,6 +218,7 @@ async function getList(ext: api_file_list_req = {}) {
   // curNode.value = node;
   // console.info(crumbList);
   let vList = buildVList();
+  if (!vList.length) return false;
   vNodeList.value = sortList(vList, sortVal.value);
   if (!node) node = vNodeList.value[0];
   curIndex.value = locateCurNode(vNodeList.value, node);
@@ -654,9 +655,9 @@ function setRater(rateVal: string) {
     $blurSize: $fontSize * 0.25;
     text-shadow: 0 0 $blurSize black, 0 0 $blurSize black, 0 0 $blurSize black,
     0 0 $blurSize black;
-    color:  map.get($colors, font);
+    color: map.get($colors, font);
     p:first-child {
-      color:  map.get($colors, font_active);
+      color: map.get($colors, font_active);
     }
     p:first-child {
       overflow: hidden;
@@ -694,7 +695,7 @@ function setRater(rateVal: string) {
       flex-direction: column;
       justify-content: center;
       opacity: 0;
-      background-color:  map.get($colors, popup_active);
+      background-color: map.get($colors, popup_active);
       &:hover {
         opacity: 1;
       }
@@ -766,7 +767,7 @@ function setRater(rateVal: string) {
   //display: block;
   text-align: center;
   z-index: 1;
-  color:  map.get($colors, font);
+  color: map.get($colors, font);
   height: 100%;
   position: relative;
   display: flex;
