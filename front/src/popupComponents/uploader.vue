@@ -204,6 +204,8 @@ function remove(index: number) {
 </template>
 
 <style lang="scss">
+@use "sass:map";
+@use '@/assets/variables.scss' as *;
 .modal_uploader {
   width: 100%;
   //height: calc(100% - $fontSize);

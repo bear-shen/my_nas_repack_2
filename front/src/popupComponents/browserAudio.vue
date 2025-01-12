@@ -493,6 +493,8 @@ function parseTime(t: number) {
 </template>
 
 <style lang="scss">
+@use "sass:map";
+@use '@/assets/variables.scss' as *;
 .modal_browser.audio {
   .content {
     touch-action: none;

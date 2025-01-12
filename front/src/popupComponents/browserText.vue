@@ -104,6 +104,8 @@ onBeforeUnmount(() => {
 </template>
 
 <style lang="scss">
+@use "sass:map";
+@use '@/assets/variables.scss' as *;
 .modal_browser.txt {
   .content .textContent {
     width: calc(100% - $fontSize * 4);

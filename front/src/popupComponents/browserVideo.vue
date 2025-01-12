@@ -583,6 +583,8 @@ function toggleSubtitle(index: number) {
 </template>
 
 <style lang="scss">
+@use "sass:map";
+@use '@/assets/variables.scss' as *;
 .modal_browser.video {
   .content {
     touch-action: none;

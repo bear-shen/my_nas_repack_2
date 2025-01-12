@@ -152,6 +152,8 @@ async function getList(clear: boolean = false) {
 </template>
 
 <style lang="scss">
+@use "sass:map";
+@use '@/assets/variables.scss' as *;
 .fr_content.view_log {
   .form {
     $metaBk:  map.get($colors, bar_meta);

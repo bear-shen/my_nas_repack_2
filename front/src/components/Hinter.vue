@@ -174,6 +174,8 @@ function setFocus() {
 </template>
 
 <style scoped lang="scss">
+@use "sass:map";
+@use '@/assets/variables.scss' as *;
 .hinter {
   position: relative;
   > div, > ul > li {

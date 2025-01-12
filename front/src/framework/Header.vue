@@ -47,6 +47,8 @@ function logout() {
 </template>
 
 <style scoped lang="scss">
+@use "sass:map";
+@use '@/assets/variables.scss' as *;
 .fr_header {
   display: flex;
   justify-content: space-between;

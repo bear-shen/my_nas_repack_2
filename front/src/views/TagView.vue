@@ -367,6 +367,8 @@ async function modTag(index: number) {
 </template>
 
 <style lang="scss">
+@use "sass:map";
+@use '@/assets/variables.scss' as *;
 .fr_content.view_tag {
   padding-bottom: 0;
   width: 100%;

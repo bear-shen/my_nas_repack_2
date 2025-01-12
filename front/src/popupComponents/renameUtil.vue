@@ -199,6 +199,8 @@ async function onSubmit() {
 </template>
 
 <style lang="scss">
+@use "sass:map";
+@use '@/assets/variables.scss' as *;
 .modal_rename_util {
   width: 100%;
   //min-height: 90%;

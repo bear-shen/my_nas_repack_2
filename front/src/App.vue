@@ -44,6 +44,8 @@ const containerDef = {};
 </template>
 
 <style lang="scss">
+@use "sass:map";
+@use '@/assets/variables.scss' as *;
 .fr_header,
 .fr_body,
 .fr_footer {

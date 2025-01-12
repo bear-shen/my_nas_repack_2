@@ -218,6 +218,8 @@ addEventListener('click', (e: MouseEvent) => {
 </template>
 
 <style lang="scss">
+@use "sass:map";
+@use '@/assets/variables.scss' as *;
 .fr_context {
   pointer-events: none;
   left: 0;

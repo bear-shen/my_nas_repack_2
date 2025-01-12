@@ -409,6 +409,8 @@ async function modUser(index: number) {
 </template>
 
 <style lang="scss">
+@use "sass:map";
+@use '@/assets/variables.scss' as *;
 .fr_content.view_user {
   padding-bottom: 0;
   height: 100%;

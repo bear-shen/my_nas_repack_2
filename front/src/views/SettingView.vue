@@ -257,6 +257,7 @@ async function btn_checkLocalFile() {
       </template>
     </div>
     <table>
+      <tbody>
       <tr>
         <th>key</th>
         <th>value</th>
@@ -290,11 +291,14 @@ async function btn_checkLocalFile() {
           ></content-editable>
         </td>
       </tr>
+      </tbody>
     </table>
   </div>
 </template>
 
 <style lang="scss">
+@use "sass:map";
+@use '@/assets/variables.scss' as *;
 .fr_content.view_setting {
   table {
     th, td {
@@ -306,7 +310,7 @@ async function btn_checkLocalFile() {
       font-size: $fontSize;
     }
     td.editing, td:hover {
-      background-color:  map.get($colors, bk_active);
+      background-color: map.get($colors, bk_active);
     }
     td.add {
       font-size: $fontSize;

@@ -316,6 +316,8 @@ function emp(e: Event) {
 </template>
 
 <style scoped lang="scss">
+@use "sass:map";
+@use '@/assets/variables.scss' as *;
 .node_node {
   //touch-action: none;
   &:hover, &.select {

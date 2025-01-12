@@ -24,7 +24,7 @@ export default defineConfig({
     css: {
         preprocessorOptions: {
             scss: {
-                additionalData: '@use "sass:map"; @use "@/assets/variables.scss" as *;',
+                // additionalData: '@use "sass:map"; @use "@/assets/variables.scss" as *;',
                 silenceDeprecations: ['legacy-js-api'],
             }
         }

@@ -92,6 +92,8 @@ loadPDF();
 </template>
 
 <style lang="scss">
+@use "sass:map";
+@use '@/assets/variables.scss' as *;
 .modal_dom.resizing {
   .modal_browser.pdf {
     iframe {

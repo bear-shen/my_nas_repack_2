@@ -14,6 +14,8 @@ import NaviContent from "./NaviContent.vue";
 </template>
 
 <style lang="scss">
+@use "sass:map";
+@use '@/assets/variables.scss' as *;
 .fr_navi {
   z-index: 10;
   text-align: center;

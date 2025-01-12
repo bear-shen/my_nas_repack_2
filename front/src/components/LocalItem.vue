@@ -119,6 +119,8 @@ if (props.depth == 1) {
 </template>
 
 <style scoped lang="scss">
+@use "sass:map";
+@use '@/assets/variables.scss' as *;
 .local_item {
   td {
     font-size: $fontSize;

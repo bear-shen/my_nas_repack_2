@@ -126,6 +126,8 @@ function prepStar() {
 </template>
 
 <style scoped lang="scss">
+@use "sass:map";
+@use '@/assets/variables.scss' as *;
 .rater {
   cursor: pointer;
   &:hover {

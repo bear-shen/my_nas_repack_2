@@ -630,6 +630,8 @@ function setRater(rateVal: string) {
 </template>
 
 <style lang="scss">
+@use "sass:map";
+@use '@/assets/variables.scss' as *;
 @keyframes rotateAnimate {
   0% {
     transform: rotate(0);

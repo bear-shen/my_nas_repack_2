@@ -177,6 +177,8 @@ async function keydownEvt(e: KeyboardEvent): Promise<boolean> {
 </template>
 
 <style lang="scss">
+@use "sass:map";
+@use '@/assets/variables.scss' as *;
 .modal_locator {
   width: 100%;
   //min-height: 90%;

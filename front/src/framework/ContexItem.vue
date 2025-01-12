@@ -71,6 +71,8 @@ function activeMenu() {
 </template>
 
 <style lang="scss">
+@use "sass:map";
+@use '@/assets/variables.scss' as *;
 .fr_context {
   pointer-events: none;
   left: 0;

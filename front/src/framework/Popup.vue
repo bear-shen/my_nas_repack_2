@@ -869,6 +869,8 @@ function keymap(e: KeyboardEvent) {
 </template>
 
 <style lang="scss">
+@use "sass:map";
+@use '@/assets/variables.scss' as *;
 .fr_popup {
   pointer-events: none;
   left: 0;

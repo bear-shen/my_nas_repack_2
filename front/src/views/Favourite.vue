@@ -601,6 +601,8 @@ function tag_del(groupIndex: number, tagIndex: number) {
 </template>
 
 <style lang="scss">
+@use "sass:map";
+@use '@/assets/variables.scss' as *;
 .fr_content.view_fav {
   padding-bottom: 0;
   height: 100%;
