@@ -19,11 +19,29 @@ if (ifUseOnlyoffice === 'true') {
   }
 }
 
+const originConf  = {
+  originHost  : '127.0.0.1',
+  originPort  : '80',
+  originScheme: 'http',
+};
+const nasOrigin = process.env.nas_origin;
+if (nasOrigin) {
+  const originMeta = new URL(nasOrigin);
+  if (originMeta) {
+    if (originMeta.hostname) originConf.originHost = originMeta.hostname;
+    if (originMeta.port) originConf.originPort = originMeta.port;
+    if (originMeta.protocol) originConf.originScheme = originMeta.protocol.replace(':', '');
+  }
+}
+
 // let ngConf = fs.readFileSync('/etc/nginx/sites-enabled/default.conf').toString();
 //直接读取源文件以后覆盖当前nginx配置
 let ngConf = fs.readFileSync(__dirname + '/system/nginx_default.conf').toString();
 for (const key in onlyofficeConf) {
   ngConf = ngConf.replace(`{{${key}}}`, onlyofficeConf[key]);
+}
+for (const key in originConf) {
+  ngConf = ngConf.replace(`{{${key}}}`, originConf[key]);
 }
 fs.writeFileSync('/etc/nginx/sites-enabled/default.conf', ngConf, {
   flag: 'w+',

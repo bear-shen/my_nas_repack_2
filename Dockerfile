@@ -22,6 +22,7 @@ ENV onlyoffice_enabled = false
 #ENV onlyoffice_api_src = http://192.168.110.152:8001/web-apps/apps/api/documents/api.js
 ENV onlyoffice_jwt_secret = YOUR_JWT_SECRET
 ENV onlyoffice_origin = http://172.16.1.240:8001
+ENV nas_origin = http://172.16.1.200:8080
 
 # Use production node environment by default.
 ENV NODE_ENV=production
