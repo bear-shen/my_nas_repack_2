@@ -39,7 +39,7 @@ function startOnlyOffice() {
   if (!ifDomExs) return setTimeout(() => startOnlyOffice(), stInterval);
   //
   const secret = Config.onlyOffice.jwtSecret;
-  const origin = Config.onlyOffice.origin;
+  // const origin = Config.onlyOffice.origin;
   const curNode = props.curNode;
   const suffixInd = curNode.title.lastIndexOf('.');
   const suffix = curNode.title.substring(suffixInd + 1);
@@ -52,11 +52,11 @@ function startOnlyOffice() {
       //https://api.onlyoffice.com/docs/docs-api/usage-api/config/document/#referencedata
       key: curNode.id.toString(16) + '_' + parseInt(new Date(curNode.time_update).valueOf()),
       title: curNode.title,
-      url: `${origin}${curNode.file_index.raw.path}?tosho_token=${user?.token}`,
+      url: `./onlyoffice_server/${curNode.file_index.raw.path}?tosho_token=${user?.token}`,
     },
     documentType: documentType,
     editorConfig: {
-      callbackUrl: `${origin}/api/onlyoffice/callback?id=${curNode.id}&tosho_token=${user?.token}`,
+      callbackUrl: `./onlyoffice_server/api/onlyoffice/callback?id=${curNode.id}&tosho_token=${user?.token}`,
     },
   };
   payload.token = sign(payload, secret);

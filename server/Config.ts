@@ -58,7 +58,8 @@ export function loadLocal() {
     //
     if (process.env.NAS_ORIGIN) (BaseConfig.web as ConfType).origin = process.env.NAS_ORIGIN;
     if (process.env.onlyoffice_enabled) (BaseConfig.web as ConfType).onlyoffice_enabled = process.env.onlyoffice_enabled;
-    if (process.env.onlyoffice_api_src) (BaseConfig.web as ConfType).onlyoffice_api_src = process.env.onlyoffice_api_src;
+    // if (process.env.onlyoffice_api_src) (BaseConfig.web as ConfType).onlyoffice_api_src = process.env.onlyoffice_api_src;
+    if (process.env.onlyoffice_origin) (BaseConfig.web as ConfType).onlyoffice_origin = process.env.onlyoffice_origin;
     if (process.env.onlyoffice_jwt_secret) (BaseConfig.web as ConfType).onlyoffice_jwt_secret = process.env.onlyoffice_jwt_secret;
     //
     return BaseConfig;

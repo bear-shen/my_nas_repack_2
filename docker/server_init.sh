@@ -31,9 +31,10 @@ ln -s /app/pkg/24.04/node-v20.18.1-linux-x64/bin/npm /usr/bin/npm
 sleep 1
 
 cd /app/server
-/usr/bin/npm config set registry https://registry.npmmirror.com
+#/usr/bin/npm config set registry https://registry.npmmirror.com
 /usr/bin/npm install
 cd /app
+
 
 sleep 1
 
@@ -55,6 +56,8 @@ cp /app/system/nginx_mime.types /etc/nginx/mime.types
 cp /app/system/nginx_default.conf /etc/nginx/sites-enabled/default.conf
 cp /app/system/pg_hba.conf /etc/postgresql/16/main/pg_hba.conf
 cp /app/system/postgresql.conf /etc/postgresql/16/main/postgresql.conf
+
+node /app/init.js
 
 #cd /app/front/dist
 #wget https://github.com/mozilla/pdf.js/releases/download/v4.10.38/pdfjs-4.10.38-dist.zip

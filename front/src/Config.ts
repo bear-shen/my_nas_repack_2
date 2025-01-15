@@ -73,9 +73,10 @@ export default {
         'subtitle',
     ] as type_file[],
     onlyOffice: {
-        origin: '',
+        // origin: '',
         enabled: false,
-        apiSrc: '',
+        // apiSrc: '',
+        onlyofficeOrigin: '',
         jwtSecret: '',
     },
 }

@@ -105,7 +105,8 @@ priority_kw = ['cht', 'chs', 'chin', 'zh-', '中', 'jpn', 'jps', 'japan', 'jp', 
 origin = 'http://172.17.0.1:85'
 onlyoffice_enabled = 'false'
 #onlyoffice_enabled = 'true'
-onlyoffice_api_src = 'http://127.0.0.1:8001/web-apps/apps/api/documents/api.js'
+#onlyoffice_api_src = 'http://127.0.0.1:8001/web-apps/apps/api/documents/api.js'
+onlyoffice_origin = 'http://127.0.0.1:56000'
 onlyoffice_jwt_secret = 'YOUR_JWT_SECRET'
 
 

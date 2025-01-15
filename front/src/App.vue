@@ -23,8 +23,9 @@ async function loadFeConf() {
   console.info(res);
   if (res.onlyoffice_enabled === 'true') {
     Config.onlyOffice.enabled = true;
-    Config.onlyOffice.origin = res.origin;
-    Config.onlyOffice.apiSrc = res.onlyoffice_api_src;
+    // Config.onlyOffice.origin = res.origin;
+    // Config.onlyOffice.apiSrc = res.onlyoffice_api_src;
+    Config.onlyOffice.onlyofficeOrigin = res.onlyoffice_origin;
     Config.onlyOffice.jwtSecret = res.onlyoffice_jwt_secret;
   }
 }
