@@ -31,8 +31,8 @@ async function check(url: URL, req: IncomingMessage): Promise<number | true | fa
         if (req.url) {
             let uriInfo = new URL('http://0.0.0.0' + req.url);
             if (uriInfo) {
-                if (uriInfo.searchParams && uriInfo.searchParams.has('token')) {
-                    token = uriInfo.searchParams.get('token');
+                if (uriInfo.searchParams && uriInfo.searchParams.has('tosho_token')) {
+                    token = uriInfo.searchParams.get('tosho_token');
                 }
             }
         }

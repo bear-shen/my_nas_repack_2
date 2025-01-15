@@ -57,8 +57,6 @@ cp /app/system/nginx_default.conf /etc/nginx/sites-enabled/default.conf
 cp /app/system/pg_hba.conf /etc/postgresql/16/main/pg_hba.conf
 cp /app/system/postgresql.conf /etc/postgresql/16/main/postgresql.conf
 
-node /app/init.js
-
 #cd /app/front/dist
 #wget https://github.com/mozilla/pdf.js/releases/download/v4.10.38/pdfjs-4.10.38-dist.zip
 #unzip pdfjs-4.10.38-dist.zip -d pdfjs

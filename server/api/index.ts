@@ -11,7 +11,7 @@ import ORM from "../lib/ORM";
 const server = http.createServer(async function (req: IncomingMessage, res: ServerResponse) {
     // console.info(new URL('http://www.baidu.com/aaa'));
     // console.info(req.method, req.headers);
-    // console.info(req.url);
+    console.info(req.url);
     //
     const config = Config.get();
     /*
@@ -33,7 +33,7 @@ const server = http.createServer(async function (req: IncomingMessage, res: Serv
     //
     const urlInfo = new URL(req.url, `http://${req.headers.host}`);
     const authResult = await Authorize.check(urlInfo, req);
-    // console.info(authResult);
+    console.info(authResult);
     if (!authResult) {
         res.write(JSON.stringify({
             'code': 10,

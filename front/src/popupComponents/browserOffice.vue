@@ -27,7 +27,8 @@ const stInterval = 100;
 
 onMounted(() => {
   console.warn("mounted");
-  loadScript(Config.onlyOffice.apiSrc);
+  const url = new URL(location.href);
+  loadScript(`${url.origin}/onlyoffice_server/web-apps/apps/api/documents/api.js`);
   setTimeout(() => startOnlyOffice(), stInterval);
 });
 
@@ -52,11 +53,11 @@ function startOnlyOffice() {
       //https://api.onlyoffice.com/docs/docs-api/usage-api/config/document/#referencedata
       key: curNode.id.toString(16) + '_' + parseInt(new Date(curNode.time_update).valueOf()),
       title: curNode.title,
-      url: `./onlyoffice_server/${curNode.file_index.raw.path}?tosho_token=${user?.token}`,
+      url: `${url.origin}${curNode.file_index.raw.path}?tosho_token=${user?.token}`,
     },
     documentType: documentType,
     editorConfig: {
-      callbackUrl: `./onlyoffice_server/api/onlyoffice/callback?id=${curNode.id}&tosho_token=${user?.token}`,
+      callbackUrl: `${url.origin}/api/onlyoffice/callback?id=${curNode.id}&tosho_token=${user?.token}`,
     },
   };
   payload.token = sign(payload, secret);
@@ -210,14 +211,14 @@ function getDocumentTypeBySuffix(suffix): string {
       //top: 40%;
       cursor: pointer;
       //
-      background-color:  map.get($colors, button);
-      color:  map.get($colors, font);
+      background-color: map.get($colors, button);
+      color: map.get($colors, font);
       &:hover,
       &.active,
       &.disabled,
       option:checked {
-        background-color:  map.get($colors, button_active);
-        color:  map.get($colors, font_active);
+        background-color: map.get($colors, button_active);
+        color: map.get($colors, font_active);
       }
       //
       span {
