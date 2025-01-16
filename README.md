@@ -19,9 +19,8 @@ onlyoffice optional
   - work with conf.toml
   - in docker, use
     - `-e onlyoffice_enabled=true`
-    - `-e NAS_ORIGIN=[your site]`  
-    - `-e onlyoffice_api_src=[{onlyoffice}/web-apps/apps/api/documents/api.js]` 
-    - `-e onlyoffice_jwt_secret=[JWTToken]` 
+    - `-e onlyoffice_origin=http://192.168.1.1:8081`
+    - `-e nas_origin=http://192.168.1.1:8080`
     
 
 ```bash

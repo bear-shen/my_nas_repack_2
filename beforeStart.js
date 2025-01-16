@@ -8,29 +8,37 @@ const onlyofficeConf  = {
   onlyofficeScheme: 'http',
 };
 if (ifUseOnlyoffice === 'true') {
-  const onlyofficeOrigin = process.env.onlyoffice_origin;
+  const onlyofficeOrigin = process.env.onlyoffice_origin ?? 'http://127.0.0.1';
   if (onlyofficeOrigin) {
-    const originMeta = new URL(onlyofficeOrigin);
-    if (originMeta) {
-      if (originMeta.hostname) onlyofficeConf.onlyofficeHost = originMeta.hostname;
-      if (originMeta.port) onlyofficeConf.onlyofficePort = originMeta.port;
-      if (originMeta.protocol) onlyofficeConf.onlyofficeScheme = originMeta.protocol.replace(':', '');
+    try {
+      const originMeta = new URL(onlyofficeOrigin);
+      if (originMeta) {
+        if (originMeta.hostname) onlyofficeConf.onlyofficeHost = originMeta.hostname;
+        if (originMeta.port) onlyofficeConf.onlyofficePort = originMeta.port;
+        if (originMeta.protocol) onlyofficeConf.onlyofficeScheme = originMeta.protocol.replace(':', '');
+      }
+    } catch (e) {
+      console.error(e);
     }
   }
 }
 
-const originConf  = {
+const originConf = {
   originHost  : '127.0.0.1',
   originPort  : '80',
   originScheme: 'http',
 };
-const nasOrigin = process.env.nas_origin;
+const nasOrigin  = process.env.nas_origin ?? 'http://127.0.0.1';
 if (nasOrigin) {
-  const originMeta = new URL(nasOrigin);
-  if (originMeta) {
-    if (originMeta.hostname) originConf.originHost = originMeta.hostname;
-    if (originMeta.port) originConf.originPort = originMeta.port;
-    if (originMeta.protocol) originConf.originScheme = originMeta.protocol.replace(':', '');
+  try {
+    const originMeta = new URL(nasOrigin);
+    if (originMeta) {
+      if (originMeta.hostname) originConf.originHost = originMeta.hostname;
+      if (originMeta.port) originConf.originPort = originMeta.port;
+      if (originMeta.protocol) originConf.originScheme = originMeta.protocol.replace(':', '');
+    }
+  } catch (e) {
+    console.error(e);
   }
 }
 

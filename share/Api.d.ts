@@ -358,11 +358,12 @@ export type api_setting_mod_req = {
 export type api_setting_mod_resp = api_setting_mod_req;
 
 export type api_setting_front_conf = {
-    origin?: string,
+    // origin?: string,
     onlyoffice_enabled?: string,
     // onlyoffice_api_src?: string,
     onlyoffice_origin?: string,
     onlyoffice_jwt_secret?: string,
+    nas_origin?: string,
     // status?: string,
 } & { [key: string]: any };
 
