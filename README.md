@@ -21,6 +21,7 @@ onlyoffice optional
     - `-e onlyoffice_enabled=true`
     - `-e onlyoffice_origin=http://192.168.1.1:8081`
     - `-e nas_origin=http://192.168.1.1:8080`
+    - `-e onlyoffice_jwt_secret=[onlyoffice_jwt_secret]`
     
 
 ```bash

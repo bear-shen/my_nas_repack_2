@@ -8,7 +8,7 @@ const onlyofficeConf  = {
   onlyofficeScheme: 'http',
 };
 if (ifUseOnlyoffice === 'true') {
-  const onlyofficeOrigin = process.env.onlyoffice_origin ?? 'http://127.0.0.1';
+  const onlyofficeOrigin = (process.env.onlyoffice_origin ?? 'http://127.0.0.1').replace(/^[\s=/'"]+|[\s=/"']+$/g, '');
   if (onlyofficeOrigin) {
     try {
       const originMeta = new URL(onlyofficeOrigin);
@@ -28,7 +28,7 @@ const originConf = {
   originPort  : '80',
   originScheme: 'http',
 };
-const nasOrigin  = process.env.nas_origin ?? 'http://127.0.0.1';
+const nasOrigin  = (process.env.nas_origin ?? 'http://127.0.0.1').replace(/^[\s=/'"]+|[\s=/"']+$/g, '');
 if (nasOrigin) {
   try {
     const originMeta = new URL(nasOrigin);
