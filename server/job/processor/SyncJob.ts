@@ -204,6 +204,9 @@ async function syncDir(localRoot: string, rootNode: col_node) {
     // });
     const curSubFileTitleSet: Set<string> = new Set();
     for (let i1 = 0; i1 < subFileLs.length; i1++) {
+        if(!rootNode.id){
+            console.info('sync/run : ',new Date().toISOString(),subFileLs[i1].name);
+        }
         //写入标签文件
         if (subFileLs[i1].name == '_tags.json') {
             await parseTagFile(localRoot, rootNode.id);
