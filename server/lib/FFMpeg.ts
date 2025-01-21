@@ -26,6 +26,7 @@ type ffMeta = {
         width: number;
         height: number;
         level: number;
+        channels: number;
         tags: {
             language: string;
             title: string;
@@ -110,6 +111,7 @@ async function videoStr(meta: ffMeta): Promise<string | boolean> {
     //
     let tranContainer = true;
     let tranACodec = true;
+    let tranAChannel = false;
     let tranVCodec = true;
     //
     let tranRate = false;
@@ -228,9 +230,13 @@ async function videoStr(meta: ffMeta): Promise<string | boolean> {
         break;
     }
     if (audioIndex !== -1) {
+        const track = meta.streams[audioIndex];
+        //5.1声道要改成双声道,不然无法转码
+        if(track.channels>2){
+            tranAChannel=true;
+        }
         for (let i1 = 0; i1 < audioConf.allow_codec.length; i1++) {
             const kw = audioConf.allow_codec[i1];
-            const track = meta.streams[audioIndex];
             if (track.codec_name.toLowerCase().indexOf(kw) === -1) continue;
             tranACodec = false;
             break;
@@ -268,7 +274,7 @@ async function videoStr(meta: ffMeta): Promise<string | boolean> {
         'audioCount', audioCount,
         // 'subCount', subCount,
     );
-    if (!(tranRate || tranContainer || tranACodec || tranVCodec)) {
+    if (!(tranRate || tranContainer || tranACodec || tranVCodec|| tranAChannel)) {
         return true;
         // return {video: true, subtitle: subMap};
     }
@@ -277,6 +283,7 @@ async function videoStr(meta: ffMeta): Promise<string | boolean> {
 ${(tranRate || tranVCodec || tranLength) ? videoConf.ff_encoder : '-c:v copy'}
 ${tranLength ? `-s ${Math.round(tranLength ? w * videoConf.length / maxLen : w)}x${Math.round(tranLength ? h * videoConf.length / maxLen : h)}` : ''}
 ${(audioIndex !== -1) && (tranRate || tranACodec) ? audioConf.ff_encoder : '-c:a copy'}
+${tranAChannel?`-ac:${audioIndex} 2`:''}
 -map 0:${videoIndex} ${audioIndex !== -1 ? `-map 0:${audioIndex}` : ''}
 [execMask.target]`.replaceAll(/[\r\n]+/gm, "  ");
     return str;
