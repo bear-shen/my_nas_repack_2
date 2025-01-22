@@ -19,27 +19,11 @@ onlyoffice optional
   - work with conf.toml
   - in docker, use
     - `-e onlyoffice_enabled=true`
-    - `-e onlyoffice_origin=http://192.168.1.1:8081`
-    - `-e nas_origin=http://192.168.1.1:8080`
+    - `-e onlyoffice_origin=http://192.168.1.1:8081` 
+      - (from onlyoffice server/docker)
+    - `-e nas_origin=http://192.168.1.1:8080` 
+      - (from target site, only use scheme and port)
     - `-e onlyoffice_jwt_secret=[onlyoffice_jwt_secret]`
-    
-
-```bash
-npm install -g pm2
-
-git clone my_nas_repack_2
-
-cd front
-npm install
-cd ../server
-npm install
-
-pm2 start
-cd ../front
-npm run build
-npm run dev
-
-```
 
 -- --
 

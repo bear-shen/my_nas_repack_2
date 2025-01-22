@@ -34,8 +34,11 @@ if (nasOrigin) {
     const originMeta = new URL(nasOrigin);
     if (originMeta) {
       if (originMeta.hostname) originConf.originHost = originMeta.hostname;
-      if (originMeta.port) originConf.originPort = originMeta.port;
       if (originMeta.protocol) originConf.originScheme = originMeta.protocol.replace(':', '');
+      if (originMeta.port) originConf.originPort = originMeta.port;
+      else if(originConf.originScheme==='https'){
+        originConf.originPort=443;
+      }
     }
   } catch (e) {
     console.error(e);
