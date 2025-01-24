@@ -1,43 +1,15 @@
-import {request, IncomingMessage, ServerResponse} from 'http';
+import http, {IncomingMessage, ServerResponse} from 'http';
 import {ParsedForm} from '../types';
 import type {
-    api_file_bath_delete_req,
-    api_file_bath_delete_resp,
-    api_file_bath_move_req,
-    api_file_bath_move_resp,
-    api_file_bath_rename_req,
-    api_file_bath_rename_resp,
-    api_file_checksum_req,
-    api_file_checksum_resp,
-    api_file_cover_req,
-    api_file_cover_resp,
-    api_file_delete_req,
-    api_file_delete_resp,
-    api_file_list_req,
-    api_file_list_resp,
     api_file_mkdir_req,
-    api_file_mkdir_resp,
-    api_file_mod_req,
-    api_file_mov_req,
-    api_file_upload_req,
-    api_file_upload_resp,
-    api_node_col
 } from '../../../share/Api';
 import NodeModel from '../../model/NodeModel';
-import GenFunc from '../../lib/GenFunc';
-import {col_favourite, col_node, col_rate, col_tag} from '../../../share/Database';
-import TagModel from '../../model/TagModel';
-import TagGroupModel from '../../model/TagGroupModel';
 import * as fp from "../../lib/FileProcessor";
 import QueueModel from "../../model/QueueModel";
-import FavouriteModel from "../../model/FavouriteModel";
-import RateModel from "../../model/RateModel";
-import FavouriteGroupModel from "../../model/FavouriteGroupModel";
 import fs from "node:fs/promises";
-import {splitQuery} from "../../lib/ModelHelper";
-import UserModel from "../../model/UserModel";
-import UserGroupModel from "../../model/UserGroupModel";
 import fsNp from "node:fs";
+import * as https from "https";
+import {RequestOptions} from "https";
 
 export default class {
     async callback(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<void> {
@@ -113,20 +85,31 @@ function downloadFile(sourceUrl: string, targetPath: string): Promise<boolean> {
         const file = fsNp.createWriteStream(targetPath, {
             autoClose: true,
         });
-        const req = request(sourceUrl, (response) => {
-            // console.info('req callback');
-            if (response.statusCode !== 200) {
-                console.info(`download failed: ${response.statusCode}`);
-                //file.close();
-                resolve(false);
-            }
-            response.pipe(file);
-            file.on('finish', () => {
-                console.info('file finish');
-                file.close();
-                resolve(true);
+        let requestMethod: typeof https.request;
+        let options: RequestOptions;
+        if (sourceUrl.indexOf('https:') !== -1) {
+            requestMethod = https.request;
+            options = {rejectUnauthorized: false};
+        } else {
+            requestMethod = http.request;
+            options = {};
+        }
+        const req = requestMethod(sourceUrl
+            , options
+            , (response) => {
+                // console.info('req callback');
+                if (response.statusCode !== 200) {
+                    console.info(`download failed: ${response.statusCode}`);
+                    //file.close();
+                    resolve(false);
+                }
+                response.pipe(file);
+                file.on('finish', () => {
+                    console.info('file finish');
+                    file.close();
+                    resolve(true);
+                });
             });
-        });
         req.on('finish', () => {
             console.info('req finish');
             //file.close();
