@@ -85,9 +85,10 @@ export class FileStreamDownloader {
         for (let i1 = 0; i1 < this.nodeList.length; i1++) {
             const node = this.nodeList[i1];
             if (!node.id) continue;
-            if (!node.type === 'directory') continue;
-            if (!node.file_index.raw) continue;
-            const file = node.file_index.raw;
+            if (node.type === 'directory') continue;
+            if (node.file_index?.raw) continue;
+            const file = node.file_index?.raw;
+            if(!file)continue;
             if (!file.path) continue;
             const src = file.path + '?filename=' + node.title;
             const res = await this.downloadFile(src, this.downloadProcess.bind(this));
@@ -103,7 +104,7 @@ export class FileStreamDownloader {
         this.downCur = ev.loaded;
     }
 
-    public downloadFile(src: string, progress?: typeof XMLHttpRequest.on): Promise<ArrayBuffer> {
+    public downloadFile(src: string, progress?: (this: any, ev: ProgressEvent) => any): Promise<ArrayBuffer> {
         return new Promise(resolve => {
             const xhr = new XMLHttpRequest();
             xhr.withCredentials = true;

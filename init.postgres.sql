@@ -302,7 +302,8 @@ CREATE TABLE if not EXISTS "public"."bgm_character"
     "infobox"  text COLLATE "pg_catalog"."default",
     "summary"  text COLLATE "pg_catalog"."default",
     "comments" int4,
-    "collects" int4
+    "collects" int4,
+    CONSTRAINT "bgm_character_pkey" PRIMARY KEY ("id")
 );
 CREATE TABLE if not EXISTS "public"."bgm_episode"
 (

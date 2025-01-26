@@ -12,10 +12,7 @@ function curl($config = [], $retry = 5) {
         'Accept-Encoding: deflate, br',
         'Accept-Language: zh-CN,zh;q=0.9',
         'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.124 Safari/537.36 Edg/102.0.1245.41',
-        //        'Content-Type: application/json;charset=UTF-8',
-        //        'Content-Type: application/x-www-form-urlencoded',
         'Upgrade-Insecure-Requests: 1',
-        //        'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
         'Expect: '
     ];
 //    $genHeader = [];
@@ -149,10 +146,7 @@ function curlFile($config = [], $retryCount = 10) {
         'Accept-Encoding: deflate',
         'Accept-Language: zh-CN,zh;q=0.9',
         'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.124 Safari/537.36 Edg/102.0.1245.41',
-        //        'Content-Type: application/json;charset=UTF-8',
-        //        'Content-Type: application/x-www-form-urlencoded',
         'Upgrade-Insecure-Requests: 1',
-        //        'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
         'Expect: '
     ];
 //    $genHeader = [];
@@ -250,56 +244,6 @@ function parseHeader($responseContent) {
     return $headerReq;
 }
 
-function parseDict($item, $dicts) {
-    foreach ($dicts as $dict) {
-        if (!isset($item[$dict['name']])) continue;
-        foreach ($dict['values'] as $value) {
-            if ($value['value'] != $item[$dict['name']]) continue;
-            $item[$dict['name']] = $item[$dict['name']] . ' : ' . $value['text'];
-        }
-    }
-    return $item;
-}
-
-function restQuery($ch, $cookie, $path, $params = false, $extraQuery = false) {
-    $site = 'http://10.134.89.56:9001';
-    //
-    if (empty($params)) {
-        $params = new StdClass();
-    } elseif (!is_string($params)) {
-        $params = json_encode($params, JSON_UNESCAPED_UNICODE);
-    }
-    //
-    $query = ($extraQuery ?: []) + [
-            'rnd'    => mt_rand(0, 100000000) / 100000000,
-            '_'      => time() . '000',
-            'params' => $params,
-        ];
-    //var_dump($site . $path . '?' . http_build_query($query));
-    $content = GenFunc::curl(
-        [
-            CURLOPT_URL            => $site . $path . '?' . http_build_query($query),
-            CURLOPT_HEADER         => 0,
-            CURLINFO_HEADER_OUT    => 0,
-            CURLOPT_COOKIE         => $cookie,
-            CURLOPT_FOLLOWLOCATION => false,
-            CURLOPT_POST           => false,
-            //CURLOPT_POSTFIELDS     => '',
-            CURLOPT_HTTPHEADER     => [
-                'Accept: application/json, text/javascript, */*; q=0.01',
-                'Accept-Encoding: gzip, deflate',
-                'Accept-Language: zh-CN,zh;q=0.9',
-                'Content-Type: application/json',
-                'User-Agent: Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.79 Safari/537.36',
-                'X-Requested-With: XMLHttpRequest',
-                'Referer: http://10.134.89.56:9001/sgpms',
-            ],
-            'use_ch'               => $ch,
-        ]
-    );
-    return $content;
-}
-
 
 function parseTable($tbodyString) {
     $tableRes   = [];
@@ -320,11 +264,6 @@ function parseTable($tbodyString) {
     return $tableRes;
 }
 
-/**
- * 针对营销现在各种报错的重试方案
- * =\s*(\w+)\(([^\)]+?)\);
- * = mayNotEmpty('$1',3,$2);
- */
 function mayNotEmpty($functionName, $retryCount = 3, ...$arguments) {
     $delay = 1000000;
     if (defined('DELAY')) $delay = constant('DELAY');

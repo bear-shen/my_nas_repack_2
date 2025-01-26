@@ -15,7 +15,7 @@ nginx modules required:
 
 php optional
 
-onlyoffice optional
+onlyoffice support (optional)
   - work with conf.toml
   - in docker, use
     - `-e onlyoffice_enabled=true`
@@ -24,6 +24,9 @@ onlyoffice optional
     - `-e nas_origin=http://192.168.1.1:8080` 
       - (from target site, only use scheme and port)
     - `-e onlyoffice_jwt_secret=[onlyoffice_jwt_secret]`
+  - for self-signed https fe
+    - mod `container:/etc/onlyoffice/documentserver/default.json`
+      - set `services.CoAuthoring.requestDefaults.rejectUnauthorized=true`
 
 -- --
 
