@@ -1,51 +1,14 @@
 import util from "util";
 import NodeModel from "../../model/NodeModel";
-import * as fp from "../../lib/FileProcessor";
 import {Buffer} from "buffer";
 import * as https from "https";
 import {RequestOptions} from "https";
 import http from "http";
-import {col_node} from "../../../share/Database";
 import QueueModel from "../../model/QueueModel";
-import fs from "node:fs/promises";
 
 const exec = util.promisify(require('child_process').exec);
 
 class ExtJob {
-    static async rmRaw(payload: { [key: string]: any }): Promise<any> {
-        // const config = Config.get();
-        const rootId = payload.id;
-        const root = await (new NodeModel).where('id', rootId).first();
-        if (!root) throw new Error('root not found');
-        let nodeLs: col_node[] = [];
-        if (root.type === 'directory') {
-            nodeLs = await (new NodeModel)
-                .whereRaw('node_id_list @> $0',root.id)
-                .select();
-        } else {
-            nodeLs = [root];
-        }
-        for (let i1 = 0; i1 < nodeLs.length; i1++) {
-            const node = nodeLs[i1];
-            if (!node.file_index) continue;
-            if (!node.file_index.raw) continue;
-            if (!node.file_index.normal) continue;
-            const rawLocalPath = fp.mkLocalPath(fp.mkRelPath(node));
-            await fs.rm(rawLocalPath, {
-                // recursive:true,
-                force: true,
-            });
-            const targetIndex = node.file_index;
-            delete targetIndex.raw;
-            await (new NodeModel).where('id', node.id).update({
-                file_index: targetIndex,
-            });
-            // const ifExs = await fp.checkOrphanFile(rawFId)
-            // if (ifExs) continue;
-            // await fp.rmReal(rawFId);
-        }
-        return;
-    }
 
     static async cascadeTag(payload: { [key: string]: any }): Promise<any> {
         // const config = Config.get();
@@ -93,8 +56,13 @@ class ExtJob {
         return;
     }
 
-    static async importEHT(payload: { [key: string]: any }): Promise<any> {
-        const cmd = `php ${__dirname}/../../../../../resource/getEHTTag.php ${payload.id}`;
+
+    static async syncBGMTag(payload: { [key: string]: any }): Promise<any> {
+
+    }
+
+    static async importEHTTag(payload: { [key: string]: any }): Promise<any> {
+        const cmd = `php ${__dirname}/../../../../resource/getEHTTag.php ${payload.id}`;
         const {stdout, stderr} = await exec(cmd);
         // console.info(stdout, stderr);
         await (new QueueModel).insert({
@@ -102,6 +70,11 @@ class ExtJob {
             payload: {id: parseInt(payload.id)},
             status: 1,
         });
+    }
+
+    static async syncJRiverRate(payload: { [key: string]: any }): Promise<any> {
+        const cmd = `php ${__dirname}/../../../../resource/syncJriver.php ${payload.id_node} ${payload.uid} "${payload.payload}"`;
+        const {stdout, stderr} = await exec(cmd);
     }
 }
 

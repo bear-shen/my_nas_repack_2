@@ -27,7 +27,7 @@ export type api_node_col = {
     _tagging?: boolean,
     _dom?: HTMLElement,
     _in_screen?: boolean,
-    _sort_index?:string,
+    _sort_index?: string,
 } & col_node
 
 export type api_file_list_resp = {
@@ -455,3 +455,18 @@ export type api_statistics_node = {
         cover: { count: number, size: number, },
     }[],
 };
+
+export type api_import_eht_tag_req = {
+    id_list?: string,
+} & { [key: string]: any };
+
+export type api_sync_jriver_rate_req = {
+    id_node?: string,
+    // payload?: string,//file
+} & { [key: string]: any };
+
+
+
+
+
+

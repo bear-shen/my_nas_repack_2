@@ -614,27 +614,7 @@ export default class {
             const curNode = await new NodeModel().where('id', nodeId).first();
             if (!curNode) continue;
             await (new QueueModel).insert({
-                type: 'ext/rmRaw',
-                payload: {id: curNode.id},
-                status: 1,
-            });
-        }
-    }
-
-    async import_eht(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<any> {
-        const request = data.fields as api_file_checksum_req;
-        const list = request.id_list.split(',');
-        //
-        try {
-            const ifConfExs = await fs.access(`${__dirname}/../../../../../resource/getEHTTag.cookie.txt`)
-        } catch (e) {
-            throw new Error('eht conf file not found, write cookie to resource/getEHTTag.cookie.txt');
-        }
-        for (const nodeId of list) {
-            const curNode = await new NodeModel().where('id', nodeId).first();
-            if (!curNode) continue;
-            await (new QueueModel).insert({
-                type: 'ext/importEHT',
+                type: 'file/rmRaw',
                 payload: {id: curNode.id},
                 status: 1,
             });

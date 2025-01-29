@@ -1,32 +1,34 @@
-import FileJob from "./processor/FileJob";
+import FileOperateJob from "./processor/FileOperateJob";
 // import ImportJob from "./processor/ImportJob";
 // import SysJob from "./processor/SysJob";
 import ExtJob from "./processor/ExtJob";
 // import StatisticsJob from "./processor/StatisticsJob";
-import SyncJob from "./processor/SyncJob";
+import FileSyncJob from "./processor/FileSyncJob";
 
 /**
  * @notice 考虑到现在队列是用worker跑
  * 可能需要处理线程安全问题
  * */
 export default {
-    'file/build': FileJob.build,
-    'file/checksum': FileJob.checksum,
-    'file/buildIndex': FileJob.buildIndex,
-    'file/rebuild': FileJob.rebuild,
-    'file/rebuildIndex': FileJob.rebuildIndex,
-    'file/rebuildAllIndex': FileJob.rebuildAllIndex,
-    'file/deleteForever': FileJob.deleteForever,
-    'file/cascadeDeleteStatus': FileJob.cascadeDeleteStatus,
-    'file/cascadeMoveFile': FileJob.cascadeMoveFile,
-    'file/cascadeCopyFile': FileJob.cascadeCopyFile,
+    'file/build': FileOperateJob.build,
+    'file/checksum': FileOperateJob.checksum,
+    'file/buildIndex': FileOperateJob.buildIndex,
+    'file/rebuild': FileOperateJob.rebuild,
+    'file/rebuildIndex': FileOperateJob.rebuildIndex,
+    'file/rebuildAllIndex': FileOperateJob.rebuildAllIndex,
+    'file/deleteForever': FileOperateJob.deleteForever,
+    'file/cascadeDeleteStatus': FileOperateJob.cascadeDeleteStatus,
+    'file/cascadeMoveFile': FileOperateJob.cascadeMoveFile,
+    'file/cascadeCopyFile': FileOperateJob.cascadeCopyFile,
+    'file/rmRaw': FileOperateJob.rmRaw,
     // 'import/run': ImportJob.run,
-    'sync/run': SyncJob.run,
-    'sync/check': SyncJob.check,
-    'sync/runLocal': SyncJob.runLocal,
+    'sync/local2db': FileSyncJob.local2db,
+    'sync/check': FileSyncJob.check,
+    'sync/db2local': FileSyncJob.db2local,
     // 'sys/scanOrphanFile': SysJob.scanOrphanFile,
     'ext/cascadeTag': ExtJob.cascadeTag,
-    'ext/rmRaw': ExtJob.rmRaw,
-    'ext/importEHT': ExtJob.importEHT,
+    'ext/syncBGMTag': ExtJob.syncBGMTag,
+    'ext/importEHTTag': ExtJob.importEHTTag,
+    'ext/syncJRiverRate': ExtJob.syncJRiverRate,
     // 'statistics/node': StatisticsJob.node,
 } as { [key: string]: (payload: { [key: string]: any }) => Promise<any> };

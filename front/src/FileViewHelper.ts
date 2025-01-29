@@ -1378,7 +1378,7 @@ export class opFunctionModule {
     public static async op_imp_tag_eh(idSet: number[]) {
         const formData = new FormData();
         formData.set('id_list', idSet.join(','));
-        const res = await query<api_file_rebuild_resp>('file/import_eht', formData);
+        const res = await query<api_file_rebuild_resp>('setting/import_eht_tag', formData);
         // emits('go', 'reload');
         return res;
     }

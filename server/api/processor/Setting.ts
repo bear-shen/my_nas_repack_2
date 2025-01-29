@@ -1,6 +1,6 @@
 import {IncomingMessage, ServerResponse} from 'http';
 import {ParsedForm} from '../types';
-import {api_setting_col, api_setting_del_req, api_setting_del_resp, api_setting_front_conf, api_setting_list_req, api_setting_list_resp, api_setting_mod_req, api_setting_mod_resp,} from '../../../share/Api';
+import {type api_file_checksum_req, api_import_eht_tag_req, api_setting_col, api_setting_del_req, api_setting_del_resp, api_setting_front_conf, api_setting_list_req, api_setting_list_resp, api_setting_mod_req, api_setting_mod_resp, api_sync_jriver_rate_req,} from '../../../share/Api';
 import SettingModel from "../../model/SettingModel";
 import * as Config from "../../Config";
 
@@ -8,6 +8,8 @@ import QueueModel from "../../model/QueueModel";
 import ORM from "../../lib/ORM";
 import CacheModel from "../../model/CacheModel";
 import {col_setting} from "../../../share/Database";
+import fs from "node:fs/promises";
+import NodeModel from "../../model/NodeModel";
 
 export default class {
 
@@ -73,20 +75,20 @@ export default class {
     };
 
     async sync_local_file() {
-        const ifExs = await (new QueueModel).where('type', ['sync/run', 'sync/runLocal',]).whereIn('status', [1, 2]).first();
+        const ifExs = await (new QueueModel).where('type', ['sync/local2db', 'sync/db2local',]).whereIn('status', [1, 2]).first();
         if (ifExs) throw new Error('sync job running');
         (new QueueModel).insert({
-            type: 'sync/run',
+            type: 'sync/local2db',
             payload: {},
             status: 1,
         });
     }
 
     async sync_database_file() {
-        const ifExs = await (new QueueModel).where('type', ['sync/run', 'sync/runLocal',]).whereIn('status', [1, 2]).first();
+        const ifExs = await (new QueueModel).where('type', ['sync/local2db', 'sync/db2local',]).whereIn('status', [1, 2]).first();
         if (ifExs) throw new Error('sync job running');
         (new QueueModel).insert({
-            type: 'sync/runLocal',
+            type: 'sync/db2local',
             payload: {},
             status: 1,
         });
@@ -132,5 +134,53 @@ export default class {
         return feConf;
     }
 
+    async sync_bgm_tag() {
+        const ifExs = await (new QueueModel).where('type', 'ext/syncBGMTag').whereIn('status', [1, 2]).first();
+        if (ifExs) throw new Error('chk job running');
+        (new QueueModel).insert({
+            type: 'ext/syncBGMTag',
+            payload: {},
+            status: 1,
+        });
+    }
 
+    async import_eht_tag(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<any> {
+        const request = data.fields as api_import_eht_tag_req;
+        const list = request.id_list.split(',');
+        //
+        try {
+            const ifConfExs = await fs.access(`${__dirname}/../../../../resource/getEHTTag.cookie.txt`)
+        } catch (e) {
+            throw new Error(
+                'eht conf file not found, write cookie to resource/getEHTTag.cookie.txt'
+                + '\t' + `${__dirname}/../../../../resource/getEHTTag.cookie.txt`
+            );
+        }
+        for (const nodeId of list) {
+            const curNode = await new NodeModel().where('id', nodeId).first();
+            if (!curNode) continue;
+            await (new QueueModel).insert({
+                type: 'ext/importEHTTag',
+                payload: {id: curNode.id},
+                status: 1,
+            });
+        }
+    }
+
+    async sync_jriver_rate(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<any> {
+        const request = data.fields as api_sync_jriver_rate_req;
+        const files: { [key: string]: any } = data.files;
+        if (!files.payload) throw new Error('payload not found');
+        const payloadPath = files.payload.filepath;
+        //
+        const node = await new NodeModel().where('id', request.id_node).first();
+        if (!node) throw new Error('node not found');
+        const ifExs = await (new QueueModel).where('type', 'ext/syncJRiverRate').whereIn('status', [1, 2]).first();
+        if (ifExs) throw new Error('job running');
+        (new QueueModel).insert({
+            type: 'ext/syncJRiverRate',
+            payload: {id_node: node.id, payload: payloadPath, uid: data.uid},
+            status: 1,
+        });
+    }
 };

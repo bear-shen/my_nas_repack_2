@@ -2,7 +2,7 @@
 import {useModalStore} from "@/stores/modalStore";
 // import {useEventStore} from "@/stores/event";
 import {onMounted, onUnmounted, ref,} from "vue";
-import type {ModalCallbackConstruct, ModalConstruct, ModalLayout, ModalStruct,} from "@/modal";
+import type {ModalCallbackConstruct, ModalConstruct, ModalFormConstruct, ModalLayout, ModalStruct,} from "@/modal";
 // import HelloWorldVue from "@/components/HelloWorld.vue";
 import Browser from "@/popupComponents/browser.vue";
 import Locator from "@/popupComponents/locator.vue";
@@ -621,6 +621,18 @@ function keymap(e: KeyboardEvent) {
   }
 }
 
+function processModalFile(payloadForm: ModalFormConstruct<File>) {
+  console.info('processModalFile', payloadForm);
+  const dom = document.createElement('input');
+  dom.type = 'file';
+  dom.onchange = (e) => {
+    const files: FileList = e.target.files;
+    if (!files || files.length === 0) return; // 如果没有选择文件，直接返回
+    payloadForm.value = files[0];
+    console.info('processModalFile mod', payloadForm, payloadForm.value)
+  }
+  dom.click();
+}
 
 /* modalStore.set({
   title: "test",
@@ -763,6 +775,10 @@ function keymap(e: KeyboardEvent) {
               <template v-if="form.type === 'text'">
                 <input type="text" v-model="form.value"/>
               </template>
+              <template v-if="form.type === 'file'">
+                <button @click="processModalFile(form)">select file</button>
+                <span v-if="form.value">{{ (form.value as File).name }}</span>
+              </template>
               <template v-if="form.type === 'textarea'">
                 <textarea v-model="form.value"></textarea>
               </template>
@@ -881,9 +897,9 @@ function keymap(e: KeyboardEvent) {
   z-index: 100;
 }
 .modal_dom.active {
-  background-color:  map.get($colors, popup_active);
+  background-color: map.get($colors, popup_active);
   .modal_header {
-    background-color:  map.get($colors, popup_title);
+    background-color: map.get($colors, popup_title);
   }
 }
 .modal_dom {
@@ -891,7 +907,7 @@ function keymap(e: KeyboardEvent) {
   pointer-events: all;
   $controllerWidth: $fontSize * 0.5;
   font-size: $fontSize;
-  background-color:  map.get($colors, popup);
+  background-color: map.get($colors, popup);
   position: absolute;
   padding: $fontSize * 0.25;
   @include blurBackground();
@@ -904,7 +920,7 @@ function keymap(e: KeyboardEvent) {
       padding: $fontSize*0.25;
     }
     white-space: nowrap;
-    background-color:  map.get($colors, popup_title);
+    background-color: map.get($colors, popup_title);
     width: 100%;
     display: flex;
     justify-content: space-between;
@@ -1038,7 +1054,7 @@ function keymap(e: KeyboardEvent) {
       > span:last-child {
         input,
         textarea {
-          border-bottom: 1px solid  map.get($colors, popup_title);
+          border-bottom: 1px solid map.get($colors, popup_title);
         }
       }
       input,

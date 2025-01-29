@@ -6,7 +6,7 @@ import {onBeforeRouteUpdate, useRoute, useRouter,} from "vue-router";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {query} from "@/Helper";
 import GenFunc from "@/GenFunc";
-import type {api_setting_col, api_setting_del_resp, api_setting_list_req, api_setting_list_resp, api_setting_mod_resp,} from "../../../share/Api";
+import {type api_file_list_req, type api_file_mov_req, api_import_eht_tag_req, type api_node_col, type api_setting_col, type api_setting_del_resp, type api_setting_list_req, type api_setting_list_resp, type api_setting_mod_resp,} from "../../../share/Api";
 import ContentEditable from "@/components/ContentEditable.vue";
 import type {ModalConstruct} from "@/modal";
 import {useModalStore} from "@/stores/modalStore";
@@ -148,69 +148,159 @@ type widget = {
   method: () => any,
 };
 const widgetLs: widget[] = [
-  {type: 'button', title: 'syncLocalFile', method: btn_syncLocalFile},
-  {type: 'button', title: 'syncDatabaseFile', method: btn_syncDatabaseFile},
-  {type: 'button', title: 'checkLocalFile', method: btn_checkLocalFile},
-  {type: 'button', title: 'rebuildAllIndex', method: btn_rebuildAllIndex},
+  //同步本地文件到数据库
+  {type: 'button', title: 'local -> DB', method: btn_syncLocalFile},
+  //清理缓存文件夹里可能出现的多余的文件
+  {type: 'button', title: 'DB -> local', method: btn_syncDatabaseFile},
+  //检测文件
+  {type: 'button', title: 'check file', method: btn_checkLocalFile},
+  {type: 'button', title: 'rebuild all index', method: btn_rebuildAllIndex},
   // {type: 'button', title: 'nodeStatistics', method: btn_nodeStatistics},
+  {type: 'button', title: 'sync bangumi database', method: btn_syncBGMTags},
+  {type: 'button', title: 'import EHT tags', method: btn_importEHTTag},
+  {type: 'button', title: 'sync jRiver rate', method: btn_syncJRiverRate},
 ];
 
 async function btn_syncLocalFile() {
   const res = await query("setting/sync_local_file", {});
+  if (res === false) return;
   const modalStore = useModalStore();
-  modalStore.set({
-    title: "success",
-    text: "queued",
-    w: 320,
-    h: 100,
-    minW: 320,
-    minH: 100,
-    allow_resize: false,
-    callback: {
-      confirm: async function (modal) {
-      },
-    },
-  } as ModalConstruct);
+  modalStore.set(modalStore.simpleMsg("success", "queued"));
 }
 
 async function btn_syncDatabaseFile() {
   const res = await query("setting/sync_database_file", {});
+  if (res === false) return;
+  const modalStore = useModalStore();
+  modalStore.set(modalStore.simpleMsg("success", "queued"));
+}
+
+async function btn_syncBGMTags() {
+  const res = await query("setting/sync_bgm_tag", {});
+  if (res === false) return;
+  const modalStore = useModalStore();
+  modalStore.set(modalStore.simpleMsg("success", "queued"));
+}
+
+async function btn_importEHTTag() {
   const modalStore = useModalStore();
   modalStore.set({
-    title: "success",
-    text: "queued",
-    w: 320,
-    h: 100,
-    minW: 320,
-    minH: 100,
-    allow_resize: false,
+    title: `locator | select base dir :`,
+    alpha: false,
+    key: "",
+    single: false,
+    w: 400,
+    h: 60,
+    minW: 400,
+    minH: 60,
+    // h: 160,
+    allow_resize: true,
+    allow_move: true,
+    allow_fullscreen: false,
+    auto_focus: true,
+    // text: "this is text",
+    component: [
+      {
+        componentName: "locator",
+        data: {
+          query: {
+            type: 'directory',
+          } as api_file_list_req,
+          call: async (node: api_node_col) => {
+            // console.info(node);
+            const formData = new FormData();
+            formData.set('id_list', `${node.id}`);
+            const res = await query<api_import_eht_tag_req>('setting/import_eht_tag', formData);
+            // if (opModuleVal) opModuleVal.emitGo('reload');
+            if (res === false) return;
+            modalStore.set(modalStore.simpleMsg("success", "queued"));
+          }
+        },
+      },
+    ],
+  });
+}
+
+async function btn_syncJRiverRate() {
+  const modalStore = useModalStore();
+  const submitModal: ModalConstruct = {
+    title: "upload MC Library.xml data",
+    w: 400,
+    h: 150,
+    minW: 400,
+    minH: 150,
+    allow_resize: true,
+    form: [
+      {
+        label: 'target node id',
+        type: 'text',
+        key: 'nodeId',
+        value: '',
+      },
+      {
+        label: 'xml payload',
+        type: 'file',
+        // type: 'textarea',
+        key: 'payload',
+        // value: null,
+      },
+    ],
     callback: {
       confirm: async function (modal) {
+        if (!modal.content.form[1].value) return;
+        // console.info(modal);
+        const formData = new FormData();
+        formData.set('id_node', `${modal.content.form[0].value}`);
+        formData.set('payload', modal.content.form[1].value);
+        const res = await query<api_import_eht_tag_req>('setting/sync_jriver_rate', formData);
+        // if (opModuleVal) opModuleVal.emitGo('reload');
+        if (res === false) return;
+        modalStore.set(modalStore.simpleMsg("success", "queued"));
       },
     },
-  } as ModalConstruct);
+  };
+  modalStore.set({
+    title: `locator | select music base dir :`,
+    alpha: false,
+    key: "",
+    single: false,
+    w: 400,
+    h: 60,
+    minW: 400,
+    minH: 60,
+    // h: 160,
+    allow_resize: true,
+    allow_move: true,
+    allow_fullscreen: false,
+    auto_focus: true,
+    // text: "this is text",
+    component: [
+      {
+        componentName: "locator",
+        data: {
+          query: {
+            type: 'directory',
+          } as api_file_list_req,
+          call: async (target: api_node_col) => {
+            submitModal.form[0].value = target.id;
+            modalStore.set(submitModal);
+          }
+        },
+      },
+    ],
+  });
 }
 
 async function btn_rebuildAllIndex() {
   const res = await query("setting/full_rebuild_index", {});
+  if (res === false) return;
   const modalStore = useModalStore();
-  modalStore.set({
-    title: "success",
-    text: "queued",
-    w: 320,
-    h: 100,
-    minW: 320,
-    minH: 100,
-    allow_resize: false,
-    callback: {
-      confirm: async function (modal) {
-      },
-    },
-  } as ModalConstruct);
+  modalStore.set(modalStore.simpleMsg("success", "queued"));
 }
 
 async function btn_checkLocalFile() {
   const res = await query<api_setting_col>("setting/check_local_file_result", {});
+  if (res === false) return;
   console.info(res);
   const modalStore = useModalStore();
   let resTxt = '';
@@ -239,7 +329,7 @@ async function btn_checkLocalFile() {
       close: async function (modal) {
       },
     },
-  } as ModalConstruct);
+  });
 }
 
 
@@ -248,7 +338,7 @@ async function btn_checkLocalFile() {
 <template>
   <div class="fr_content view_setting" ref="contentDOM">
     <div class="widget_ls">
-      <template v-for="widget in widgetLs">
+      <template v-for="(widget,widgetInd) in widgetLs" :key="widgetInd">
         <template v-if="widget.type==='button'">
           <div :class="['widget',widget.type]">
             <button @click="widget.method">{{ widget.title }}</button>

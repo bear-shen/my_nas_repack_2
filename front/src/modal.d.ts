@@ -5,7 +5,10 @@ import type {Ref} from 'vue'
 export type ModalCallbackFunc = (modal: ModalStruct) => Promise<true | any> | void;
 
 export type ModalFormConstruct<K> = {
-    type: 'text' | 'textarea' | 'date' | 'datetime' | 'checkbox' | 'radio' | 'select';
+    type:
+        'text' | 'textarea' | 'date' |
+        'datetime' | 'checkbox' | 'radio' |
+        'select' | 'file';
     label: string;
     key: string;
     value?: K;

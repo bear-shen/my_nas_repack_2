@@ -17,17 +17,17 @@ const exec = util.promisify(require('child_process').exec);
 
 
 export default class {
-    static async run(payload: { [key: string]: any }): Promise<any> {
+    static async local2db(payload: { [key: string]: any }): Promise<any> {
         const pathConfig = Config.get('path');
-        const curJobLs = await (new QueueModel).whereIn('type', ['sync/run', 'sync/runLocal',]).whereIn('status', [1, 2]).select();
+        const curJobLs = await (new QueueModel).whereIn('type', ['sync/local2db', 'sync/db2local',]).whereIn('status', [1, 2]).select();
         if (curJobLs.length > 1) throw new Error('sync job running');
         await syncDir(pathConfig.root, fp.rootNode);
         // await syncDir(Buffer.from(pathConfig.root), fp.rootNode);
     }
 
-    static async runLocal(payload: { [key: string]: any }): Promise<any> {
+    static async db2local(payload: { [key: string]: any }): Promise<any> {
         const pathConfig = Config.get('path');
-        const curJobLs = await (new QueueModel).whereIn('type', ['sync/run', 'sync/runLocal',]).whereIn('status', [1, 2]).select();
+        const curJobLs = await (new QueueModel).whereIn('type', ['sync/local2db', 'sync/db2local',]).whereIn('status', [1, 2]).select();
         if (curJobLs.length > 1) throw new Error('sync job running');
         await syncGeneratedDir(pathConfig.preview, fp.rootNode);
         await syncGeneratedDir(pathConfig.normal, fp.rootNode);
@@ -204,8 +204,8 @@ async function syncDir(localRoot: string, rootNode: col_node) {
     // });
     const curSubFileTitleSet: Set<string> = new Set();
     for (let i1 = 0; i1 < subFileLs.length; i1++) {
-        if(!rootNode.id){
-            console.info('sync/run : ',new Date().toISOString(),subFileLs[i1].name);
+        if (!rootNode.id) {
+            console.info('sync/local2db : ', new Date().toISOString(), subFileLs[i1].name);
         }
         //写入标签文件
         if (subFileLs[i1].name == '_tags.json') {

@@ -108,7 +108,7 @@ async function getList(clear: boolean = false) {
       <label>
         <span>status : </span>
         <select v-model="queryData.status">
-          <option v-for="(statusDef, key) in statusMap" :value="statusDef[0]">
+          <option v-for="(statusDef, key) in statusMap" :value="statusDef[0]" :key="key">
             {{ statusDef[1] }}
           </option>
         </select>
@@ -121,6 +121,7 @@ async function getList(clear: boolean = false) {
       </label>
     </div>
     <table>
+      <tbody>
       <tr>
         <th>id</th>
         <th>type</th>
@@ -147,6 +148,7 @@ async function getList(clear: boolean = false) {
         <td>{{ row.time_update }}</td>
         <td>{{ row.payload }}</td>
       </tr>
+      </tbody>
     </table>
   </div>
 </template>
@@ -156,7 +158,7 @@ async function getList(clear: boolean = false) {
 @use '@/assets/variables.scss' as *;
 .fr_content.view_log {
   .form {
-    $metaBk:  map.get($colors, bar_meta);
+    $metaBk: map.get($colors, bar_meta);
     background-color: $metaBk;
     padding: 0 $fontSize * 0.5;
     //line-height: $fontSize * 1.5;
@@ -190,7 +192,7 @@ async function getList(clear: boolean = false) {
       font-size: $fontSize*1.5;
     }
     tr:hover {
-      background-color:  map.get($colors, bk_active);
+      background-color: map.get($colors, bk_active);
     }
   }
 }
