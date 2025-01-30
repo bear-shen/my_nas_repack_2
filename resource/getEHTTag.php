@@ -12,7 +12,7 @@ require_once $root . '/lib_php/Cache.php';
 require_once $root . '/lib_php/Lib.php';
 require_once $root . '/lib_php/ORMPG.php';
 require_once $root . '/lib_php/DBPG.php';
-require_once 'dbConf.php';
+require_once $root . '/dbConf.php';
 
 $confFile = __DIR__ . '/../server/config.toml';
 if (!file_exists($confFile)) exit('conf file not found');
@@ -28,11 +28,13 @@ $ifExs  = ORMPG::table('node')->where('id', $rootId)->first();
 if (empty($ifExs)) exit('root not found');
 
 //$sourceNodeId = $argv[1];
-$baseRoot = $rootPath . '/' . $ifExs['node_path'];
+$baseRoot = $rootPath . '/'
+            . (empty($ifExs['node_path']) ? '' : $ifExs['node_path'] . '/')
+            . $ifExs['title'];
 @unlink(__FILE__ . '.log');
 //
 $fileLs = GenFunc::scanDirPlus($baseRoot);
-$count=0;
+$count  = 0;
 foreach ($fileLs as $filePath) {
     if (!is_dir($filePath)) continue;
     $articleDirName = basename($filePath);
@@ -41,8 +43,10 @@ foreach ($fileLs as $filePath) {
     if (file_exists($articleTagFile)) continue;
     //检测是标准格式的文件名
     $ifValid = null;
-    $tTitle  = preg_replace('/^[\(\)a-z0-9.\-]+\s/i', '', $articleDirName);
+    //排序用的前缀和c105一类的东西
+    $tTitle = preg_replace('/^[\(\)（）a-z0-9.\-\s]+\s/i', '', $articleDirName);
     if (empty($tTitle)) continue;
+    //符合eht标准的文件名
     preg_match('/^(\[|\().+?(\]|\)).+?/i', $tTitle, $ifValid);
     if (empty($ifValid)) {
         file_put_contents(

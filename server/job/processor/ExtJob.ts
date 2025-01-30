@@ -5,6 +5,7 @@ import * as https from "https";
 import {RequestOptions} from "https";
 import http from "http";
 import QueueModel from "../../model/QueueModel";
+import * as Config from "../../Config";
 
 const exec = util.promisify(require('child_process').exec);
 
@@ -62,7 +63,8 @@ class ExtJob {
     }
 
     static async importEHTTag(payload: { [key: string]: any }): Promise<any> {
-        const cmd = `php ${__dirname}/../../../../resource/getEHTTag.php ${payload.id}`;
+        const rootPath = Config.get('path.root');
+        const cmd = `php ${__dirname}/../../../../resource/getEHTTag.php ${payload.id} >> ${rootPath}/php.log`;
         const {stdout, stderr} = await exec(cmd);
         // console.info(stdout, stderr);
         await (new QueueModel).insert({
@@ -73,7 +75,8 @@ class ExtJob {
     }
 
     static async syncJRiverRate(payload: { [key: string]: any }): Promise<any> {
-        const cmd = `php ${__dirname}/../../../../resource/syncJriver.php ${payload.id_node} ${payload.uid} "${payload.payload}"`;
+        const rootPath = Config.get('path.root');
+        const cmd = `php ${__dirname}/../../../../resource/syncJriver.php ${payload.id_node} ${payload.uid} "${payload.payload}" >> ${rootPath}/php.log`;
         const {stdout, stderr} = await exec(cmd);
     }
 }

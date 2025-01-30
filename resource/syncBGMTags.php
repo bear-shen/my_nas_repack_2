@@ -14,7 +14,7 @@ require_once $root . '/lib_php/Cache.php';
 require_once $root . '/lib_php/Lib.php';
 require_once $root . '/lib_php/ORMPG.php';
 require_once $root . '/lib_php/DBPG.php';
-require_once './dbConf.php';
+require_once $root . '/dbConf.php';
 
 $orgBgmConfUrl   = 'https://github.com/bangumi/Archive/raw/refs/heads/master/aux/latest.json';
 $downloadZipPath = __DIR__ . '/bgm.zip';

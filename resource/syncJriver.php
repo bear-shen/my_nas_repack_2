@@ -11,7 +11,7 @@ require_once $root . '/lib_php/Cache.php';
 require_once $root . '/lib_php/Lib.php';
 require_once $root . '/lib_php/ORMPG.php';
 require_once $root . '/lib_php/DBPG.php';
-require_once './dbConf.php';
+require_once $root . '/dbConf.php';
 
 $rootId      = $argv[1];
 $uid         = $argv[2];
