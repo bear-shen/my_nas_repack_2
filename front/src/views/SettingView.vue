@@ -6,7 +6,11 @@ import {onBeforeRouteUpdate, useRoute, useRouter,} from "vue-router";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {query} from "@/Helper";
 import GenFunc from "@/GenFunc";
-import {type api_file_list_req, type api_file_mov_req, api_import_eht_tag_req, type api_node_col, type api_setting_col, type api_setting_del_resp, type api_setting_list_req, type api_setting_list_resp, type api_setting_mod_resp,} from "../../../share/Api";
+import type {
+  api_file_list_req, api_file_mov_req, api_import_eht_tag_req,
+  api_node_col, api_setting_col, api_setting_del_resp,
+  api_setting_list_req, api_setting_list_resp, api_setting_mod_resp,
+} from "../../../share/Api";
 import ContentEditable from "@/components/ContentEditable.vue";
 import type {ModalConstruct} from "@/modal";
 import {useModalStore} from "@/stores/modalStore";

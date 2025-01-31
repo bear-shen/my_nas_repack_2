@@ -89,6 +89,7 @@ function downloadFile(sourceUrl: string, targetPath: string): Promise<boolean> {
         let options: RequestOptions;
         if (sourceUrl.indexOf('https:') !== -1) {
             requestMethod = https.request;
+            //@notice 不太清楚怎么处理自签证书导致的各种信任问题，打docker包的时候看起来也比较麻烦，姑且就这样吧
             options = {rejectUnauthorized: false};
         } else {
             requestMethod = http.request;
