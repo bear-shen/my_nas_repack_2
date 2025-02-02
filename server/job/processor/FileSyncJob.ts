@@ -3,7 +3,7 @@ import * as Config from "../../Config";
 import * as fp from "../../lib/FileProcessor";
 import {mkLocalPath, mkRelPath} from "../../lib/FileProcessor";
 import fs from "node:fs/promises";
-import {col_node} from "../../../share/Database";
+import type {col_node, col_node_file_index} from "../../../share/Database";
 import NodeModel from "../../model/NodeModel";
 import QueueModel from "../../model/QueueModel";
 import {Dirent} from "fs";
@@ -26,12 +26,13 @@ export default class {
     }
 
     static async db2local(payload: { [key: string]: any }): Promise<any> {
+        //不会删除raw部分的文件，只删除缓存部分
         const pathConfig = Config.get('path');
         const curJobLs = await (new QueueModel).whereIn('type', ['sync/local2db', 'sync/db2local',]).whereIn('status', [1, 2]).select();
         if (curJobLs.length > 1) throw new Error('sync job running');
-        await syncGeneratedDir(pathConfig.preview, fp.rootNode);
-        await syncGeneratedDir(pathConfig.normal, fp.rootNode);
-        await syncGeneratedDir(pathConfig.cover, fp.rootNode);
+        await syncGeneratedDir(pathConfig.preview, fp.rootNode, 'preview',);
+        await syncGeneratedDir(pathConfig.normal, fp.rootNode, 'normal',);
+        await syncGeneratedDir(pathConfig.cover, fp.rootNode, 'cover',);
     }
 
     static async check(payload: { [key: string]: any }): Promise<any> {
@@ -69,38 +70,37 @@ export default class {
                 extStt.db.push(localRawPath);
                 return;
             }
-            if (node.type == 'directory') {
+            // if (node.title.indexOf('20240825 222200_希尔') !== -1) console.info(node, localRawPath);
+            // if (node.type == 'directory') {
+            //     dbFileSet.add(localRawPath);
+            // } else {
+            if (node.type == 'directory' || node.file_index.raw)
                 dbFileSet.add(localRawPath);
-            } else {
-                if (node.file_index.raw)
-                    dbFileSet.add(localRawPath);
-                if (node.file_index.preview)
-                    dbFileSet.add(mkLocalPath(mkRelPath(node, 'preview', node.file_index.preview.ext)));
-                if (node.file_index.normal)
-                    dbFileSet.add(mkLocalPath(mkRelPath(node, 'normal', node.file_index.normal.ext)));
-                if (node.file_index.cover)
-                    dbFileSet.add(mkLocalPath(mkRelPath(node, 'cover', node.file_index.cover.ext)));
-            }
+            if (node.type == 'directory' || node.file_index.preview)
+                dbFileSet.add(mkLocalPath(mkRelPath(node, 'preview', node?.file_index?.preview?.ext ?? null)));
+            if (node.type == 'directory' || node.file_index.normal)
+                dbFileSet.add(mkLocalPath(mkRelPath(node, 'normal', node?.file_index?.normal?.ext ?? null)));
+            if (node.type == 'directory' || node.file_index.cover)
+                dbFileSet.add(mkLocalPath(mkRelPath(node, 'cover', node?.file_index?.cover?.ext ?? null)));
+            // }
         });
         rawFileSet.forEach(f => {
-            if (!dbFileSet.has(f)) {
-                extStt.raw.push(f);
-            }
+            // if (f.indexOf('20240825 222200_希尔') !== -1) console.info(f, dbFileSet.has(f));
+            if (dbFileSet.has(f)) return;
+            extStt.raw.push(f);
         });
         previewFileSet.forEach(f => {
-            if (!dbFileSet.has(f)) {
-                extStt.preview.push(f);
-            }
+            // if (f.indexOf('20200610') !== -1) console.info(f);
+            if (dbFileSet.has(f)) return;
+            extStt.preview.push(f);
         });
         normalFileSet.forEach(f => {
-            if (!dbFileSet.has(f)) {
-                extStt.normal.push(f);
-            }
+            if (dbFileSet.has(f)) return;
+            extStt.normal.push(f);
         });
         coverFileSet.forEach(f => {
-            if (!dbFileSet.has(f)) {
-                extStt.cover.push(f);
-            }
+            if (dbFileSet.has(f)) return;
+            extStt.cover.push(f);
         });
         const ifExs = await new SettingModel().where('name', '_t_file_check_result')
             .order('id', 'desc').first();
@@ -310,7 +310,8 @@ async function syncDir(localRoot: string, rootNode: col_node) {
  * 根据数据库文件检测生成过的文件
  * 有文件但是没有数据的删除
  * */
-async function syncGeneratedDir(localRoot: string, rootNode: col_node) {
+async function syncGeneratedDir(localRoot: string, rootNode: col_node, sub: string) {
+    // console.info(localRoot);
     let subFileLs: Dirent[];
     try {
         subFileLs = await fs.readdir(localRoot, {encoding: 'utf-8', withFileTypes: true});
@@ -319,44 +320,40 @@ async function syncGeneratedDir(localRoot: string, rootNode: col_node) {
         console.error(`cannot read dir: ${localRoot}`);
         return;
     }
-    const subNodeLs = await fp.ls(rootNode);
     //
-    const typeLs = ['cover', 'normal', 'preview'];
+    const subNodeLs = await fp.ls(rootNode);
     const subNodeMap = new Map<string, col_node>();
-    for (let i1 = 0; i1 < subNodeLs.length; i1++) {
-        const subNode = subNodeLs[i1];
+    subNodeLs.forEach(subNode => {
         subNodeMap.set(subNode.title, subNode);
-        if (subNode.type === 'directory') continue;
-        for (let i2 = 0; i2 < typeLs.length; i2++) {
-            const type = typeLs[i2];
-            const fileIndex = subNode.file_index[type];
-            if (!fileIndex) continue;
-            if (typeof fileIndex === 'number') continue;
-            if (!fileIndex.ext) continue;
-            subNodeMap.set(subNode.title + '.' + fileIndex.ext, subNode);
+        if (subNode.type === 'directory') return;
+        if (subNode.file_index) {
+            if (subNode.file_index[sub]) {
+                const file = subNode.file_index[sub] as col_node_file_index;
+                if (file.ext) {
+                    subNodeMap.set(subNode.title + '.' + file.ext, subNode);
+                }
+            }
         }
-    }
+    });
     //
     for (let i1 = 0; i1 < subFileLs.length; i1++) {
         const subFile = subFileLs[i1];
         if (!(subFile.isDirectory() || subFile.isFile())) continue;
         const subTitle = subFile.name;
-        const subPath = subFile.parentPath + '/' + subTitle;
         const ifNodeExs = subNodeMap.get(subTitle);
+        const subPath = subFile.parentPath + '/' + subTitle;
         //不存在的文件和文件/文件名类型不对的文件都删除
         let toDel = false;
         if (!ifNodeExs) {
             toDel = true;
         } else {
             //存在的文件不处理
-            if (subFile.isFile()) {
+            if (subFile.isFile())
                 if (ifNodeExs.type === 'directory')
                     toDel = true;
-            }
-            if (subFile.isDirectory()) {
+            if (subFile.isDirectory())
                 if (ifNodeExs.type !== 'directory')
                     toDel = true;
-            }
         }
         if (toDel) {
             console.info('syncGeneratedDir rm:', subPath);
@@ -372,10 +369,10 @@ async function syncGeneratedDir(localRoot: string, rootNode: col_node) {
         }
         //遍历文件夹
         if (subFile.isDirectory()) {
-            await syncGeneratedDir(subPath, ifNodeExs);
+            await syncGeneratedDir(subPath, ifNodeExs, sub);
         }
     }
-
+    return;
 }
 
 async function parseTagFile(localRoot: string, rootId: number) {
