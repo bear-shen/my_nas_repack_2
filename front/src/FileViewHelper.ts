@@ -766,14 +766,14 @@ export class opModule {
 
     //-----------------------
     public setSort(sort: string) {
-        console.info('setSort', sort)
-        this.localConfigure.set('file_view_sort', sort)
-        const preList = this.nodeList.value
-        this.nodeList.value = []
+        console.info('setSort', sort);
+        this.localConfigure.set('file_view_sort', sort);
+        const preList = this.nodeList.value;
+        this.nodeList.value = [];
         setTimeout(() => {
-            this.nodeList.value = this.sortList(preList, this.sortVal.value)
-            this.setList(this.nodeList.value)
-        }, Config.timeouts.sort)
+            this.nodeList.value = this.sortList(preList, this.sortVal.value);
+            this.setList(this.nodeList.value);
+        }, Config.timeouts.sort);
     }
 
     public sortList(list: api_node_col[], sort: string) {
@@ -1497,13 +1497,13 @@ export function manualSort<K extends api_node_col>(list: K[], sort: string) {
         let vb: string | number = '';
         switch (sortType[0]) {
             default:
-                va = a[sortType[0]];
-                vb = b[sortType[0]];
+                va = a[sortType[0]] as string;
+                vb = b[sortType[0]] as string;
                 break;
             case 'title':
                 //文件夹在前，文件在后
-                va = revNum * (a.type === 'directory' ? 0 : 1) + a._sort_index;
-                vb = revNum * (b.type === 'directory' ? 0 : 1) + b._sort_index;
+                va = revNum * (a.type === 'directory' ? 0 : 1) + (a._sort_index??'');
+                vb = revNum * (b.type === 'directory' ? 0 : 1) + (b._sort_index??'');
                 // console.info(rev, va, vb, natsort({desc:rev,insensitive:true})(va, vb));
                 return natsort({desc: rev, insensitive: true})(va, vb);
                 break;

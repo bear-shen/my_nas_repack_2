@@ -29,37 +29,39 @@ let queryData: api_file_list_req = {
 };
 let searchBarQuery: api_file_list_req = {
   keyword: '',
-  node_type: '',
+  node_type: 'any',
   rate: '',
   cascade_dir: '1',
 };
 
-function syncQuery(tQuery) {
+function syncQuery(tQuery:api_file_list_req) {
   if (!tQuery) return;
   for (let key in queryData) {
     if (!Object.prototype.hasOwnProperty.call(queryData, key)) continue;
-    // if (typeof tQuery[key] === 'undefined') continue;
-    switch (key) {
+    const wKey=key as keyof api_file_list_req;
+    // if (typeof tQuery[wKey] === 'undefined') continue;
+    switch (wKey) {
       default:
-        queryData[key] = tQuery[key] ?? '';
+        queryData[wKey] = (tQuery[wKey] ?? '') as any;
         break;
       case 'mode':
-        queryData[key] = tQuery[key] ?? 'directory';
+        queryData[wKey] = tQuery[wKey] ?? 'directory';
         break;
       case 'id_dir':
-        queryData[key] = tQuery[key] ?? '0';
+        queryData[wKey] = tQuery[wKey] ?? '0';
         break;
     }
   }
   for (let key in searchBarQuery) {
     if (!Object.prototype.hasOwnProperty.call(searchBarQuery, key)) continue;
+    const wKey=key as keyof api_file_list_req;
     // if (typeof tQuery[key] === 'undefined') continue;
-    switch (key) {
+    switch (wKey) {
       default:
-        searchBarQuery[key] = tQuery[key] ?? '';
+        searchBarQuery[wKey] = (tQuery[wKey] ?? '') as any;
         break;
       case 'cascade_dir':
-        searchBarQuery[key] = tQuery[key] ?? '1';
+        searchBarQuery[wKey] = tQuery[wKey] ?? '1';
         break;
     }
   }
@@ -109,7 +111,7 @@ async function getList(replaceWith?: api_file_list_resp[]) {
     crumbList.value = res.path;
     nodeList.value = opModule.sortList(res.list, opModule.sortVal.value);
   } else {
-    nodeList.value = replaceWith;
+    nodeList.value = replaceWith as api_node_col[];
   }
   if (opModule) opModule.setList(nodeList.value);
   // console.info(crumbList);
@@ -211,7 +213,7 @@ function search() {
   if (queryData.id_dir) tQuery.id_dir = queryData.id_dir;
   let isSearch = false;
   if (searchBarQuery.rate) isSearch = true;
-  if (searchBarQuery.keyword.trim()) isSearch = true;
+  if (searchBarQuery.keyword?.trim()) isSearch = true;
   if (searchBarQuery.node_type && searchBarQuery.node_type != 'any') isSearch = true;
   if (isSearch) {
     tQuery.mode = 'search';
@@ -314,13 +316,13 @@ function keymap(e: KeyboardEvent) {
     case 'ctrl_KeyV':
     case 'ctrl_KeyX':
       if (route.name !== 'Directory') return;
-      if (mayTyping(e.target)) return;
+      if (mayTyping(e.target as HTMLElement)) return;
       onPasteBinOperate(keyMap);
       break;
     case 'Enter':
     case 'NumpadEnter':
       if (!e.target) return;
-      if (e.target.id !== 'searchBarInput') return;
+      if ((e.target as HTMLElement).id !== 'searchBarInput') return;
       search();
       break;
   }
@@ -334,13 +336,13 @@ function onDragover(e: DragEvent) {
   addFile();
 }
 
-async function onPasteBinOperate(operate: string) {
-  console.info(operate, crumbList.value, queryData.id_dir);
+async function onPasteBinOperate(keyMap: string[]) {
+  console.info(keyMap, crumbList.value, queryData.id_dir);
   let resVal: {
     idSet: Set<number>,
     nodeLs: api_node_col[],
   };
-  switch (operate.join('_')) {
+  switch (keyMap.join('_')) {
     case 'ctrl_KeyC':
       resVal = opModule.getSelected();
       if (!resVal.nodeLs.length) return;
@@ -444,7 +446,7 @@ async function onPasteBinOperate(operate: string) {
         </template>
         <label v-if="opModule && opModule.sortVal">
           <span>Sort : </span>
-          <select v-model='opModule.sortVal.value' @change='opModule.setSort(sortVal)'>
+          <select v-model='opModule.sortVal.value' @change='opModule.setSort(opModule.sortVal.value)'>
             <option v-for='(sortItem, key) in Config.sort' :value='key'
                     :key="`FV_SCH_CON_SORT_${key}`"
             >
