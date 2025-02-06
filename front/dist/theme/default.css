@@ -1,0 +1,347 @@
+body.theme_default {
+  background-color: hsl(210, 10%, 20%);
+  color: rgb(197, 197, 197);
+}
+body.theme_default ::-webkit-scrollbar-track {
+  background-color: rgba(0, 0, 0, 0.25);
+}
+body.theme_default ::-webkit-scrollbar {
+  background-color: rgba(0, 0, 0, 0);
+}
+body.theme_default ::-webkit-scrollbar-thumb {
+  background-color: rgba(197, 197, 197, 0.25);
+}
+body.theme_default :hover::-webkit-scrollbar-thumb {
+  background-color: rgba(197, 197, 197, 0.5);
+}
+body.theme_default ::-webkit-scrollbar-corner {
+  background-color: rgba(0, 0, 0, 0);
+}
+body.theme_default button,
+body.theme_default select, body.theme_default .btn {
+  background-color: hsl(210, 20%, 10%);
+  color: rgb(197, 197, 197);
+}
+body.theme_default button:hover, body.theme_default button.active, body.theme_default button.disabled,
+body.theme_default button option:checked,
+body.theme_default select:hover,
+body.theme_default select.active,
+body.theme_default select.disabled,
+body.theme_default select option:checked, body.theme_default .btn:hover, body.theme_default .btn.active, body.theme_default .btn.disabled,
+body.theme_default .btn option:checked {
+  background-color: hsl(210, 20%, 22%);
+  color: rgb(212.3, 212.3, 212.3);
+}
+body.theme_default input {
+  background-color: hsl(210, 10%, 20%);
+  color: rgb(197, 197, 197);
+}
+body.theme_default input:hover, body.theme_default input:focus, body.theme_default input.active, body.theme_default input.disabled {
+  background-color: hsl(210, 10%, 28%);
+  color: rgb(212.3, 212.3, 212.3);
+}
+body.theme_default textarea {
+  background-color: hsl(210, 10%, 20%);
+  color: rgb(197, 197, 197);
+}
+body.theme_default textarea:hover, body.theme_default textarea:focus, body.theme_default textarea.active, body.theme_default textarea.disabled {
+  background-color: hsl(210, 10%, 28%);
+  color: rgb(212.3, 212.3, 212.3);
+}
+body.theme_default .buttonStyle {
+  color: rgb(197, 197, 197);
+}
+body.theme_default .buttonStyle:hover, body.theme_default .buttonStyle.active {
+  background-color: rgb(212.3, 212.3, 212.3);
+  color: hsl(210, 20%, 22%);
+}
+body.theme_default .fr_header,
+body.theme_default .fr_footer {
+  background-color: hsl(210, 10%, 4%);
+}
+body.theme_default .fr_body {
+  background-color: hsl(210, 10%, 8%);
+}
+body.theme_default .fr_content {
+  background-color: hsl(210, 10%, 20%);
+}
+body.theme_default .content_meta {
+  background-color: hsl(210, 10%, 12%);
+}
+body.theme_default .content_meta input,
+body.theme_default .content_meta select {
+  background-color: hsl(210, 10%, 12%);
+}
+body.theme_default .content_meta .crumb .item:hover {
+  background-color: hsl(210, 10%, 20%);
+}
+body.theme_default .content_meta .pastebin {
+  background-color: hsl(210, 10%, 12%);
+}
+body.theme_default .fr_context .context_item {
+  background-color: hsla(210, 10%, 14%, 0.75);
+}
+body.theme_default .fr_context .context_item:hover {
+  background-color: hsla(210, 10%, 26%, 0.75);
+}
+body.theme_default .fr_footer .active,
+body.theme_default .fr_footer .paginator li:hover {
+  background-color: hsl(210, 10%, 20%);
+  color: rgb(197, 197, 197);
+}
+body.theme_default .fr_header .action {
+  background-color: hsl(210, 10%, 4%);
+}
+body.theme_default .fr_header .active,
+body.theme_default .fr_header .user li:hover,
+body.theme_default .fr_header .navi div:hover {
+  background-color: hsl(210, 10%, 12%);
+  color: rgb(197, 197, 197);
+}
+body.theme_default .fr_navi .title.active {
+  background-color: hsl(210, 10%, 12%);
+}
+body.theme_default .fr_navi .title:hover {
+  background-color: hsl(210, 10%, 12%);
+}
+body.theme_default .fr_navi .title .content {
+  background-color: hsl(210, 10%, 8%);
+}
+body.theme_default .fr_popup .modal_dom.active {
+  background-color: hsla(210, 10%, 8%, 0.75);
+}
+body.theme_default .fr_popup .modal_dom.active .modal_header {
+  background-color: hsl(210, 10%, 8%);
+}
+body.theme_default .fr_popup .modal_dom {
+  background-color: hsla(210, 10%, 14%, 0.5);
+}
+body.theme_default .fr_popup .modal_dom .modal_header {
+  background-color: hsl(210, 10%, 8%);
+}
+body.theme_default .fr_popup .modal_dom .modal_content_form > span:last-child input,
+body.theme_default .fr_popup .modal_dom .modal_content_form > span:last-child textarea {
+  border-bottom: 1px solid hsl(210, 10%, 8%);
+}
+body.theme_default .view_fav .list_fav_group {
+  background-color: hsl(210, 10%, 12%);
+}
+body.theme_default .view_fav .list_fav_group .fav_group:hover, body.theme_default .view_fav .list_fav_group .fav_group.active {
+  background-color: hsl(210, 10%, 20%);
+}
+body.theme_default .view_fav .list_fav_group .fav_group > div {
+  color: rgb(120.5, 120.5, 120.5);
+}
+body.theme_default .view_fav .list_fav_group .fav_group .title {
+  color: rgb(197, 197, 197);
+  background-color: transparent;
+}
+body.theme_default .view_fav .list_fav_group .fav_group table {
+  color: rgb(120.5, 120.5, 120.5);
+}
+body.theme_default .view_fav .list_fav_group .fav_group table select {
+  color: rgb(120.5, 120.5, 120.5);
+}
+body.theme_default .view_log .form {
+  background-color: hsl(210, 10%, 12%);
+}
+body.theme_default .view_log .form input,
+body.theme_default .view_log .form button,
+body.theme_default .view_log .form select {
+  background-color: hsl(210, 10%, 12%);
+}
+body.theme_default .view_log table tr:hover {
+  background-color: hsl(210, 10%, 28%);
+}
+body.theme_default .view_setting table td.editing, body.theme_default .view_setting table td:hover {
+  background-color: hsl(210, 10%, 28%);
+}
+body.theme_default .view_tag .list_tag_group {
+  background-color: hsl(210, 10%, 12%);
+}
+body.theme_default .view_tag .list_tag_group .tag_group:hover, body.theme_default .view_tag .list_tag_group .tag_group.active {
+  background-color: hsl(210, 10%, 20%);
+}
+body.theme_default .view_tag .list_tag_group .tag_group > div {
+  color: rgb(120.5, 120.5, 120.5);
+}
+body.theme_default .view_tag .list_tag_group .tag_group .title {
+  color: rgb(197, 197, 197);
+}
+body.theme_default .view_tag .list_tag_group .tag_group .node span:last-child {
+  color: rgb(120.5, 120.5, 120.5);
+}
+body.theme_default .view_tag .list_tag_group .tag_group.edit .title, body.theme_default .view_tag .list_tag_group .tag_group.edit .description, body.theme_default .view_tag .list_tag_group .tag_group.edit .operator, body.theme_default .view_tag .list_tag_group .tag_group.edit .hinter > div, body.theme_default .view_tag .list_tag_group .tag_group.edit .content_editor {
+  background-color: hsl(210, 10%, 20%);
+}
+body.theme_default .view_tag .list_tag_group .hinter > div, body.theme_default .view_tag .list_tag_group .content_editor {
+  background-color: hsl(210, 10%, 28%);
+}
+body.theme_default .view_tag .list_tag .tag {
+  color: rgb(120.5, 120.5, 120.5);
+}
+body.theme_default .view_tag .list_tag .tag .title {
+  color: rgb(197, 197, 197);
+}
+body.theme_default .view_tag .list_tag .tag.edit {
+  background-color: hsl(210, 10%, 28%);
+}
+body.theme_default .view_tag .list_tag .tag.edit > div, body.theme_default .view_tag .list_tag .tag.edit > div .content_editor {
+  background-color: hsl(210, 10%, 28%);
+}
+body.theme_default .view_tag .list_tag .tag:hover, body.theme_default .view_tag .list_tag .tag.active {
+  background-color: hsl(210, 10%, 28%);
+}
+body.theme_default .view_user .list_user_group {
+  background-color: hsl(210, 10%, 12%);
+}
+body.theme_default .view_user .list_user_group .user_group:hover, body.theme_default .view_user .list_user_group .user_group.active {
+  background-color: hsl(210, 10%, 20%);
+}
+body.theme_default .view_user .list_user_group .user_group > * {
+  color: rgb(120.5, 120.5, 120.5);
+}
+body.theme_default .view_user .list_user_group .user_group .title {
+  color: rgb(197, 197, 197);
+}
+body.theme_default .view_user .list_user_group .user_group.edit > .content_editor, body.theme_default .view_user .list_user_group .user_group.edit dl, body.theme_default .view_user .list_user_group .user_group.edit > div {
+  background-color: hsl(210, 10%, 20%);
+}
+body.theme_default .view_user .list_user_group .user_group.edit .operator input[type=checkbox]:checked + label, body.theme_default .view_user .list_user_group .user_group.edit .operator input[type=radio]:checked + label {
+  color: rgb(197, 197, 197);
+}
+body.theme_default .view_user .list_user_group .user_group.edit .auth dt {
+  color: rgb(197, 197, 197);
+}
+body.theme_default .view_user .list_user_group .user_group.edit .auth .add {
+  color: rgb(197, 197, 197);
+}
+body.theme_default .view_user .list_user_group .user_group.edit .auth .add:hover {
+  background-color: hsl(210, 10%, 28%);
+}
+body.theme_default .view_user .list_user_group .hinter > div, body.theme_default .view_user .list_user_group .content_editor {
+  background-color: hsl(210, 10%, 28%);
+}
+body.theme_default .view_user .list_user .user {
+  color: rgb(120.5, 120.5, 120.5);
+}
+body.theme_default .view_user .list_user .user .title {
+  color: rgb(197, 197, 197);
+}
+body.theme_default .view_user .list_user .user.edit {
+  background-color: hsl(210, 10%, 28%);
+}
+body.theme_default .view_user .list_user .user.edit > div, body.theme_default .view_user .list_user .user.edit > div .content_editor {
+  background-color: hsl(210, 10%, 28%);
+}
+body.theme_default .view_user .list_user .user:hover {
+  background-color: hsl(210, 10%, 28%);
+}
+body.theme_default .node_node:hover, body.theme_default .node_node.select {
+  background-color: hsl(210, 10%, 28%);
+}
+body.theme_default .node_node.mode_detail .content .meta {
+  color: rgb(120.5, 120.5, 120.5);
+}
+body.theme_default .node_node.mode_detail .content .meta .title {
+  color: rgb(197, 197, 197);
+}
+body.theme_default .node_node.mode_detail .content .meta .editing {
+  background-color: hsl(210, 10%, 28%);
+}
+body.theme_default .node_node.mode_detail .tag_list dd {
+  color: rgb(120.5, 120.5, 120.5);
+}
+body.theme_default .node_node.mode_detail .tag_list dd:hover {
+  color: rgb(197, 197, 197);
+}
+body.theme_default .node_node.mode_img p {
+  color: rgb(120.5, 120.5, 120.5);
+}
+body.theme_default .node_node.mode_img:hover .title, body.theme_default .node_node.mode_img.select .title {
+  color: rgb(197, 197, 197);
+}
+body.theme_default .hinter > div {
+  background-color: hsla(210, 10%, 8%, 0.75);
+}
+body.theme_default .hinter > li:hover, body.theme_default .hinter > li.active {
+  background-color: hsla(210, 10%, 8%, 0.75);
+}
+body.theme_default .rater:hover {
+  color: rgb(212.3, 212.3, 212.3);
+}
+body.theme_default .modal_browser .info {
+  text-shadow: 0 0 2px black, 0 0 2px black, 0 0 2px black, 0 0 2px black;
+  color: rgb(197, 197, 197);
+}
+body.theme_default .modal_browser .info p:first-child {
+  color: rgb(212.3, 212.3, 212.3);
+}
+body.theme_default .modal_browser .pagination .left,
+body.theme_default .modal_browser .pagination .right {
+  background-color: hsla(210, 10%, 8%, 0.75);
+}
+body.theme_default .modal_browser .pagination.isMobile .left, body.theme_default .modal_browser .pagination.isMobile .right {
+  background-color: transparent;
+}
+body.theme_default .modal_browser .pagination.isMobile .left span, body.theme_default .modal_browser .pagination.isMobile .right span {
+  text-shadow: 0 0 2px black, 0 0 2px black, 0 0 2px black, 0 0 2px black;
+}
+body.theme_default .loader.sysIcon {
+  color: rgb(197, 197, 197);
+}
+body.theme_default .loader.sysIcon::before {
+  text-shadow: 0 0 2px black, 0 0 2px black, 0 0 2px black, 0 0 2px black;
+}
+body.theme_default .modal_browser.audio .l .btnContainer .audio_bar {
+  color: rgb(158.75, 158.75, 158.75);
+  border-right: 1px solid rgb(158.75, 158.75, 158.75);
+}
+body.theme_default .modal_browser.audio .l .btnContainer .audio_bar::before {
+  border-bottom: 2px solid rgb(120.5, 120.5, 120.5);
+}
+body.theme_default .modal_browser.audio .l .btnContainer .audio_bar span.buffer {
+  border-bottom: 2px solid rgb(158.75, 158.75, 158.75);
+}
+body.theme_default .modal_browser.audio .l .btnContainer .audio_bar span.duration {
+  border-right: 1px solid rgb(158.75, 158.75, 158.75);
+}
+body.theme_default .modal_browser.video .l .btnContainer .video_bar {
+  color: rgb(158.75, 158.75, 158.75);
+  border-right: 1px solid rgb(158.75, 158.75, 158.75);
+}
+body.theme_default .modal_browser.video .l .btnContainer .video_bar::before {
+  border-bottom: 2px solid rgb(120.5, 120.5, 120.5);
+}
+body.theme_default .modal_browser.video .l .btnContainer .video_bar span.buffer {
+  border-bottom: 2px solid rgb(158.75, 158.75, 158.75);
+}
+body.theme_default .modal_browser.video .l .btnContainer .video_bar span.duration {
+  border-right: 1px solid rgb(158.75, 158.75, 158.75);
+}
+body.theme_default .modal_browser.office .pagination .left, body.theme_default .modal_browser.office .pagination .right, body.theme_default .modal_browser.pdf .pagination .left, body.theme_default .modal_browser.pdf .pagination .right {
+  background-color: hsl(210, 20%, 10%);
+  color: rgb(197, 197, 197);
+}
+body.theme_default .modal_browser.office .pagination .left:hover, body.theme_default .modal_browser.office .pagination .left.active, body.theme_default .modal_browser.office .pagination .left.disabled,
+body.theme_default .modal_browser.office .pagination .left option:checked, body.theme_default .modal_browser.office .pagination .right:hover, body.theme_default .modal_browser.office .pagination .right.active, body.theme_default .modal_browser.office .pagination .right.disabled,
+body.theme_default .modal_browser.office .pagination .right option:checked, body.theme_default .modal_browser.pdf .pagination .left:hover, body.theme_default .modal_browser.pdf .pagination .left.active, body.theme_default .modal_browser.pdf .pagination .left.disabled,
+body.theme_default .modal_browser.pdf .pagination .left option:checked, body.theme_default .modal_browser.pdf .pagination .right:hover, body.theme_default .modal_browser.pdf .pagination .right.active, body.theme_default .modal_browser.pdf .pagination .right.disabled,
+body.theme_default .modal_browser.pdf .pagination .right option:checked {
+  background-color: hsl(210, 20%, 22%);
+  color: rgb(212.3, 212.3, 212.3);
+}
+body.theme_default .modal_locator .locator_list > div .tree > span {
+  color: rgb(120.5, 120.5, 120.5);
+}
+body.theme_default .modal_locator .locator_list > div .tree > span:first-child {
+  color: rgb(197, 197, 197);
+}
+body.theme_default .modal_locator .locator_list > div:hover, body.theme_default .modal_locator .locator_list > div.active {
+  background-color: hsl(210, 10%, 28%);
+}
+body.theme_default .modal_uploader .upload_list > div:nth-child(2n) {
+  background-color: hsla(210, 10%, 8%, 0.75);
+}
+
+/*# sourceMappingURL=default.css.map */
