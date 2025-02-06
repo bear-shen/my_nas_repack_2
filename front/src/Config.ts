@@ -79,4 +79,10 @@ export default {
         onlyofficeOrigin: '',
         jwtSecret: '',
     },
+    theme: [
+        ['default', './theme/default.css',],
+        ['light', './theme/light.css',],
+        ['solarized_dark', './theme/solarized_dark.css',],
+        ['solarized_light', './theme/solarized_light.css',],
+    ],
 }

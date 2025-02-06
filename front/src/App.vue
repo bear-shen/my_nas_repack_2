@@ -20,7 +20,7 @@ if (userData) {
 async function loadFeConf() {
   const res = await query<api_setting_front_conf>('setting/get_front_conf');
   if (!res) return;
-  console.info(res);
+  // console.info(res);
   if (res.onlyoffice_enabled === 'true') {
     Config.onlyOffice.enabled = true;
     // Config.onlyOffice.origin = res.origin;
@@ -31,7 +31,6 @@ async function loadFeConf() {
 }
 
 // dev();
-const containerDef = {};
 </script>
 
 <template>
@@ -51,7 +50,7 @@ const containerDef = {};
 .fr_body,
 .fr_footer {
   width: 100vw;
-  overflow: hidden;
+  //overflow: hidden;
 }
 .fr_header,
 .fr_footer {
@@ -114,7 +113,7 @@ const containerDef = {};
   label {
     display: inline-block;
     margin-right: $fontSize;
-    //height: $fontSize * 1.5;
+    height: $fontSize * 1.5;
     //width: $fontSize * 1.5;
     padding: 0;
     text-align: center;

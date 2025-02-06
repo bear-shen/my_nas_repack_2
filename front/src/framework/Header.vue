@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {useUserStore} from "@/stores/userStore";
-import {throwLogin} from "@/Helper";
+import {query, throwLogin} from "@/Helper";
 
 const navList = [
   {name: "Nas", meta: {cur: true}, path: "/"},
@@ -19,6 +19,82 @@ function logout() {
   location.reload();
 }
 
+//
+import {useLocalConfigureStore} from "@/stores/localConfigure";
+import Config from "@/Config";
+import {useModalStore} from "@/stores/modalStore";
+import type {api_user_login_req, api_user_login_resp} from "../../../share/Api";
+
+const localConfigure = useLocalConfigureStore();
+const themeLs = Config.theme;
+let curThemeName = localConfigure.get('theme') ?? 'default';
+
+function switchTheme() {
+  const themeOptions: { [key: string]: string } = {};
+  themeLs.forEach(theme => {
+    themeOptions[theme[0]] = theme[0];
+  })
+  const modalStore = useModalStore();
+  modalStore.set({
+    title: "conf theme",
+    alpha: true,
+    key: "",
+    single: true,
+    w: 360,
+    h: 160,
+    minW: 360,
+    minH: 160,
+    // h: 160,
+    allow_resize: true,
+    allow_move: true,
+    allow_escape: true,
+    allow_fullscreen: false,
+    auto_focus: true,
+    form: [
+      {
+        type: "radio",
+        label: "theme name",
+        key: "theme",
+        options: themeOptions,
+        value: curThemeName,
+      },
+    ],
+    callback: {
+      check: async (modal) => {
+        console.info(modal);
+        curThemeName = modal.content.form[0].value;
+        setTheme(curThemeName);
+      },
+    },
+  });
+}
+
+function setTheme(themeName) {
+  themeLs.forEach(theme => {
+    const name = theme[0];
+    const href = theme[1];
+    if (name !== themeName) return;
+    localConfigure.set('theme', name);
+    const classNameLs = document.body.className.trim().split(' ');
+    const tClassNameLs = [];
+    classNameLs.forEach(className => {
+      if (!className) return;
+      if (!className.length) return;
+      if (className.indexOf('theme_') === 0) return;
+      tClassNameLs.push(className);
+    })
+    tClassNameLs.push('theme_' + themeName);
+    //
+    const cssDOM = document.createElement('link');
+    cssDOM.setAttribute('rel', 'stylesheet');
+    cssDOM.setAttribute('href', href);
+    document.body.appendChild(cssDOM);
+    //
+    document.body.className = tClassNameLs.join(' ');
+  });
+}
+
+setTheme(curThemeName);
 // throwLogin()
 </script>
 
@@ -36,6 +112,7 @@ function logout() {
       <template v-if="user && user.id">
         <div class="pointer">{{ user.name }}</div>
         <ul class="action pointer">
+          <li @click="switchTheme">theme</li>
           <li @click="logout">logout</li>
         </ul>
       </template>
@@ -78,12 +155,13 @@ function logout() {
   &:hover .action {
     display: block;
   }
-  >div,li{
+  > div, li {
     padding: 0 $fontSize * 0.5;
   }
   .action {
+    z-index: 20;
     display: none;
-    background-color:  map.get($colors, bar_meta);
+    background-color: map.get($colors, bar_meta);
     position: absolute;
     width: 100%;
     text-align: right;
@@ -95,7 +173,7 @@ function logout() {
 .active,
 .user li:hover,
 .navi div:hover {
-  background-color:  map.get($colors, bar_meta);
-  color:  map.get($colors, font);
+  background-color: map.get($colors, bar_meta);
+  color: map.get($colors, font);
 }
 </style>

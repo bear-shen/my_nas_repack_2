@@ -1,0 +1,515 @@
+@use "sass:color";
+@use "sass:map";
+//
+body.theme_light {
+  //$colorDef_bk: rgba(25, 49, 52, 1);
+  //$colorDef_font: rgb(210, 200, 165);
+  $colorDef_bk: hsl(0, 0%, 90%);
+  $colorDef_font: rgb(60, 60, 60);
+  $colorDef_button: hsl(0, 0%, 75%);
+  $colorDef_positive: rgb(40, 40, 40);
+  $colorDef_negative: rgb(80, 80, 80);
+  $colors: (
+    //内容背景
+          bk:$colorDef_bk,
+          bk_active:color.adjust($colorDef_bk, $lightness: -8%),
+    //上标题栏
+          bar_horizon:color.adjust($colorDef_bk, $lightness: -16%),
+          bar_horizon_active:color.adjust($colorDef_bk, $lightness: -12%),
+    //侧标题栏
+          bar_vertical:color.adjust($colorDef_bk, $lightness: -12%),
+          bar_vertical_active:color.adjust($colorDef_bk, $lightness: -8%),
+    //内容标题栏
+          bar_meta:color.adjust($colorDef_bk, $lightness: -8%),
+          bar_meta_active:color.adjust($colorDef_bk, $lightness: 0%),
+    //弹窗标题栏
+    //弹窗背景
+    //弹窗背景 高亮
+          popup_title:color.adjust($colorDef_bk, $lightness: -12%),
+          popup:color.adjust($colorDef_bk, $lightness: -6%, $alpha: -0.5),
+          popup_active:color.adjust($colorDef_bk, $lightness: -12%, $alpha: -0.25),
+          context:color.adjust($colorDef_bk, $lightness: 6%, $alpha: -0.25),
+          context_active:color.adjust($colorDef_bk, $lightness: -6%, $alpha: -0.25),
+    //按钮背景
+    //按钮 选择
+    //按钮 非选择
+          button:$colorDef_button,
+          button_active:color.adjust($colorDef_button, $lightness: -10%),
+          positive:$colorDef_positive,
+          negative:$colorDef_negative,
+    //文字
+    //文字 高亮
+          font:$colorDef_font,
+          font_active:color.adjust($colorDef_font, $lightness: -6%),
+    //副文字
+    //副文字 高亮
+          font_sub:color.adjust($colorDef_font, $lightness: 30%),
+          font_sub_active:color.adjust($colorDef_font, $lightness: 15%),
+  );
+  //滚动条
+  ::-webkit-scrollbar-track {
+    background-color: rgba(0, 0, 0, 0.25);
+  }
+  ::-webkit-scrollbar {
+    background-color: rgba(0, 0, 0, 0);
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: rgba(197, 197, 197, 0.25);
+  }
+  :hover::-webkit-scrollbar-thumb {
+    background-color: rgba(197, 197, 197, 0.5);
+  }
+  ::-webkit-scrollbar-corner {
+    background-color: rgba(0, 0, 0, 0.0);
+  }
+  //
+  //body {
+  background-color: map.get($colors, bk);
+  color: map.get($colors, font);
+  //}
+  // base ----------------------------
+  button,
+  select, .btn {
+    background-color: map.get($colors, button);
+    color: map.get($colors, font);
+    &:hover,
+    &.active,
+    &.disabled,
+    option:checked {
+      background-color: map.get($colors, button_active);
+      color: map.get($colors, font_active);
+    }
+  }
+  input {
+    background-color: map.get($colors, bk);
+    color: map.get($colors, font);
+    &:hover,
+    &:focus,
+    &.active,
+    &.disabled {
+      background-color: map.get($colors, bk_active);
+      color: map.get($colors, font_active);
+    }
+  }
+  textarea {
+    background-color: map.get($colors, bk);
+    color: map.get($colors, font);
+    &:hover,
+    &:focus,
+    &.active,
+    &.disabled {
+      background-color: map.get($colors, bk_active);
+      color: map.get($colors, font_active);
+    }
+  }
+  ::selection {
+    background-color: map.get($colors, selection_bk);
+    color: map.get($colors, selection);
+  }
+  //
+  .buttonStyle {
+    background-color: map.get($colors, transparent);
+    color: map.get($colors, font);
+    &:hover, &.active {
+      background-color: map.get($colors, button_active);
+      color: map.get($colors, font_active);
+    }
+  }
+  // frame src ----------------------------
+  .fr_header,
+  .fr_footer {
+    background-color: map.get($colors, font);
+    color: map.get($colors, bar_horizon);
+  }
+  .fr_body {
+    background-color: map.get($colors, bar_vertical);
+  }
+  .fr_content {
+    background-color: map.get($colors, bk);
+  }
+  .content_meta {
+    background-color: map.get($colors, bar_meta);
+    input,
+      //button,
+    select {
+      background-color: map.get($colors, bar_meta);
+    }
+    .crumb {
+      .item:hover {
+        background-color: map.get($colors, bar_meta_active);
+      }
+    }
+    .pastebin {
+      background-color: map.get($colors, bar_meta);
+    }
+  }
+  // frame base ----------------------------
+  .fr_context {
+    .context_item {
+      background-color: map.get($colors, context);
+      //border-bottom: 1px solid  map.get($colors, context_active);
+      &:hover {
+        background-color: map.get($colors, context_active);
+      }
+    }
+  }
+  .fr_footer {
+    .active,
+    .paginator li:hover {
+      background-color: map.get($colors, bk);
+      color: map.get($colors, font);
+    }
+  }
+  .fr_header {
+    .action {
+      background-color: map.get($colors, font);
+    }
+    .active,
+    .user li:hover,
+    .navi div:hover {
+      background-color: map.get($colors, bar_meta);
+      color: map.get($colors, font);
+    }
+  }
+  .fr_navi {
+    .title.active {
+      background-color: map.get($colors, bar_vertical_active);
+    }
+    .title:hover {
+      background-color: map.get($colors, bar_vertical_active);
+    }
+    .title {
+      .content {
+        background-color: map.get($colors, bar_vertical);
+      }
+    }
+  }
+  .fr_popup {
+    .modal_dom.active {
+      background-color: map.get($colors, popup_active);
+      .modal_header {
+        background-color: map.get($colors, popup_title);
+      }
+    }
+    .modal_dom {
+      background-color: map.get($colors, popup);
+      .modal_header {
+        background-color: map.get($colors, popup_title);
+      }
+      .modal_content_form {
+        > span:last-child {
+          input,
+          textarea {
+            border-bottom: 1px solid map.get($colors, popup_title);
+          }
+        }
+      }
+    }
+  }
+  // views ----------------------------
+  .view_fav {
+    .list_fav_group {
+      background-color: map.get($colors, bar_meta);
+      .fav_group {
+        &:hover, &.active {
+          background-color: map.get($colors, bar_meta_active);
+        }
+        > div {
+          color: map.get($colors, font_sub);
+        }
+        .title {
+          color: map.get($colors, font);
+          background-color: transparent;
+        }
+        table {
+          color: map.get($colors, font_sub);
+          select {
+            color: map.get($colors, font_sub);
+          }
+        }
+      }
+    }
+  }
+  .view_log {
+    .form {
+      background-color: map.get($colors, bar_meta);
+      input,
+      button,
+      select {
+        background-color: map.get($colors, bar_meta);
+      }
+    }
+    table {
+      tr:hover {
+        background-color: map.get($colors, bk_active);
+      }
+    }
+  }
+  .view_setting {
+    table {
+      td.editing, td:hover {
+        background-color: map.get($colors, bk_active);
+      }
+    }
+  }
+  .view_tag {
+    .list_tag_group {
+      background-color: map.get($colors, bar_meta);
+      .tag_group {
+        &:hover, &.active {
+          background-color: map.get($colors, bar_meta_active);
+        }
+        > div {
+          color: map.get($colors, font_sub);
+        }
+        .title {
+          color: map.get($colors, font);
+        }
+        .node {
+          span:last-child {
+            color: map.get($colors, font_sub);
+          }
+          span {
+          }
+        }
+        &.edit {
+          .title, .description, .operator, .hinter > div, .content_editor {
+            background-color: map.get($colors, bar_meta_active);
+          }
+        }
+      }
+      .hinter > div, .content_editor {
+        background-color: map.get($colors, bk_active);
+      }
+    }
+    .list_tag {
+      .tag {
+        .title {
+          color: map.get($colors, font);
+        }
+        color: map.get($colors, font_sub);
+      }
+      .tag.edit {
+        background-color: map.get($colors, bk_active);
+        > div, > div .content_editor {
+          background-color: map.get($colors, bk_active);
+        }
+      }
+      .tag:hover, .tag.active {
+        background-color: map.get($colors, bk_active);
+      }
+    }
+  }
+  .view_user {
+    .list_user_group {
+      background-color: map.get($colors, bar_meta);
+      .user_group {
+        &:hover, &.active {
+          background-color: map.get($colors, bar_meta_active);
+        }
+        > * {
+          color: map.get($colors, font_sub);
+        }
+        .title {
+          color: map.get($colors, font);
+        }
+        &.edit {
+          > .content_editor, dl, > div {
+            background-color: map.get($colors, bar_meta_active);
+          }
+          .operator {
+            input[type='checkbox'], input[type='radio'] {
+              &:checked + label {
+                color: map.get($colors, font);
+              }
+            }
+          }
+          .auth dt {
+            color: map.get($colors, font);
+          }
+          .auth .add {
+            color: map.get($colors, font);
+            &:hover {
+              background-color: map.get($colors, bk_active);
+            }
+          }
+        }
+      }
+      .hinter > div, .content_editor {
+        background-color: map.get($colors, bk_active);
+      }
+    }
+    .list_user {
+      .user {
+        .title {
+          color: map.get($colors, font);
+        }
+        color: map.get($colors, font_sub);
+      }
+      .user.edit {
+        background-color: map.get($colors, bk_active);
+        > div, > div .content_editor {
+          background-color: map.get($colors, bk_active);
+        }
+      }
+      .user:hover {
+        background-color: map.get($colors, bk_active);
+      }
+    }
+  }
+  // component ----------------------------
+  .node_node {
+    &:hover, &.select {
+      background-color: map.get($colors, bk_active);
+    }
+  }
+  .node_node.mode_detail {
+    .content {
+      .meta {
+        .title {
+          color: map.get($colors, font);
+        }
+        .editing {
+          background-color: map.get($colors, bk_active);
+        }
+        color: map.get($colors, font_sub);
+      }
+    }
+    .tag_list {
+      dd {
+        color: map.get($colors, font_sub);
+        &:hover {
+          color: map.get($colors, font);
+        }
+      }
+    }
+  }
+  .node_node.mode_img {
+    p {
+      color: map.get($colors, font_sub);
+    }
+    &:hover .title, &.select .title {
+      color: map.get($colors, font);
+    }
+  }
+  .hinter {
+    > div {
+      background-color: map.get($colors, popup_active);
+    }
+    > li {
+      &:hover, &.active {
+        background-color: map.get($colors, popup_active);
+      }
+    }
+  }
+  .rater {
+    &:hover {
+      color: map.get($colors, font_active);
+    }
+  }
+  // popup  ----------------------------
+  .modal_browser {
+    .info {
+      text-shadow: 2px 2px 4px map.get($colors, bk), -2px 2px 4px map.get($colors, bk), 2px -2px 4px map.get($colors, bk), -2px -2px 4px map.get($colors, bk);
+      color: map.get($colors, font);
+      p:first-child {
+        color: map.get($colors, font_active);
+      }
+    }
+    .pagination {
+      .left,
+      .right {
+        background-color: map.get($colors, popup_active);
+      }
+    }
+    .pagination.isMobile {
+      .left, .right {
+        background-color: transparent;
+        span {
+          text-shadow: 2px 2px 4px map.get($colors, bk), -2px 2px 4px map.get($colors, bk), 2px -2px 4px map.get($colors, bk), -2px -2px 4px map.get($colors, bk);
+        }
+      }
+    }
+  }
+  .loader.sysIcon {
+    color: map.get($colors, font);
+  }
+  .loader.sysIcon::before {
+    text-shadow: 2px 2px 4px map.get($colors, bk), -2px 2px 4px map.get($colors, bk), 2px -2px 4px map.get($colors, bk), -2px -2px 4px map.get($colors, bk);
+  }
+  .modal_browser.audio {
+    .l .btnContainer {
+      .audio_bar {
+        color: map.get($colors, font_sub_active);
+        border-right: 1px solid map.get($colors, font_sub_active);
+        &::before {
+          border-bottom: 2px solid map.get($colors, font_sub);
+        }
+        span.buffer {
+          border-bottom: 2px solid map.get($colors, font_sub_active);
+        }
+        span.duration {
+          border-right: 1px solid map.get($colors, font_sub_active);
+        }
+      }
+    }
+  }
+  .modal_browser.video {
+    .l .btnContainer {
+      .video_bar {
+        color: map.get($colors, font_sub_active);
+        border-right: 1px solid map.get($colors, font_sub_active);
+        &::before {
+          border-bottom: 2px solid map.get($colors, font_sub);
+        }
+        span.buffer {
+          border-bottom: 2px solid map.get($colors, font_sub_active);
+        }
+        span.duration {
+          border-right: 1px solid map.get($colors, font_sub_active);
+        }
+      }
+    }
+  }
+  .modal_browser.office, .modal_browser.pdf {
+    .pagination {
+      .left, .right {
+        background-color: map.get($colors, button);
+        color: map.get($colors, font);
+        &:hover,
+        &.active,
+        &.disabled,
+        option:checked {
+          background-color: map.get($colors, button_active);
+          color: map.get($colors, font_active);
+        }
+      }
+    }
+  }
+  .modal_locator {
+    .locator_list {
+      > div {
+        .tree {
+          > span {
+            &:first-child {
+              color: map.get($colors, font);
+            }
+            color: map.get($colors, font_sub);
+          }
+        }
+        &:hover, &.active {
+          background-color: map.get($colors, bk_active);
+        }
+      }
+    }
+  }
+  .modal_uploader {
+    .upload_list {
+      > div {
+        &:nth-child(2n) {
+          background-color: map.get($colors, popup_active);
+        }
+      }
+    }
+  }
+}

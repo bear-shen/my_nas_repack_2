@@ -660,7 +660,6 @@ function toggleSubtitle(index: number) {
   }
   video::cue {
     //-webkit-text-stroke: $fontSize*0.5 black;
-    //text-shadow: black;
     //outline: green solid 3px;
     color: white;
     background-color: rgba(0, 0, 0, 0.5);

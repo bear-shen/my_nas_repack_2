@@ -11,7 +11,7 @@
   line-height: inherit;
   appearance: none;
   outline: 0;
-  transition: 0.2s opacity;
+  transition: 0.2s opacity, 0.1s color, 0.25s background-color;
   vertical-align: top;
   //font-family: inherit;
 }
@@ -92,8 +92,6 @@ input[type='radio'] {
   + label {
     display: inline-block;
     width: max-content;
-    /*background-image: linear-gradient(0deg, hsla(250, 30%, 30%, 1) 0%, rgb(25, 25, 25) 100%);*/
-    //background-color:  sass_map.get($colors, negative);
     font-size: $fontSize;
     padding: 0.25*$fontSize 0.5*$fontSize;
     line-height: $fontSize;
@@ -108,8 +106,6 @@ input[type='radio'] {
   }
   &:checked {
     + label {
-      //background-image: linear-gradient(0deg, rgba(100, 100, 100, 1) 0%, rgba(150, 150, 150, 1) 100%);
-      //background-color:  sass_map.get($colors, positive);
       &::after {
         content: '\e62c';
       }
@@ -117,18 +113,21 @@ input[type='radio'] {
   }
   + label.no_bg {
     background-color: transparent;
-    //color:  sass_map.get($colors, negative);
   }
   &:checked {
     + label.no_bg {
       background-color: transparent;
-      //color:  sass_map.get($colors, positive);
     }
   }
 }
 .preLine {
   white-space: pre-line;
 }
+/*
+ *  @see https://www.cnblogs.com/amylis_chen/p/11995324.html
+ *  @see https://www.cnblogs.com/ertingbo/p/7151566.html
+ */
+//color defined in theme/default.scss
 ::-webkit-scrollbar-track {
   background-color: rgba(0, 0, 0, 0.25);
 }

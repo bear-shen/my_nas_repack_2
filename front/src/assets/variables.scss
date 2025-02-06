@@ -45,9 +45,6 @@ $hinterIndex: 250;
     box-sizing: border-box;
   }
 }
-@function mkColor($color, $level) {
-  @return color.adjust($color, $lightness: $level*3%);
-}
 @mixin fontSizeWithLineHeight($fontSize: $fontSize, $rate: 1) {
   font-size: $fontSize;
   line-height: $fontSize*$rate;
@@ -96,27 +93,3 @@ $colors: (
         font_sub:color.adjust($colorDef_font, $lightness: -30%),
         font_sub_active:color.adjust($colorDef_font, $lightness: -15%),
 );
-/*
- *  @see https://www.cnblogs.com/amylis_chen/p/11995324.html
- *  @see https://www.cnblogs.com/ertingbo/p/7151566.html
- */
-@mixin smallScroll {
-  &::-webkit-scrollbar-track {
-    background-color: rgba(0, 0, 0, 0.25);
-  }
-  &::-webkit-scrollbar {
-    width: $fontSize*0.5;
-    height: $fontSize*0.5;
-    background-color: rgba(0, 0, 0, 0);
-  }
-  &::-webkit-scrollbar-thumb {
-    background-color: rgba(197, 197, 197, 0.25);
-    border-radius: $fontSize;
-  }
-  &:hover::-webkit-scrollbar-thumb {
-    background-color: rgba(197, 197, 197, 0.5);
-  }
-  &::-webkit-scrollbar-corner {
-    background-color: rgba(0, 0, 0, 0.0);
-  }
-}
