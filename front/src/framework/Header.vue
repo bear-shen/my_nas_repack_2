@@ -36,9 +36,9 @@ function switchTheme() {
   })
   const modalStore = useModalStore();
   modalStore.set({
-    title: "conf theme",
+    title: "theme configure",
     alpha: true,
-    key: "",
+    key: "theme_configure",
     single: true,
     w: 360,
     h: 160,
@@ -104,6 +104,7 @@ setTheme(curThemeName);
     <div class="navi">
       <div
         v-for="route in navList"
+        :key="route.name"
         :class="{ active: route.meta?.cur, pointer: 1 }"
         v-html="route.name"
       ></div>

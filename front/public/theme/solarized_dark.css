@@ -17,6 +17,10 @@ body.theme_solarized_dark :hover::-webkit-scrollbar-thumb {
 body.theme_solarized_dark ::-webkit-scrollbar-corner {
   background-color: rgba(0, 0, 0, 0);
 }
+body.theme_solarized_dark .modal_alpha::before {
+  background-image: linear-gradient(45deg, hsla(0, 0%, 0%, 0.5) 12.5%, hsla(0, 0%, 10%, 0.5) 12.5%, hsla(0, 0%, 10%, 0.5) 37.5%, hsla(0, 0%, 0%, 0.5) 37.5%, hsla(0, 0%, 0%, 0.5) 62.5%, hsla(0, 0%, 10%, 0.5) 62.5%, hsla(0, 0%, 10%, 0.5) 87.5%, hsla(0, 0%, 0%, 0.5) 87.5%);
+  background-size: 150px 150px;
+}
 body.theme_solarized_dark button,
 body.theme_solarized_dark select, body.theme_solarized_dark .btn {
   background-color: #073642;
@@ -107,17 +111,17 @@ body.theme_solarized_dark .fr_navi .title:hover {
 body.theme_solarized_dark .fr_navi .title .content {
   background-color: rgb(4.0657534247, 31.3643835616, 38.3342465753);
 }
-body.theme_solarized_dark .fr_popup .modal_dom.active {
-  background-color: rgba(1.1315068493, 8.7287671233, 10.6684931507, 0.75);
-}
 body.theme_solarized_dark .fr_popup .modal_dom.active .modal_header {
   background-color: rgb(1.1315068493, 8.7287671233, 10.6684931507);
 }
-body.theme_solarized_dark .fr_popup .modal_dom {
-  background-color: rgba(4.0657534247, 31.3643835616, 38.3342465753, 0.5);
+body.theme_solarized_dark .fr_popup .modal_dom.active .modal_content {
+  background-color: rgba(1.1315068493, 8.7287671233, 10.6684931507, 0.75);
 }
 body.theme_solarized_dark .fr_popup .modal_dom .modal_header {
   background-color: rgb(1.1315068493, 8.7287671233, 10.6684931507);
+}
+body.theme_solarized_dark .fr_popup .modal_dom .modal_content {
+  background-color: rgba(4.0657534247, 31.3643835616, 38.3342465753, 0.5);
 }
 body.theme_solarized_dark .fr_popup .modal_dom .modal_content_form > span:last-child input,
 body.theme_solarized_dark .fr_popup .modal_dom .modal_content_form > span:last-child textarea {

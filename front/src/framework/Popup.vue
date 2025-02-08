@@ -285,7 +285,7 @@ modalStore.handleEvent("set", (modal: ModalConstruct) => {
       toggleActive(curModal.nid);
     });
   }
-  checkAlpha();
+  // checkAlpha();
   return curModal;
 });
 modalStore.handleEvent("close", (nid: string) => {
@@ -372,7 +372,7 @@ function close(nid: string) {
   if (!modal) return;
   if (!modal.layout.allow_escape) return;
   modalList.value.delete(nid);
-  checkAlpha();
+  // checkAlpha();
   let maxIndex = -1;
   let maxNid = -1;
   modalList.value.forEach((modal) => {
@@ -553,17 +553,17 @@ function onCallback(nid: string, key: string) {
   });
 }
 
-const usingAlpha = ref(false);
+// const usingAlpha = ref(false);
 
-function checkAlpha() {
-  let hasAlpha = false;
-  modalList.value.forEach((modal) => {
-    if (modal.base.alpha) {
-      hasAlpha = true;
-    }
-  });
-  usingAlpha.value = hasAlpha;
-}
+// function checkAlpha() {
+//   let hasAlpha = false;
+//   modalList.value.forEach((modal) => {
+//     if (modal.base.alpha) {
+//       hasAlpha = true;
+//     }
+//   });
+//   usingAlpha.value = hasAlpha;
+// }
 
 //-----------
 
@@ -717,7 +717,7 @@ function processModalFile(payloadForm: ModalFormConstruct<File>) {
     <div
       v-for="[modalIndex, modal] in modalList"
       :key="`_modal_${modalIndex}`"
-      :class="{ modal_dom: true, active: modal.layout.active,resizing:resizing.modal?.nid==modal.nid }"
+      :class="{ modal_dom: true, active: modal.layout.active,resizing:resizing.modal?.nid==modal.nid,modal_alpha:modal.base.alpha }"
       :data-ref-id="modal.nid"
       :style="{
         zIndex: modal.layout.index,
@@ -881,7 +881,7 @@ function processModalFile(payloadForm: ModalFormConstruct<File>) {
       </div>
     </div>
   </div>
-  <div class="fr_alpha" v-if="usingAlpha"></div>
+  <!--  <div class="fr_alpha" v-if="usingAlpha"></div>-->
 </template>
 
 <style lang="scss">
@@ -897,9 +897,11 @@ function processModalFile(payloadForm: ModalFormConstruct<File>) {
   z-index: 100;
 }
 .modal_dom.active {
-  background-color: map.get($colors, popup_active);
   .modal_header {
     background-color: map.get($colors, popup_title);
+  }
+  .modal_content {
+    background-color: map.get($colors, popup_active);
   }
 }
 .modal_dom {
@@ -907,10 +909,9 @@ function processModalFile(payloadForm: ModalFormConstruct<File>) {
   pointer-events: all;
   $controllerWidth: $fontSize * 0.5;
   font-size: $fontSize;
-  background-color: map.get($colors, popup);
   position: absolute;
   padding: $fontSize * 0.25;
-  @include blurBackground();
+  //@include blurBackground();
   .modal_header {
     height: $fontSize*(0.75+0.25*2);
     line-height: $fontSize*(0.75+0.25*2);
@@ -1016,6 +1017,7 @@ function processModalFile(payloadForm: ModalFormConstruct<File>) {
     }
   }
   .modal_content {
+    background-color: map.get($colors, popup);
     //@include smallScroll();
     overflow: auto;
     height: calc(100% - $fontSize);
@@ -1090,24 +1092,20 @@ function processModalFile(payloadForm: ModalFormConstruct<File>) {
     text-align: right;
   }
 }
-.fr_alpha {
-  //pointer-events: none;
-  left: 0;
-  top: 0;
-  width: 100vw;
-  height: 100vh;
-  position: fixed;
-  z-index: 50;
-  background-image: url("../assets/bg.png");
-  &:before {
+.modal_alpha {
+  &::before {
+    //pointer-events: none;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
     z-index: -1;
-    filter: blur($fontSize * 0.05);
-    backdrop-filter: blur($fontSize * 0.05);
     content: "";
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
+    filter: blur(1.5px);
+    backdrop-filter: blur(3px);
+    background-size:  100px 100px;
+    background-repeat: repeat;
   }
 }
 </style>
