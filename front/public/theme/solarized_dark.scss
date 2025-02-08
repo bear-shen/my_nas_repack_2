@@ -8,8 +8,9 @@ body.theme_solarized_dark {
   //$colorDef_font: #839496;
   //$colorDef_font_sub: #586e75;
   //$colorDef_font: #fdf6e3;
-  $colorDef_font: color.adjust(#93a1a1, $lightness: 8%);
-  $colorDef_font_sub: #93a1a1;
+  $colorDef_font: color.adjust(#fdf6e3, $lightness: -8%, $saturation: -50%);
+  $colorDef_font_sub: color.adjust(#fdf6e3, $lightness: -8%, $saturation: -50%, $alpha: -0.5);
+  //$colorDef_font_sub: #93a1a1;
   //$colorDef_font_sub: #eee8d5;
   $colorDef_button: #073642;
   $colorDef_positive: #2aa198;
@@ -31,10 +32,10 @@ body.theme_solarized_dark {
     //弹窗背景
     //弹窗背景 高亮
           popup_title:color.adjust($colorDef_bk, $lightness: -12%),
-          popup:color.adjust($colorDef_bk, $lightness: -6%, $alpha: -0.5),
-          popup_active:color.adjust($colorDef_bk, $lightness: -12%, $alpha: -0.25),
-          context:color.adjust($colorDef_bk, $lightness: -6%, $alpha: -0.25),
-          context_active:color.adjust($colorDef_bk, $lightness: 6%, $alpha: -0.25),
+          popup:color.adjust($colorDef_bk, $lightness: -9%, $alpha: -0.6),
+          popup_active:color.adjust($colorDef_bk, $lightness: -15%, $alpha: -0.3),
+          context:color.adjust($colorDef_bk, $lightness: -9%, $alpha: -0.25),
+          context_active:color.adjust($colorDef_bk, $lightness: 9%, $alpha: -0.5),
     //按钮背景
     //按钮 选择
     //按钮 非选择
@@ -70,17 +71,9 @@ body.theme_solarized_dark {
   //
   .modal_alpha {
     &::before {
-      background-image: linear-gradient(45deg
-      , hsla(0,0,0,0.5) 12.5%
-      , hsla(0,0,10,0.5) 12.5%
-      , hsla(0,0,10,0.5) 37.5%
-      , hsla(0,0,0,0.5) 37.5%
-      , hsla(0,0,0,0.5) 62.5%
-      , hsla(0,0,10,0.5) 62.5%
-      , hsla(0,0,10,0.5) 87.5%
-      , hsla(0,0,0,0.5) 87.5%
+      background-image: linear-gradient(45deg, hsla(0, 0, 0, 0.5) 12.5%, hsla(0, 0, 10, 0.5) 12.5%, hsla(0, 0, 10, 0.5) 37.5%, hsla(0, 0, 0, 0.5) 37.5%, hsla(0, 0, 0, 0.5) 62.5%, hsla(0, 0, 10, 0.5) 62.5%, hsla(0, 0, 10, 0.5) 87.5%, hsla(0, 0, 0, 0.5) 87.5%
       );
-      background-size:  150px 150px;
+      background-size: 150px 150px;
     }
   }
   //body {

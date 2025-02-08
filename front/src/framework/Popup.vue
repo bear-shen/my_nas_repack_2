@@ -912,6 +912,23 @@ function processModalFile(payloadForm: ModalFormConstruct<File>) {
   position: absolute;
   padding: $fontSize * 0.25;
   //@include blurBackground();
+  //&::after {
+  //  //考虑做一个边框什么的，但是比较麻烦，先不管了
+  //  content: "";
+  //  position: absolute;
+  //  //width: calc(100% - $fontSize * 0.5z);
+  //  //height: calc(100% - $fontSize * 0.5);
+  //  //left:$fontSize * 0.25;
+  //  //top:$fontSize * 0.25;
+  //  width: 100%;
+  //  height: 100%;
+  //  left: 0;
+  //  top: 0;
+  //  //box-shadow: 0 0 2px 2px black;
+  //  //filter: blur(5px);
+  //  //backdrop-filter: blur(5px);
+  //  z-index: -1;
+  //}
   .modal_header {
     height: $fontSize*(0.75+0.25*2);
     line-height: $fontSize*(0.75+0.25*2);
@@ -1017,6 +1034,7 @@ function processModalFile(payloadForm: ModalFormConstruct<File>) {
     }
   }
   .modal_content {
+    backdrop-filter: blur(3px);
     background-color: map.get($colors, popup);
     //@include smallScroll();
     overflow: auto;
@@ -1104,7 +1122,7 @@ function processModalFile(payloadForm: ModalFormConstruct<File>) {
     content: "";
     filter: blur(1.5px);
     backdrop-filter: blur(3px);
-    background-size:  100px 100px;
+    background-size: 100px 100px;
     background-repeat: repeat;
   }
 }
