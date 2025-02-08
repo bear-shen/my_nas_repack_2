@@ -33,7 +33,7 @@ body.theme_solarized_dark {
     //弹窗背景 高亮
           popup_title:color.adjust($colorDef_bk, $lightness: -12%),
           popup:color.adjust($colorDef_bk, $lightness: -9%, $alpha: -0.6),
-          popup_active:color.adjust($colorDef_bk, $lightness: -15%, $alpha: -0.3),
+          popup_active:color.adjust($colorDef_bk, $lightness: -15%, $alpha: -0.5),
           context:color.adjust($colorDef_bk, $lightness: -9%, $alpha: -0.25),
           context_active:color.adjust($colorDef_bk, $lightness: 9%, $alpha: -0.5),
     //按钮背景
