@@ -310,7 +310,7 @@ async function syncDir(localRoot: string, rootNode: col_node) {
  * 根据数据库文件检测生成过的文件
  * 有文件但是没有数据的删除
  * */
-async function syncGeneratedDir(localRoot: string, rootNode: col_node, sub: string) {
+async function syncGeneratedDir(localRoot: string, rootNode: col_node, genType: string) {
     // console.info(localRoot);
     let subFileLs: Dirent[];
     try {
@@ -327,8 +327,8 @@ async function syncGeneratedDir(localRoot: string, rootNode: col_node, sub: stri
         subNodeMap.set(subNode.title, subNode);
         if (subNode.type === 'directory') return;
         if (subNode.file_index) {
-            if (subNode.file_index[sub]) {
-                const file = subNode.file_index[sub] as col_node_file_index;
+            if (subNode.file_index[genType]) {
+                const file = subNode.file_index[genType] as col_node_file_index;
                 if (file.ext) {
                     subNodeMap.set(subNode.title + '.' + file.ext, subNode);
                 }
@@ -369,7 +369,7 @@ async function syncGeneratedDir(localRoot: string, rootNode: col_node, sub: stri
         }
         //遍历文件夹
         if (subFile.isDirectory()) {
-            await syncGeneratedDir(subPath, ifNodeExs, sub);
+            await syncGeneratedDir(subPath, ifNodeExs, genType);
         }
     }
     return;

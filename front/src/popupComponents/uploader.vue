@@ -31,6 +31,29 @@ onMounted(() => {
 onUnmounted(() => {
 });
 
+function onSelectFile(e: MouseEvent) {
+  console.info('onSelectFile', e);
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.setAttribute('multiple', true);
+  input.onchange = (e) => {
+    if (!input.files?.length) return;
+    for (let i1 = 0; i1 < input.files.length; i1++) {
+      const file = input.files[i1];
+      list.value.push({
+        name: '/' + file.name,
+        size: file.size,
+        file: file,
+        isDir: false,
+        status: "waiting",
+        start: 0,
+        loaded: 0,
+      } as uploadFileType);
+    }
+  };
+  input.click();
+}
+
 function onDrop(e: DragEvent) {
   console.debug("onDrop", e.type, e.dataTransfer?.files, e);
   e.preventDefault();
@@ -59,6 +82,7 @@ function onDrop(e: DragEvent) {
   }
   console.info(list.value);
 }
+
 
 async function recursiveReader(dirEntry: FileSystemDirectoryEntry): Promise<uploadFileType[]> {
   const ls: uploadFileType[] = [];
@@ -194,7 +218,7 @@ function remove(index: number) {
           >X</span>
         </div>
       </div>
-      <div>drag / drop files here...</div>
+      <div @click="onSelectFile">drag / drop files here...</div>
     </div>
     <div class="upload_menu">
       <button v-if="!uploading" @click="goUpload">upload</button>
@@ -228,7 +252,7 @@ function remove(index: number) {
       line-height: $fontSize * 1.5;
       padding: 0 $fontSize * 0.25;
       &:nth-child(2n) {
-        background-color:  map.get($colors, popup_active);
+        background-color: map.get($colors, popup_active);
       }
       > span {
         display: inline-block;

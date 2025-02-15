@@ -23,7 +23,7 @@ body.theme_solarized_dark .modal_alpha::before {
 }
 body.theme_solarized_dark button,
 body.theme_solarized_dark select, body.theme_solarized_dark .btn {
-  background-color: #073642;
+  background-color: rgb(5.5328767123, 42.6821917808, 52.1671232877);
   color: rgb(232.58, 225.5907692308, 206.62);
 }
 body.theme_solarized_dark button:hover, body.theme_solarized_dark button.active, body.theme_solarized_dark button.disabled,
@@ -33,7 +33,7 @@ body.theme_solarized_dark select.active,
 body.theme_solarized_dark select.disabled,
 body.theme_solarized_dark select option:checked, body.theme_solarized_dark .btn:hover, body.theme_solarized_dark .btn.active, body.theme_solarized_dark .btn.disabled,
 body.theme_solarized_dark .btn option:checked {
-  background-color: rgb(12.8684931507, 99.2712328767, 121.3315068493);
+  background-color: rgb(9.9342465753, 76.6356164384, 93.6657534247);
   color: rgb(242.27, 238.3015384615, 227.53);
 }
 body.theme_solarized_dark input {
@@ -57,7 +57,7 @@ body.theme_solarized_dark .buttonStyle {
 }
 body.theme_solarized_dark .buttonStyle:hover, body.theme_solarized_dark .buttonStyle.active {
   background-color: rgb(242.27, 238.3015384615, 227.53);
-  color: rgb(12.8684931507, 99.2712328767, 121.3315068493);
+  color: rgb(9.9342465753, 76.6356164384, 93.6657534247);
 }
 body.theme_solarized_dark .fr_header,
 body.theme_solarized_dark .fr_footer {
@@ -324,7 +324,7 @@ body.theme_solarized_dark .modal_browser.video .l .btnContainer .video_bar span.
   border-right: 1px solid rgba(232.58, 225.5907692308, 206.62, 0.5);
 }
 body.theme_solarized_dark .modal_browser.office .pagination .left, body.theme_solarized_dark .modal_browser.office .pagination .right, body.theme_solarized_dark .modal_browser.pdf .pagination .left, body.theme_solarized_dark .modal_browser.pdf .pagination .right {
-  background-color: #073642;
+  background-color: rgb(5.5328767123, 42.6821917808, 52.1671232877);
   color: rgb(232.58, 225.5907692308, 206.62);
 }
 body.theme_solarized_dark .modal_browser.office .pagination .left:hover, body.theme_solarized_dark .modal_browser.office .pagination .left.active, body.theme_solarized_dark .modal_browser.office .pagination .left.disabled,
@@ -332,7 +332,7 @@ body.theme_solarized_dark .modal_browser.office .pagination .left option:checked
 body.theme_solarized_dark .modal_browser.office .pagination .right option:checked, body.theme_solarized_dark .modal_browser.pdf .pagination .left:hover, body.theme_solarized_dark .modal_browser.pdf .pagination .left.active, body.theme_solarized_dark .modal_browser.pdf .pagination .left.disabled,
 body.theme_solarized_dark .modal_browser.pdf .pagination .left option:checked, body.theme_solarized_dark .modal_browser.pdf .pagination .right:hover, body.theme_solarized_dark .modal_browser.pdf .pagination .right.active, body.theme_solarized_dark .modal_browser.pdf .pagination .right.disabled,
 body.theme_solarized_dark .modal_browser.pdf .pagination .right option:checked {
-  background-color: rgb(12.8684931507, 99.2712328767, 121.3315068493);
+  background-color: rgb(9.9342465753, 76.6356164384, 93.6657534247);
   color: rgb(242.27, 238.3015384615, 227.53);
 }
 body.theme_solarized_dark .modal_locator .locator_list > div .tree > span {

@@ -39,8 +39,8 @@ body.theme_solarized_dark {
     //按钮背景
     //按钮 选择
     //按钮 非选择
-          button:$colorDef_button,
-          button_active:color.adjust($colorDef_button, $lightness: 12%),
+          button:color.adjust($colorDef_button, $lightness: -3%),
+          button_active:color.adjust($colorDef_button, $lightness: 6%),
           positive:$colorDef_positive,
           negative:$colorDef_negative,
     //文字
