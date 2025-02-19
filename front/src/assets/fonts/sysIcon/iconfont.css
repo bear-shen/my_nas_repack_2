@@ -1,9 +1,9 @@
 @font-face {
   font-family: "sysIcon"; /* Project id 1893484 */
-  src: url('iconfont.woff2?t=1735290944923') format('woff2'),
-       url('iconfont.woff?t=1735290944923') format('woff'),
-       url('iconfont.ttf?t=1735290944923') format('truetype'),
-       url('iconfont.svg?t=1735290944923#sysIcon') format('svg');
+  src: url('iconfont.woff2?t=1740000010403') format('woff2'),
+       url('iconfont.woff?t=1740000010403') format('woff'),
+       url('iconfont.ttf?t=1740000010403') format('truetype'),
+       url('iconfont.svg?t=1740000010403#sysIcon') format('svg');
 }
 
 .sysIcon {
@@ -12,6 +12,18 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.sysIcon_Scroll-AllDirection:before {
+  content: "\ed55";
+}
+
+.sysIcon_outline-scroll:before {
+  content: "\e6e2";
+}
+
+.sysIcon_scroll:before {
+  content: "\e6b2";
 }
 
 .sysIcon_jianqiemengban_huaban1:before {

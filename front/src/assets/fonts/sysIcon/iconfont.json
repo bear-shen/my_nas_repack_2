@@ -6,6 +6,27 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "6808209",
+      "name": "Scroll-All Direction",
+      "font_class": "Scroll-AllDirection",
+      "unicode": "ed55",
+      "unicode_decimal": 60757
+    },
+    {
+      "icon_id": "29356338",
+      "name": "outline-scroll",
+      "font_class": "outline-scroll",
+      "unicode": "e6e2",
+      "unicode_decimal": 59106
+    },
+    {
+      "icon_id": "36346939",
+      "name": "scroll",
+      "font_class": "scroll",
+      "unicode": "e6b2",
+      "unicode_decimal": 59058
+    },
+    {
       "icon_id": "14421425",
       "name": "剪切蒙版",
       "font_class": "jianqiemengban_huaban1",
