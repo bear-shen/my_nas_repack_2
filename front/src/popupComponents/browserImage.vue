@@ -6,7 +6,10 @@ import GenFunc from "@/GenFunc";
 // import {useEventStore} from "@/stores/event";
 import {mayTyping} from "@/Helper";
 import * as kvStore from '@/IndexedKVStore';
+import {useLocalConfigureStore} from "@/stores/localConfigure";
 // import piexif from 'piexif-ts';
+
+const localConfigure: ReturnType<useLocalConfigureStore> = useLocalConfigureStore();
 
 const props = defineProps<{
   data: {
@@ -19,6 +22,7 @@ const props = defineProps<{
   curIndex: number;
   curNode: api_node_col;
 }>();
+const emits = defineEmits(["nav"]);
 const orgZoomLevel = [0.1, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 2];
 let zoomLevelLs = [];
 
@@ -343,7 +347,20 @@ function doTransform(e: PointerEvent) {
   });
 }
 
+const scrollLock: Ref<boolean> = ref(localConfigure.get("browser_image_scrollLock") ?? false);
+
+function setScrollLock(target) {
+  scrollLock.value = target;
+  localConfigure.set("browser_image_scrollLock", target);
+}
+
+//不监听，不需要强制统一
+// localConfigure.listen('browser_image_scrollLock', (to) => {
+//   scrollLock.value = to;
+// }, props.modalData.nid);
+
 function onWheel(e: WheelEvent) {
+  //确定在当前dom里才触发
   // console.info('onWheel');
   let eDOM = e?.target as HTMLElement;
   let curNid;
@@ -365,7 +382,11 @@ function onWheel(e: WheelEvent) {
   // console.info(domH, domW, domX, domY);
   // console.info(dx, dy);
   // return;
-  setZoom(dir, e.clientX, e.clientY);
+  if (scrollLock.value) {
+    emits("nav", props.curIndex - dir);
+  } else {
+    setZoom(dir, e.clientX, e.clientY);
+  }
 }
 
 //传入的是距离dom中点的偏移量
@@ -473,6 +494,10 @@ function setRotate(deg) {
       <div class="l">
         <slot name="info"></slot>
         <div class="btnContainer">
+          <button
+            :class="['sysIcon', 'sysIcon_scroll',scrollLock?'active':'']"
+            @click="setScrollLock(!scrollLock)"
+          ></button>
           <button
             :class="['sysIcon', 'sysIcon_zoomout']"
             @click="setZoom( -1)"

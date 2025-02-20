@@ -480,7 +480,7 @@ async function onPasteBinOperate(keyMap: string[]) {
     <div :class="['content_detail', `mode_${opModule?opModule.mode.value:''}`]" ref='contentDOM'>
       <FileItem
         v-for='(node, nodeIndex) in nodeList'
-        :key='nodeIndex'
+        :key='node.id'
         :node='node'
         :index='nodeIndex'
         :selected='false'

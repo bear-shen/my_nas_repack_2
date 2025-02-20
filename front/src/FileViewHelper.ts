@@ -126,7 +126,7 @@ export class opModule {
     public setList(list: api_node_col[]) {
         this.nodeList.value = list;
         setTimeout(() => {
-                // console.info('setList',list);
+                console.info('setList', list);
                 this.reloadOffset(undefined);
             },
             Config.timeouts.offsetDebounce
@@ -136,16 +136,20 @@ export class opModule {
     //从当前页面的列表上动态删除一些文件，主要是用于免刷新
     public deleteFromList(idList: number[]) {
         const targetList: api_node_col[] = [];
-        this.nodeList.value.forEach(node =>
-            targetList.push(node)
-        );
-        idList.forEach(id => {
-            for (let i1 = 0; i1 < targetList.length; i1++) {
-                if (id !== targetList[i1].id) continue;
-                targetList.splice(i1, 1);
-                break;
-            }
+        const idSet = new Set<number>();
+        idList.forEach(id => idSet.add(id));
+        this.nodeList.value.forEach(node => {
+            if (idSet.has(node.id)) return;
+            targetList.push(node);
         });
+        //当时为啥这么写的？
+        // idList.forEach(id => {
+        //     for (let i1 = 0; i1 < targetList.length; i1++) {
+        //         if (id !== targetList[i1].id) continue;
+        //         targetList.splice(i1, 1);
+        //         break;
+        //     }
+        // });
         this.getList(targetList);
     }
 
@@ -835,8 +839,10 @@ export class opModule {
     public reloadOffset(e?: UIEvent) {
         // console.info(arguments);
         // console.info('reloadOffset');
+        //等候过长，退出
         if (this.reloadOffset_count > 100) return;
-        //强制同步以后再
+        //等候FileItem.onMounted中写入_dom
+        //全部写入完成才开始计算坐标
         let loaded = true;
         this.nodeList.value.forEach(node => {
             if (!node._dom) loaded = false;
@@ -852,7 +858,7 @@ export class opModule {
         }
         //
         // 这边因为布局的关系offsetParent直接就是body，不需要过度优化
-        // console.info('resize');
+        // console.info('start calc offset');
         // const baseDOM = document.querySelector('.content_detail') as HTMLElement;
         // if (!baseDOM) return;
         // const baseX = GenFunc.nodeOffsetX(baseDOM);
@@ -869,7 +875,7 @@ export class opModule {
             r = l + dom.offsetWidth;
             b = t + dom.offsetHeight;
             node._offsets = [l, t, r, b,];
-            // console.warn(node, node._offsets);
+            // console.warn(node.title, node._offsets);
             // console.info(node.id, node._dom, node._offsets);
         });
         // console.info(this.nodeList);
@@ -957,9 +963,9 @@ export class opModule {
         this.nodeList.value.forEach(node => {
             // console.info(node, node._offsets);
             let hit = true;
-            let offsets = node._offsets as number[];
             //不判断可能会报错，但是感觉影响调试，有需要再加
-            // if (!offsets || !offsets.length) return;
+            if (!node._offsets || !node._offsets.length) return;
+            let offsets = node._offsets as number[];
             if (offsets[1] > bottom) hit = false;
             if (offsets[3] < top) hit = false;
             node._in_screen = hit;
@@ -1502,8 +1508,8 @@ export function manualSort<K extends api_node_col>(list: K[], sort: string) {
                 break;
             case 'title':
                 //文件夹在前，文件在后
-                va = revNum * (a.type === 'directory' ? 0 : 1) + (a._sort_index??'');
-                vb = revNum * (b.type === 'directory' ? 0 : 1) + (b._sort_index??'');
+                va = revNum * (a.type === 'directory' ? 0 : 1) + (a._sort_index ?? '');
+                vb = revNum * (b.type === 'directory' ? 0 : 1) + (b._sort_index ?? '');
                 // console.info(rev, va, vb, natsort({desc:rev,insensitive:true})(va, vb));
                 return natsort({desc: rev, insensitive: true})(va, vb);
                 break;
