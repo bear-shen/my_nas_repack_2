@@ -54,10 +54,8 @@ const imgLayout: Ref<imgLayoutType> = ref({
   orgW: 0,
   orgH: 0,
 });
+const imgSrc: Ref<string> = ref();
 
-function onload(e: any) {
-  console.info("onload", e);
-}
 
 async function onImageLoad(e: Event): any {
   const dom = imgDOM.value;
@@ -88,6 +86,7 @@ async function onImageLoad(e: Event): any {
 
 onMounted(() => {
   // console.warn("mounted");
+  imgSrc.value = getSRC(props.curNode);
   Object.assign(imgLayout.value, {
     loaded: 0,
     w: 0,
@@ -118,12 +117,15 @@ watch(
   () => props.curNode,
   async (to) => {
     console.info('onMod props.curNode');
-    //非得这样切一下不然不刷新
-    // showImg.value = false;
-    // setTimeout(() => {
-    //   showImg.value = true;
-    // imgDOM.value?.decode();
+    //先预加载再更新到前台，不然中间会有一个闪屏
     imgLayout.value.loaded = 0;
+    const newSrc = getSRC(to);
+    const imgDOM = new Image();
+    imgDOM.src = newSrc;
+    imgDOM.onload = (e) => {
+      // console.info(arguments);
+      imgSrc.value = newSrc;
+    }
     // setTimeout(() => {
     //   onImageLoad();
     // }, 0)
@@ -146,6 +148,10 @@ onUnmounted(() => {
   document.removeEventListener("pointercancel", onPointerUp);
   document.removeEventListener("pointerout", onPointerUp);
 });
+
+function getSRC(node: api_node_col) {
+  return node.file_index?.normal?.path + '?filename=' + node.title;
+}
 
 async function resetImg() {
   if (!imgLayout.value.loaded) return;
@@ -522,24 +528,22 @@ function setRotate(deg) {
       <span class="loader sysIcon sysIcon_sync" v-if="!imgLayout.loaded"></span>
       <img
         :data-ref-node-id="props.curNode.id"
-        :src="`${props.curNode.file_index?.normal?.path}?filename=${props.curNode.title}`"
+        :src="imgSrc"
         :data-rotate="imgLayout.rotate"
         @pointerdown="onPointerDown"
         @dblclick="resetImgresetImg"
         @load="onImageLoad"
-        :style="
-          imgLayout.loaded
-            ? {
+        :class="{loading:!imgLayout.loaded}"
+        :style="{
                 width: imgLayout.w + 'px',
                 height: imgLayout.h + 'px',
                 left: imgLayout.x + 'px',
                 top: imgLayout.y + 'px',
                 rotate: imgLayout.rotate + 'deg',
-              }
-            : {}
-        "
+              }"
         ref="imgDOM"
       />
+      <!--      :src="`${props.curNode.file_index?.normal?.path}?filename=${props.curNode.title}`"-->
     </div>
   </div>
 </template>
@@ -555,6 +559,11 @@ function setRotate(deg) {
       width: 100%;
       left: 0;
       top: 0;
+      //transition: opacity 0.1s;
+    }
+    .loading {
+      //opacity: 0;
+      //transition: opacity 0s;
     }
   }
   .navigator {

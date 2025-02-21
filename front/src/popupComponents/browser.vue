@@ -698,6 +698,7 @@ function setRater(rateVal: string) {
       justify-content: center;
       opacity: 0;
       background-color: map.get($colors, popup_active);
+      cursor: pointer;
       &:hover {
         opacity: 1;
       }

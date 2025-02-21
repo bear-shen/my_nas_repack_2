@@ -344,7 +344,7 @@ async function btn_checkLocalFile() {
     <div class="widget_ls">
       <template v-for="(widget,widgetInd) in widgetLs" :key="widgetInd">
         <template v-if="widget.type==='button'">
-          <div :class="['widget',widget.type]">
+          <div :class="['widget',widget.type,'buttonStyle']">
             <button @click="widget.method">{{ widget.title }}</button>
           </div>
         </template>

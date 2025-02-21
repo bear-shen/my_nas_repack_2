@@ -84,5 +84,6 @@ export default {
         ['light', './theme/light.css',],
         ['solarized_dark', './theme/solarized_dark.css',],
         ['solarized_light', './theme/solarized_light.css',],
+        ['warm', './theme/warm.css',],
     ],
 }

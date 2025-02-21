@@ -953,6 +953,7 @@ function processModalFile(payloadForm: ModalFormConstruct<File>) {
       overflow: hidden;
       text-overflow: ellipsis;
       font-size: $fontSize*0.75;
+      text-indent: 0.5em;
     }
   }
   .modal_border {
