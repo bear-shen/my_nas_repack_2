@@ -52,6 +52,10 @@ body.theme_solarized_dark textarea:hover, body.theme_solarized_dark textarea:foc
   background-color: rgb(10.9123287671, 84.1808219178, 102.8876712329);
   color: rgb(242.27, 238.3015384615, 227.53);
 }
+body.theme_solarized_dark ::selection {
+  background-color: rgb(232.58, 225.5907692308, 206.62);
+  color: #073642;
+}
 body.theme_solarized_dark .buttonStyle {
   color: rgb(232.58, 225.5907692308, 206.62);
 }

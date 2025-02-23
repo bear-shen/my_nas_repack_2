@@ -51,6 +51,10 @@ body.theme_solarized_light textarea:hover, body.theme_solarized_light textarea:f
   background-color: rgb(250.28, 233.76, 188.92);
   color: rgb(74.8643902439, 93.5804878049, 99.5356097561);
 }
+body.theme_solarized_light ::selection {
+  background-color: #586e75;
+  color: #fdf6e3;
+}
 body.theme_solarized_light .buttonStyle {
   color: #586e75;
 }

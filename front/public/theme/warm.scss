@@ -4,12 +4,12 @@
 body.theme_warm {
   //$colorDef_bk: rgba(25, 49, 52, 1);
   //$colorDef_font: rgb(210, 200, 165);
-  $colorDef_bk: #eee5d6;
-  //$colorDef_bk_l2: #dfbeb6;
-  //$colorDef_bk_l3: #e7d9cd;
-  $colorDef_font: #9c4043;
-  $colorDef_font_sub: color.adjust($colorDef_font, $lightness: 8%, $alpha: -0.5);
-  $colorDef_button: #eee8d5;
+  $colorDef_bk: #fde8e1;
+  $colorDef_bk_l2: #9c4043;
+  //$colorDef_bk_l3: #ede5d7;
+  $colorDef_font: #331d23;
+  $colorDef_font_sub: #c58f9c;
+  $colorDef_button: $colorDef_bk;
   $colorDef_positive: #2aa198;
   $colorDef_negative: #cb4b16;
   $colors: (
@@ -23,15 +23,15 @@ body.theme_warm {
           bar_horizon_active:$colorDef_bk,
     //侧标题栏
     //      hsl(36 41% 66% / 1)
-          bar_vertical:color.adjust($colorDef_font, $lightness: 8%),
-          bar_vertical_active:color.adjust($colorDef_font, $lightness: 16%),
+          bar_vertical:$colorDef_bk_l2,
+          bar_vertical_active:color.adjust($colorDef_bk_l2, $lightness: 16%),
     //内容标题栏
-          bar_meta:color.adjust($colorDef_bk, $lightness: 0%),
-          bar_meta_active:color.adjust($colorDef_bk, $lightness: 4%),
+          bar_meta:color.adjust($colorDef_bk, $lightness: -8%),
+          bar_meta_active:color.adjust($colorDef_bk, $lightness: 0%),
     //弹窗标题栏
     //弹窗背景
     //弹窗背景 高亮
-          popup_title:color.adjust($colorDef_font, $lightness: 6%),
+          popup_title:color.adjust($colorDef_bk_l2, $lightness: 6%),
           popup:color.adjust($colorDef_bk, $lightness: -6%, $alpha: -0.5),
           popup_active:color.adjust($colorDef_bk, $lightness: 6%, $alpha: -0.5),
           context:color.adjust($colorDef_bk, $lightness: -6%, $alpha: -0.25),
@@ -53,6 +53,9 @@ body.theme_warm {
     //副文字 高亮
           font_sub:$colorDef_font_sub,
           font_sub_active:color.adjust($colorDef_font_sub, $lightness: 6%),
+    //文字选择
+          selection_bk:$colorDef_bk_l2,
+          selection:$colorDef_bk,
   );
   //滚动条
   ::-webkit-scrollbar-track {
@@ -94,18 +97,7 @@ body.theme_warm {
       color: map.get($colors, font_active);
     }
   }
-  input {
-    background-color: map.get($colors, bk);
-    color: map.get($colors, font);
-    &:hover,
-    &:focus,
-    &.active,
-    &.disabled {
-      background-color: map.get($colors, bk_active);
-      color: map.get($colors, font_active);
-    }
-  }
-  textarea {
+  input, textarea {
     background-color: map.get($colors, bk);
     color: map.get($colors, font);
     &:hover,
@@ -451,6 +443,29 @@ body.theme_warm {
         span {
           text-shadow: 2px 2px 4px map.get($colors, bk), -2px 2px 4px map.get($colors, bk), 2px -2px 4px map.get($colors, bk), -2px -2px 4px map.get($colors, bk);
         }
+      }
+    }
+    button,
+    select, .btn {
+      background-color: map.get($colors, popup_title);
+      color: map.get($colors, bk);
+      &:hover,
+      &.active,
+      &.disabled,
+      option:checked {
+        color: map.get($colors, popup_title);
+        background-color: map.get($colors, bk);
+      }
+    }
+    input, textarea {
+      background-color: map.get($colors, popup_title);
+      color: map.get($colors, bk);
+      &:hover,
+      &:focus,
+      &.active,
+      &.disabled {
+        color: map.get($colors, popup_title);
+        background-color: map.get($colors, bk);
       }
     }
   }

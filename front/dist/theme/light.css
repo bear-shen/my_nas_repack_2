@@ -51,6 +51,10 @@ body.theme_light textarea:hover, body.theme_light textarea:focus, body.theme_lig
   background-color: hsl(0, 0%, 82%);
   color: rgb(44.7, 44.7, 44.7);
 }
+body.theme_light ::selection {
+  background-color: rgb(60, 60, 60);
+  color: hsl(0, 0%, 90%);
+}
 body.theme_light .buttonStyle {
   color: rgb(60, 60, 60);
 }

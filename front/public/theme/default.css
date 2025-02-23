@@ -52,6 +52,10 @@ body.theme_default textarea:hover, body.theme_default textarea:focus, body.theme
   background-color: hsl(210, 10%, 28%);
   color: rgb(212.3, 212.3, 212.3);
 }
+body.theme_default ::selection {
+  background-color: rgb(197, 197, 197);
+  color: hsl(210, 10%, 20%);
+}
 body.theme_default .buttonStyle {
   color: rgb(197, 197, 197);
 }

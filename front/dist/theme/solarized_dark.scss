@@ -51,6 +51,9 @@ body.theme_solarized_dark {
     //副文字 高亮
           font_sub:color.adjust($colorDef_font_sub, $lightness: -6%),
           font_sub_active:color.adjust($colorDef_font_sub, $lightness: -0%),
+    //文字选择
+          selection_bk:$colorDef_font,
+          selection:$colorDef_bk,
   );
   //滚动条
   ::-webkit-scrollbar-track {

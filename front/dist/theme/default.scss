@@ -45,6 +45,9 @@ body.theme_default {
     //副文字 高亮
           font_sub:color.adjust($colorDef_font, $lightness: -30%),
           font_sub_active:color.adjust($colorDef_font, $lightness: -15%),
+    //文字选择
+          selection_bk:$colorDef_font,
+          selection:$colorDef_bk,
   );
   //滚动条
   ::-webkit-scrollbar-track {
