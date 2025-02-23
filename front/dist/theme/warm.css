@@ -115,6 +115,17 @@ body.theme_warm .fr_popup .modal_dom.active .modal_content {
 }
 body.theme_warm .fr_popup .modal_dom {
   box-shadow: 0px 0px 2px rgb(177.6981818182, 72.9018181818, 76.3190909091);
+  /*input, textarea {
+    background-color: map.get($colors, popup_title);
+    color: map.get($colors, bk);
+    &:hover,
+    &:focus,
+    &.active,
+    &.disabled {
+      color: map.get($colors, popup_title);
+      background-color: map.get($colors, bk);
+    }
+  }*/
 }
 body.theme_warm .fr_popup .modal_dom .modal_header {
   background-color: rgb(177.6981818182, 72.9018181818, 76.3190909091);
@@ -129,6 +140,21 @@ body.theme_warm .fr_popup .modal_dom .modal_content {
 body.theme_warm .fr_popup .modal_dom .modal_content_form > span:last-child input,
 body.theme_warm .fr_popup .modal_dom .modal_content_form > span:last-child textarea {
   border-bottom: 1px solid rgb(177.6981818182, 72.9018181818, 76.3190909091);
+}
+body.theme_warm .fr_popup .modal_dom button,
+body.theme_warm .fr_popup .modal_dom select, body.theme_warm .fr_popup .modal_dom .btn {
+  background-color: rgb(177.6981818182, 72.9018181818, 76.3190909091);
+  color: #fde8e1;
+}
+body.theme_warm .fr_popup .modal_dom button:hover, body.theme_warm .fr_popup .modal_dom button.active, body.theme_warm .fr_popup .modal_dom button.disabled,
+body.theme_warm .fr_popup .modal_dom button option:checked,
+body.theme_warm .fr_popup .modal_dom select:hover,
+body.theme_warm .fr_popup .modal_dom select.active,
+body.theme_warm .fr_popup .modal_dom select.disabled,
+body.theme_warm .fr_popup .modal_dom select option:checked, body.theme_warm .fr_popup .modal_dom .btn:hover, body.theme_warm .fr_popup .modal_dom .btn.active, body.theme_warm .fr_popup .modal_dom .btn.disabled,
+body.theme_warm .fr_popup .modal_dom .btn option:checked {
+  color: rgb(177.6981818182, 72.9018181818, 76.3190909091);
+  background-color: #fde8e1;
 }
 body.theme_warm .view_fav .list_fav_group {
   background-color: rgb(250.45, 202.675, 186.75);
@@ -293,29 +319,6 @@ body.theme_warm .modal_browser .pagination.isMobile .left, body.theme_warm .moda
 }
 body.theme_warm .modal_browser .pagination.isMobile .left span, body.theme_warm .modal_browser .pagination.isMobile .right span {
   text-shadow: 2px 2px 4px #fde8e1, -2px 2px 4px #fde8e1, 2px -2px 4px #fde8e1, -2px -2px 4px #fde8e1;
-}
-body.theme_warm .modal_browser button,
-body.theme_warm .modal_browser select, body.theme_warm .modal_browser .btn {
-  background-color: rgb(177.6981818182, 72.9018181818, 76.3190909091);
-  color: #fde8e1;
-}
-body.theme_warm .modal_browser button:hover, body.theme_warm .modal_browser button.active, body.theme_warm .modal_browser button.disabled,
-body.theme_warm .modal_browser button option:checked,
-body.theme_warm .modal_browser select:hover,
-body.theme_warm .modal_browser select.active,
-body.theme_warm .modal_browser select.disabled,
-body.theme_warm .modal_browser select option:checked, body.theme_warm .modal_browser .btn:hover, body.theme_warm .modal_browser .btn.active, body.theme_warm .modal_browser .btn.disabled,
-body.theme_warm .modal_browser .btn option:checked {
-  color: rgb(177.6981818182, 72.9018181818, 76.3190909091);
-  background-color: #fde8e1;
-}
-body.theme_warm .modal_browser input, body.theme_warm .modal_browser textarea {
-  background-color: rgb(177.6981818182, 72.9018181818, 76.3190909091);
-  color: #fde8e1;
-}
-body.theme_warm .modal_browser input:hover, body.theme_warm .modal_browser input:focus, body.theme_warm .modal_browser input.active, body.theme_warm .modal_browser input.disabled, body.theme_warm .modal_browser textarea:hover, body.theme_warm .modal_browser textarea:focus, body.theme_warm .modal_browser textarea.active, body.theme_warm .modal_browser textarea.disabled {
-  color: rgb(177.6981818182, 72.9018181818, 76.3190909091);
-  background-color: #fde8e1;
 }
 body.theme_warm .loader.sysIcon {
   color: #331d23;

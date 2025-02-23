@@ -219,6 +219,29 @@ body.theme_warm {
           }
         }
       }
+      button,
+      select, .btn {
+        background-color: map.get($colors, popup_title);
+        color: map.get($colors, bk);
+        &:hover,
+        &.active,
+        &.disabled,
+        option:checked {
+          color: map.get($colors, popup_title);
+          background-color: map.get($colors, bk);
+        }
+      }
+      /*input, textarea {
+        background-color: map.get($colors, popup_title);
+        color: map.get($colors, bk);
+        &:hover,
+        &:focus,
+        &.active,
+        &.disabled {
+          color: map.get($colors, popup_title);
+          background-color: map.get($colors, bk);
+        }
+      }*/
     }
   }
   // views ----------------------------
@@ -443,29 +466,6 @@ body.theme_warm {
         span {
           text-shadow: 2px 2px 4px map.get($colors, bk), -2px 2px 4px map.get($colors, bk), 2px -2px 4px map.get($colors, bk), -2px -2px 4px map.get($colors, bk);
         }
-      }
-    }
-    button,
-    select, .btn {
-      background-color: map.get($colors, popup_title);
-      color: map.get($colors, bk);
-      &:hover,
-      &.active,
-      &.disabled,
-      option:checked {
-        color: map.get($colors, popup_title);
-        background-color: map.get($colors, bk);
-      }
-    }
-    input, textarea {
-      background-color: map.get($colors, popup_title);
-      color: map.get($colors, bk);
-      &:hover,
-      &:focus,
-      &.active,
-      &.disabled {
-        color: map.get($colors, popup_title);
-        background-color: map.get($colors, bk);
       }
     }
   }
