@@ -116,6 +116,10 @@ function buildModal(modal: ModalConstruct): ModalStruct {
           form.options = options;
         }
       }
+      if (!form.on_change) {
+        form.on_change = () => {
+        };
+      }
     });
   }
   if (modal.component) {
@@ -773,20 +777,20 @@ function processModalFile(payloadForm: ModalFormConstruct<File>) {
             <span></span>
             <span>
               <template v-if="form.type === 'text'">
-                <input type="text" v-model="form.value"/>
+                <input type="text" v-model="form.value" @change="form.on_change($event,modal,form)" :disabled="form.disabled"/>
               </template>
               <template v-if="form.type === 'file'">
-                <button @click="processModalFile(form)">select file</button>
+                <button @click="processModalFile(form)" :disabled="form.disabled">select file</button>
                 <span v-if="form.value">{{ (form.value as File).name }}</span>
               </template>
               <template v-if="form.type === 'textarea'">
-                <textarea v-model="form.value"></textarea>
+                <textarea v-model="form.value" @change="form.on_change($event,modal,form)" :disabled="form.disabled"></textarea>
               </template>
               <template v-if="form.type === 'date'">
-                <input type="date" v-model="form.value"/>
+                <input type="date" v-model="form.value" @change="form.on_change($event,modal,form)" :disabled="form.disabled"/>
               </template>
               <template v-if="form.type === 'datetime'">
-                <input type="datetime-local" v-model="form.value"/>
+                <input type="datetime-local" v-model="form.value" @change="form.on_change($event,modal,form)" :disabled="form.disabled"/>
               </template>
               <template v-if="form.type === 'checkbox'">
                 <template
@@ -796,14 +800,15 @@ function processModalFile(payloadForm: ModalFormConstruct<File>) {
                   <input
                     :id="`P_${modalIndex}_C_${formIndex}_CB_${optionKey}`"
                     :name="`P_${modalIndex}_C_${formIndex}_CB`"
-                    :value="optionKey"
                     type="checkbox"
+                    :value="optionKey"
                     v-model="form.value"
+                    @change="form.on_change($event,modal,form)"
+                    :disabled="form.disabled"
                   />
                   <label
                     :for="`P_${modalIndex}_C_${formIndex}_CB_${optionKey}`"
-                  >{{ option }}</label
-                  >
+                  >{{ option }}</label>
                 </template>
               </template>
               <template v-if="form.type === 'radio'">
@@ -814,9 +819,11 @@ function processModalFile(payloadForm: ModalFormConstruct<File>) {
                   <input
                     :id="`P_${modalIndex}_C_${formIndex}_RD_${optionKey}`"
                     :name="`P_${modalIndex}_C_${formIndex}_RD`"
-                    :value="optionKey"
                     type="radio"
+                    :value="optionKey"
                     v-model="form.value"
+                    @change="form.on_change($event,modal,form)"
+                    :disabled="form.disabled"
                   />
                   <label
                     :for="`P_${modalIndex}_C_${formIndex}_RD_${optionKey}`"
@@ -825,7 +832,7 @@ function processModalFile(payloadForm: ModalFormConstruct<File>) {
                 </template>
               </template>
               <template v-if="form.type === 'select'">
-                <select v-model="form.value" :multiple="form.multiple">
+                <select v-model="form.value" :multiple="form.multiple" @change="form.on_change($event,modal,form)" :disabled="form.disabled">
                   <option
                     v-for="(option, optionKey) in form.options"
                     :key="`P_${modalIndex}_C_${formIndex}_SL_${optionKey}`"

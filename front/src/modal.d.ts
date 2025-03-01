@@ -16,6 +16,7 @@ export type ModalFormConstruct<K> = {
     default?: K;
     multiple?: boolean;
     disabled?: boolean;
+    on_change?: (event: Event, modal: ModalStruct, form: ModalFormConstruct<K>) => any;
 }
 export type ModalComponentConstruct = {
     // name: string;
@@ -108,7 +109,6 @@ export type ModalConstruct = {
         | ModalCallbackFunc
         | { [key: string]: ModalCallbackFunc };
 }
-
 // base ?: ModalBase;
 // layout ?: ModalLayout;
 // content ?: ModalContent

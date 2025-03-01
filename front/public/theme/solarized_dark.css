@@ -26,12 +26,11 @@ body.theme_solarized_dark select, body.theme_solarized_dark .btn {
   background-color: rgb(5.5328767123, 42.6821917808, 52.1671232877);
   color: rgb(232.58, 225.5907692308, 206.62);
 }
-body.theme_solarized_dark button:hover, body.theme_solarized_dark button.active, body.theme_solarized_dark button.disabled,
+body.theme_solarized_dark button:hover, body.theme_solarized_dark button.active,
 body.theme_solarized_dark button option:checked,
 body.theme_solarized_dark select:hover,
 body.theme_solarized_dark select.active,
-body.theme_solarized_dark select.disabled,
-body.theme_solarized_dark select option:checked, body.theme_solarized_dark .btn:hover, body.theme_solarized_dark .btn.active, body.theme_solarized_dark .btn.disabled,
+body.theme_solarized_dark select option:checked, body.theme_solarized_dark .btn:hover, body.theme_solarized_dark .btn.active,
 body.theme_solarized_dark .btn option:checked {
   background-color: rgb(9.9342465753, 76.6356164384, 93.6657534247);
   color: rgb(242.27, 238.3015384615, 227.53);
@@ -40,7 +39,7 @@ body.theme_solarized_dark input {
   background-color: #073642;
   color: rgb(232.58, 225.5907692308, 206.62);
 }
-body.theme_solarized_dark input:hover, body.theme_solarized_dark input:focus, body.theme_solarized_dark input.active, body.theme_solarized_dark input.disabled {
+body.theme_solarized_dark input:hover, body.theme_solarized_dark input:focus, body.theme_solarized_dark input.active {
   background-color: rgb(10.9123287671, 84.1808219178, 102.8876712329);
   color: rgb(242.27, 238.3015384615, 227.53);
 }
@@ -48,13 +47,18 @@ body.theme_solarized_dark textarea {
   background-color: #073642;
   color: rgb(232.58, 225.5907692308, 206.62);
 }
-body.theme_solarized_dark textarea:hover, body.theme_solarized_dark textarea:focus, body.theme_solarized_dark textarea.active, body.theme_solarized_dark textarea.disabled {
+body.theme_solarized_dark textarea:hover, body.theme_solarized_dark textarea:focus, body.theme_solarized_dark textarea.active {
   background-color: rgb(10.9123287671, 84.1808219178, 102.8876712329);
   color: rgb(242.27, 238.3015384615, 227.53);
 }
 body.theme_solarized_dark ::selection {
   background-color: rgb(232.58, 225.5907692308, 206.62);
   color: #073642;
+}
+body.theme_solarized_dark button[disabled], body.theme_solarized_dark button.disabled,
+body.theme_solarized_dark select[disabled],
+body.theme_solarized_dark select.disabled, body.theme_solarized_dark .btn[disabled], body.theme_solarized_dark .btn.disabled, body.theme_solarized_dark input[disabled], body.theme_solarized_dark input.disabled, body.theme_solarized_dark textarea[disabled], body.theme_solarized_dark textarea.disabled, body.theme_solarized_dark .buttonStyle[disabled], body.theme_solarized_dark .buttonStyle.disabled {
+  color: rgba(222.89, 212.88, 185.71, 0.5);
 }
 body.theme_solarized_dark .buttonStyle {
   color: rgb(232.58, 225.5907692308, 206.62);
@@ -331,10 +335,10 @@ body.theme_solarized_dark .modal_browser.office .pagination .left, body.theme_so
   background-color: rgb(5.5328767123, 42.6821917808, 52.1671232877);
   color: rgb(232.58, 225.5907692308, 206.62);
 }
-body.theme_solarized_dark .modal_browser.office .pagination .left:hover, body.theme_solarized_dark .modal_browser.office .pagination .left.active, body.theme_solarized_dark .modal_browser.office .pagination .left.disabled,
-body.theme_solarized_dark .modal_browser.office .pagination .left option:checked, body.theme_solarized_dark .modal_browser.office .pagination .right:hover, body.theme_solarized_dark .modal_browser.office .pagination .right.active, body.theme_solarized_dark .modal_browser.office .pagination .right.disabled,
-body.theme_solarized_dark .modal_browser.office .pagination .right option:checked, body.theme_solarized_dark .modal_browser.pdf .pagination .left:hover, body.theme_solarized_dark .modal_browser.pdf .pagination .left.active, body.theme_solarized_dark .modal_browser.pdf .pagination .left.disabled,
-body.theme_solarized_dark .modal_browser.pdf .pagination .left option:checked, body.theme_solarized_dark .modal_browser.pdf .pagination .right:hover, body.theme_solarized_dark .modal_browser.pdf .pagination .right.active, body.theme_solarized_dark .modal_browser.pdf .pagination .right.disabled,
+body.theme_solarized_dark .modal_browser.office .pagination .left:hover, body.theme_solarized_dark .modal_browser.office .pagination .left.active,
+body.theme_solarized_dark .modal_browser.office .pagination .left option:checked, body.theme_solarized_dark .modal_browser.office .pagination .right:hover, body.theme_solarized_dark .modal_browser.office .pagination .right.active,
+body.theme_solarized_dark .modal_browser.office .pagination .right option:checked, body.theme_solarized_dark .modal_browser.pdf .pagination .left:hover, body.theme_solarized_dark .modal_browser.pdf .pagination .left.active,
+body.theme_solarized_dark .modal_browser.pdf .pagination .left option:checked, body.theme_solarized_dark .modal_browser.pdf .pagination .right:hover, body.theme_solarized_dark .modal_browser.pdf .pagination .right.active,
 body.theme_solarized_dark .modal_browser.pdf .pagination .right option:checked {
   background-color: rgb(9.9342465753, 76.6356164384, 93.6657534247);
   color: rgb(242.27, 238.3015384615, 227.53);

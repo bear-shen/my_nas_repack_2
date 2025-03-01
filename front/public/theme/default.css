@@ -26,12 +26,11 @@ body.theme_default select, body.theme_default .btn {
   background-color: hsl(210, 20%, 10%);
   color: rgb(197, 197, 197);
 }
-body.theme_default button:hover, body.theme_default button.active, body.theme_default button.disabled,
+body.theme_default button:hover, body.theme_default button.active,
 body.theme_default button option:checked,
 body.theme_default select:hover,
 body.theme_default select.active,
-body.theme_default select.disabled,
-body.theme_default select option:checked, body.theme_default .btn:hover, body.theme_default .btn.active, body.theme_default .btn.disabled,
+body.theme_default select option:checked, body.theme_default .btn:hover, body.theme_default .btn.active,
 body.theme_default .btn option:checked {
   background-color: hsl(210, 20%, 22%);
   color: rgb(212.3, 212.3, 212.3);
@@ -40,7 +39,7 @@ body.theme_default input {
   background-color: hsl(210, 10%, 20%);
   color: rgb(197, 197, 197);
 }
-body.theme_default input:hover, body.theme_default input:focus, body.theme_default input.active, body.theme_default input.disabled {
+body.theme_default input:hover, body.theme_default input:focus, body.theme_default input.active {
   background-color: hsl(210, 10%, 28%);
   color: rgb(212.3, 212.3, 212.3);
 }
@@ -48,13 +47,18 @@ body.theme_default textarea {
   background-color: hsl(210, 10%, 20%);
   color: rgb(197, 197, 197);
 }
-body.theme_default textarea:hover, body.theme_default textarea:focus, body.theme_default textarea.active, body.theme_default textarea.disabled {
+body.theme_default textarea:hover, body.theme_default textarea:focus, body.theme_default textarea.active {
   background-color: hsl(210, 10%, 28%);
   color: rgb(212.3, 212.3, 212.3);
 }
 body.theme_default ::selection {
   background-color: rgb(197, 197, 197);
   color: hsl(210, 10%, 20%);
+}
+body.theme_default button[disabled], body.theme_default button.disabled,
+body.theme_default select[disabled],
+body.theme_default select.disabled, body.theme_default .btn[disabled], body.theme_default .btn.disabled, body.theme_default input[disabled], body.theme_default input.disabled, body.theme_default textarea[disabled], body.theme_default textarea.disabled, body.theme_default .buttonStyle[disabled], body.theme_default .buttonStyle.disabled {
+  color: rgb(120.5, 120.5, 120.5);
 }
 body.theme_default .buttonStyle {
   color: rgb(197, 197, 197);
@@ -331,10 +335,10 @@ body.theme_default .modal_browser.office .pagination .left, body.theme_default .
   background-color: hsl(210, 20%, 10%);
   color: rgb(197, 197, 197);
 }
-body.theme_default .modal_browser.office .pagination .left:hover, body.theme_default .modal_browser.office .pagination .left.active, body.theme_default .modal_browser.office .pagination .left.disabled,
-body.theme_default .modal_browser.office .pagination .left option:checked, body.theme_default .modal_browser.office .pagination .right:hover, body.theme_default .modal_browser.office .pagination .right.active, body.theme_default .modal_browser.office .pagination .right.disabled,
-body.theme_default .modal_browser.office .pagination .right option:checked, body.theme_default .modal_browser.pdf .pagination .left:hover, body.theme_default .modal_browser.pdf .pagination .left.active, body.theme_default .modal_browser.pdf .pagination .left.disabled,
-body.theme_default .modal_browser.pdf .pagination .left option:checked, body.theme_default .modal_browser.pdf .pagination .right:hover, body.theme_default .modal_browser.pdf .pagination .right.active, body.theme_default .modal_browser.pdf .pagination .right.disabled,
+body.theme_default .modal_browser.office .pagination .left:hover, body.theme_default .modal_browser.office .pagination .left.active,
+body.theme_default .modal_browser.office .pagination .left option:checked, body.theme_default .modal_browser.office .pagination .right:hover, body.theme_default .modal_browser.office .pagination .right.active,
+body.theme_default .modal_browser.office .pagination .right option:checked, body.theme_default .modal_browser.pdf .pagination .left:hover, body.theme_default .modal_browser.pdf .pagination .left.active,
+body.theme_default .modal_browser.pdf .pagination .left option:checked, body.theme_default .modal_browser.pdf .pagination .right:hover, body.theme_default .modal_browser.pdf .pagination .right.active,
 body.theme_default .modal_browser.pdf .pagination .right option:checked {
   background-color: hsl(210, 20%, 22%);
   color: rgb(212.3, 212.3, 212.3);

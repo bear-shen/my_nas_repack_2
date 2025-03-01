@@ -90,7 +90,6 @@ body.theme_solarized_dark {
     color: map.get($colors, font);
     &:hover,
     &.active,
-    &.disabled,
     option:checked {
       background-color: map.get($colors, button_active);
       color: map.get($colors, font_active);
@@ -101,8 +100,7 @@ body.theme_solarized_dark {
     color: map.get($colors, font);
     &:hover,
     &:focus,
-    &.active,
-    &.disabled {
+    &.active {
       background-color: map.get($colors, bk_active);
       color: map.get($colors, font_active);
     }
@@ -112,8 +110,7 @@ body.theme_solarized_dark {
     color: map.get($colors, font);
     &:hover,
     &:focus,
-    &.active,
-    &.disabled {
+    &.active {
       background-color: map.get($colors, bk_active);
       color: map.get($colors, font_active);
     }
@@ -121,6 +118,12 @@ body.theme_solarized_dark {
   ::selection {
     background-color: map.get($colors, selection_bk);
     color: map.get($colors, selection);
+  }
+  button,
+  select, .btn, input, textarea, .buttonStyle {
+    &[disabled], &.disabled {
+      color: map.get($colors, font_sub);
+    }
   }
   //
   .buttonStyle {
@@ -497,7 +500,6 @@ body.theme_solarized_dark {
         color: map.get($colors, font);
         &:hover,
         &.active,
-        &.disabled,
         option:checked {
           background-color: map.get($colors, button_active);
           color: map.get($colors, font_active);
