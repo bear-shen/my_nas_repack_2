@@ -49,3 +49,4 @@ server_archive
 /Dockerfile.zzz
 /doc.md
 /init.db.txt
+/share/archive
