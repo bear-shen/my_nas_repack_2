@@ -1322,7 +1322,7 @@ export class opFunctionModule {
         query.with = 'crumb,file';
         if (idArr.length == 1) {
             query.mode = 'directory';
-            query.id_dir = `${idArr[0]}`;
+            query.id_dir = `${nodeLs[0].type === 'directory' ? nodeLs[0].id : nodeLs[0].id_parent}`;
         } else {
             query.mode = 'id_iterate';
             query.keyword = idArr.join(',');
@@ -1523,7 +1523,7 @@ export class opFunctionModule {
                     }
                     const res = await query<api_share_list_resp>('share/set', formData);
                     if (!res) return;
-                    resultModal.text=resultModal.text.replace(/#id#/ig, res.id);
+                    resultModal.text = resultModal.text.replace(/#id#/ig, res.id);
                     opModuleVal.modalStore.set(resultModal);
                 }
             }

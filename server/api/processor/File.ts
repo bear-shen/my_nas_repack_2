@@ -150,7 +150,7 @@ export default class {
                             model.or().whereRaw('node_id_list @> $0', id);
                         });
                     } else
-                        model.whereIn('id_parent', idList);
+                        model.whereIn('id_parent', idList).or().whereIn('id', idList);
                 });
                 break;
         }

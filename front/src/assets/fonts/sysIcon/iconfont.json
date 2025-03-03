@@ -6,6 +6,13 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "12300445",
+      "name": "circle",
+      "font_class": "circle-o",
+      "unicode": "e833",
+      "unicode_decimal": 59443
+    },
+    {
       "icon_id": "6808209",
       "name": "Scroll-All Direction",
       "font_class": "Scroll-AllDirection",

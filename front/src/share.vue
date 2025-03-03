@@ -239,7 +239,7 @@ function mkProcessStr(ev: ProgressEvent) {
   percent = Math.round(percent)
   percent /= 100;
   percent += '%';
-  countProcessTxt.value = `${countFile}/${countTotalFile} files, ${percent}, ${GenFunc.kmgt(cur)} / ${GenFunc.kmgt(countTotalSize)}`;
+  countProcessTxt.value = `${countFile}/${countTotalFile} Files, ${percent}, ${GenFunc.kmgt(cur)} / ${GenFunc.kmgt(countTotalSize)}`;
   countProcessStyle.value = `width: ${percent};`;
 }
 
@@ -436,11 +436,28 @@ function throwError(msg) {
       }
     }
   }
+  input[type='checkbox'],
+  input[type='radio'] {
+    + label {
+      font-size: $fontSize*1.5;
+      &::after {
+        content: '\e833';
+      }
+    }
+    &:checked {
+      + label {
+        &::after {
+          content: '\e62e';
+        }
+      }
+    }
+  }
 }
 .sh_fr_footer {
   .process {
     width: 0;
     height: 100%;
+    line-height: $fontSize*2;
     background: url("assets/bg.png") 100vw 100vh, map.get($colors, font);
     color: map.get($colors, font);
     text-align: center;
