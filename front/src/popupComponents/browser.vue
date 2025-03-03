@@ -185,7 +185,7 @@ async function getList(ext: api_file_list_req = {}) {
   res.list = tList;
   //
   if (!res.list.length) {
-    if (props.data.query.cascade_dir) return false;
+    if (parseInt(props.data.query.cascade_dir)) return false;
     const query2 = GenFunc.copyObject(props.data.query);
     query2.cascade_dir = 1;
     res = await query<api_file_list_resp>("file/get", query2);
