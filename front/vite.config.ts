@@ -35,7 +35,10 @@ export default defineConfig({
     // publicDir:'public',
     build: {
         rollupOptions: {
-            input: '/index.html',
+            input: {
+                index:'/index.html',
+                share:'/share.html',
+            }
         }
     }
 })

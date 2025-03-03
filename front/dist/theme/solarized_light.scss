@@ -69,15 +69,7 @@ body.theme_solarized_light {
   //
   .modal_alpha {
     &::before {
-      background-image: linear-gradient(45deg
-      , hsla(0,0,100,0.5) 12.5%
-      , hsla(0,0,90,0.5) 12.5%
-      , hsla(0,0,90,0.5) 37.5%
-      , hsla(0,0,100,0.5) 37.5%
-      , hsla(0,0,100,0.5) 62.5%
-      , hsla(0,0,90,0.5) 62.5%
-      , hsla(0,0,90,0.5) 87.5%
-      , hsla(0,0,100,0.5) 87.5%
+      background-image: linear-gradient(45deg, hsla(0, 0, 100, 0.5) 12.5%, hsla(0, 0, 90, 0.5) 12.5%, hsla(0, 0, 90, 0.5) 37.5%, hsla(0, 0, 100, 0.5) 37.5%, hsla(0, 0, 100, 0.5) 62.5%, hsla(0, 0, 90, 0.5) 62.5%, hsla(0, 0, 90, 0.5) 87.5%, hsla(0, 0, 100, 0.5) 87.5%
       );
     }
   }
@@ -92,7 +84,6 @@ body.theme_solarized_light {
     color: map.get($colors, font);
     &:hover,
     &.active,
-    &.disabled,
     option:checked {
       background-color: map.get($colors, button_active);
       color: map.get($colors, font_active);
@@ -103,8 +94,7 @@ body.theme_solarized_light {
     color: map.get($colors, font);
     &:hover,
     &:focus,
-    &.active,
-    &.disabled {
+    &.active {
       background-color: map.get($colors, bk_active);
       color: map.get($colors, font_active);
     }
@@ -114,8 +104,7 @@ body.theme_solarized_light {
     color: map.get($colors, font);
     &:hover,
     &:focus,
-    &.active,
-    &.disabled {
+    &.active {
       background-color: map.get($colors, bk_active);
       color: map.get($colors, font_active);
     }
@@ -123,6 +112,12 @@ body.theme_solarized_light {
   ::selection {
     background-color: map.get($colors, selection_bk);
     color: map.get($colors, selection);
+  }
+  button,
+  select, .btn, input, textarea, .buttonStyle {
+    &[disabled], &.disabled {
+      color: map.get($colors, font_sub);
+    }
   }
   //
   .buttonStyle {
@@ -252,7 +247,7 @@ body.theme_solarized_light {
       }
     }
   }
-  .view_log {
+  .view_log, .view_share {
     .form {
       background-color: map.get($colors, bar_meta);
       input,
@@ -500,7 +495,6 @@ body.theme_solarized_light {
         color: map.get($colors, font);
         &:hover,
         &.active,
-        &.disabled,
         option:checked {
           background-color: map.get($colors, button_active);
           color: map.get($colors, font_active);

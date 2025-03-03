@@ -1,4 +1,4 @@
-import {col_favourite, col_favourite_group, col_node, col_queue, col_tag, col_tag_group, col_user, col_user_group, type_file} from './Database';
+import {col_favourite, col_favourite_group, col_node, col_queue, col_share, col_tag, col_tag_group, col_user, col_user_group, type_file} from './Database';
 
 export type api_node_col = {
     rate?: number,
@@ -465,6 +465,45 @@ export type api_sync_jriver_rate_req = {
     // payload?: string,//file
 } & { [key: string]: any };
 
+
+export type api_share_list_req = {
+    status: string,
+    page: string,
+} & col_share & { [key: string]: any };
+export type api_share_list_resp = col_share
+    & { node?: col_node[] }
+    & { user?: col_user }
+    & { [key: string]: any };
+
+export type api_share_set_req = {
+    // id_user?: number,
+    node_id_list?: string,
+    status?: string,
+    time_to?: string,
+} & { [key: string]: any };
+
+export type api_share_del_req = {
+    id?: string,
+} & { [key: string]: any };
+
+export type api_share_node_list_req = {
+    id?: string,
+    id_node?: string,
+} & { [key: string]: any };
+
+
+export type api_share_node_list_resp = {
+    id?: string,
+    user?: col_user,
+    node?: api_node_col[],
+    cur?: col_node,
+    parent?: col_node,
+} & { [key: string]: any };
+
+export type api_share_get_req = {
+    id?: string,
+    id_node?: string,
+} & { [key: string]: any };
 
 
 

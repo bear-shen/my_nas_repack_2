@@ -3,7 +3,15 @@
  * */
 import type {Ref} from "vue";
 import {ref,} from "vue";
-import type {api_favourite_attach_resp, api_favourite_group_list_resp, api_file_bath_delete_resp, api_file_bath_move_req, api_file_bath_move_resp, api_file_checksum_resp, api_file_cover_resp, api_file_delete_resp, api_file_list_req, api_file_mov_req, api_file_mov_resp, api_file_rebuild_resp, api_node_col, api_rate_attach_resp, api_tag_list_resp} from "../../share/Api";
+import type {
+    api_favourite_attach_resp, api_favourite_group_list_resp, api_file_bath_delete_resp,
+    api_file_bath_move_req, api_file_bath_move_resp, api_file_checksum_resp,
+    api_file_cover_resp, api_file_delete_resp, api_file_list_req,
+    api_file_mov_req, api_file_mov_resp, api_file_rebuild_resp,
+    api_node_col, api_rate_attach_resp, api_share_list_resp,
+    api_tag_list_resp
+}
+    from "../../share/Api";
 import type {ModalConstruct} from "@/types/modal";
 import {mayInPopup, mayTyping, query} from "@/Helper";
 import GenFunc from "@/GenFunc";
@@ -539,6 +547,14 @@ export class opModule {
                     console.info('Favourite', e);
                     if (isBath) await opFunctionModule.op_bath_favourite(idSet, nodeLs);
                     else await opFunctionModule.op_toggle_favourite(nodeLs[0]);
+                },
+            },
+            {
+                title: 'Share',
+                auth: 'user',
+                method: async (e: MouseEvent) => {
+                    console.info('Share', e);
+                    await opFunctionModule.op_share(idSet);
                 },
             },
             {
@@ -1407,6 +1423,111 @@ export class opFunctionModule {
         formData.set('node_id_list', Array.from(selRes.idSet).join(','));
         formData.set('rate', `${rateVal}`);
         const res = await query<api_rate_attach_resp>('rate/attach', formData);
+    }
+
+    public static async op_share(idSet: Set<number>) {
+        const resultModal: ModalConstruct = {
+            title: `share file`,
+            alpha: false,
+            key: "",
+            single: false,
+            w: 400,
+            h: 120,
+            minW: 400,
+            minH: 120,
+            // h: 160,
+            allow_resize: true,
+            allow_move: true,
+            allow_fullscreen: false,
+            auto_focus: true,
+            text: '<a href="./share.html/#id#" target="_blank" style="text-decoration: underline">url generated<br> id: #id#</a>',
+            callback: {
+                submit: async (modal) => {
+                }
+            }
+        };
+        opModuleVal.modalStore.set({
+            title: `share file`,
+            alpha: false,
+            key: "",
+            single: false,
+            w: 400,
+            h: 160,
+            minW: 400,
+            minH: 160,
+            // h: 160,
+            allow_resize: true,
+            allow_move: true,
+            allow_fullscreen: false,
+            auto_focus: true,
+            form: [
+                {
+                    type: "radio",
+                    label: "duration",
+                    key: "status",
+                    value: '1',
+                    options: {
+                        '1': 'long',
+                        '2': '1 day',
+                        '3': '7 day',
+                        '4': '30 day',
+                        '5': 'manual',
+                    },
+                    on_change: (event, modal, form) => {
+                        // console.info(event, modal, form);
+                        const now = new Date();
+                        switch (form.value) {
+                            case '1':
+                                modal.content.form[1].disabled = true;
+                                break;
+                            case '2':
+                                modal.content.form[1].disabled = true;
+                                now.setDate(now.getDate() + 1);
+                                modal.content.form[1].value = now.toISOString().substring(0, 16);
+                                break;
+                            case '3':
+                                modal.content.form[1].disabled = true;
+                                now.setDate(now.getDate() + 7);
+                                modal.content.form[1].value = now.toISOString().substring(0, 16);
+                                break;
+                            case '4':
+                                modal.content.form[1].disabled = true;
+                                now.setDate(now.getDate() + 30);
+                                modal.content.form[1].value = now.toISOString().substring(0, 16);
+                                break;
+                            case '5':
+                                modal.content.form[1].disabled = false;
+                                now.setDate(now.getDate() + 30);
+                                modal.content.form[1].value = now.toISOString().substring(0, 16);
+                                break;
+                        }
+                    }
+                },
+                {
+                    type: "datetime",
+                    label: "expire",
+                    key: "time_to",
+                    value: (new Date()).toISOString().substring(0, 16),
+                    disabled: true,
+                },
+            ],
+            callback: {
+                submit: async (modal) => {
+                    const formData = new FormData();
+                    formData.set('node_id_list', Array.from(idSet).join(','));
+                    if (modal.content.form[0].value == '0') {
+                        formData.set('status', 2);
+                    } else {
+                        formData.set('status', 1);
+                        formData.set('time_to', modal.content.form[1].value);
+                    }
+                    const res = await query<api_share_list_resp>('share/set', formData);
+                    if (!res) return;
+                    resultModal.text=resultModal.text.replace(/#id#/ig, res.id);
+                    opModuleVal.modalStore.set(resultModal);
+                }
+            }
+        } as ModalConstruct);
     }
 }
 

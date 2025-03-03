@@ -271,7 +271,7 @@ body.theme_warm {
       }
     }
   }
-  .view_log {
+  .view_log, .view_share {
     .form {
       background-color: map.get($colors, bar_meta);
       input,

@@ -126,7 +126,8 @@ CREATE TABLE IF NOT EXISTS "queue"
     "time_update" timestamp DEFAULT current_timestamp,
     PRIMARY KEY ("id")
 );
-CREATE INDEX if not EXISTS "queue_ind" ON "queue" ("status","id");
+
+CREATE INDEX if not EXISTS "queue_ind" ON "queue" ("status", "id");
 
 CREATE TABLE IF NOT EXISTS "rate"
 (
@@ -204,6 +205,18 @@ CREATE TABLE IF NOT EXISTS "user_group"
     PRIMARY KEY ("id")
 );
 
+CREATE TABLE IF NOT EXISTS "share"
+(
+    "id"           uuid      NOT NULL default gen_random_uuid(),
+    "id_user"      bigint    NOT NULL,
+    "node_id_list" jsonb     NOT NULL default '[]',
+    "status"       smallint  NOT NULL DEFAULT 1,
+    "time_to"      timestamp NOT NULL DEFAULT current_timestamp,
+    "time_create"  timestamp NOT NULL DEFAULT current_timestamp,
+    "time_update"  timestamp NOT NULL DEFAULT current_timestamp,
+    PRIMARY KEY ("id")
+);
+
 -- ---------------------------------------------------------------------------------------- --
 
 CREATE OR REPLACE TRIGGER update_auth_time_update
@@ -275,6 +288,12 @@ EXECUTE PROCEDURE update_time_update();
 CREATE OR REPLACE TRIGGER update_user_group_time_update
     BEFORE UPDATE
     ON "user_group"
+    FOR EACH ROW
+EXECUTE PROCEDURE update_time_update();
+
+CREATE OR REPLACE TRIGGER update_share_time_update
+    BEFORE UPDATE
+    ON "share"
     FOR EACH ROW
 EXECUTE PROCEDURE update_time_update();
 

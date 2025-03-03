@@ -18,8 +18,10 @@ export const BaseConfig: ConfType = {
     // },
     auth: {
         api: {
-            //[0:admin,1:user,2:admin]
+            //[0:any,1:user,2:admin]
             //
+            '^/api/share/node_list$': [0],
+            '^/api/share/get$': [0],
             '^/api/user/login$': [0],
             '^/api/user/auth$': [0],
             '^/api/dev/[^/]+?$': [0],

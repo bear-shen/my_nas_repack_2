@@ -161,3 +161,26 @@ export type col_rate = {
     time_create?: string,
     time_update?: string,
 }
+
+export type col_share = {
+    id?: string,
+    id_user?: number,
+    node_id_list?: number[],
+    //0 stop 1 time 2 long
+    status?: 0 | 1 | 2 | number,
+    time_to?: string,
+    time_create?: string,
+    time_update?: string,
+}
+
+
+
+
+
+
+
+
+
+
+
+

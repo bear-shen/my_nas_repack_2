@@ -417,7 +417,7 @@ ${sqlPart.limit}`.trim();
     }
 
     async first(column?: string[]): Promise<any> {
-        const rows = await this.limit(1).select();
+        const rows = await this.limit(1).select(column);
         if (rows.length) return rows[0];
         return null;
     }

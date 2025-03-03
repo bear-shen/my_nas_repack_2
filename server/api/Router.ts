@@ -15,6 +15,7 @@ import Favourite from "./processor/Favourite";
 import FavouriteGroup from "./processor/FavouriteGroup";
 import Rate from "./processor/Rate";
 import OnlyOffice from "./processor/OnlyOffice";
+import Share from "./processor/Share";
 
 // type t = RowDataPacket;
 const controllers: { [key: string]: any } = {
@@ -30,6 +31,7 @@ const controllers: { [key: string]: any } = {
     setting: Setting,
     rate: Rate,
     onlyoffice: OnlyOffice,
+    share: Share,
     dev: 0,
 }
 

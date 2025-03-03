@@ -25,12 +25,11 @@ body.theme_warm select, body.theme_warm .btn {
   background-color: #fde8e1;
   color: #331d23;
 }
-body.theme_warm button:hover, body.theme_warm button.active, body.theme_warm button.disabled,
+body.theme_warm button:hover, body.theme_warm button.active,
 body.theme_warm button option:checked,
 body.theme_warm select:hover,
 body.theme_warm select.active,
-body.theme_warm select.disabled,
-body.theme_warm select option:checked, body.theme_warm .btn:hover, body.theme_warm .btn.active, body.theme_warm .btn.disabled,
+body.theme_warm select option:checked, body.theme_warm .btn:hover, body.theme_warm .btn.active,
 body.theme_warm .btn option:checked {
   background-color: hsl(15, 87.5%, 103.7254901961%);
   color: rgb(70.5075, 40.0925, 48.3875);
@@ -39,13 +38,18 @@ body.theme_warm input, body.theme_warm textarea {
   background-color: #fde8e1;
   color: #331d23;
 }
-body.theme_warm input:hover, body.theme_warm input:focus, body.theme_warm input.active, body.theme_warm input.disabled, body.theme_warm textarea:hover, body.theme_warm textarea:focus, body.theme_warm textarea.active, body.theme_warm textarea.disabled {
+body.theme_warm input:hover, body.theme_warm input:focus, body.theme_warm input.active, body.theme_warm textarea:hover, body.theme_warm textarea:focus, body.theme_warm textarea.active {
   background-color: hsl(15, 87.5%, 101.7254901961%);
   color: rgb(70.5075, 40.0925, 48.3875);
 }
 body.theme_warm ::selection {
   background-color: #9c4043;
   color: #fde8e1;
+}
+body.theme_warm button[disabled], body.theme_warm button.disabled,
+body.theme_warm select[disabled],
+body.theme_warm select.disabled, body.theme_warm .btn[disabled], body.theme_warm .btn.disabled, body.theme_warm input[disabled], body.theme_warm input.disabled, body.theme_warm textarea[disabled], body.theme_warm textarea.disabled, body.theme_warm .buttonStyle[disabled], body.theme_warm .buttonStyle.disabled {
+  color: #c58f9c;
 }
 body.theme_warm .buttonStyle {
   color: #331d23;
@@ -146,12 +150,11 @@ body.theme_warm .fr_popup .modal_dom select, body.theme_warm .fr_popup .modal_do
   background-color: rgb(177.6981818182, 72.9018181818, 76.3190909091);
   color: #fde8e1;
 }
-body.theme_warm .fr_popup .modal_dom button:hover, body.theme_warm .fr_popup .modal_dom button.active, body.theme_warm .fr_popup .modal_dom button.disabled,
+body.theme_warm .fr_popup .modal_dom button:hover, body.theme_warm .fr_popup .modal_dom button.active,
 body.theme_warm .fr_popup .modal_dom button option:checked,
 body.theme_warm .fr_popup .modal_dom select:hover,
 body.theme_warm .fr_popup .modal_dom select.active,
-body.theme_warm .fr_popup .modal_dom select.disabled,
-body.theme_warm .fr_popup .modal_dom select option:checked, body.theme_warm .fr_popup .modal_dom .btn:hover, body.theme_warm .fr_popup .modal_dom .btn.active, body.theme_warm .fr_popup .modal_dom .btn.disabled,
+body.theme_warm .fr_popup .modal_dom select option:checked, body.theme_warm .fr_popup .modal_dom .btn:hover, body.theme_warm .fr_popup .modal_dom .btn.active,
 body.theme_warm .fr_popup .modal_dom .btn option:checked {
   color: rgb(177.6981818182, 72.9018181818, 76.3190909091);
   background-color: #fde8e1;
@@ -175,15 +178,17 @@ body.theme_warm .view_fav .list_fav_group .fav_group table {
 body.theme_warm .view_fav .list_fav_group .fav_group table select {
   color: #c58f9c;
 }
-body.theme_warm .view_log .form {
+body.theme_warm .view_log .form, body.theme_warm .view_share .form {
   background-color: rgb(250.45, 202.675, 186.75);
 }
 body.theme_warm .view_log .form input,
 body.theme_warm .view_log .form button,
-body.theme_warm .view_log .form select {
+body.theme_warm .view_log .form select, body.theme_warm .view_share .form input,
+body.theme_warm .view_share .form button,
+body.theme_warm .view_share .form select {
   background-color: rgb(250.45, 202.675, 186.75);
 }
-body.theme_warm .view_log table tr:hover {
+body.theme_warm .view_log table tr:hover, body.theme_warm .view_share table tr:hover {
   background-color: hsl(15, 87.5%, 101.7254901961%);
 }
 body.theme_warm .view_setting table td.editing, body.theme_warm .view_setting table td:hover {
@@ -356,10 +361,10 @@ body.theme_warm .modal_browser.office .pagination .left, body.theme_warm .modal_
   background-color: #fde8e1;
   color: #331d23;
 }
-body.theme_warm .modal_browser.office .pagination .left:hover, body.theme_warm .modal_browser.office .pagination .left.active, body.theme_warm .modal_browser.office .pagination .left.disabled,
-body.theme_warm .modal_browser.office .pagination .left option:checked, body.theme_warm .modal_browser.office .pagination .right:hover, body.theme_warm .modal_browser.office .pagination .right.active, body.theme_warm .modal_browser.office .pagination .right.disabled,
-body.theme_warm .modal_browser.office .pagination .right option:checked, body.theme_warm .modal_browser.pdf .pagination .left:hover, body.theme_warm .modal_browser.pdf .pagination .left.active, body.theme_warm .modal_browser.pdf .pagination .left.disabled,
-body.theme_warm .modal_browser.pdf .pagination .left option:checked, body.theme_warm .modal_browser.pdf .pagination .right:hover, body.theme_warm .modal_browser.pdf .pagination .right.active, body.theme_warm .modal_browser.pdf .pagination .right.disabled,
+body.theme_warm .modal_browser.office .pagination .left:hover, body.theme_warm .modal_browser.office .pagination .left.active,
+body.theme_warm .modal_browser.office .pagination .left option:checked, body.theme_warm .modal_browser.office .pagination .right:hover, body.theme_warm .modal_browser.office .pagination .right.active,
+body.theme_warm .modal_browser.office .pagination .right option:checked, body.theme_warm .modal_browser.pdf .pagination .left:hover, body.theme_warm .modal_browser.pdf .pagination .left.active,
+body.theme_warm .modal_browser.pdf .pagination .left option:checked, body.theme_warm .modal_browser.pdf .pagination .right:hover, body.theme_warm .modal_browser.pdf .pagination .right.active,
 body.theme_warm .modal_browser.pdf .pagination .right option:checked {
   background-color: hsl(15, 87.5%, 103.7254901961%);
   color: rgb(70.5075, 40.0925, 48.3875);

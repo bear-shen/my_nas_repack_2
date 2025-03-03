@@ -44,6 +44,17 @@ const routes = [
         },
     },
     {
+        //分享的目录暂定就是share.html，所以避开
+        path: '/shares',
+        name: 'Share',
+        component: () => import('@/views/ShareView.vue'),
+        meta: {
+            icon: 'sysIcon_export',
+            deny_user: false,
+            deny_guest: true,
+        },
+    },
+    {
         path: '/group',
         name: 'User',
         component: () => import('@/views/UserView.vue'),
