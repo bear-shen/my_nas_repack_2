@@ -2,7 +2,7 @@
 import {useModalStore} from "@/stores/modalStore";
 // import {useEventStore} from "@/stores/event";
 import {onMounted, onUnmounted, ref,} from "vue";
-import type {ModalCallbackConstruct, ModalConstruct, ModalFormConstruct, ModalLayout, ModalStruct,} from "@/modal";
+import type {ModalCallbackConstruct, ModalConstruct, ModalFormConstruct, ModalLayout, ModalStruct,} from "@/types/modal";
 // import HelloWorldVue from "@/components/HelloWorld.vue";
 import Browser from "@/popupComponents/browser.vue";
 import Locator from "@/popupComponents/locator.vue";

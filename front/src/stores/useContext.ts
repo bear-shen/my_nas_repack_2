@@ -1,5 +1,5 @@
 import {defineStore} from 'pinia'
-import type {contextListDef} from "@/context";
+import type {contextListDef} from "@/types/context";
 
 type triggerDef = (defLs: contextListDef, e: MouseEvent) => any;
 let trigger: null | triggerDef = null;

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {onMounted, ref, watch, onUnmounted} from "vue";
 import type {Ref} from "vue";
-import type {ModalConstruct, ModalStruct} from "@/modal";
+import type {ModalConstruct, ModalStruct} from "@/types/modal";
 import {queryDemo, query} from "@/Helper";
 import type {api_node_col, api_file_list_resp, api_file_upload_resp} from "../../../share/Api";
 import GenFunc from "@/GenFunc";

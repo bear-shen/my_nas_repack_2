@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import {onBeforeUnmount, onMounted, ref, watch} from "vue";
 import type {Ref} from "vue";
-import type {ModalStruct} from "../modal";
+import type {ModalStruct} from "@/types/modal";
 import type {api_node_col} from "../../../share/Api";
-import type {col_file_with_path} from "../../../share/Database";
+import type {col_node_file_index} from "../../../share/Database";
 import GenFunc from "@/GenFunc";
 import * as kvStore from "@/IndexedKVStore";
 import Config from "@/Config";
@@ -19,7 +19,7 @@ const props = defineProps<{
 const content: Ref<string> = ref('');
 const contentDOM: Ref<HTMLElement | null> = ref(null);
 
-async function getContent(file: col_file_with_path) {
+async function getContent(file: col_node_file_index) {
   const res = await fetch(file.path, {
     method: 'GET',
     headers: {

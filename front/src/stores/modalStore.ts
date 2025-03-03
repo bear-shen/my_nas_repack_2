@@ -1,5 +1,5 @@
 import {defineStore} from 'pinia';
-import type {ModalConstruct, ModalStruct} from '../modal';
+import type {ModalConstruct, ModalStruct} from '@/types/modal';
 
 let caller = {
     set: null,

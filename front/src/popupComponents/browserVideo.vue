@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import {onBeforeUnmount, onMounted, ref, type Ref, watch} from "vue";
-import type {ModalStruct} from "../modal";
+import type {ModalStruct} from "@/types/modal";
 import type {api_node_col} from "../../../share/Api";
 import GenFunc from "@/GenFunc";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
-import type {col_file_with_path} from "../../../share/Database";
+import type {col_node_file_index} from "../../../share/Database";
 import {mayTyping} from "@/Helper";
 
 const localConfigure = useLocalConfigureStore();
@@ -544,7 +544,7 @@ function toggleSubtitle(index: number) {
             <track
               :key="'MO_BS_VDO_'+modalData.nid+'_track_'+index"
               :default="subtitleIndex==index?true:false"
-              :src="(subtitle.file_index.normal as col_file_with_path).path" kind="subtitles"
+              :src="(subtitle.file_index.normal as col_node_file_index).path" kind="subtitles"
               :srclang="subtitle.label" :label="subtitle.label"
             />
           </template>
@@ -552,7 +552,7 @@ function toggleSubtitle(index: number) {
             <track
               :key="'MO_BS_VDO_'+modalData.nid+'_track_'+index"
               :default="subtitleIndex==index?true:false"
-              :src="(subtitle.file_index.raw as col_file_with_path).path" kind="subtitles"
+              :src="(subtitle.file_index.raw as col_node_file_index).path" kind="subtitles"
               :srclang="subtitle.label" :label="subtitle.label"
             />
           </template>

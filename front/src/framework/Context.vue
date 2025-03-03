@@ -3,7 +3,7 @@ import type {Ref} from "vue";
 import {onMounted, ref} from "vue";
 import {useUserStore} from "@/stores/userStore";
 import {useContextStore} from "@/stores/useContext";
-import type {contextItemDef, contextListDef} from "@/context";
+import type {contextItemDef, contextListDef} from "@/types/context";
 
 const userStore = useUserStore();
 const user = userStore.get();
@@ -192,8 +192,7 @@ addEventListener('click', (e: MouseEvent) => {
          }"
          ref="contextDOM"
     >
-      <div v-for="context in contextList"
-           v-if="true"
+      <div v-for="(context,i1) in contextList"  :key="`COM_${i1}`"
            :class="[
              'context_item',
              context.child?.length?'has_sub':'',
@@ -203,8 +202,7 @@ addEventListener('click', (e: MouseEvent) => {
         <span v-html="context.title"></span>
         <template v-if="context.child && context.child.length">
           <div class="context_menu_sub">
-            <div v-for="subContext in context.child"
-                 v-if="true"
+            <div v-for="(subContext,i2) in context.child" :key="`COM_${i1}_${i2}`"
                  :class="{context_item:true}"
                  @click="subContext.method"
             >

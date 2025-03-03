@@ -12,7 +12,7 @@ import type {
   api_setting_list_req, api_setting_list_resp, api_setting_mod_resp,
 } from "../../../share/Api";
 import ContentEditable from "@/components/ContentEditable.vue";
-import type {ModalConstruct} from "@/modal";
+import type {ModalConstruct} from "@/types/modal";
 import {useModalStore} from "@/stores/modalStore";
 // import {useModalStore} from "@/stores/modalStore";
 

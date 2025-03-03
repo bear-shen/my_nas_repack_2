@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {onMounted, onUnmounted, ref, type Ref, watch} from "vue";
-import type {ModalStruct} from "@/modal";
+import type {ModalStruct} from "@/types/modal";
 import type {api_node_col} from "../../../share/Api";
 import GenFunc from "@/GenFunc";
 // import {useEventStore} from "@/stores/event";

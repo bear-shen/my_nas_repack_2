@@ -4,7 +4,7 @@
 import type {Ref} from "vue";
 import {ref,} from "vue";
 import type {api_favourite_attach_resp, api_favourite_group_list_resp, api_file_bath_delete_resp, api_file_bath_move_req, api_file_bath_move_resp, api_file_checksum_resp, api_file_cover_resp, api_file_delete_resp, api_file_list_req, api_file_mov_req, api_file_mov_resp, api_file_rebuild_resp, api_node_col, api_rate_attach_resp, api_tag_list_resp} from "../../share/Api";
-import type {ModalConstruct} from "@/modal";
+import type {ModalConstruct} from "@/types/modal";
 import {mayInPopup, mayTyping, query} from "@/Helper";
 import GenFunc from "@/GenFunc";
 import {useModalStore} from "@/stores/modalStore";
@@ -400,6 +400,7 @@ export class opModule {
         if (this.route.name !== 'Directory') {
             fileViewMode = 'detail';
         }
+        //仅列表页的数据
         let useEditMethods = fileViewMode === 'detail';
         if (this.route.name === 'Recycle') {
             useEditMethods = false;

@@ -41,7 +41,7 @@ export function query<K>(
             if (xhr.status >= 400)
                 return throwError(`${xhr.status}:${xhr.statusText}`);
             const res = JSON.parse(xhr.responseText);
-            console.info(res);
+            // console.info(res);
             switch (res.code) {
                 case 10:
                     throwLogin();
