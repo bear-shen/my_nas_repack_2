@@ -1515,7 +1515,7 @@ export class opFunctionModule {
                 submit: async (modal) => {
                     const formData = new FormData();
                     formData.set('node_id_list', Array.from(idSet).join(','));
-                    if (modal.content.form[0].value == '0') {
+                    if (modal.content.form[0].value == '1') {
                         formData.set('status', 2);
                     } else {
                         formData.set('status', 1);

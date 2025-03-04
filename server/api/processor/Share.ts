@@ -73,7 +73,7 @@ export default class {
             node_id_list: Array.from(nodeIdSet),
             status: 2,
         };
-        if (request.time_to) {
+        if (request.status === '1') {
             insVal.status = 1;
             insVal.time_to = request.time_to;
         }
