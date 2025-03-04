@@ -24,7 +24,7 @@ let countFile = 0;
 let countTotalFile = 0;
 let countSize = 50;
 let countTotalSize = 100;
-const countProcessTxt: Ref<string> = ref('asdasd');
+const countProcessTxt: Ref<string> = ref('');
 const countProcessStyle: Ref<string> = ref('');
 
 onMounted(async () => {
@@ -462,8 +462,8 @@ function throwError(msg) {
 }
 .sh_fr_footer {
   .process {
-    width: 50%;
-    //width: 0;
+    //width: 50%;
+    width: 0;
     height: 100%;
     line-height: $fontSize*2;
     background-image: url("assets/bg.png");
