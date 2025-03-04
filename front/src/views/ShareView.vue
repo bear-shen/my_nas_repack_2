@@ -117,7 +117,7 @@ async function delShare(id: number) {
         :key="`share_view_${row.ext_key}`"
       >
         <td>
-          <a :href="`./share.html/${row.id}`" target="_blank">{{ row.id }}</a>
+          <a :href="`./share.html?id=${row.id}`" target="_blank">{{ row.id }}</a>
         </td>
         <td>{{ row.user.name }}</td>
         <td>

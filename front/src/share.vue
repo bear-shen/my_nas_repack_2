@@ -8,22 +8,24 @@ import GenFunc from "@/GenFunc";
 import type {JSZipObject} from "jszip";
 import JSZip from 'jszip';
 
+const errMsg: Ref<string> = ref('');
+
 let shareId = 0;
 let parentNode = 0;
-let list: Ref<api_node_col[]> = ref([]);
-let cur: Ref<api_node_col> = ref(null);
-let parent: Ref<api_node_col> = ref(null);
+const list: Ref<api_node_col[]> = ref([]);
+const cur: Ref<api_node_col> = ref(null);
+const parent: Ref<api_node_col> = ref(null);
 
-let selectedId: Ref<number[]> = ref([]);
+const selectedId: Ref<number[]> = ref([]);
 
 let downloading = true;
 let queuedNodes: api_node_col[] = [];
 let countFile = 0;
 let countTotalFile = 0;
-let countSize = 0;
-let countTotalSize = 0;
-let countProcessTxt: Ref<string> = ref('');
-let countProcessStyle: Ref<string> = ref('');
+let countSize = 50;
+let countTotalSize = 100;
+const countProcessTxt: Ref<string> = ref('asdasd');
+const countProcessStyle: Ref<string> = ref('');
 
 onMounted(async () => {
   // console.info('onMounted');
@@ -184,10 +186,6 @@ function buildPath(info, targetMap: Map<number, DownloadedNodeInfo>) {
   return pathArr.join('/');
 }
 
-function downloadZip() {
-
-}
-
 function downloadBuffer(title, buffer) {
   const blob = new Blob([buffer], {type: 'application/octet-stream'});
   let link = document.createElement('a');
@@ -302,7 +300,8 @@ function query<K>(
 
 
 function throwError(msg) {
-  alert(msg);
+  // alert(msg);
+  errMsg.value = msg;
   throw new Error(msg)
 }
 </script>
@@ -324,7 +323,10 @@ function throwError(msg) {
     </div>
   </div>
   <div class="sh_fr_body">
-    <ul>
+    <template v-if="errMsg.length">
+      <p class="err_msg">{{ errMsg }}</p>
+    </template>
+    <ul v-else>
       <template v-if="cur && cur.id">
         <li class="pointer" @click="pushRoute(shareId,parent?parent.id:0)">
           <p>
@@ -335,7 +337,6 @@ function throwError(msg) {
       </template>
       <li
         v-for="item in list" :key="item.id"
-
       >
         <p>
           <input type="checkbox" name="selector" :id="`selector_${item.id}`" :value="item.id" v-model="selectedId">
@@ -394,6 +395,12 @@ function throwError(msg) {
 }
 .sh_fr_body {
   height: calc(100vh - $fontSize * 4);
+  overflow: auto;
+  .err_msg {
+    font-size: $fontSize*5;
+    text-align: center;
+    display: block;
+  }
   ul {
     width: $fontSize*80;
     margin: 0 auto;
@@ -455,10 +462,12 @@ function throwError(msg) {
 }
 .sh_fr_footer {
   .process {
-    width: 0;
+    width: 50%;
+    //width: 0;
     height: 100%;
     line-height: $fontSize*2;
-    background: url("assets/bg.png") 100vw 100vh, map.get($colors, font);
+    background-image: url("assets/bg.png");
+    background-color: map.get($colors, font);
     color: map.get($colors, font);
     text-align: center;
     white-space: nowrap;

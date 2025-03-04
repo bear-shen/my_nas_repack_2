@@ -27,7 +27,7 @@ import type {api_user_login_req, api_user_login_resp} from "../../../share/Api";
 
 const localConfigure = useLocalConfigureStore();
 const themeLs = Config.theme;
-let curThemeName = localConfigure.get('theme') ?? 'default';
+let curThemeName = localConfigure.get('theme') ?? 'warm';
 
 function switchTheme() {
   const themeOptions: { [key: string]: string } = {};

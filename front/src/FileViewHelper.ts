@@ -1440,7 +1440,7 @@ export class opFunctionModule {
             allow_move: true,
             allow_fullscreen: false,
             auto_focus: true,
-            text: '<a href="./share.html/#id#" target="_blank" style="text-decoration: underline">url generated<br> id: #id#</a>',
+            text: '<a href="./share.html?id=#id#" target="_blank" style="text-decoration: underline">url generated<br> id: #id#</a>',
             callback: {
                 submit: async (modal) => {
                 }

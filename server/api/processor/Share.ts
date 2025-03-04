@@ -103,8 +103,9 @@ export default class {
             'rel_node_id',
         ];
         // const user = await new UserModel().where('id', data.uid).first();
-        const share = await new ShareModel().where('id', request.id).first();
+        const share = await new ShareModel().where('id', request.id).where('status', '<>', 0).first();
         if (!share) throw new Error('share data not found');
+        if (new Date(share.time_to).valueOf() < new Date().valueOf()) throw new Error('expired');
         //
         const rootLs = await new NodeModel().whereIn('id', share.node_id_list)
             .where('cascade_status', 1)
@@ -151,8 +152,9 @@ export default class {
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<null> {
         const request = data.fields as api_share_get_req;
         // const user = await new UserModel().where('id', data.uid).first();
-        const share = await new ShareModel().where('id', request.id).first();
+        const share = await new ShareModel().where('id', request.id).where('status', '<>', 0).first();
         if (!share) throw new Error('share data not found');
+        if (new Date(share.time_to).valueOf() < new Date().valueOf()) throw new Error('expired');
         const node = await new NodeModel().where('id', request.id_node).first();
         if (!node) throw new Error('node not found');
         const raw = node.file_index.raw;
