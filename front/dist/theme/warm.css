@@ -381,5 +381,21 @@ body.theme_warm .modal_locator .locator_list > div:hover, body.theme_warm .modal
 body.theme_warm .modal_uploader .upload_list > div:nth-child(2n) {
   background-color: rgba(254.9125, 253.99375, 253.6875, 0.5);
 }
+body.theme_warm .sh_fr_header, body.theme_warm .sh_fr_footer {
+  background-color: #331d23;
+  color: #fde8e1;
+}
+body.theme_warm .sh_fr_body ul li:nth-child(2n-1) {
+  background-color: hsl(15, 87.5%, 101.7254901961%);
+}
+body.theme_warm .sh_fr_body ul li:hover {
+  background-color: #c58f9c;
+  color: #fde8e1;
+}
+body.theme_warm .sh_fr_footer .process {
+  background-image: none;
+  background-color: #9c4043;
+  color: #fde8e1;
+}
 
 /*# sourceMappingURL=warm.css.map */

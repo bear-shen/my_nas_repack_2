@@ -528,4 +528,28 @@ body.theme_solarized_light {
       }
     }
   }
+  //
+  .sh_fr_header, .sh_fr_footer {
+    background-color: map.get($colors, bar_horizon);
+  }
+  .sh_fr_body {
+    ul {
+      li {
+        &:nth-child(2n-1) {
+          background-color: map.get($colors, bk_active);
+        }
+        &:hover {
+          background-color: map.get($colors, font_sub);
+          color: map.get($colors, bk_active);
+        }
+      }
+    }
+  }
+  .sh_fr_footer {
+    .process {
+      background-image: none;
+      background-color: map.get($colors, font_sub);
+      color: map.get($colors, bk_active);
+    }
+  }
 }

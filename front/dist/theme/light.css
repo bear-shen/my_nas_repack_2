@@ -357,5 +357,20 @@ body.theme_light .modal_locator .locator_list > div:hover, body.theme_light .mod
 body.theme_light .modal_uploader .upload_list > div:nth-child(2n) {
   background-color: hsla(0, 0%, 78%, 0.75);
 }
+body.theme_light .sh_fr_header, body.theme_light .sh_fr_footer {
+  background-color: hsl(0, 0%, 74%);
+}
+body.theme_light .sh_fr_body ul li:nth-child(2n-1) {
+  background-color: hsl(0, 0%, 82%);
+}
+body.theme_light .sh_fr_body ul li:hover {
+  background-color: rgb(136.5, 136.5, 136.5);
+  color: hsl(0, 0%, 82%);
+}
+body.theme_light .sh_fr_footer .process {
+  background-image: none;
+  background-color: rgb(136.5, 136.5, 136.5);
+  color: hsl(0, 0%, 82%);
+}
 
 /*# sourceMappingURL=light.css.map */

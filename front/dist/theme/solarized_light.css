@@ -357,5 +357,20 @@ body.theme_solarized_light .modal_locator .locator_list > div:hover, body.theme_
 body.theme_solarized_light .modal_uploader .upload_list > div:nth-child(2n) {
   background-color: rgba(248.92, 227.64, 169.88, 0.75);
 }
+body.theme_solarized_light .sh_fr_header, body.theme_solarized_light .sh_fr_footer {
+  background-color: rgb(247.56, 221.52, 150.84);
+}
+body.theme_solarized_light .sh_fr_body ul li:nth-child(2n-1) {
+  background-color: rgb(250.28, 233.76, 188.92);
+}
+body.theme_solarized_light .sh_fr_body ul li:hover {
+  background-color: #839496;
+  color: rgb(250.28, 233.76, 188.92);
+}
+body.theme_solarized_light .sh_fr_footer .process {
+  background-image: none;
+  background-color: #839496;
+  color: rgb(250.28, 233.76, 188.92);
+}
 
 /*# sourceMappingURL=solarized_light.css.map */

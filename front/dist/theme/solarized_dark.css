@@ -357,5 +357,19 @@ body.theme_solarized_dark .modal_locator .locator_list > div:hover, body.theme_s
 body.theme_solarized_dark .modal_uploader .upload_list > div:nth-child(2n) {
   background-color: hsla(192.2033898305, 80.8219178082%, -0.6862745098%, 0.5);
 }
+body.theme_solarized_dark .sh_fr_header, body.theme_solarized_dark .sh_fr_footer {
+  background-color: rgb(3.0876712329, 23.8191780822, 29.1123287671);
+}
+body.theme_solarized_dark .sh_fr_body ul li:nth-child(2n-1) {
+  background-color: rgb(10.9123287671, 84.1808219178, 102.8876712329);
+}
+body.theme_solarized_dark .sh_fr_body ul li:hover {
+  background-color: rgb(232.58, 225.5907692308, 206.62);
+  color: #073642;
+}
+body.theme_solarized_dark .sh_fr_footer .process {
+  background-color: rgb(232.58, 225.5907692308, 206.62);
+  color: rgb(232.58, 225.5907692308, 206.62);
+}
 
 /*# sourceMappingURL=solarized_dark.css.map */
