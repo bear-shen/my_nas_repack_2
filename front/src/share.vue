@@ -309,7 +309,7 @@ function throwError(msg) {
 <template>
   <div class="sh_fr_header">
     <div>
-      <img src="@/assets/logo.png">
+      <img src="@/assets/logobl.png">
       <span>MyNas Share</span>
     </div>
     <div class="operator">

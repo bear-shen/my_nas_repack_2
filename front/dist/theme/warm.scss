@@ -4,10 +4,13 @@
 body.theme_warm {
   //$colorDef_bk: rgba(25, 49, 52, 1);
   //$colorDef_font: rgb(210, 200, 165);
-  $colorDef_bk: #fde8e1;
-  $colorDef_bk_l2: #9c4043;
+  $colorDef_bk: hsl(20deg, 42%, 90%);
+  $colorDef_bk_l2: hsl(0deg, 42%, 42%);
+  $colorDef_bk_l3: hsl(0deg, 42%, 63%);
+  $colorDef_bk_l4: hsl(10deg, 42%, 84%);
+  $colorDef_bk_l5: hsl(10deg, 42%, 96%);
   //$colorDef_bk_l3: #ede5d7;
-  $colorDef_font: #331d23;
+  $colorDef_font: hsl(345, 30%, 30%);
   $colorDef_font_sub: #c58f9c;
   $colorDef_button: $colorDef_bk;
   $colorDef_positive: #2aa198;
@@ -16,7 +19,7 @@ body.theme_warm {
     //内容背景
           bk:$colorDef_bk,
     //bk:color.adjust($colorDef_bk, $lightness: 8%),
-          bk_active:color.adjust($colorDef_bk, $lightness: 8%),
+          bk_active:$colorDef_bk_l5,
     //bk_active:$colorDef_bk,
     //上标题栏
           bar_horizon:$colorDef_bk,
@@ -24,10 +27,10 @@ body.theme_warm {
     //侧标题栏
     //      hsl(36 41% 66% / 1)
           bar_vertical:$colorDef_bk_l2,
-          bar_vertical_active:color.adjust($colorDef_bk_l2, $lightness: 16%),
+          bar_vertical_active:$colorDef_bk_l3,
     //内容标题栏
-          bar_meta:color.adjust($colorDef_bk, $lightness: -8%),
-          bar_meta_active:color.adjust($colorDef_bk, $lightness: 0%),
+          bar_meta:$colorDef_bk_l4,
+          bar_meta_active:$colorDef_bk,
     //弹窗标题栏
     //弹窗背景
     //弹窗背景 高亮
@@ -59,16 +62,16 @@ body.theme_warm {
   );
   //滚动条
   ::-webkit-scrollbar-track {
-    background-color: rgba(0, 0, 0, 0.25);
+    background-color: rgba(0, 0, 0, 0.1);
   }
   ::-webkit-scrollbar {
     background-color: rgba(0, 0, 0, 0);
   }
   ::-webkit-scrollbar-thumb {
-    background-color: rgba(197, 197, 197, 0.25);
+    background-color: $colorDef_bk_l3;
   }
   :hover::-webkit-scrollbar-thumb {
-    background-color: rgba(197, 197, 197, 0.5);
+    background-color: $colorDef_bk_l3;
   }
   ::-webkit-scrollbar-corner {
     background-color: rgba(0, 0, 0, 0.0);
@@ -561,10 +564,10 @@ body.theme_warm {
     ul {
       li {
         &:nth-child(2n-1) {
-          background-color: map.get($colors, bk_active);
+          background-color: map.get($colors, bar_meta);
         }
         &:hover {
-          background-color: map.get($colors, font_sub);
+          background-color: map.get($colors, bar_vertical);
           color: map.get($colors, bk);
         }
       }
