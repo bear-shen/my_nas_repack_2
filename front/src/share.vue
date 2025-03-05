@@ -509,16 +509,21 @@ function throwError(msg) {
   .sh_fr_body {
     ul {
       li {
+        display: block;
         p {
+          display: block;
           //max-height: $fontSize*6;
           span {
             height: auto;
             max-height: $fontSize*7.5;
             overflow: auto;
-            max-width: $fontSize*15;
+            max-width: $fontSize*10;
             word-break: break-all;
             white-space: normal;
           }
+        }
+        p:nth-child(2){
+          text-align: right;
         }
       }
     }
