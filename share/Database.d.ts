@@ -25,8 +25,11 @@ export type col_node = {
         //因为只替换一次因此也应该避免迭代
         //具体的类型实现前端自己进行
         rel?: number,
+        //封面
         cover?: col_node_file_index,
+        //视频和音频封面
         preview?: col_node_file_index,
+        //图片的展示内容
         normal?: col_node_file_index,
         raw?: col_node_file_index,
         [key: string]: number | col_node_file_index,

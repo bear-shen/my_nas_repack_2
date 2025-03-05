@@ -137,7 +137,7 @@ function closeMenu() {
 
 onMounted(() => {
   // triggerMenu([],null);
-  console.info(contentDOM);
+  // console.info(contentDOM);
 });
 
 let contentDOM: HTMLElement | null = null;

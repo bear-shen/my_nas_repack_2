@@ -22,7 +22,7 @@ body.theme_warm .modal_alpha::before {
 }
 body.theme_warm button,
 body.theme_warm select, body.theme_warm .btn {
-  background-color: hsl(20, 42%, 90%);
+  background-color: hsl(10, 42%, 84%);
   color: hsl(345, 30%, 30%);
 }
 body.theme_warm button:hover, body.theme_warm button.active,
@@ -31,7 +31,7 @@ body.theme_warm select:hover,
 body.theme_warm select.active,
 body.theme_warm select option:checked, body.theme_warm .btn:hover, body.theme_warm .btn.active,
 body.theme_warm .btn option:checked {
-  background-color: hsl(20, 42%, 100%);
+  background-color: hsl(10, 42%, 94%);
   color: hsl(345, 30%, 36%);
 }
 body.theme_warm input, body.theme_warm textarea {
@@ -55,7 +55,7 @@ body.theme_warm .buttonStyle {
   color: hsl(345, 30%, 30%);
 }
 body.theme_warm .buttonStyle:hover, body.theme_warm .buttonStyle.active {
-  background-color: hsl(20, 42%, 100%);
+  background-color: hsl(10, 42%, 94%);
   color: hsl(345, 30%, 36%);
 }
 body.theme_warm .fr_header,
@@ -98,7 +98,7 @@ body.theme_warm .fr_header .action {
 }
 body.theme_warm .fr_header .active,
 body.theme_warm .fr_header .user li:hover,
-body.theme_warm .fr_header .navi div:hover {
+body.theme_warm .fr_header .navi a:hover {
   background-color: hsl(10, 42%, 84%);
   color: hsl(345, 30%, 30%);
 }
@@ -358,7 +358,7 @@ body.theme_warm .modal_browser.video .l .btnContainer .video_bar span.duration {
   border-right: 1px solid rgb(207.44, 163.16, 173.82);
 }
 body.theme_warm .modal_browser.office .pagination .left, body.theme_warm .modal_browser.office .pagination .right, body.theme_warm .modal_browser.pdf .pagination .left, body.theme_warm .modal_browser.pdf .pagination .right {
-  background-color: hsl(20, 42%, 90%);
+  background-color: hsl(10, 42%, 84%);
   color: hsl(345, 30%, 30%);
 }
 body.theme_warm .modal_browser.office .pagination .left:hover, body.theme_warm .modal_browser.office .pagination .left.active,
@@ -366,7 +366,7 @@ body.theme_warm .modal_browser.office .pagination .left option:checked, body.the
 body.theme_warm .modal_browser.office .pagination .right option:checked, body.theme_warm .modal_browser.pdf .pagination .left:hover, body.theme_warm .modal_browser.pdf .pagination .left.active,
 body.theme_warm .modal_browser.pdf .pagination .left option:checked, body.theme_warm .modal_browser.pdf .pagination .right:hover, body.theme_warm .modal_browser.pdf .pagination .right.active,
 body.theme_warm .modal_browser.pdf .pagination .right option:checked {
-  background-color: hsl(20, 42%, 100%);
+  background-color: hsl(10, 42%, 94%);
   color: hsl(345, 30%, 36%);
 }
 body.theme_warm .modal_locator .locator_list > div .tree > span {

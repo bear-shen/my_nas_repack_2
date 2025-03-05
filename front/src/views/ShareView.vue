@@ -121,9 +121,11 @@ async function delShare(id: number) {
         </td>
         <td>{{ row.user.name }}</td>
         <td>
-          <p v-for="node in row.node" :key="`share_view_${row.ext_key}_${node.id}`">
-            {{ node.node_path }}/{{ node.title }}
-          </p>
+          <div class="multi">
+            <p v-for="node in row.node" :key="`share_view_${row.ext_key}_${node.id}`">
+              {{ node.node_path }}/{{ node.title }}
+            </p>
+          </div>
         </td>
         <td>
           <template v-if="false"></template>
@@ -178,7 +180,7 @@ async function delShare(id: number) {
   table {
     width: 100%;
     th, td {
-      font-size: $fontSize;
+      line-height: 1.5em;
       padding: $fontSize*0.5;
       text-align: left;
     }
@@ -188,6 +190,15 @@ async function delShare(id: number) {
     tr:hover {
       background-color: map.get($colors, bk_active);
     }
+    td{
+      font-size: $fontSize;
+    }
+  }
+  .multi{
+    max-height: $fontSize*6;
+    overflow: auto;
+    //text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 </style>

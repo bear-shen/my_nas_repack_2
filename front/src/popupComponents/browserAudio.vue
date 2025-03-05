@@ -61,8 +61,18 @@ const brightnessKey = localConfigure.listen("browser_play_brightness", (v) =>
   Object.assign(mediaMeta.value, {brightness: v})
 );
 
+const coverKeyword = [
+  'cover', 'album',
+  'bk', 'cd',
+];
+const imgKeyword = [
+  'jpg', 'png', 'webp',
+];
+
+//dom的loadedmetadata触发
 function onInit(): any {
   console.info('onInit');
+  console.info(props.nodeList);
   const dom = mediaDOM.value;
   if (!dom) return;
   if (dom.readyState !== 4) return setTimeout(onInit, 50);
@@ -76,6 +86,29 @@ function onInit(): any {
   dom.volume = meta.mute ? 0 : meta.volume / 100;
   //
   contentDOM.value?.addEventListener("wheel", wheelListener);
+  //添加一个封面
+  if (!props.curNode.file_index?.preview) {
+    let has = false
+    props.nodeList.forEach(node => {
+      if (node.id_parent !== props.curNode.id_parent) return;
+      if (has) return;
+      let isCover = false;
+      coverKeyword.forEach(kw1 => {
+        imgKeyword.forEach(kw2 => {
+          if (node.title.toLowerCase().indexOf(kw1) !== -1)
+            if (node.title.toLowerCase().indexOf(kw2) !== -1)
+              isCover = true;
+        })
+      });
+      if (!isCover) return;
+      has = true;
+      let fileInfo;
+      if (!fileInfo) fileInfo = node.file_index.preview;
+      if (!fileInfo) fileInfo = node.file_index.normal;
+      if (!fileInfo) fileInfo = node.file_index.raw;
+      props.curNode.file_index.preview = fileInfo;
+    });
+  }
 }
 
 function onCanplay(e: Event) {
@@ -498,6 +531,7 @@ function parseTime(t: number) {
 .modal_browser.audio {
   .content {
     touch-action: none;
+    text-align: center;
     img {
       position: absolute;
       width: 100%;

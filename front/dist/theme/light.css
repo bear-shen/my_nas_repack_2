@@ -106,7 +106,7 @@ body.theme_light .fr_header .action {
 }
 body.theme_light .fr_header .active,
 body.theme_light .fr_header .user li:hover,
-body.theme_light .fr_header .navi div:hover {
+body.theme_light .fr_header .navi a:hover {
   background-color: hsl(0, 0%, 82%);
   color: rgb(60, 60, 60);
 }

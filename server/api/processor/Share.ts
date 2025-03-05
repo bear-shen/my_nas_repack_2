@@ -25,6 +25,8 @@ export default class {
         }
         if (request.status) {
             model.where('status', request.status);
+        } else {
+            model.where('status', '<>', 0);
         }
         model.page(parseInt(request.page ?? '1'), 100);
         const ls: api_share_list_resp[] = await model.order('time_create', 'desc').select();

@@ -108,7 +108,7 @@ onlyoffice_enabled = 'false'
 #onlyoffice_api_src = 'http://127.0.0.1:8001/web-apps/apps/api/documents/api.js'
 onlyoffice_origin = 'http://127.0.0.1:56000'
 onlyoffice_jwt_secret = 'YOUR_JWT_SECRET'
-
+link_nav = [['Hyper', ''], ['Router', ''], ['Spider', ''], ['Git', ''], ['Torrent', '']]
 
 
 

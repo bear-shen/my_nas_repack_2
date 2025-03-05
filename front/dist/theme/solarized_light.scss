@@ -179,7 +179,7 @@ body.theme_solarized_light {
     }
     .active,
     .user li:hover,
-    .navi div:hover {
+    .navi a:hover {
       background-color: map.get($colors, bar_meta);
       color: map.get($colors, font);
     }

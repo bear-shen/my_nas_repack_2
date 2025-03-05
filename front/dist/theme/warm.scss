@@ -12,7 +12,7 @@ body.theme_warm {
   //$colorDef_bk_l3: #ede5d7;
   $colorDef_font: hsl(345, 30%, 30%);
   $colorDef_font_sub: #c58f9c;
-  $colorDef_button: $colorDef_bk;
+  $colorDef_button: $colorDef_bk_l4;
   $colorDef_positive: #2aa198;
   $colorDef_negative: #cb4b16;
   $colors: (
@@ -179,7 +179,7 @@ body.theme_warm {
     }
     .active,
     .user li:hover,
-    .navi div:hover {
+    .navi a:hover {
       background-color: map.get($colors, bar_meta);
       color: map.get($colors, font);
     }

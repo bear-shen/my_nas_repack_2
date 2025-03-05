@@ -17,7 +17,10 @@ if (userData) {
   loadFeConf();
 }
 
+const ConfigLoadedEvent = new Event('fe_config_loaded');
+
 async function loadFeConf() {
+  // console.info('loadFeConf');
   const res = await query<api_setting_front_conf>('setting/get_front_conf');
   if (!res) return;
   // console.info(res);
@@ -28,6 +31,16 @@ async function loadFeConf() {
     Config.onlyOffice.onlyofficeOrigin = res.onlyoffice_origin;
     Config.onlyOffice.jwtSecret = res.onlyoffice_jwt_secret;
   }
+  // console.info(res);
+  Config.navList = [
+    {name: "Nas", meta: {cur: true}, path: "/"},
+  ];
+  if (res.link_nav) {
+    res.link_nav.forEach(nav => {
+      Config.navList.push({name: nav[0], meta: {cur: false}, path: nav[1]});
+    });
+  }
+  document.dispatchEvent(ConfigLoadedEvent);
 }
 
 // dev();

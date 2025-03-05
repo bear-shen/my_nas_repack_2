@@ -68,7 +68,7 @@ export class opModule {
             // queryData: { [key: string]: any },
         }
     ) {
-        console.info(config);
+        // console.info(config);
         this.contentDOM = config.contentDOM;
         this.getList = config.getList;
         this.route = config.route;
@@ -134,7 +134,7 @@ export class opModule {
     public setList(list: api_node_col[]) {
         this.nodeList.value = list;
         setTimeout(() => {
-                console.info('setList', list);
+                // console.info('setList', list);
                 this.reloadOffset(undefined);
             },
             Config.timeouts.offsetDebounce

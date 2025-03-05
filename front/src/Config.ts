@@ -86,4 +86,5 @@ export default {
         ['solarized_light', './theme/solarized_light.css',],
         ['warm', './theme/warm.css',],
     ],
+    navList: [],
 }

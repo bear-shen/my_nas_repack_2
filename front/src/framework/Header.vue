@@ -1,15 +1,20 @@
 <script setup lang="ts">
 import {useUserStore} from "@/stores/userStore";
 import {query, throwLogin} from "@/Helper";
+import {useLocalConfigureStore} from "@/stores/localConfigure";
+import Config from "@/Config";
+import {useModalStore} from "@/stores/modalStore";
+import type {api_user_login_req, api_user_login_resp} from "../../../share/Api";
+import {onMounted, ref, type Ref} from "vue";
 
-const navList = [
-  {name: "Nas", meta: {cur: true}, path: "/"},
-  {name: "Hyper", meta: {cur: false}, path: ""},
-  {name: "Router", meta: {cur: false}, path: ""},
-  {name: "Spider", meta: {cur: false}, path: ""},
-  {name: "Git", meta: {cur: false}, path: ""},
-  {name: "Torrent", meta: {cur: false}, path: ""},
-];
+type NavType = {
+  name: string,
+  path: string,
+  meta: {
+    cur: boolean,
+  },
+};
+const navList: Ref<NavType[]> = ref([]);
 const userStore = useUserStore();
 
 let user = userStore.get();
@@ -19,12 +24,16 @@ function logout() {
   location.reload();
 }
 
-//
-import {useLocalConfigureStore} from "@/stores/localConfigure";
-import Config from "@/Config";
-import {useModalStore} from "@/stores/modalStore";
-import type {api_user_login_req, api_user_login_resp} from "../../../share/Api";
+onMounted(() => {
+  // console.info('onMounted');
+  document.addEventListener('fe_config_loaded', () => {
+    // console.info('fe_config_loaded', Config.navList)
+    navList.value = Config.navList;
+  })
+});
 
+
+//
 const localConfigure = useLocalConfigureStore();
 const themeLs = Config.theme;
 let curThemeName = localConfigure.get('theme') ?? 'warm';
@@ -102,12 +111,14 @@ setTheme(curThemeName);
   <div class="fr_header">
     <div class="logo">Hentai.</div>
     <div class="navi">
-      <div
+      <a
         v-for="route in navList"
         :key="route.name"
         :class="{ active: route.meta?.cur, pointer: 1 }"
         v-html="route.name"
-      ></div>
+        :href="route.path"
+        target="_blank"
+      ></a>
     </div>
     <div class="user">
       <template v-if="user && user.id">
@@ -143,7 +154,7 @@ setTheme(curThemeName);
 .navi {
   display: flex;
   justify-content: space-between;
-  div {
+  a {
     font-size: $fontSize;
     padding: 0 $fontSize * 0.5;
   }
@@ -173,7 +184,7 @@ setTheme(curThemeName);
 }
 .active,
 .user li:hover,
-.navi div:hover {
+.navi a:hover {
   background-color: map.get($colors, bar_meta);
   color: map.get($colors, font);
 }

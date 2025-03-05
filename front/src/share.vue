@@ -316,10 +316,10 @@ function throwError(msg) {
       <span v-if="selectedId.length"
             class="pointer sysIcon sysIcon_download"
             @click="prepareDownload('list')"
-      >Download {{ selectedId.length }} selected file/folders</span>
+      >{{ selectedId.length }} Selected</span>
       <span class="pointer sysIcon sysIcon_download"
             @click="prepareDownload('total')"
-      >Download All</span>
+      >Down All</span>
     </div>
   </div>
   <div class="sh_fr_body">
@@ -425,6 +425,7 @@ function throwError(msg) {
       }
       p {
         display: inline-block;
+        white-space: nowrap;
         height: 100%;
         * {
           padding: 0 $fontSize*0.5;
@@ -433,6 +434,11 @@ function throwError(msg) {
           line-height: 2.5*$fontSize;
           height: 2.5*$fontSize;
           display: inline-block;
+        }
+        span {
+          max-width: $fontSize*60;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
         input {
           display: none;
@@ -476,5 +482,46 @@ function throwError(msg) {
 }
 .pointer {
   cursor: pointer;
+}
+@media (max-width: $fontSize*90) {
+  .sh_fr_body {
+    ul {
+      width: 100%;
+      li {
+        flex-wrap: wrap;
+        justify-content: space-between;
+        height: auto;
+        p {
+          //width: 100%;
+          span {
+            max-width: $fontSize*15;
+          }
+        }
+      }
+    }
+  }
+}
+@media (max-width: $fontSize*40) {
+  .sh_fr_header {
+    height: auto;
+    flex-wrap: wrap;
+  }
+  .sh_fr_body {
+    ul {
+      li {
+        p {
+          //max-height: $fontSize*6;
+          span {
+            height: auto;
+            max-height: $fontSize*7.5;
+            overflow: auto;
+            max-width: $fontSize*15;
+            word-break: break-all;
+            white-space: normal;
+          }
+        }
+      }
+    }
+  }
 }
 </style>

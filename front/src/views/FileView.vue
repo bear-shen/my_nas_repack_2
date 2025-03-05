@@ -254,7 +254,7 @@ function emitGo(type: string, code?: number) {
 
 
 onMounted(async () => {
-  console.info('onMounted');
+  // console.info('onMounted');
   // localConfigure.release('file_view_mode', modeKey);
   if (route.query) syncQuery(route.query);
   opModule = new fHelper.opModule({

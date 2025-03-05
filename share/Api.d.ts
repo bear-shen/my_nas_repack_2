@@ -364,6 +364,7 @@ export type api_setting_front_conf = {
     onlyoffice_origin?: string,
     onlyoffice_jwt_secret?: string,
     nas_origin?: string,
+    link_nav?: string[][],
     // status?: string,
 } & { [key: string]: any };
 
