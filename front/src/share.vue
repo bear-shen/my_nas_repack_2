@@ -512,12 +512,14 @@ function throwError(msg) {
         display: block;
         p {
           display: block;
+          white-space: normal;
+          width: 100%;
           //max-height: $fontSize*6;
           span {
             height: auto;
             max-height: $fontSize*7.5;
             overflow: auto;
-            max-width: $fontSize*10;
+            //max-width: $fontSize*10;
             word-break: break-all;
             white-space: normal;
           }
