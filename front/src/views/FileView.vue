@@ -245,7 +245,7 @@ function emitGo(type: string, code?: number) {
           opModule.go({mode: 'directory', id_dir: `${node.id}`});
           break
         default:
-          fHelper.popupDetail(GenFunc.copyObject(queryData), node.id ?? 0);
+          fHelper.popupDetail(Object.assign(GenFunc.copyObject(queryData),searchBarQuery), node.id ?? 0);
           break
       }
       break
