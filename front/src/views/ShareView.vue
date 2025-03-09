@@ -109,7 +109,6 @@ async function delShare(id: number) {
         <th>path</th>
         <th>time_to</th>
         <th>time_create</th>
-        <th>time_update</th>
         <th>operate</th>
       </tr>
       <tr
@@ -134,7 +133,6 @@ async function delShare(id: number) {
           <template v-else-if="row.status===2">Long</template>
         </td>
         <td>{{ row.time_create }}</td>
-        <td>{{ row.time_update }}</td>
         <td>
           <button
             v-if="row.status!==0"
@@ -190,11 +188,11 @@ async function delShare(id: number) {
     tr:hover {
       background-color: map.get($colors, bk_active);
     }
-    td{
+    td {
       font-size: $fontSize;
     }
   }
-  .multi{
+  .multi {
     max-height: $fontSize*6;
     overflow: auto;
     //text-overflow: ellipsis;
