@@ -388,7 +388,7 @@ class FileJob {
         let parentNode: col_node;
         if (srcId)
             parentNode = await new NodeModel().where('id', srcId).first([
-                'id', "node_id_list", "node_path"
+                'id', "node_id_list", "node_path", "title"
             ]);
         else
             parentNode = fp.rootNode;
