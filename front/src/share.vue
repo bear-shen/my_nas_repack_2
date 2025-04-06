@@ -287,7 +287,7 @@ function query<K>(
     xhr.onreadystatechange = function () {
       if (xhr.readyState !== 4) return;
       if (xhr.status >= 400)
-        return throwError(`${xhr.status}:${xhr.statusText}`);
+        return throwError(`${xhr.status}: ${xhr.statusText}`);
       const res = JSON.parse(xhr.responseText);
       if (res.code) throwError(res.msg);
       resolve(res.data);

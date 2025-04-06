@@ -61,7 +61,7 @@ const server = http.createServer(async function (req: IncomingMessage, res: Serv
         console.error((e as Error).stack);
         result = {
             'code': 100,
-            'msg': `${(e as Error).name}:${(e as Error).message}`,
+            'msg': `${(e as Error).name}: ${(e as Error).message}`,
             'data': config.public ? [] : (e as Error).stack,
         };
     }
