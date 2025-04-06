@@ -107,8 +107,7 @@ async function delShare(id: number) {
         <th>id</th>
         <th>user</th>
         <th>path</th>
-        <th>time_to</th>
-        <th>time_create</th>
+        <th>time_create<br>time_to</th>
         <th>operate</th>
       </tr>
       <tr
@@ -127,12 +126,13 @@ async function delShare(id: number) {
           </div>
         </td>
         <td>
+          {{ row.time_create }}
+          <br>
           <template v-if="false"></template>
           <template v-else-if="row.status===0">Stopped</template>
           <template v-else-if="row.status===1">{{ row.time_to }}</template>
           <template v-else-if="row.status===2">Long</template>
         </td>
-        <td>{{ row.time_create }}</td>
         <td>
           <button
             v-if="row.status!==0"

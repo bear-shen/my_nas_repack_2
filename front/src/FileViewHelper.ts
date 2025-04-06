@@ -430,6 +430,28 @@ export class opModule {
                 },
             },
             {
+                title: 'Open New Tab',
+                auth: 'guest',
+                method: async (e: MouseEvent) => {
+                    console.info('Open', e, this.route, this.router);
+                    // this.route.query
+                    // return;
+                    let selDir: api_node_col;
+                    if (!isBath) {
+                        if (nodeLs.length)
+                            if (nodeLs[0].type === 'directory')
+                                selDir = nodeLs[0];
+                    }
+                    const curQuery: api_file_list_req = GenFunc.copyObject(this.route.query);
+                    let url = new URL(location.href);
+                    if (selDir) url.searchParams.set('id_dir', selDir.id);
+                    window.open(url, '_blank').focus();
+                    // if(!selDir){
+                    //     selDir=
+                    // }
+                },
+            },
+            {
                 title: 'Download',
                 auth: isBath ? 'none' : (
                     nodeLs[0].type == 'directory' ? 'none' : 'guest'
@@ -616,11 +638,11 @@ export class opModule {
                         },
                     },
                     {
-                        title: 'ReCheck',
+                        title: 'ReHash',
                         auth: isBath ? 'none' : 'admin',
                         method: async (e: MouseEvent) => {
-                            console.info('ReCheck', e);
-                            await opFunctionModule.op_recheck(Array.from(idSet));
+                            console.info('ReHash', e);
+                            await opFunctionModule.op_rehash(Array.from(idSet));
                         },
                     },
                     {
@@ -1374,7 +1396,7 @@ export class opFunctionModule {
         return res;
     }
 
-    public static async op_recheck(idSet: number[]) {
+    public static async op_rehash(idSet: number[]) {
         const formData = new FormData();
         formData.set('id_list', idSet.join(','));
         const res = await query<api_file_checksum_resp>('file/rehash', formData);

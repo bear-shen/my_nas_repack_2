@@ -277,6 +277,13 @@ class FileJob {
             // console.info('no node');
             return;
         }
+        if (node.type === 'directory') {
+            const subNodeLs = await (new NodeModel()).whereRaw('node_id_list @> $0', nodeId).select(['id']);
+            for (let i1 = 0; i1 < subNodeLs.length; i1++) {
+                await this.rebuild({id: subNodeLs[i1].id});
+            }
+            return;
+        }
         if (!node.file_index.raw) {
             // console.info('no node.file_index.raw');
             return;
