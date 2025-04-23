@@ -605,7 +605,9 @@ export async function rename(srcPath: string, targetPath: string) {
     hasErr = null;
     try {
         await fs.rename(srcPath, targetPath);
-        await fs.chmod(targetPath, 0o777);
+        try {await fs.chmod(targetPath, 0o777);}catch (e) {
+            console.info(e);
+        }
         return true;
     } catch (e) {
         hasErr = e;
@@ -616,7 +618,9 @@ export async function rename(srcPath: string, targetPath: string) {
     try {
         await fs.cp(srcPath, targetPath, {recursive: true, force: true});
         await fs.rm(srcPath, {recursive: true, force: true});
-        await fs.chmod(targetPath, 0o777);
+        try {await fs.chmod(targetPath, 0o777);}catch (e) {
+            console.info(e);
+        }
         return true;
     } catch (e) {
         hasErr = e;
@@ -723,7 +727,23 @@ export function getType(suffix: string): type_file {
 }
 
 export function titleFilter(title: string) {
-    return title.replace(/[`\\\/:*?"<>|#%　\s]+/igm, ' ').trim();
+    let res= title.replace(/[`\\\/:*?"<>|#%　\s]+/igm, ' ').trim();
+    res= title.replace('‛', ' ').replace('／', ' ').replace('：', ' ').trim();
+    if(Buffer.from(res).length<200)return res;
+    let fileName=filename(res);
+    let ext=extension(res);
+    if(ext.length>6){
+        fileName+='.'+ext;
+        ext='';
+    }
+    while(Buffer.from(fileName).length>190){
+        fileName=fileName.substring(0,fileName.length-10);
+    }
+    let resFileName=fileName;
+    if(ext.length){
+        resFileName+='.'+ext;
+    }
+    return titleFilter(resFileName);
 }
 
 export function pathFilter(path: string) {

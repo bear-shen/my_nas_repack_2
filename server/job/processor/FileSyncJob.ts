@@ -204,6 +204,7 @@ async function syncDir(localRoot: string, rootNode: col_node) {
     // });
     const curSubFileTitleSet: Set<string> = new Set();
     for (let i1 = 0; i1 < subFileLs.length; i1++) {
+        //console.info(localRoot+subFileLs[i1].name,subFileLs[i1].isDirectory(),subFileLs[i1].isFile());
         if (!rootNode.id) {
             console.info('sync/local2db : ', new Date().toISOString(), subFileLs[i1].name);
         }
@@ -260,6 +261,7 @@ async function syncDir(localRoot: string, rootNode: col_node) {
             curNode = ifExs;
         }
         if (!ifExs) {
+            //console.info('ins',localRoot+subFileLs[i1].name,subFileLs[i1].isDirectory(),subFileLs[i1].isFile());
             if (curNode.type != 'directory')
                 await (new QueueModel).insert({
                     type: 'file/build',
@@ -274,6 +276,7 @@ async function syncDir(localRoot: string, rootNode: col_node) {
         } else {
             //更新时间大于导入时间的需要重新更新
             if (curNode.type != 'directory') {
+                //console.info('upd',localRoot+subFileLs[i1].name,subFileLs[i1].isDirectory(),subFileLs[i1].isFile());
                 const localStats = await fs.stat(fPath);
                 const updateTime = new Date(ifExs.time_update);
                 if (localStats.mtime.valueOf() >= updateTime.valueOf()) {
