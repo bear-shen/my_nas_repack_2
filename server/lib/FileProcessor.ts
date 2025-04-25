@@ -727,8 +727,14 @@ export function getType(suffix: string): type_file {
 }
 
 export function titleFilter(title: string) {
-    let res= title.replace(/[`\\\/:*?"<>|#%　\s]+/igm, ' ').trim();
-    res= title.replace('‛', ' ').replace('／', ' ').replace('：', ' ').trim();
+    if(!title||!title.length) throw new Error('invalid title');
+    let res= title.replace(/[`\\\/:*?"<>|#%　]+/igm, ' ')
+    .replace('‛', ' ')
+    .replace('／', ' ')
+    .replace('：', ' ')
+    .replace(/\s+/igm,' ')
+    .trim();
+    if(!res||!res.length) throw new Error('invalid title');
     if(Buffer.from(res).length<200)return res;
     let fileName=filename(res);
     let ext=extension(res);

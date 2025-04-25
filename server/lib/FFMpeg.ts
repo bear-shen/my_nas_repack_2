@@ -105,6 +105,7 @@ ${multiCount ? `-map 0:${i1}` : ''}
  * subtitle需要提取并转换成vtt
  * */
 async function videoStr(meta: ffMeta): Promise<string | boolean> {
+    if(!(meta.streams&&meta.streams.length))return true;
     const videoConf = Config.get('parser.video');
     const audioConf = Config.get('parser.audio');
     // const subConf = conf["subtitle"];
@@ -138,6 +139,7 @@ async function videoStr(meta: ffMeta): Promise<string | boolean> {
         //     subCount += 1;
         // }
     }
+    if(!videoCount)return true;
     multiAudio = audioCount > 1;
     // hasSub = subCount > 0;
     //这里计算的索引和ff自动区分的索引不同
@@ -312,6 +314,7 @@ async function videoExtractSub(meta: ffMeta): Promise<Map<string, string>> {
 }
 
 async function audioStr(meta: ffMeta): Promise<string | boolean> {
+    if(!(meta.streams&&meta.streams.length))return true;
     const audioConf = Config.get('parser.audio');
     //
     let tranContainer = true;
@@ -403,6 +406,7 @@ async function imageStr(meta: ffMeta, level: 'cover' | 'preview' | 'image'): Pro
      *          video
      * */
         // console.info(conf, level);
+    if(!(meta.streams&&meta.streams.length))return true;
     const imgConf = Config.get(`parser.${level}`);
     let tranType = false;
     let tranSize = false;

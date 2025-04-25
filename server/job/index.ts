@@ -3,7 +3,7 @@ import {Worker} from "worker_threads";
 
 console.info('job watcher init');
 
-//队列太多nvenc跑不起来，原因不明
+//队列太多nvenc跑不起来，家用卡有限制
 const workerThreads = 4;
 const exitSleep = 5 * 1000;
 const workerMap: Map<number, Worker> = new Map();

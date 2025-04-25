@@ -52,7 +52,7 @@ async function run() {
             );
         } catch (error) {
             console.info(error);
-            let errMsg = error && error.name && error.message ? `${error.name}:${error.message}` : JSON.parse(error);
+            let errMsg = error && error.name && error.message ? `${error.name}:${error.message}:${error.stack?error.stack:''}` : JSON.parse(error);
             await setStatus(ifExs.id, -1, errMsg);
         }
     }
