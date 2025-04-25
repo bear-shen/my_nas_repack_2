@@ -70,9 +70,9 @@ async function subtitleStr(meta: ffMeta): Promise<boolean | Map<string, string>>
         tranContainer = false;
         break;
     }
-    if (!tranContainer) return true;
-    //
     const resMap = new Map<string, string>();
+    if (!tranContainer) return resMap;
+    //
     let multiCount = meta.streams.length > 1;
     // const langSet = new Set<string>();
     for (let i1 = 0; i1 < meta.streams.length; i1++) {
