@@ -456,13 +456,9 @@ export async function mkdir(
 }
 
 export async function ifLocalFileExists(localPath: string) {
-    try {
-        await fs.access(localPath);
-        return true;
-    } catch (e: any) {
-        // console.info(e);
-        return false;
-    }
+    let hasErr=null;
+    await fs.access(localPath).catch(e=>hasErr=e);
+    return hasErr?false:true;
 }
 
 export function mkRelPath(node: col_node,
@@ -603,28 +599,24 @@ export async function rename(srcPath: string, targetPath: string) {
     }
     //
     hasErr = null;
-    try {
-        await fs.rename(srcPath, targetPath);
-        try {await fs.chmod(targetPath, 0o777);}catch (e) {
-            console.info(e);
+    await fs.rename(srcPath, targetPath).catch(e=>hasErr=e);
+    if(!hasErr){
+        await fs.chmod(targetPath, 0o777).catch(e=>hasErr=e);
+        if(!hasErr){
+            return true;
         }
-        return true;
-    } catch (e) {
-        hasErr = e;
-        console.info(hasErr);
     }
     //
-    hasErr = null;
-    try {
-        await fs.cp(srcPath, targetPath, {recursive: true, force: true});
-        await fs.rm(srcPath, {recursive: true, force: true});
-        try {await fs.chmod(targetPath, 0o777);}catch (e) {
-            console.info(e);
+    if(hasErr){
+        hasErr = null;
+        await fs.cp(srcPath, targetPath, {recursive: true, force: true}).catch(e=>hasErr=e);
+        if(!hasErr){
+            await fs.rm(srcPath, {recursive: true, force: true}).catch(e=>hasErr=e);
+            if(!hasErr){
+                await fs.chmod(targetPath, 0o777).catch(e=>hasErr=e)
+                return true;
+            }
         }
-        return true;
-    } catch (e) {
-        hasErr = e;
-        console.info(hasErr);
     }
     //
     if (hasErr) throw hasErr;
@@ -640,14 +632,12 @@ export async function copy(srcPath: string, targetPath: string) {
     }
     //
     hasErr = null;
-    try {
-        await fs.cp(srcPath, targetPath, {recursive: true, force: true});
-        // await fs.chmod(targetPath, 0o666);
-        return true;
-    } catch (e) {
-        hasErr = e;
+    
+    await fs.cp(srcPath, targetPath, {recursive: true, force: true}).catch(e=>hasErr=e);
+    if(hasErr){ 
+        throw hasErr;
     }
-    if (hasErr) throw hasErr;
+    // await fs.chmod(targetPath, 0o666);
     return true;
 }
 
