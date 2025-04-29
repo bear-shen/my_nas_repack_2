@@ -17,7 +17,7 @@ export function queryDemo<K>(
 }
 
 export function query<K>(
-    path: string, data: { [key: string]: any } | FormData,
+    path: string, data?: { [key: string]: any } | FormData,
     extra?: {
         upload: (e: ProgressEvent) => any
     }
