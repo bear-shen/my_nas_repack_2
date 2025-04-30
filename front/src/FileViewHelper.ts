@@ -121,9 +121,9 @@ export class opModule {
         console.info('destructor loaded');
         this.localConfigure.release('file_view_mode', this.modeKey);
         removeEventListener('contextmenu', this.contextMenuEvt);
-        removeEventListener('mousedown', this.mouseDownEvt);
-        removeEventListener('mousemove', this.mouseMoveEvt);
-        removeEventListener('mouseup', this.mouseUpEvt);
+        removeEventListener('pointerdown', this.mouseDownEvt);
+        removeEventListener('pointermove', this.mouseMoveEvt);
+        removeEventListener('pointerup', this.mouseUpEvt);
         removeEventListener('keydown', this.keymap);
         removeEventListener("resize", this.reloadOffset);
         if (this.contentDOM)

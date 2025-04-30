@@ -632,9 +632,9 @@ export async function copy(srcPath: string, targetPath: string) {
     }
     //
     hasErr = null;
-    
+
     await fs.cp(srcPath, targetPath, {recursive: true, force: true}).catch(e=>hasErr=e);
-    if(hasErr){ 
+    if(hasErr){
         throw hasErr;
     }
     // await fs.chmod(targetPath, 0o666);
@@ -725,14 +725,15 @@ export function titleFilter(title: string) {
     .replace(/\s+/igm,' ')
     .trim();
     if(!res||!res.length) throw new Error('invalid title');
-    if(Buffer.from(res).length<200)return res;
+    if(Buffer.byteLength(res)<200)return res;
     let fileName=filename(res);
     let ext=extension(res);
     if(ext.length>6){
         fileName+='.'+ext;
         ext='';
     }
-    while(Buffer.from(fileName).length>190){
+    //linux文件系统下对文件名长度有限制，所以做个缩减，因为长度不定，所以用while
+    while(Buffer.byteLength(fileName)>190){
         fileName=fileName.substring(0,fileName.length-10);
     }
     let resFileName=fileName;
