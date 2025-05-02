@@ -1,0 +1,14 @@
+[Unit]
+Description=nas_mount
+After=cron.service
+
+[Service]
+Type=simple
+User=root
+Restart=on-failure
+RestartSec=5s
+ExecStart=/usr/bin/rclone mount {{rcloneConfig}}:/ {{rcloneMountPath}} --vfs-cache-mode full --allow-other --umask 0 --log-file /app/log/rclone.log
+WorkingDirectory=/app
+
+[Install]
+WantedBy=multi-user.target

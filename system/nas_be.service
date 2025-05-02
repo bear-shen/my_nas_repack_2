@@ -1,0 +1,14 @@
+[Unit]
+Description=nas_be
+After=nas_mount.service
+
+[Service]
+Type=simple
+User=root
+Restart=on-failure
+RestartSec=5s
+ExecStart=/usr/local/bin/npm run serve >> /app/log/nas_be.log
+WorkingDirectory=/app/server/
+
+[Install]
+WantedBy=multi-user.target

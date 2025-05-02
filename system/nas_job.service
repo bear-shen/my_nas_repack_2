@@ -1,0 +1,14 @@
+[Unit]
+Description=nas_job
+After=nas_be.service
+
+[Service]
+Type=simple
+User=root
+Restart=on-failure
+RestartSec=5s
+ExecStart=/usr/local/bin/npm run job >> /app/log/nas_be.log
+WorkingDirectory=/app/server/
+
+[Install]
+WantedBy=multi-user.target
