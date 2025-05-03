@@ -15,7 +15,7 @@ function init() {
         host: config.db.host,
         user: config.db.account,
         password: config.db.password,
-        port: config.db.port,
+        port: parseInt(config.db.port),
         database: config.db.database,
     });
 }

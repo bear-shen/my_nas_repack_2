@@ -15,7 +15,7 @@ function init() {
         user: config.db.account,
         database: config.db.database,
         password: config.db.password,
-        port: config.db.port,
+        port: parseInt(config.db.port),
         waitForConnections: true,
         connectionLimit: 10,
         queueLimit: 0,

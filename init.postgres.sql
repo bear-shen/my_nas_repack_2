@@ -75,8 +75,12 @@ CREATE TABLE IF NOT EXISTS "favourite_group"
     PRIMARY KEY ("id")
 );
 
-DROP TYPE IF EXISTS NodeType;
-CREATE TYPE NodeType as ENUM ('audio', 'video', 'image', 'binary', 'text', 'directory', 'subtitle', 'pdf', 'office');
+-- DROP TYPE IF EXISTS NodeType;
+DO $$ BEGIN
+    CREATE TYPE NodeType as ENUM ('audio', 'video', 'image', 'binary', 'text', 'directory', 'subtitle', 'pdf', 'office');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 -- ALTER TYPE NodeType add value 'office' after 'pdf';
 
 CREATE TABLE IF NOT EXISTS "node"

@@ -2,27 +2,20 @@
 # If you need more help, visit the Dockerfile reference guide at
 # https://docs.docker.com/engine/reference/builder/
 
-
 #ffmpeg 6.0才有av1_nvenc的编码
 #因此至少需要ubuntu(nobel/24.04LTS)
-FROM ubuntu:noble
+FROM ubuntu:24.04
 #FROM node:22-bookworm
 
-#因为json和搜索的一些问题，切去pg以后应该没法回到mysql了
-#先扔着吧
-#ENV NAS_DRIVER=postgresql
-#ENV NAS_PORT=5432
-#ENV NAS_DB=toshokan
-#ENV NAS_USER=postgres
-#ENV NAS_PASSWORD=1
-
 #only for onlyoffice
-#ENV NAS_ORIGIN = http://192.168.110.235:85
 ENV onlyoffice_enabled=false
-#ENV onlyoffice_api_src = http://192.168.110.152:8001/web-apps/apps/api/documents/api.js
 ENV onlyoffice_jwt_secret='YOUR_JWT_SECRET'
 ENV onlyoffice_origin='http://172.16.1.240:8001'
-ENV nas_origin='http://172.16.1.200:8080'
+ENV pg_host='127.0.0.1'
+ENV pg_port='5432'
+ENV pg_account='postgres'
+ENV pg_password='postgres'
+ENV pg_database='toshokan'
 
 # Use production node environment by default.
 ENV NODE_ENV=production
@@ -44,11 +37,8 @@ RUN chmod -R 0777 /app/docker/server_init.sh &&\
     chmod -R 0777 /app/docker/server_start.sh &&\
     /app/docker/server_init.sh
 
-VOLUME ["/var/lib/postgresql/16/main"]
-
 # Expose the port that the application listens on.
 EXPOSE 80
-EXPOSE 5432
 
 # Run the application as a non-root user.
 USER root
