@@ -21,13 +21,12 @@ webdav = 8095
 #database= 'toshokan2'
 #account= 'root'
 #password= 'root'
-host = '127.0.0.1'
 driver = 'postgresql'
-#host = 'db'
-port = 5432
-database = 'toshokan'
+host = '127.0.0.1'
+port = '5432'
 account = 'postgres'
 password = 'postgres'
+database = 'toshokandev'
 
 [suffix]
 video = ['mp4', 'avi', 'mkv', 'm4a', '3gp', 'flv', 'hlv', 'rm', 'rmvb']
@@ -106,7 +105,7 @@ priority_kw = ['cht', 'chs', 'chin', 'zh-', '中', 'jpn', 'jps', 'japan', 'jp', 
 onlyoffice_enabled = 'false'
 #onlyoffice_enabled = 'true'
 # 写进env了，没有用
-onlyoffice_origin = 'http://127.0.0.1:56000'
+onlyoffice_origin = 'http://127.0.0.1'
 onlyoffice_jwt_secret = 'YOUR_JWT_SECRET'
 link_nav = [['Hyper', ''], ['Router', ''], ['Spider', ''], ['Git', ''], ['Torrent', '']]
 
