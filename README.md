@@ -7,7 +7,7 @@ support tagging, favourite, and user group
 -- --
 nodejs
 
-postgresql, nginx, ffmpeg required
+postgresql with [pgroonga engine](https://pgroonga.github.io/), nginx, ffmpeg required
 
 nginx modules required:
   - http_auth_request
@@ -18,10 +18,15 @@ php optional
 onlyoffice support (optional)
   - work with config.toml
   - in docker, use
-    - `-e onlyoffice_enabled=true`
-    - `-e onlyoffice_origin=http://192.168.1.1:8081` 
-      - (from onlyoffice server/docker)
+    - `-e onlyoffice_enabled=false`
     - `-e onlyoffice_jwt_secret=[onlyoffice_jwt_secret]`
+    - `-e onlyoffice_origin=[onlyoffice_host ex:http://172.16.1.240:8001]`
+      - (from onlyoffice server/docker)
+    - `-e pg_host=[postgres_host ex:127.0.0.1]`
+    - `-e pg_port=[postgres_port ex:5432]`
+    - `-e pg_account=[postgres_account]`
+    - `-e pg_password=[postgres_password]`
+    - `-e pg_database=[database_name]`
   - for self-signed https fe
     - mod `container:/etc/onlyoffice/documentserver/default.json`
       - set `services.CoAuthoring.requestDefaults.rejectUnauthorized=true`

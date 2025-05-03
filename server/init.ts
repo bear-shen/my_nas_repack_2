@@ -10,9 +10,9 @@ const envDef = {
     //
     pg_host: process.env?.pg_host ?? '127.0.0.1',
     pg_port: parseInt(process.env?.pg_port) ?? 5432,//NaN??0=NaN
-    pg_account: process.env?.pg_account ?? 'postgres',
-    pg_password: process.env?.pg_password ?? 'postgres',
-    pg_database: process.env?.pg_database ?? 'toshokandev',
+    pg_account: process.env?.pg_account ?? '',
+    pg_password: process.env?.pg_password ?? '',
+    pg_database: process.env?.pg_database ?? 'toshokan',
 };
 envDef.pg_port = envDef.pg_port ? envDef.pg_port : 5432;
 
