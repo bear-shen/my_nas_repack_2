@@ -1,0 +1,1 @@
+import{_ as o}from"./FileView.vue_vue_type_style_index_0_lang-rWJLePyt.js";import{a as e,I as r,b as t}from"./basic-BYt0z23_.js";import"./index-BX9Wb3uo.js";import"./FileItem-zgO1Xfys.js";import"./ContentEditable.vue_vue_type_script_setup_true_lang-BfoL63xV.js";import"./Hinter-BM1y8Ura.js";const l=e({__name:"FileView_N",setup(a){return(m,p)=>(t(),r(o))}});export{l as default};
