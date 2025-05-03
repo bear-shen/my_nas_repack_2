@@ -24,6 +24,7 @@ let queryData = {
   type: '',
 } as api_queue_list_req;
 let statusMap = [
+  ['', 'all'],
   [-2, 'unknown'],
   [-1, 'failed'],
   [0, 'success'],
@@ -32,8 +33,9 @@ let statusMap = [
 ];
 const list: Ref<settingType[]> = ref([]);
 onMounted(async () => {
-  Object.assign(queryData, GenFunc.copyObject(route.query));
-  getList();
+  //@see https://stackoverflow.com/questions/17781472/how-to-get-a-subset-of-a-javascript-objects-properties
+  queryData = (({id, status, type}) => ({id: id ?? '', status: status ?? '', type: type ?? ''}))(route.query) as api_queue_list_req;
+  getList(true);
   if (contentDOM.value)
     contentDOM.value.addEventListener('scroll', scrollEvt);
 });
@@ -43,8 +45,17 @@ onBeforeRouteUpdate(async (to) => {
   // queryData.id = to.query.id ?? '';
   // queryData.keyword = to.query.keyword as string ?? '';
   // queryData.is_del = to.query.is_del as string ?? '';
-  getList();
+  queryData = (({id, status, type}) => ({id: id ?? '', status: status ?? '', type: type ?? ''}))(to.query) as api_queue_list_req;
+  getList(true);
 });
+
+function go() {
+  console.info('go')
+  router.push({
+    path: route.path,
+    query: queryData,
+  });
+}
 
 //
 onUnmounted(() => {
@@ -73,7 +84,10 @@ let loading = false;
 async function getList(clear: boolean = false) {
   if (loading) return;
   loading = true;
-  if (clear) curPage = 1;
+  if (clear) {
+    list.value = [];
+    curPage = 1;
+  }
   // console.info('getGroup');
   // groupList.value = [];
   const res = await query<api_queue_list_resp>("log/get",
@@ -82,8 +96,7 @@ async function getList(clear: boolean = false) {
     ));
   curPage += 1;
   loading = false;
-  if (!res) return;
-  if (!res.length) {
+  if (!res || !res.length) {
     curPage--;
     return;
   }
@@ -117,7 +130,7 @@ async function getList(clear: boolean = false) {
         <span>type : </span><input type="text" v-model="queryData.type"/>
       </label>
       <label>
-        <button type="button" @click="getList(true)">query</button>
+        <button type="button" @click="go">query</button>
       </label>
     </div>
     <table>
