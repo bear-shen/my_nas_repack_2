@@ -40,8 +40,10 @@ async function initConfig() {
                 const originMeta = new URL(onlyofficeOrigin);
                 if (originMeta) {
                     if (originMeta.hostname) onlyofficeConf.onlyofficeHost = originMeta.hostname;
-                    if (originMeta.port) onlyofficeConf.onlyofficePort = originMeta.port;
                     if (originMeta.protocol) onlyofficeConf.onlyofficeScheme = originMeta.protocol.replace(':', '');
+                    if (originMeta.port) onlyofficeConf.onlyofficePort = originMeta.port ? originMeta.port :
+                        (onlyofficeConf.onlyofficeScheme == 'https' ? '443' : '80')
+                    ;
                 }
             } catch (e) {
                 console.error(e);
