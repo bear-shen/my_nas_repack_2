@@ -9,17 +9,17 @@ import type {
     api_file_cover_resp, api_file_delete_resp, api_file_list_req,
     api_file_mov_req, api_file_mov_resp, api_file_rebuild_resp,
     api_node_col, api_rate_attach_resp, api_share_list_resp,
-    api_tag_list_resp
+    api_tag_list_resp,api_file_list_resp
 }
     from "../../share/Api";
-import type {ModalConstruct} from "@/types/modal";
+import type {ModalConstruct,ModalFormConstruct} from "@/types/modal";
 import {mayInPopup, mayTyping, query} from "@/Helper";
 import GenFunc from "@/GenFunc";
 import {useModalStore} from "@/stores/modalStore";
 import type {RouteLocationNormalizedLoaded, Router} from "vue-router";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {useContextStore} from "@/stores/useContext";
-import {FileStreamDownloader} from "@/FileStreamDownloader";
+import {buildDownloadInputFileFromNodeCol, FileStreamDownloaderV2} from "@/FileStreamDownloaderV2";
 
 // const router = useRouter();
 // const route = useRoute();
@@ -147,7 +147,7 @@ export class opModule {
         const idSet = new Set<number>();
         idList.forEach(id => idSet.add(id));
         this.nodeList.value.forEach(node => {
-            if (idSet.has(node.id)) return;
+            if (idSet.has(node.id??0)) return;
             targetList.push(node);
         });
         //当时为啥这么写的？
@@ -436,16 +436,16 @@ export class opModule {
                     console.info('Open', e, this.route, this.router);
                     // this.route.query
                     // return;
-                    let selDir: api_node_col;
+                    let selDir: api_node_col|null=null;
                     if (!isBath) {
                         if (nodeLs.length)
                             if (nodeLs[0].type === 'directory')
-                                selDir = nodeLs[0];
+                                selDir = nodeLs[0] as api_node_col;
                     }
                     const curQuery: api_file_list_req = GenFunc.copyObject(this.route.query);
-                    let url = new URL(location.href);
-                    if (selDir) url.searchParams.set('id_dir', selDir.id);
-                    window.open(url, '_blank').focus();
+                    const url = new URL(location.href);
+                    if (selDir) url.searchParams.set('id_dir', `${selDir.id??0}`);
+                    window.open(url, '_blank')?.focus();
                     // if(!selDir){
                     //     selDir=
                     // }
@@ -482,7 +482,20 @@ export class opModule {
                     console.info(this, nodeLs);
                     if (!opModuleVal || !opModuleVal.modalStore) return;
                     //
-                    const fd = new FileStreamDownloader(nodeLs);
+                    const inNodeLs=buildDownloadInputFileFromNodeCol('',nodeLs)
+                    const fd = new FileStreamDownloaderV2(
+                        inNodeLs,
+                        async (inNode)=>{
+                            const res = await query<api_file_list_resp>("file/get", Object.assign({
+                                mode: 'directory',
+                                cascade_dir: '1',
+                                id_dir: inNode.id.toString(),
+                                with: 'file',
+                            }) as api_file_list_req);
+                            if(!res)return [];
+                            return buildDownloadInputFileFromNodeCol(inNode.path,res.list);
+                        }
+                    );
                     //
                     const resRef: Ref<string> = ref('downloading 0/0 (0%)');
                     const modal = opModuleVal.modalStore.set({
@@ -502,17 +515,14 @@ export class opModule {
                         text: resRef,
                     } as ModalConstruct);
                     await fd.prepare();
-                    const intervalKey = setInterval(() => {
-                        const cur = fd.downFile + fd.downCur;
-                        const tt = fd.downTotal;
-                        const percent = Math.round(10000 * cur / tt) / 100 + '%';
-                        modal.content.text.value = `downloading ${cur}/${tt} (${percent})`;
+                    await fd.download((pre,cur,total)=>{
+                        const curT = pre+cur;
+                        const percent = Math.round(10000 * curT / total) / 100 + '%';
+                        modal.content.text.value = `downloading ${curT}/${total} (${percent})`;
                         // console.info('setInterval', modal.content.text, fd)
-                    }, 500);
-                    await fd.download();
+                        });
                     await fd.build();
                     await fd.complete();
-                    clearInterval(intervalKey);
                     opModuleVal.modalStore.close(modal.nid);
                 },
             },
@@ -1468,7 +1478,7 @@ export class opFunctionModule {
                 }
             }
         };
-        opModuleVal.modalStore.set({
+        opModuleVal?.modalStore.set({
             title: `share file`,
             alpha: false,
             key: "",
@@ -1524,7 +1534,7 @@ export class opFunctionModule {
                                 break;
                         }
                     }
-                },
+                } as ModalFormConstruct<string>,
                 {
                     type: "datetime",
                     label: "expire",
@@ -1538,24 +1548,23 @@ export class opFunctionModule {
                     const formData = new FormData();
                     formData.set('node_id_list', Array.from(idSet).join(','));
                     if (modal.content.form[0].value == '1') {
-                        formData.set('status', 2);
+                        formData.set('status', '2');
                     } else {
-                        formData.set('status', 1);
+                        formData.set('status', '1');
                         formData.set('time_to', modal.content.form[1].value);
                     }
                     const res = await query<api_share_list_resp>('share/set', formData);
                     if (!res) return;
-                    resultModal.text = resultModal.text.replace(/#id#/ig, res.id);
-                    opModuleVal.modalStore.set(resultModal);
+                    if(resultModal.text)
+                    resultModal.text = (resultModal.text as string).replace(/#id#/ig, `${res.id}`);
+                    opModuleVal?.modalStore.set(resultModal);
                 }
             }
         } as ModalConstruct);
     }
 }
 
-export class queryModule {
 
-}
 
 export function popupDetail(queryData: api_file_list_req, curNodeId: number) {
     if (!opModuleVal) return;

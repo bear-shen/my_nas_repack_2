@@ -5,6 +5,7 @@ let caller = {
     set: null,
     close: null,
 } as { [key: string]: null | ((input: any) => any) };
+
 export const useModalStore = defineStore('modalStore', () => {
     return {
         set: setModal, close: closeModal, handleEvent: handleEvent,
@@ -13,18 +14,20 @@ export const useModalStore = defineStore('modalStore', () => {
 })
 
 function setModal(modal: ModalConstruct): ModalStruct {
-    return caller.set ? caller.set(modal) : null;
+    if(!caller.set)throw new Error('modal caller not defined');
+    return caller.set(modal);
 }
 
 function closeModal(key: string): ModalStruct {
-    return caller.close ? caller.close(key) : null;
+    if(!caller.close)throw new Error('modal caller not defined');
+    return caller.close(key);
 }
 
 function handleEvent(type: keyof typeof caller, func: (val: any) => any) {
     return caller[type] = func;
 }
 
-function simpleMsg(title, message): ModalConstruct {
+function simpleMsg(title:string, message:string): ModalConstruct {
     return {
         title: title,
         text: message,

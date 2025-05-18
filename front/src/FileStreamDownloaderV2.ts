@@ -1,5 +1,6 @@
 import type {api_file_list_req, api_file_list_resp, api_node_col} from "../../share/Api";
 import {query, throwError} from "@/Helper";
+import exp from "constants";
 import type {JSZipObject} from "jszip";
 import JSZip from 'jszip';
 
@@ -9,7 +10,7 @@ export type StreamDownloadInputFileType = {
     size: number,
     type: 'directory' | string,
 }
-//  & {[key:string]:any}
+ & {[key:string]:any}
 ;
 
 type FileType=StreamDownloadInputFileType&{
@@ -44,7 +45,7 @@ export class FileStreamDownloaderV2 {
     //public payload: Uint8Array;
     public title: string = '';
 
-    public downloadProgressListener:null | ((pre:number,cur:number,total:number)=>any);
+    public downloadProgressListener:null | ((pre:number,cur:number,total:number)=>any)=null;
     public downTotal = 0;
     public downPre = 0;
     public downCur = 0;
@@ -55,12 +56,10 @@ export class FileStreamDownloaderV2 {
     constructor(
         nodeList: StreamDownloadInputFileType[]
         ,querySubList?:(pNode:StreamDownloadInputFileType)=>Promise<StreamDownloadInputFileType[]>
-        ,downloadProgressListener?:(pre:number,cur:number,total:number)=>any
     ) {
         // console.info('__construct', nodeList);
         this.nodeList = this.mkNodeList(nodeList);
         this.querySubList=querySubList??null;
-        this.downloadProgressListener=downloadProgressListener??null;
         this.title = this.buildTitle();
     }
 
@@ -106,7 +105,7 @@ export class FileStreamDownloaderV2 {
             }
             title = ttArr.join(', ');
         }
-        if (title.length > 150) title = title.substring(0, 150) + '…';
+        if (title.length > 100) title = title.substring(0, 100) + '…';
         title += '.zip';
         return title;
     }
@@ -127,7 +126,7 @@ export class FileStreamDownloaderV2 {
         return resNodeList;
     }
 
-    public async download() {
+    public async download(downloadProgressListener?:(pre:number,cur:number,total:number)=>any) {
         for (let i1 = 0; i1 < this.nodeList.length; i1++) {
             const node = this.nodeList[i1];
             if (node.type === 'directory') continue;
@@ -137,8 +136,10 @@ export class FileStreamDownloaderV2 {
             this.fileMap.set(node.path, res);
             this.downCur = 0;
             this.downPre += node.size;
-            if(this.downloadProgressListener)
-            this.downloadProgressListener(this.downPre,this.downCur,this.downTotal);
+            if(downloadProgressListener){
+                this.downloadProgressListener=downloadProgressListener;            
+                this.downloadProgressListener(this.downPre,this.downCur,this.downTotal);
+            }
         }
         // console.info(this.fileMap);
     }
@@ -199,4 +200,28 @@ export class FileStreamDownloaderV2 {
             });
         })
     }
+}
+
+export function buildDownloadInputFileFromNodeCol(pNodePath:string,orgNodeLs:api_node_col[]){
+    const resLs:StreamDownloadInputFileType[]=[];
+    orgNodeLs.forEach(node=>{
+        const res:StreamDownloadInputFileType={
+            id:node.id,
+            id_parent:node.id_parent,
+            path:'',
+            url:'',
+            size:0,
+            type:node.type??'',
+        };
+        res.path=[pNodePath??'',node.title??''].join('/');
+        if(node.type==='directory'){
+        }else{
+            const rawDef=node.file_index?.raw;
+            if(!rawDef)return;
+            res.url=rawDef.path??'';
+            res.size=rawDef.size??0;
+        }              
+        resLs.push(res);
+    });
+    return resLs;
 }
