@@ -326,34 +326,36 @@ function throwError(msg) {
     <template v-if="errMsg.length">
       <p class="err_msg">{{ errMsg }}</p>
     </template>
-    <ul v-else>
-      <template v-if="cur && cur.id">
-        <li class="pointer" @click="pushRoute(shareId,parent?parent.id:0)">
+    <template v-else>
+      <ul class="sh_fr_list">
+        <template v-if="cur && cur.id">
+          <li class="pointer" @click="pushRoute(shareId,parent?parent.id:0)">
+            <p>
+              <span :class="['thumb', 'listIcon', `listIcon_file_directory`]"></span>
+              <span>../</span>
+            </p>
+          </li>
+        </template>
+        <li
+          v-for="item in list" :key="item.id"
+        >
           <p>
-            <span :class="['thumb', 'listIcon', `listIcon_file_directory`]"></span>
-            <span>../</span>
+            <input type="checkbox" name="selector" :id="`selector_${item.id}`" :value="item.id" v-model="selectedId">
+            <label :for="`selector_${item.id}`" class="pointer"></label>
+            <span :class="['thumb', 'listIcon', `listIcon_file_${item.type}`]"></span>
+            <span
+              class="pointer" @click="clickFile(item)"
+            >{{ item.title }}</span>
+          </p>
+          <p>
+            <span v-if="item.type!=='directory'">{{ GenFunc.kmgt(item.file_index.raw.size) }}</span>
+            <span>{{ item.time_update }}</span>
+            <span v-if="item.type==='directory'" class="pointer sysIcon sysIcon_folder" @click="clickFile(item)"></span>
+            <span v-else class="pointer sysIcon sysIcon_download" @click="clickFile(item)"></span>
           </p>
         </li>
-      </template>
-      <li
-        v-for="item in list" :key="item.id"
-      >
-        <p>
-          <input type="checkbox" name="selector" :id="`selector_${item.id}`" :value="item.id" v-model="selectedId">
-          <label :for="`selector_${item.id}`" class="pointer"></label>
-          <span :class="['thumb', 'listIcon', `listIcon_file_${item.type}`]"></span>
-          <span
-            class="pointer" @click="clickFile(item)"
-          >{{ item.title }}</span>
-        </p>
-        <p>
-          <span v-if="item.type!=='directory'">{{ GenFunc.kmgt(item.file_index.raw.size) }}</span>
-          <span>{{ item.time_update }}</span>
-          <span v-if="item.type==='directory'" class="pointer sysIcon sysIcon_folder" @click="clickFile(item)"></span>
-          <span v-else class="pointer sysIcon sysIcon_download" @click="clickFile(item)"></span>
-        </p>
-      </li>
-    </ul>
+      </ul>
+    </template>
   </div>
   <div class="sh_fr_footer">
     <div class="process" :style="countProcessStyle">{{ countProcessTxt }}</div>
@@ -401,8 +403,8 @@ function throwError(msg) {
     text-align: center;
     display: block;
   }
-  ul {
-    width: $fontSize*80;
+  .sh_fr_list {
+    max-width: $fontSize*80;
     margin: 0 auto;
     li {
       padding: 0 $fontSize;
