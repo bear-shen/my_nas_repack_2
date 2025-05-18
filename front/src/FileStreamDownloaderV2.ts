@@ -90,7 +90,6 @@ export class FileStreamDownloaderV2 {
             subNodeList.forEach(node=>resNodeList.push(node));
         }
         resNodeList.forEach(node=>this.nodeList.push(node));
-        console.info(this.nodeList);
     }
 
     public buildTitle() {
@@ -120,7 +119,7 @@ export class FileStreamDownloaderV2 {
         for(let i1=0;i1<nodeList.length;i1++){
             resNodeList.push(nodeList[i1]);
             if(nodeList[i1].type!=='directory')continue;
-            const subNodeList=await this.getSubList(this.nodeList[i1]);
+            const subNodeList=await this.getSubList(nodeList[i1]);
             subNodeList.forEach(node=>resNodeList.push(node));
         }
         return resNodeList;

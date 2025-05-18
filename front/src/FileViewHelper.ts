@@ -488,7 +488,7 @@ export class opModule {
                         async (inNode)=>{
                             const res = await query<api_file_list_resp>("file/get", Object.assign({
                                 mode: 'directory',
-                                cascade_dir: '1',
+                                cascade_dir: '0',
                                 id_dir: inNode.id.toString(),
                                 with: 'file',
                             }) as api_file_list_req);
