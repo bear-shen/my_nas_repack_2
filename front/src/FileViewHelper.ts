@@ -19,7 +19,7 @@ import {useModalStore} from "@/stores/modalStore";
 import type {RouteLocationNormalizedLoaded, Router} from "vue-router";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {useContextStore} from "@/stores/useContext";
-import {buildDownloadInputFileFromNodeCol, FileStreamDownloaderV2} from "@/FileStreamDownloaderV2";
+import {FileStreamDownloaderV2,type StreamDownloadInputFileType} from "@/FileStreamDownloaderV2";
 
 // const router = useRouter();
 // const route = useRoute();
@@ -515,7 +515,7 @@ export class opModule {
                         text: resRef,
                     } as ModalConstruct);
                     await fd.prepare();
-                    await fd.download((pre,cur,total)=>{
+                    await fd.download((pre,cur,total,fileIndex,fileSize)=>{
                         const curT = pre+cur;
                         const percent = Math.round(10000 * curT / total) / 100 + '%';
                         modal.content.text.value = `downloading ${curT}/${total} (${percent})`;
@@ -1564,7 +1564,31 @@ export class opFunctionModule {
     }
 }
 
-
+function buildDownloadInputFileFromNodeCol(pNodePath:string,orgNodeLs:api_node_col[]){
+    const resLs:StreamDownloadInputFileType[]=[];
+    orgNodeLs.forEach(node=>{
+        const res:StreamDownloadInputFileType={
+            id:node.id,
+            id_parent:node.id_parent,
+            path:'',
+            url:'',
+            size:0,
+            type:node.type??'',
+        };
+        res.path=[pNodePath??'',node.title??''].join('/');
+        if(node.type==='directory'){
+        }else{
+            const rawDef=node.file_index?.raw;
+            if(!rawDef)return;
+            if(rawDef.path){
+                res.url=rawDef.path+'?filename='+node.title;
+            }
+            res.size=rawDef.size??0;
+        }              
+        resLs.push(res);
+    });
+    return resLs;
+}
 
 export function popupDetail(queryData: api_file_list_req, curNodeId: number) {
     if (!opModuleVal) return;

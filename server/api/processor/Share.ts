@@ -95,6 +95,7 @@ export default class {
 
     async node_list(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<null | api_share_node_list_resp> {
         const request = data.fields as api_share_node_list_req;
+        if (!request.id) throw new Error('no share id');
         const selNodeDef: (keyof col_node)[] = [
             'id',
             'id_parent',
@@ -152,13 +153,22 @@ export default class {
     }
 
     async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<null> {
-        const request = data.fields as api_share_get_req;
+        //
+        let uriInfo = new URL('http://0.0.0.0' + req.url);
+        if (!uriInfo||!uriInfo.searchParams) throw new Error('invalid URL');
+        const request:api_share_get_req={
+            id:uriInfo.searchParams.get('id'),
+            id_node:uriInfo.searchParams.get('id_node'),
+        };
+        if (!request.id) throw new Error('no data');
         // const user = await new UserModel().where('id', data.uid).first();
         const share = await new ShareModel().where('id', request.id).where('status', '<>', 0).first();
         if (!share) throw new Error('share data not found');
         if (share.status == 1 && new Date(share.time_to).valueOf() < new Date().valueOf()) throw new Error('expired');
         const node = await new NodeModel().where('id', request.id_node).first();
         if (!node) throw new Error('node not found');
+        if (node.type==='directory') throw new Error('invalid node');
+        if (!node.file_index?.raw) throw new Error('node file not found');
         const raw = node.file_index.raw;
         //
         let bufFrom = 0;
