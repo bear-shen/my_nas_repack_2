@@ -1,9 +1,5 @@
 <script setup lang="ts">
 import {onMounted, onUnmounted, ref, type Ref, watch} from "vue";
-import type {ModalConstruct, ModalStruct} from "@/types/modal";
-import {queryDemo, query} from "@/Helper";
-import type {api_node_col, api_file_list_resp} from "../../../share/Api";
-import GenFunc from "@/GenFunc";
 import type { nodePropsType } from "@/types/browser";
 // import {useEventStore} from "@/stores/event";
 

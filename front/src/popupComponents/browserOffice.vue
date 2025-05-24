@@ -1,9 +1,5 @@
 <script setup lang="ts">
 import {onMounted, onUnmounted, ref, type Ref, watch} from "vue";
-import type {ModalConstruct, ModalStruct} from "@/types/modal";
-import {queryDemo, query} from "@/Helper";
-import type {api_node_col, api_file_list_resp} from "../../../share/Api";
-import GenFunc from "@/GenFunc";
 import {useUserStore} from "@/stores/userStore";
 import sign from "jwt-encode";
 // import {useEventStore} from "@/stores/event";

@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import {onMounted, onUnmounted, ref, type Ref, watch} from "vue";
-import type {ModalStruct} from "@/types/modal";
-import type {api_node_col} from "../../../share/Api";
 import GenFunc from "@/GenFunc";
 // import {useEventStore} from "@/stores/event";
 import {mayTyping} from "@/Helper";
@@ -150,9 +148,6 @@ onUnmounted(() => {
   document.removeEventListener("pointerout", onPointerUp);
 });
 
-function getSRC(node: api_node_col) {
-  return node.file_index?.normal?.path + '?filename=' + node.title;
-}
 watch(() => props.dom, async (to) => {
   resetImg();
 });

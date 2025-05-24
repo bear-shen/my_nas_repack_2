@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import {onBeforeUnmount, onMounted, ref, type Ref, watch} from "vue";
-import type {ModalStruct} from "@/types/modal";
-import type {api_node_col} from "../../../share/Api";
 import GenFunc from "@/GenFunc";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
-import type {col_node_file_index} from "../../../share/Database";
 import {mayTyping} from "@/Helper";
 import type { nodePropsType, nodePropsType_sub } from "@/types/browser";
 

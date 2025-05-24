@@ -17,7 +17,6 @@ import { useLocalConfigureStore } from "@/stores/localConfigure";
 // import {useEventStore} from "@/stores/event";
 import type { col_node, type_file, } from "../../../share/Database";
 import Config from "@/Config";
-import { title } from "process";
 import type { nodePropsType } from "@/types/browser";
 
 
