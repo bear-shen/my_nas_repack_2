@@ -6,18 +6,19 @@ import GenFunc from "@/GenFunc";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import type {col_node_file_index} from "../../../share/Database";
 import {mayTyping} from "@/Helper";
+import type { nodePropsType, nodePropsType_sub } from "@/types/browser";
 
 const localConfigure = useLocalConfigureStore();
 const props = defineProps<{
-  data: {
-    query: { [key: string]: any };
-    curId: number;
-    [key: string]: any;
-  };
-  modalData: ModalStruct;
-  nodeList: api_node_col[];
-  curIndex: number;
-  curNode: api_node_col;
+  extId: string,
+  curIndex: number,
+  isActive: boolean,
+  //
+  file: nodePropsType,
+  dom:{
+    w:number,
+    h:number,
+  }
 }>();
 const emits = defineEmits(["nav"]);
 
@@ -25,10 +26,10 @@ const contentDOM: Ref<HTMLElement | null> = ref(null);
 const timelineDOM: Ref<HTMLElement | null> = ref(null);
 const mediaDOM: Ref<HTMLVideoElement | null> = ref(null);
 const resPath: Ref<string> = ref('');
-if (props.curNode?.file_index?.normal?.path) {
-  resPath.value = `${props.curNode.file_index?.normal?.path}?filename=${props.curNode.title}`;
+if (props.file.normal) {
+  resPath.value = `${props.file.normal}?filename=${props.file.title}`;
 } else {
-  resPath.value = `${props.curNode.file_index?.raw?.path}?filename=${props.curNode.title}`
+  resPath.value = `${props.file.raw}?filename=${props.file.title}`
 }
 
 // const playModes = ["queue", "loop", "single", "shuffle"];
@@ -61,6 +62,7 @@ const volumeKey = localConfigure.listen("browser_play_volume", (v) =>
 const brightnessKey = localConfigure.listen("browser_play_brightness", (v) =>
   Object.assign(mediaMeta.value, {brightness: v})
 );
+let bufferTimer :number|NodeJS.Timeout= 0;
 
 function onInit(): any {
   console.info('onInit');
@@ -155,13 +157,13 @@ async function beforeInit() {
 //
 // const eventStore = useEventStore();
 
-watch(() => props.curNode, async (to) => {
+watch(() => props.file, async (to) => {
   onRelease();
   beforeInit();
-  if (props.curNode?.file_index?.normal?.path) {
-    resPath.value = `${to.file_index?.normal?.path}?filename=${to.title}`;
+  if (props.file.normal) {
+    resPath.value = `${props.file.normal}?filename=${to.title}`;
   } else {
-    resPath.value = `${to.file_index?.raw?.path}?filename=${to.title}`
+    resPath.value = `${props.file.raw}?filename=${to.title}`
   }
   // setTimeout(() => {
   if (mediaDOM.value) mediaDOM.value?.load();
@@ -183,7 +185,6 @@ onBeforeUnmount(() => {
   clearInterval(bufferTimer);
 });
 
-let bufferTimer = 0;
 
 function modBuffered() {
   if (!mediaDOM.value) return;
@@ -381,8 +382,8 @@ function wheelListener(e: WheelEvent) {
 }
 
 function keymap(e: KeyboardEvent) {
-  if (mayTyping(e.target)) return;
-  if (!props.modalData.layout.active) return;
+  if (mayTyping(e.target as HTMLElement)) return;
+  if (!props.isActive) return;
   // console.info(e);
   switch (e.key) {
     case " ":
@@ -424,21 +425,19 @@ function parseTime(t: number) {
 }
 
 const subtitleIndex = ref(0);
-const subtitleList = ref([] as (api_node_col & { label?: string })[]);
+const subtitleList:Ref<nodePropsType_sub[]> = ref([]);
 
 function loadSubtitle() {
   // console.info(props.curNode.title);
-  let befInd = props.curNode.title?.lastIndexOf('.');
-  let preStr = props.curNode.title?.substring(0, befInd) ?? '';
+  let befInd = props.file.title?.lastIndexOf('.');
+  let preStr = props.file.title?.substring(0, befInd) ?? '';
   // console.warn(preStr);
   if (!preStr) return subtitleList.value = [];
-  const subNode = [] as (api_node_col & { label?: string })[];
-  props.nodeList.forEach(node => {
+  const subNode:nodePropsType_sub[] = [] ;
+  props.file.sameName.forEach(node => {
     if (node.type !== 'subtitle') return;
-    if (!(node.file_index?.normal?.path || node.file_index?.raw?.path)) return;
-    let aftStr = node.title?.substring(preStr.length);
-    // console.info(aftStr);
-    if (node.title?.indexOf(preStr) === 0) subNode.push(Object.assign({label: aftStr}, node));
+    if (!(node.normal || node.raw)) return;
+    subNode.push(node);
   });
   // console.info(props.curNode.title, JSON.stringify(subNode));
   subtitleList.value = subNode;
@@ -497,8 +496,8 @@ function toggleSubtitle(index: number) {
           <select
             v-if="subtitleList &&subtitleList.length"
             v-model="subtitleIndex" @change="toggleSubtitle(subtitleIndex)">
-            <option v-for="(item, key) in subtitleList" :value="key" :key="'MO_BS_VDO_'+modalData.nid+'_sub_'+key">
-              {{ item.label }}
+            <option v-for="(item, key) in subtitleList" :value="key" :key="'MO_BS_VDO_'+props.extId+'_sub_'+key">
+              {{ item.title }}
             </option>
           </select>
         </div>
@@ -530,8 +529,8 @@ function toggleSubtitle(index: number) {
       <video
         ref="mediaDOM"
         preload="metadata"
-        :data-item-id="props.curNode.id"
-        :poster="props.curNode.file_index?.preview?.path"
+        :data-item-id="props.file.id"
+        :poster="props.file.preview"
         @loadedmetadata="onInit"
         @canplay="onCanplay"
         @ended="onEnd"
@@ -539,23 +538,12 @@ function toggleSubtitle(index: number) {
         :style="{filter: `brightness(${mediaMeta.brightness})`}"
       >
         <source :src="resPath"/>
-        <template v-for="(subtitle,index) in subtitleList">
-          <template v-if="subtitle.file_index?.normal">
+        <template v-for="(subtitle,index) in subtitleList" :key="'MO_BS_VDO_'+props.extId+'_track_'+index">
             <track
-              :key="'MO_BS_VDO_'+modalData.nid+'_track_'+index"
               :default="subtitleIndex==index?true:false"
-              :src="(subtitle.file_index.normal as col_node_file_index).path" kind="subtitles"
-              :srclang="subtitle.label" :label="subtitle.label"
+              :src="subtitle.normal?subtitle.normal:subtitle.raw" kind="subtitles"
+              :srclang="subtitle.title" :label="subtitle.title"
             />
-          </template>
-          <template v-else>
-            <track
-              :key="'MO_BS_VDO_'+modalData.nid+'_track_'+index"
-              :default="subtitleIndex==index?true:false"
-              :src="(subtitle.file_index.raw as col_node_file_index).path" kind="subtitles"
-              :srclang="subtitle.label" :label="subtitle.label"
-            />
-          </template>
         </template>
       </video>
       <!--      @focus="console.info('focus',$event)"
@@ -622,7 +610,7 @@ function toggleSubtitle(index: number) {
       display: inline-block;
       //background-color: map.get($colors, input_button_bk);
       color: map.get($colors, font_sub_active);
-      width: calc(100% - $fontSize * 10);
+      width: calc(100% - $fontSize * 20);
       //      padding: 0 $fontSize * 0.5;
       border-right: 1px solid map.get($colors, font_sub_active);
       height: $fontSize * 1.5;

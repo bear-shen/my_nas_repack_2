@@ -4,31 +4,36 @@ import type {ModalConstruct, ModalStruct} from "@/types/modal";
 import {queryDemo, query} from "@/Helper";
 import type {api_node_col, api_file_list_resp} from "../../../share/Api";
 import GenFunc from "@/GenFunc";
+import type { nodePropsType } from "@/types/browser";
 // import {useEventStore} from "@/stores/event";
 
 
 const props = defineProps<{
-  data: { [key: string]: any };
-  modalData: ModalStruct;
-  nodeList: api_node_col[];
-  curIndex: number;
-  curNode: api_node_col;
+  extId: string,
+  curIndex: number,
+  isActive: boolean,
+  //
+  file: nodePropsType,
+  dom:{
+    w:number,
+    h:number,
+  }
 }>();
 let filePath = null;
-const viewerId = 'pdvViewer_' + props.modalData.nid;
+const viewerId = 'pdvViewer_' + props.extId;
 const contentDOM: Ref<HTMLIFrameElement | null> = ref(null);
 const src: Ref<string | null> = ref(null);
 
 
 onMounted(() => {
   console.warn("mounted");
-  src.value = '/pdfjs/web/viewer.html?file=' + props.curNode.file_index?.raw?.path + '&filename=' + props.curNode.title;
+  src.value = '/pdfjs/web/viewer.html?file=' + props.file.raw + '&filename=' + props.file.title;
 });
 watch(
-  () => props.curNode,
+  () => props.file,
   async (to) => {
     console.info('onMod props.curNode');
-    src.value = '/pdfjs/web/viewer.html?file=' + to.file_index?.raw?.path + '&filename=' + to.title;
+    src.value = '/pdfjs/web/viewer.html?file=' + to.raw + '&filename=' + to.title;
   });
 onUnmounted(() => {
   src.value = null;

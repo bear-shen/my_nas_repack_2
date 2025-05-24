@@ -7,20 +7,21 @@ import GenFunc from "@/GenFunc";
 import {mayTyping} from "@/Helper";
 import * as kvStore from '@/IndexedKVStore';
 import {useLocalConfigureStore} from "@/stores/localConfigure";
+import type { nodePropsType } from "@/types/browser";
 // import piexif from 'piexif-ts';
 
-const localConfigure: ReturnType<useLocalConfigureStore> = useLocalConfigureStore();
+const localConfigure: ReturnType<typeof useLocalConfigureStore> = useLocalConfigureStore();
 
 const props = defineProps<{
-  data: {
-    query: { [key: string]: any };
-    curId: number;
-    [key: string]: any;
-  };
-  modalData: ModalStruct;
-  nodeList: api_node_col[];
-  curIndex: number;
-  curNode: api_node_col;
+  extId: string,
+  curIndex: number,
+  isActive: boolean,
+  //
+  file: nodePropsType,
+  dom:{
+    w:number,
+    h:number,
+  }
 }>();
 const emits = defineEmits(["nav"]);
 const orgZoomLevel = [0.1, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 2];
@@ -54,12 +55,12 @@ const imgLayout: Ref<imgLayoutType> = ref({
   orgW: 0,
   orgH: 0,
 });
-const imgSrc: Ref<string> = ref();
+const imgSrc: Ref<string> = ref('');
 
 
-async function onImageLoad(e: Event): any {
+async function onImageLoad(e: Event) {
+  console.info('onImageLoad',e);
   const dom = imgDOM.value;
-  // console.info('here')
   if (!dom) return;
   if (!dom.complete) {
     // return setTimeout(onImageLoad.bind(null, curNodeId), 50);
@@ -74,9 +75,9 @@ async function onImageLoad(e: Event): any {
   // if (dom.getAttribute("data-ref-node-id") !== `${curNodeId}`)
   //   return setTimeout(onImageLoad.bind(null, curNodeId), 50);
 
-  const curR = await kvStore.get('image_rotate', props.curNode.id);
+  const curR = await kvStore.get('image_rotate', props.file.id);
   Object.assign(imgLayout.value, {
-    loaded: props.curNode.id,
+    loaded: props.file.id,
     orgH: dom.naturalHeight,
     orgW: dom.naturalWidth,
     rotate: curR,
@@ -86,7 +87,7 @@ async function onImageLoad(e: Event): any {
 
 onMounted(() => {
   // console.warn("mounted");
-  imgSrc.value = getSRC(props.curNode);
+  imgSrc.value = props.file.normal+ '?filename=' + props.file.title;
   Object.assign(imgLayout.value, {
     loaded: 0,
     w: 0,
@@ -101,7 +102,7 @@ onMounted(() => {
   // onImageLoad();
   // document.addEventListener("mouseup", onPointerUp);
   // document.addEventListener("mousemove", onPointerMove);
-  document.addEventListener(`modal_resizing_${props.modalData.nid}`, resetImg);
+  // document.addEventListener(`modal_resizing_${props.extId}`, resetImg);
   document.addEventListener("pointerup", onPointerUp);
   document.addEventListener("pointermove", onPointerMove);
   document.addEventListener("wheel", onWheel);
@@ -114,12 +115,12 @@ onMounted(() => {
 
 
 watch(
-  () => props.curNode,
+  () => props.file,
   async (to) => {
-    console.info('onMod props.curNode');
+    console.info('onMod props.curNode',props.file.normal);
     //先预加载再更新到前台，不然中间会有一个闪屏
     imgLayout.value.loaded = 0;
-    const newSrc = getSRC(to);
+    const newSrc = props.file.normal + '?filename=' + props.file.title;
     const imgDOM = new Image();
     imgDOM.src = newSrc;
     imgDOM.onload = (e) => {
@@ -140,7 +141,7 @@ onUnmounted(() => {
   // );
   // document.removeEventListener("mouseup", onPointerUp);
   // document.removeEventListener("mousemove", onPointerMove);
-  document.removeEventListener(`modal_resizing_${props.modalData.nid}`, resetImg);
+  // document.removeEventListener(`modal_resizing_${props.extId}`, resetImg);
   document.removeEventListener("pointerup", onPointerUp);
   document.removeEventListener("pointermove", onPointerMove);
   document.removeEventListener("wheel", onWheel);
@@ -152,15 +153,20 @@ onUnmounted(() => {
 function getSRC(node: api_node_col) {
   return node.file_index?.normal?.path + '?filename=' + node.title;
 }
+watch(() => props.dom, async (to) => {
+  resetImg();
+});
 
 async function resetImg() {
   if (!imgLayout.value.loaded) return;
+  console.info('resetImg');
   //dom的更新要比事件推送的迟，所以能用数值就用数值
   // const cDOM = contentDOM.value;
   // if (!cDOM) return;
   // const domW = cDOM.clientWidth ?? 0;
   // const domH = cDOM.clientHeight ?? 0;
-  const modalLayout = props.modalData.layout;
+  const modalLayout = props.dom;
+  console.info(props.dom);
   const domW = modalLayout.w ?? 0;
   let domH = modalLayout.h ?? 0;
   //因为上面用的layout所以会导致一个偏差，没想到有什么好办法，直接减掉算了
@@ -208,7 +214,7 @@ type DragData = {
 const pointerMap = new Map<number, DragData>();
 
 function onPointerDown(e: PointerEvent) {
-  if (!props.modalData.layout.active) return;
+  if (!props.isActive) return;
   // console.info(e);
   if (!e.pointerId) return;
   e.preventDefault();
@@ -229,7 +235,7 @@ function onPointerDown(e: PointerEvent) {
 }
 
 function onPointerMove(e: PointerEvent) {
-  if (!props.modalData.layout.active) return;
+  if (!props.isActive) return;
   // console.info(e);
   if (!e.pointerId) return;
   e.preventDefault();
@@ -355,7 +361,7 @@ function doTransform(e: PointerEvent) {
 
 const scrollLock: Ref<boolean> = ref(localConfigure.get("browser_image_scrollLock") ?? false);
 
-function setScrollLock(target) {
+function setScrollLock(target:boolean) {
   scrollLock.value = target;
   localConfigure.set("browser_image_scrollLock", target);
 }
@@ -377,7 +383,7 @@ function onWheel(e: WheelEvent) {
     eDOM = eDOM.parentElement as HTMLElement;
     if (eDOM.tagName === "BODY") break;
   } while (true);
-  if (curNid !== props.modalData.nid) return;
+  if (curNid !== props.extId) return;
   const dir = e.deltaY < 0 ? 1 : -1;
   //
   // const cDOM = contentDOM.value;
@@ -396,7 +402,7 @@ function onWheel(e: WheelEvent) {
 }
 
 //传入的是距离dom中点的偏移量
-function setZoom(dir?: 1 | -1, clientX?: number, clientY?: number) {
+function setZoom(dir: 1 | -1, clientX?: number, clientY?: number) {
   // console.info('setZoom', dir, clientX, clientY);
   //
   const layout = imgLayout.value;
@@ -458,8 +464,8 @@ function setZoom(dir?: 1 | -1, clientX?: number, clientY?: number) {
 }
 
 function keymap(e: KeyboardEvent) {
-  if (mayTyping(e.target)) return;
-  if (!props.modalData.layout.active) return;
+  if (mayTyping(e.target as HTMLElement)) return;
+  if (!props.isActive) return;
   // console.info(e);
   switch (e.code) {
     case "KeyQ":
@@ -471,7 +477,7 @@ function keymap(e: KeyboardEvent) {
   }
 }
 
-function setRotate(deg) {
+function setRotate(deg:number) {
   let layout = {
     rotate: imgLayout.value.rotate,
     // orgH: imgLayout.value.orgH,
@@ -486,7 +492,7 @@ function setRotate(deg) {
   //   layout.orgH = layout.orgW;
   //   layout.orgW = t;
   // }
-  kvStore.set('image_rotate', props.curNode.id, curR);
+  kvStore.set('image_rotate', props.file.id, curR);
   Object.assign(imgLayout.value, layout);
   // console.info(layout);
   resetImg();
@@ -527,11 +533,11 @@ function setRotate(deg) {
       <!-- {{ props.curNode.title }} -->
       <span class="loader sysIcon sysIcon_sync" v-if="!imgLayout.loaded"></span>
       <img
-        :data-ref-node-id="props.curNode.id"
+        :data-ref-node-id="props.file.id"
         :src="imgSrc"
         :data-rotate="imgLayout.rotate"
         @pointerdown="onPointerDown"
-        @dblclick="resetImgresetImg"
+        @dblclick="resetImg"
         @load="onImageLoad"
         :class="{loading:!imgLayout.loaded}"
         :style="{

@@ -29,8 +29,9 @@ function buildModal(modal: ModalConstruct): ModalStruct {
   const iw = window.innerWidth;
   const ih = window.innerHeight;
   // console.info(diffStamp);
+  const nid=(diffStamp + Math.random()).toString(32);
   const target: ModalStruct = {
-    nid: "",
+    nid: nid,
     base: {
       title: modal.title ?? "",
       alpha: modal.alpha ?? false,
@@ -60,11 +61,10 @@ function buildModal(modal: ModalConstruct): ModalStruct {
     },
     callback: [],
     closed: false,
-    event: {},
+    event: {
+      resize:new Event(`modal_resizing_`+nid)
+    },
   };
-  target.nid = (diffStamp + Math.random()).toString(32);
-  //
-  target.event['resize'] = new Event(`modal_resizing_${target.nid}`);
   //
   console.info(diffStamp, target.nid);
   //layout
@@ -268,8 +268,8 @@ window.addEventListener("resize", (e) => {
 const modalStore = useModalStore();
 modalStore.handleEvent("set", (modal: ModalConstruct) => {
   //
-  let exsNid = null;
-  let curModal = null;
+  let exsNid :string|null=null;
+  let curModal:ModalStruct|null = null;
   if (modal.single) {
     modalList.value.forEach((value, key, map) => {
       if (value.base.key != modal.key) return;
@@ -280,13 +280,13 @@ modalStore.handleEvent("set", (modal: ModalConstruct) => {
   //因为click之后会默认取消激活，所以需要跳出同步
   if (exsNid) {
     setTimeout(() => {
-      toggleActive(exsNid);
+      if(exsNid)toggleActive(exsNid);
     });
   } else {
     curModal = buildModal(modal);
     modalList.value.set(curModal.nid, curModal as ModalStruct);
     setTimeout(() => {
-      toggleActive(curModal.nid);
+      if(curModal)toggleActive(curModal.nid);
     });
   }
   // checkAlpha();
@@ -298,10 +298,10 @@ modalStore.handleEvent("close", (nid: string) => {
 
 document.body.addEventListener('click', (e) => {
   // console.info(e);
-  let dom: HTMLElement = e.target;
+  let dom: HTMLElement = e.target as HTMLElement;
   let inPopup = mayInPopup(dom);
   if (!inPopup)
-    toggleActive(0);
+    toggleActive('');
 });
 
 function toggleActive(nid: string) {
@@ -377,15 +377,14 @@ function close(nid: string) {
   if (!modal.layout.allow_escape) return;
   modalList.value.delete(nid);
   // checkAlpha();
-  let maxIndex = -1;
-  let maxNid = -1;
+  let lastIndex = -1;
+  let lastNid = '';
   modalList.value.forEach((modal) => {
-    if (maxIndex > modal.layout.index) return;
-    maxIndex = modal.layout.index;
-    maxNid = modal.nid;
+    lastIndex = modal.layout.index;
+    lastNid = modal.nid;
   });
-  if (maxNid != -1) {
-    toggleActive(maxNid);
+  if (lastIndex != -1) {
+    toggleActive(lastNid);
   }
   return modal;
 }
@@ -630,7 +629,7 @@ function processModalFile(payloadForm: ModalFormConstruct<File>) {
   const dom = document.createElement('input');
   dom.type = 'file';
   dom.onchange = (e) => {
-    const files: FileList = e.target.files;
+    const files: FileList = (e.target as HTMLInputElement).files as FileList;
     if (!files || files.length === 0) return; // 如果没有选择文件，直接返回
     payloadForm.value = files[0];
     console.info('processModalFile mod', payloadForm, payloadForm.value)

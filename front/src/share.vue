@@ -10,6 +10,7 @@ import JSZip from 'jszip';
 import { FileStreamDownloaderV2,type StreamDownloadInputFileType } from "./FileStreamDownloaderV2";
 
 const errMsg: Ref<string> = ref('');
+const showDetail: Ref<number> = ref(0);
 
 let shareId = '';
 let parentNode = 0;
@@ -67,15 +68,6 @@ async function clickFile(item: api_node_col) {
   }
 }
 
-type DownloadedNodeInfo = {
-  id: number,
-  pid: number,
-  title: string,
-  type: string,
-  path: string,
-  buffer: ArrayBuffer,
-};
-
 async function mkDownload(selMode:string, target?:api_node_col) {
   downloading = true;
   //
@@ -129,6 +121,12 @@ async function getList(sid:string, pid?:any):Promise<false|api_share_node_list_r
     id: sid,
   });
   return queryRes;
+}
+
+function toggleDetailView(node:api_node_col){
+  if(node.type==='directory')return showDetail.value=0;
+  showDetail.value=node.id??0;
+
 }
 
 function query<K>(
@@ -219,7 +217,7 @@ function throwError(msg:string) {
       >Down All</span>
     </div>
   </div>
-  <div class="sh_fr_body">
+  <div :class="{'sh_fr_body':true,showDetail}">
     <template v-if="errMsg.length">
       <p class="err_msg">{{ errMsg }}</p>
     </template>
@@ -241,7 +239,7 @@ function throwError(msg:string) {
             <label :for="`selector_${item.id}`" class="pointer"></label>
             <span :class="['thumb', 'listIcon', `listIcon_file_${item.type}`]"></span>
             <span
-              class="pointer" @click="clickFile(item)"
+              class="pointer" @click="toggleDetailView(item)"
             >{{ item.title }}</span>
           </p>
           <p>
@@ -252,6 +250,11 @@ function throwError(msg:string) {
           </p>
         </li>
       </ul>
+      <template v-if="showDetail">
+        <div class="detailView">
+          
+        </div>
+      </template>
     </template>
   </div>
   <div class="sh_fr_footer">

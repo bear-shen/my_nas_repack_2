@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type {Ref} from "vue";
-import {onMounted, onUnmounted, ref} from "vue";
-import type {ModalStruct} from "@/types/modal";
-import {mayTyping, query} from "@/Helper";
-import {manualSort, opFunctionModule} from "@/FileViewHelper";
-import type {api_file_list_req, api_file_list_resp, api_node_col} from "../../../share/Api";
+import type { Ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
+import type { ModalStruct } from "@/types/modal";
+import { mayTyping, query } from "@/Helper";
+import { manualSort, opFunctionModule } from "@/FileViewHelper";
+import type { api_file_list_req, api_file_list_resp, api_node_col } from "../../../share/Api";
 import GenFunc from "@/GenFunc";
 import browserBaseVue from "./browserBase.vue";
 import browserImageVue from "./browserImage.vue";
@@ -13,10 +13,22 @@ import browserVideoVue from "./browserVideo.vue";
 import browserTextVue from "./browserText.vue";
 import browserPDFVue from "./browserPDF.vue";
 import browserOfficeVue from "./browserOffice.vue";
-import {useLocalConfigureStore} from "@/stores/localConfigure";
+import { useLocalConfigureStore } from "@/stores/localConfigure";
 // import {useEventStore} from "@/stores/event";
-import type {col_node, type_file,} from "../../../share/Database";
+import type { col_node, type_file, } from "../../../share/Database";
 import Config from "@/Config";
+import { title } from "process";
+import type { nodePropsType } from "@/types/browser";
+
+
+const coverKeyword = [
+  'cover', 'album',
+  'bk', 'cd',
+];
+const imgKeyword = [
+  'jpg', 'png', 'webp',
+];
+
 //------------------
 const props = defineProps<{
   data: {
@@ -65,6 +77,10 @@ function resizingListener() {
     localConfigure.set("browser_layout_h", props.modalData.layout.h);
   }
   ifFullscreen = props.modalData.layout.fullscreen;
+  domProps.value={
+    w:props.modalData.layout.w,
+    h:props.modalData.layout.h,
+  };
 }
 
 // mode btn ------------------
@@ -96,8 +112,12 @@ function toggleDetail() {
 onMounted(() => {
   // console.info("mounted");
   document.addEventListener("keydown", keymap);
-//浏览器的缩放不按照弹窗默认的设置
+  //浏览器的缩放不按照弹窗默认的设置
   document.addEventListener(`modal_resizing_${props.modalData.nid}`, resizingListener);
+  domProps.value={
+    w:props.modalData.layout.w,
+    h:props.modalData.layout.h,
+  }
   //popup会自动focus，这边取消focus
   //已经加了auto_focus:false，但是以备万一
   setTimeout(() => {
@@ -115,7 +135,7 @@ onUnmounted(() => {
 // }, 1000);
 
 //_weight_stack 从 2 开始到 12 对应 0 - 10 分，根据列表顺序生成
-type node_browser_def = api_node_col & { _weight_stack: number };
+type node_browser_def = Required<api_node_col> & { _weight_stack: number };
 //[]切换文件夹用的list
 const crumbList: Ref<api_node_col[]> = ref([]);
 //这个是全量的nodeList，传递到内部遍历的也是这个
@@ -125,7 +145,25 @@ const vNodeList: Ref<node_browser_def[]> = ref([]);
 let stackSize = 0;
 //
 const curIndex: Ref<number> = ref(0);
-const curNode: Ref<api_node_col> = ref({});
+const curNode: Ref<Required<api_node_col> | null> = ref(null);
+
+
+const nodeProps: Ref<nodePropsType> = ref({
+  id: 0,
+  title: '',
+  cover: '',
+  preview: '',
+  normal: '',
+  raw: '',
+  sameName:[],
+});
+const domProps: Ref<{
+  w: number,
+  h: number,
+}> = ref({
+  w: 0,
+  h: 0,
+});
 // onMounted(async () => {
 // getList();
 // });
@@ -147,7 +185,7 @@ async function getParentDir(pid: number | string): Promise<api_file_list_resp> {
     id_dir: `${pid}`,
     with: 'none',
   } as api_file_list_req);
-  if (!res) return {path: [], list: []};
+  if (!res) return { path: [], list: [] };
   return res;
 }
 
@@ -161,7 +199,7 @@ function buildVList() {
     const weight = node.rate ? node.rate + 2 : 2;
     newVList.push(Object.assign(node, {
       _weight_stack: stackSize,
-    }));
+    }) as node_browser_def);
     stackSize += weight;
   })
   newVList = sortList(newVList, sortVal.value);
@@ -172,9 +210,8 @@ async function getList(ext: api_file_list_req = {}) {
   // let queryData = GenFunc.copyObject(props.data.query);
   if (ext)
     props.data.query = Object.assign(props.data.query, ext);
-  let res: api_file_list_resp;
+  let res = await query<api_file_list_resp>("file/get", props.data.query);
   //先查询当前目录，如果当前目录下面没有，尝试级联
-  res = await query<api_file_list_resp>("file/get", props.data.query);
   if (!res) return false;
   if (!res.list.length) return false;
   //过滤文件夹
@@ -185,9 +222,9 @@ async function getList(ext: api_file_list_req = {}) {
   res.list = tList;
   //
   if (!res.list.length) {
-    if (parseInt(props.data.query.cascade_dir)) return false;
+    if (parseInt(props.data.query?.cascade_dir ?? '')) return false;
     const query2 = GenFunc.copyObject(props.data.query);
-    query2.cascade_dir = 1;
+    query2.cascade_dir = '1';
     res = await query<api_file_list_resp>("file/get", query2);
     if (!res) return false;
     if (!res.list.length) return false;
@@ -279,27 +316,85 @@ function isValidNode(node: api_node_col) {
 }
 
 function onModNav() {
-  if (vNodeList.value.length) {
-    // console.info(curNode.value);
-    // console.info(vNodeList.value);
-    // console.info(curIndex.value);
-    const changeType = curNode.value.type !== vNodeList.value[curIndex.value].type;
-    // curIndex.value = locateCurNode(nodeList.value, curNode.value);
-    curNode.value = vNodeList.value[curIndex.value];
+  if (!vNodeList.value.length) return;
+  // console.info(curNode.value);
+  // console.info(vNodeList.value);
+  // console.info(curIndex.value);
+  // const changeType = curNode.value.type !== vNodeList.value[curIndex.value].type;
+  // curIndex.value = locateCurNode(nodeList.value, curNode.value);
+  const tCurNode = vNodeList.value[curIndex.value];
+  curNode.value = tCurNode;
+  //音视频封面补充
+  if (!tCurNode.file_index.preview) {
+    if (['audio', 'video'].indexOf(tCurNode.type) !== -1) {
+      let has = false
+      nodeList.value.forEach(node => {
+        if (node.id_parent !== tCurNode.id_parent) return;
+        if (has) return;
+        let isCover = false;
+        coverKeyword.forEach(kw1 => {
+          imgKeyword.forEach(kw2 => {
+            if (tCurNode.title.toLowerCase().indexOf(kw1) !== -1)
+              if (tCurNode.title.toLowerCase().indexOf(kw2) !== -1)
+                isCover = true;
+          })
+        });
+        if (isCover) {
+          has = true;
+          let fileInfo;
+          if (!fileInfo) fileInfo = tCurNode.file_index.preview;
+          if (!fileInfo) fileInfo = tCurNode.file_index.normal;
+          if (!fileInfo) fileInfo = tCurNode.file_index.raw;
+          tCurNode.file_index.preview = fileInfo;
+        }
+      });
+    }
+    //
   }
+  const tNodeProps:nodePropsType = {
+    id: tCurNode.id,
+    title: tCurNode.title,
+    cover: tCurNode.file_index.cover?.path ?? '',
+    preview: tCurNode.file_index.preview?.path ?? '',
+    normal: tCurNode.file_index.normal?.path ?? '',
+    raw: tCurNode.file_index.raw?.path ?? '',
+    sameName:[],
+  };
+  //字幕等
+  let befInd = tNodeProps.title.lastIndexOf('.');
+  if (befInd !== -1) {
+    let preStr = tNodeProps.title.substring(0, befInd) ?? '';
+    if (preStr) {
+      nodeList.value.forEach(node => {
+        if (node.id==tNodeProps.id) return;
+        if (node.title?.indexOf(preStr) !== 0) return;
+        let aftStr = node.title?.substring(preStr.length);
+        tNodeProps.sameName.push({
+          title:aftStr,
+          type:node.type??'',
+          raw:node.file_index?.raw?.path??'',
+          normal:node.file_index?.normal?.path??'',
+          preview:node.file_index?.preview?.path??'',
+        });
+      });
+    }
+  }
+  nodeProps.value = tNodeProps;
   modTitle();
 }
 
 function modTitle() {
   // console.info(['modTitle', curIndex.value, nodeList.value.length]);
+  if (!curNode.value) return;
   props.modalData.base.title =
     (curIndex.value + 1) + '/' + vNodeList.value.length + ' ' +
     (curNode.value.title ?? "");
 }
 
 async function keymap(e: KeyboardEvent) {
+  if (!curNode.value) return;
   // console.info(e);
-  if (mayTyping(e.target)) return;
+  if (mayTyping(e.target as HTMLElement)) return;
   if (!props.modalData.layout.active) return;
   // console.info(e);
   let dirNode, parentLsQ, parentLs, len, curParentIndex, targetNode, retryCount;
@@ -344,7 +439,7 @@ async function keymap(e: KeyboardEvent) {
                 status: 1,
                 building: 0,
               };
-          parentLsQ = await getParentDir(curDir.id_parent);
+          parentLsQ = await getParentDir(curDir.id_parent as number);
           parentLs = sortList(parentLsQ.list, sortVal.value);
           len = parentLs.length;
           if (len < 2) return;
@@ -364,16 +459,18 @@ async function keymap(e: KeyboardEvent) {
           } while (--retryCount > 0);
           break;
         case 'id_iterate':
+          if (!props.data.query.keyword) break;
           const idStrArr = props.data.query.keyword.split(',');
           const idArr: number[] = [];
           idStrArr.forEach(str => idArr.push(parseInt(str)));
           let curPid = null;
-          for (let i1 = 0; i1 < curNode.value.crumb_node.length; i1++) {
-            const node = curNode.value.crumb_node[i1];
-            if (idArr.indexOf(node.id) === -1) continue;
-            curPid = node.id;
-            break;
-          }
+          if (curNode.value.crumb_node)
+            for (let i1 = 0; i1 < curNode.value.crumb_node.length; i1++) {
+              const node = curNode.value.crumb_node[i1];
+              if (idArr.indexOf(node.id as number) === -1) continue;
+              curPid = node.id;
+              break;
+            }
           if (!curPid) break;
           //定位到下一个文件夹的第一个
           const curPidIndex = idArr.indexOf(curPid);
@@ -406,7 +503,7 @@ async function keymap(e: KeyboardEvent) {
                 status: 1,
                 building: 0,
               };
-          parentLsQ = await getParentDir(curDir.id_parent);
+          parentLsQ = await getParentDir(curDir.id_parent as number);
           parentLs = sortList(parentLsQ.list, sortVal.value);
           len = parentLs.length;
           if (len < 2) return;
@@ -426,13 +523,14 @@ async function keymap(e: KeyboardEvent) {
           } while (--retryCount > 0);
           break;
         case 'id_iterate':
+          if (!props.data.query.keyword) break;
           const idStrArr = props.data.query.keyword.split(',');
           const idArr: number[] = [];
           idStrArr.forEach(str => idArr.push(parseInt(str)));
           let curPid = null;
           for (let i1 = 0; i1 < curNode.value.crumb_node.length; i1++) {
             const node = curNode.value.crumb_node[i1];
-            if (idArr.indexOf(node.id) === -1) continue;
+            if (idArr.indexOf(node.id as number) === -1) continue;
             curPid = node.id;
             break;
           }
@@ -495,6 +593,7 @@ const sortVal: Ref<string> = ref(localConfigure.get("browser_list_sort") ?? "nam
 );*/
 
 function setSort(evt: Event) {
+  if (!curNode.value) return;
   console.info('setSort', sortVal.value, evt);
   (evt.target as HTMLInputElement)?.blur();
   // sortVal.value = val;
@@ -509,7 +608,7 @@ function setSort(evt: Event) {
 
 function sortList<K extends api_node_col>(list: K[], sort: string) {
   list = manualSort(list, sort);
-  curIndex.value = locateCurNode(list, curNode.value);
+  curIndex.value = locateCurNode(list, curNode.value ?? {});
   localConfigure.set("browser_list_sort", sortVal.value)
   return list;
 }
@@ -543,140 +642,153 @@ function setRater(rateVal: string) {
 </script>
 
 <template>
-  <component
-    :is="
-      curNode.type && regComponentLs[curNode.type]
+  <template v-if="curNode">
+    <!-- :modalData="props.modalData"
+    :nodeList="nodeList"
+    :curIndex="curIndex"
+    :curNode="curNode" -->
+    <component :is="regComponentLs[curNode.type]
         ? regComponentLs[curNode.type]
         : regComponentLs.base
-    "
-    :data="props.data"
-    :modalData="props.modalData"
-    :nodeList="nodeList"
-    :curNode="curNode"
-    :curIndex="curIndex"
-    @nav="emitNav"
-  >
-    <template v-slot:info>
-      <div :class="{info:true,detail:showDetail}">
-        <template v-if="showDetail">
-          <p>
-            {{ curNode.title }} ({{
-              GenFunc.kmgt(curNode.file_index?.raw?.size ?? 0, 2)
-            }})
-          </p>
-          <p v-if="curNode.crumb_node">Dir :
-            <template v-for="node in curNode.crumb_node">/{{ node.title }}</template>
-          </p>
-          <p class="preLine">{{ curNode.description }}</p>
-        </template>
-        <!--        <p v-else>{{ curNode.title }}</p>-->
-      </div>
-    </template>
-    <template v-slot:btnContainer>
-      <!--      <div class="btnContainer">-->
-      <!--      </div>-->
-      <div class="btnContainer">
-        <template v-if="showDetail">
-          <template v-if="isMobile">
-            <select v-model="rateVal" @change="setRater(rateVal)">
-              <option v-for="(type,key) in Config.rateMobile" :value="key" :key="'BROWSER_RATE_'+modalData.nid+'_'+key">{{ type }}</option>
-            </select>
-          </template>
-          <template v-else>
-            <select class="sysIcon" v-model="rateVal" @change="setRater(rateVal)">
-              <option class='sysIcon_A sysIcon' v-for="(type,key) in Config.rate" :value="key" v-html="type" :key="'BROWSER_RATE_'+modalData.nid+'_'+key"></option>
-            </select>
-          </template>
+      " 
+      :extId="props.modalData.nid"
+      :isActive="props.modalData.layout.active" 
+      :curIndex="curIndex"
 
-          <select v-model="filterVal" @change="setFilter(filterVal)">
-            <option v-for="(fileType, key) in Config.fileType" :value="fileType" :key="'BROWSER_TYPE_'+modalData.nid+'_'+key">
-              {{ fileType }}
+      :file="nodeProps"
+      :dom="domProps"
+
+      @nav="emitNav"
+      >
+      <template v-slot:info>
+        <div :class="{ info: true, detail: showDetail }">
+          <template v-if="showDetail">
+            <p>
+              {{ curNode.title }} ({{
+                GenFunc.kmgt(curNode.file_index?.raw?.size ?? 0, 2)
+              }})
+            </p>
+            <p v-if="curNode.crumb_node">Dir :
+              <template v-for="node in curNode.crumb_node">/{{ node.title }}</template>
+            </p>
+            <p class="preLine">{{ curNode.description }}</p>
+          </template>
+          <!--        <p v-else>{{ curNode.title }}</p>-->
+        </div>
+      </template>
+      <template v-slot:btnContainer>
+        <!--      <div class="btnContainer">-->
+        <!--      </div>-->
+        <div class="btnContainer">
+          <template v-if="showDetail">
+            <template v-if="isMobile">
+              <select v-model="rateVal" @change="setRater(rateVal)">
+                <option v-for="(type, key) in Config.rateMobile" :value="key"
+                  :key="'BROWSER_RATE_' + modalData.nid + '_' + key">{{ type }}</option>
+              </select>
+            </template>
+            <template v-else>
+              <select class="sysIcon" v-model="rateVal" @change="setRater(rateVal)">
+                <option class='sysIcon_A sysIcon' v-for="(type, key) in Config.rate" :value="key" v-html="type"
+                  :key="'BROWSER_RATE_' + modalData.nid + '_' + key"></option>
+              </select>
+            </template>
+
+            <select v-model="filterVal" @change="setFilter(filterVal)">
+              <option v-for="(fileType, key) in Config.fileType" :value="fileType"
+                :key="'BROWSER_TYPE_' + modalData.nid + '_' + key">
+                {{ fileType }}
+              </option>
+            </select>
+            <br>
+          </template>
+          <select v-model="sortVal" @change="setSort($event)">
+            <option v-for="(sortItem, key) in Config.sort" :value="key" :key="'BROWSER_SORT_' + modalData.nid + '_' + key">
+              {{ sortItem }}
             </option>
           </select>
-          <br>
-        </template>
-        <select v-model="sortVal" @change="setSort($event)">
-          <option v-for="(sortItem, key) in Config.sort" :value="key" :key="'BROWSER_SORT_'+modalData.nid+'_'+key">
-            {{ sortItem }}
-          </option>
-        </select>
-        <button
-          :class="['sysIcon', `sysIcon_player_${playMode}`]"
-          @click="togglePlayMode"
-        ></button>
-        <button
-          :class="['sysIcon', 'sysIcon_info-cirlce-o']"
-          @click="toggleDetail"
-        ></button>
-        <!--          <button :class="['sysIcon','sysIcon_link',]" @click="browserMeta.act.share"></button>-->
-        <button
-          v-if="curNode.file_index?.raw?.path"
-          :class="['sysIcon', 'sysIcon_download']"
-          @click="opFunctionModule.op_download(curNode)"
-        ></button>
-      </div>
-    </template>
-    <template v-slot:navigator>
-      <div :class="{pagination:1,isMobile:isMobile}">
-        <div class="left" @click="goNav(curIndex,-1)">
-          <span class="sysIcon sysIcon_arrowleft"></span>
+          <button :class="['sysIcon', `sysIcon_player_${playMode}`]" @click="togglePlayMode"></button>
+          <button :class="['sysIcon', 'sysIcon_info-cirlce-o']" @click="toggleDetail"></button>
+          <!--          <button :class="['sysIcon','sysIcon_link',]" @click="browserMeta.act.share"></button>-->
+          <button v-if="curNode.file_index?.raw?.path" :class="['sysIcon', 'sysIcon_download']"
+            @click="opFunctionModule.op_download(curNode)"></button>
         </div>
-        <div class="right" @click="goNav(curIndex,+1)">
-          <span class="sysIcon sysIcon_arrowright"></span>
+      </template>
+      <template v-slot:navigator>
+        <div :class="{ pagination: 1, isMobile: isMobile }">
+          <div class="left" @click="goNav(curIndex, -1)">
+            <span class="sysIcon sysIcon_arrowleft"></span>
+          </div>
+          <div class="right" @click="goNav(curIndex, +1)">
+            <span class="sysIcon sysIcon_arrowright"></span>
+          </div>
         </div>
-      </div>
-    </template>
-  </component>
+      </template>
+    </component>
+  </template>
 </template>
 
 <style lang="scss">
 @use "sass:map";
 @use '@/assets/variables.scss' as *;
+
 @keyframes rotateAnimate {
   0% {
     transform: rotate(0);
   }
+
   50% {
     transform: rotate(180deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
 }
+
 .modal_browser {
   width: 100%;
   height: 100%;
   position: relative;
   overflow: hidden;
   //background-color: aqua;
-  > div {
+  container-type: size;
+
+  >div {
     position: absolute;
   }
+
   .info {
     padding-left: $fontSize * 0.25;
     $blurSize: $fontSize * 0.25;
     text-shadow: 0 0 $blurSize black, 0 0 $blurSize black, 0 0 $blurSize black,
-    0 0 $blurSize black;
+      0 0 $blurSize black;
     color: map.get($colors, font);
+
     p:first-child {
       color: map.get($colors, font_active);
     }
+
     p:first-child {
       overflow: hidden;
       text-overflow: ellipsis;
       //width: 80%;
     }
+
     &.detail p:first-child {
       white-space: normal;
     }
+
     p {
       max-width: $fontSize*10;
       white-space: nowrap;
     }
+
     &.detail p {
       max-width: unset;
     }
   }
+
   .pagination {
     z-index: 5;
     pointer-events: none;
@@ -684,6 +796,7 @@ function setRater(rateVal: string) {
     height: 100%;
     top: 0;
     left: 0;
+
     .left,
     .right {
       height: 100%;
@@ -699,21 +812,28 @@ function setRater(rateVal: string) {
       opacity: 0;
       background-color: map.get($colors, popup_active);
       cursor: pointer;
+
       &:hover {
         opacity: 1;
       }
     }
+
     .left {
       left: 0;
     }
+
     .right {
       right: 0;
     }
   }
+
   .pagination.isMobile {
-    .left, .right {
+
+    .left,
+    .right {
       opacity: 1;
       background-color: transparent;
+
       span {
         //width: $fontSize * 2;
         //height: $fontSize * 2;
@@ -722,10 +842,11 @@ function setRater(rateVal: string) {
         //background-color:  map.get($colors, popup_active);
         $blurSize: $fontSize * 0.25;
         text-shadow: 0 0 $blurSize black, 0 0 $blurSize black, 0 0 $blurSize black,
-        0 0 $blurSize black;
+          0 0 $blurSize black;
       }
     }
   }
+
   .content {
     width: 100%;
     height: 100%;
@@ -733,7 +854,26 @@ function setRater(rateVal: string) {
     left: 0;
     overflow: hidden;
     position: relative;
+
+    .listIcon {
+      font-size: 50cqh;
+      line-height: 50cqh;
+      margin-top: 15cqh;
+      display: block;
+    }
+
+    span.title {
+      margin-top: 5cqh;
+      font-size: 5cqh;
+      display: inline-block;
+      max-width: 75cqw;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: center;
+    }
   }
+
   .base {
     z-index: 10;
     width: 100%;
@@ -742,22 +882,29 @@ function setRater(rateVal: string) {
     justify-content: space-between;
     align-items: flex-end;
     position: absolute;
+
     .l,
     .r {
       position: absolute;
-      > *:last-child {
+
+      >*:last-child {
         margin-top: $fontSize * 0.5;
       }
     }
+
     .l {
       left: 0;
     }
+
     .r {
       right: 0;
       text-align: right;
     }
+
     .btnContainer {
-      button, select {
+
+      button,
+      select {
         vertical-align: bottom;
         font-size: $fontSize;
         line-height: $fontSize;
@@ -765,6 +912,7 @@ function setRater(rateVal: string) {
     }
   }
 }
+
 .loader.sysIcon {
   font-size: $fontSize*10;
   //display: block;
@@ -777,12 +925,14 @@ function setRater(rateVal: string) {
   justify-content: center;
   align-items: center;
 }
+
 .loader.sysIcon::before {
   display: block;
   animation: rotateAnimate 5s infinite linear;
   $blurSize: $fontSize ;
   text-shadow: 0 0 $blurSize black;
 }
+
 .modal_browser.base {
   .content {
     text-align: center;

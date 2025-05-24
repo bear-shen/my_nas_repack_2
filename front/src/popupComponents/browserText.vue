@@ -7,20 +7,25 @@ import type {col_node_file_index} from "../../../share/Database";
 import GenFunc from "@/GenFunc";
 import * as kvStore from "@/IndexedKVStore";
 import Config from "@/Config";
+import type { nodePropsType } from "@/types/browser";
 
 const props = defineProps<{
-  data: { [key: string]: any };
-  modalData: ModalStruct;
-  nodeList: api_node_col[];
-  curIndex: number;
-  curNode: api_node_col;
+  extId: string,
+  curIndex: number,
+  isActive: boolean,
+  //
+  file: nodePropsType,
+  dom:{
+    w:number,
+    h:number,
+  }
 }>();
 
 const content: Ref<string> = ref('');
 const contentDOM: Ref<HTMLElement | null> = ref(null);
 
-async function getContent(file: col_node_file_index) {
-  const res = await fetch(file.path, {
+async function getContent(path:string) {
+  const res = await fetch(path, {
     method: 'GET',
     headers: {
       // "Content-Type": "text/plain; charset=UTF-8",
@@ -41,7 +46,7 @@ async function scrollEvt(e: Event) {
     ];
     //更新路由的时候会产生一个offset为0的scroll事件，直接跳过0
     if (!offset[0] && !offset[1]) return;
-    const key = `browser:${props.curNode.id}`;
+    const key = `browser:${props.file.id}`;
     GenFunc.debounce(() => {
       kvStore.set('scroll_log', key, offset);
     }, Config.timeouts.scrollSave, 'debounce_scroll_save');
@@ -52,8 +57,8 @@ async function reloadScroll() {
   if (!contentDOM.value) return;
   contentDOM.value.scrollTop = 0;
   contentDOM.value.scrollLeft = 0;
-  const key = `browser:${props.curNode.id}`;
-  const ifLogExs = await kvStore.get('scroll_log', key);
+  const key = `browser:${props.file.id}`;
+  const ifLogExs = await kvStore.get('scroll_log', key) as number[];
   if (!ifLogExs) return;
   contentDOM.value.scrollTop = ifLogExs[0];
   contentDOM.value.scrollLeft = ifLogExs[1];
@@ -61,17 +66,17 @@ async function reloadScroll() {
 
 onMounted(async () => {
   // console.info('onMounted');
-  if (props.curNode && props.curNode.file_index && props.curNode.file_index.raw) {
-    await getContent(props.curNode.file_index.raw);
+  if (props.file && props.file.raw) {
+    await getContent(props.file.raw);
   }
   if (contentDOM.value)
     contentDOM.value?.addEventListener("scroll", scrollEvt);
 });
 
-watch(() => props.curNode, async (to) => {
+watch(() => props.file, async (to) => {
   // console.info('watch');
-  if (to.file_index && to.file_index.raw) {
-    await getContent(to.file_index.raw);
+  if (to.raw) {
+    await getContent(to.raw);
   }
 });
 

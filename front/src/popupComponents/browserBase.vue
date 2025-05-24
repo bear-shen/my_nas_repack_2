@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import {onMounted, ref, type Ref} from "vue";
-import type {ModalConstruct, ModalStruct} from "@/types/modal";
-import {queryDemo, query} from "@/Helper";
-import type {api_node_col, api_file_list_resp} from "../../../share/Api";
-import GenFunc from "@/GenFunc";
+import type { nodePropsType } from '@/types/browser';
+
 
 const props = defineProps<{
-  data: { [key: string]: any };
-  modalData: ModalStruct;
-  nodeList: api_node_col[];
-  curIndex: number;
-  curNode: api_node_col;
+  extId: string,
+  curIndex: number,
+  isActive: boolean,
+  //
+  file: nodePropsType,
+  dom:{
+    w:number,
+    h:number,
+  }
 }>();
 </script>
 
@@ -28,14 +29,10 @@ const props = defineProps<{
     </div>
     <slot name="navigator"></slot>
     <div class="content">
-      <!-- {{ props.curNode.title }} -->
       <span
-        :class="['listIcon', `listIcon_file_${props.curNode.type}`]"
-        :style="{
-          fontSize: props.modalData.layout.h * 0.5 + 'px',
-          lineHeight: props.modalData.layout.h * 0.8 + 'px',
-        }"
+        :class="['listIcon', 'listIcon_file_binary']"
       ></span>
+      <span class="title">{{ props.file.title }}</span>
     </div>
   </div>
 </template>

@@ -5,18 +5,19 @@ import type {api_node_col} from "../../../share/Api";
 import GenFunc from "@/GenFunc";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {mayTyping} from "@/Helper";
+import type { nodePropsType } from "@/types/browser";
 
 const localConfigure = useLocalConfigureStore();
 const props = defineProps<{
-  data: {
-    query: { [key: string]: any };
-    curId: number;
-    [key: string]: any;
-  };
-  modalData: ModalStruct;
-  nodeList: api_node_col[];
-  curIndex: number;
-  curNode: api_node_col;
+  extId: string,
+  curIndex: number,
+  isActive: boolean,
+  //
+  file: nodePropsType,
+  dom:{
+    w:number,
+    h:number,
+  }
 }>();
 const emits = defineEmits(["nav"]);
 
@@ -24,10 +25,10 @@ const contentDOM: Ref<HTMLElement | null> = ref(null);
 const timelineDOM: Ref<HTMLElement | null> = ref(null);
 const mediaDOM: Ref<HTMLAudioElement | null> = ref(null);
 const resPath: Ref<string> = ref('');
-if (props.curNode?.file_index?.normal?.path) {
-  resPath.value = `${props.curNode.file_index?.normal?.path}?filename=${props.curNode.title}`;
+if (props.file.normal.length) {
+  resPath.value = `${props.file.normal}?filename=${props.file.title}`;
 } else {
-  resPath.value = `${props.curNode.file_index?.raw?.path}?filename=${props.curNode.title}`
+  resPath.value = `${props.file.raw}?filename=${props.file.title}`;
 }
 
 // const playModes = ["queue", "loop", "single", "shuffle"];
@@ -61,18 +62,10 @@ const brightnessKey = localConfigure.listen("browser_play_brightness", (v) =>
   Object.assign(mediaMeta.value, {brightness: v})
 );
 
-const coverKeyword = [
-  'cover', 'album',
-  'bk', 'cd',
-];
-const imgKeyword = [
-  'jpg', 'png', 'webp',
-];
 
 //dom的loadedmetadata触发
 function onInit(): any {
   console.info('onInit');
-  console.info(props.nodeList);
   const dom = mediaDOM.value;
   if (!dom) return;
   if (dom.readyState !== 4) return setTimeout(onInit, 50);
@@ -86,29 +79,6 @@ function onInit(): any {
   dom.volume = meta.mute ? 0 : meta.volume / 100;
   //
   contentDOM.value?.addEventListener("wheel", wheelListener);
-  //添加一个封面
-  if (!props.curNode.file_index?.preview) {
-    let has = false
-    props.nodeList.forEach(node => {
-      if (node.id_parent !== props.curNode.id_parent) return;
-      if (has) return;
-      let isCover = false;
-      coverKeyword.forEach(kw1 => {
-        imgKeyword.forEach(kw2 => {
-          if (node.title.toLowerCase().indexOf(kw1) !== -1)
-            if (node.title.toLowerCase().indexOf(kw2) !== -1)
-              isCover = true;
-        })
-      });
-      if (!isCover) return;
-      has = true;
-      let fileInfo;
-      if (!fileInfo) fileInfo = node.file_index.preview;
-      if (!fileInfo) fileInfo = node.file_index.normal;
-      if (!fileInfo) fileInfo = node.file_index.raw;
-      props.curNode.file_index.preview = fileInfo;
-    });
-  }
 }
 
 function onCanplay(e: Event) {
@@ -174,26 +144,19 @@ onMounted(async () => {
 //
 // const eventStore = useEventStore();
 
-watch(() => props.curNode, async (to) => {
+watch(() => props.file, async (to) => {
   onRelease();
   // beforeInit();
-  if (props.curNode?.file_index?.normal?.path) {
-    resPath.value = `${to.file_index?.normal?.path}?filename=${to.title}`;
+  if (props.file.normal.length) {
+    resPath.value = `${props.file.normal}?filename=${props.file.title}`;
   } else {
-    resPath.value = `${to.file_index?.raw?.path}?filename=${to.title}`
+    resPath.value = `${props.file.raw}?filename=${props.file.title}`;
   }
   // setTimeout(() => {
   if (mediaDOM.value) mediaDOM.value?.load();
   // Object.assign(mediaMeta.value, {show: true});
   // });
 });
-// let changeEvtKey = eventStore.listen(
-//   `modal_browser_change_${props.modalData.nid}`,
-//   (data) => {
-//     Object.assign(mediaMeta.value, { show: false });
-//     setTimeout(() => Object.assign(mediaMeta.value, { show: true }), 50);
-//   }
-// );
 onBeforeUnmount(() => {
   onRelease(false);
   localConfigure.release("browser_play_mode", modeKey);
@@ -202,7 +165,7 @@ onBeforeUnmount(() => {
   clearInterval(bufferTimer);
 });
 
-let bufferTimer = 0;
+let bufferTimer:NodeJS.Timeout|number = 0;
 
 function modBuffered() {
   if (!mediaDOM.value) return;
@@ -400,8 +363,8 @@ function wheelListener(e: WheelEvent) {
 }
 
 function keymap(e: KeyboardEvent) {
-  if (mayTyping(e.target)) return;
-  if (!props.modalData.layout.active) return;
+  if (mayTyping(e.target as HTMLElement)) return;
+  if (!props.isActive) return;
   // console.info(e);
   switch (e.key) {
     case " ":
@@ -445,7 +408,6 @@ function parseTime(t: number) {
 
 <template>
   <div class="modal_browser audio">
-    <!-- :style="{ height: props.modalData.layout.h + 'px' }" -->
     <div class="base">
       <div class="l">
         <slot name="info"></slot>
@@ -496,23 +458,18 @@ function parseTime(t: number) {
       </template>
       <!--      <template v-if="mediaMeta.show">-->
       <img
-        v-if="props.curNode.file_index?.preview"
-        :src="props.curNode.file_index?.preview?.path"
+        v-if="props.file.preview.length"
+        :src="props.file.preview"
         :style="{filter: `brightness(${mediaMeta.brightness})`}"
       />
-      <span
-        v-else
-        :class="['listIcon', `listIcon_file_${props.curNode.type}`]"
-        :style="{
-            fontSize: props.modalData.layout.h * 0.5 + 'px',
-            lineHeight: props.modalData.layout.h * 0.8 + 'px',
-          }"
-      ></span>
+      <template v-else>
+        <span :class="['listIcon', 'listIcon_file_audio']"></span>
+        <span class="title">{{ props.file.title }}</span>
+      </template>
       <audio
         ref="mediaDOM"
         preload="metadata"
-        :data-item-id="props.curNode.id"
-        :poster="props.curNode.file_index?.preview?.path"
+        :poster="props.file.preview"
         @loadedmetadata="onInit"
         @canplay="onCanplay"
         @ended="onEnd"

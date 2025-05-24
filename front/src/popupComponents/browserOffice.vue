@@ -8,17 +8,22 @@ import {useUserStore} from "@/stores/userStore";
 import sign from "jwt-encode";
 // import {useEventStore} from "@/stores/event";
 import Config from "@/Config";
+import type { nodePropsType } from "@/types/browser";
 
 
 const props = defineProps<{
-  data: { [key: string]: any };
-  modalData: ModalStruct;
-  nodeList: api_node_col[];
-  curIndex: number;
-  curNode: api_node_col;
+  extId: string,
+  curIndex: number,
+  isActive: boolean,
+  //
+  file: nodePropsType,
+  dom:{
+    w:number,
+    h:number,
+  }
 }>();
 let filePath = null;
-const viewerId = 'pdvViewer_' + props.modalData.nid;
+const viewerId = 'pdvViewer_' + props.extId;
 const contentDOM: Ref<HTMLIFrameElement | null> = ref(null);
 let docEditor = null;
 const userStore = useUserStore();
@@ -35,13 +40,13 @@ onMounted(() => {
 
 function startOnlyOffice() {
   if (!scriptReady) return setTimeout(() => startOnlyOffice(), stInterval);
-  const domId = 'modal_office_' + props.modalData.nid;
+  const domId = 'modal_office_' + props.extId;
   const ifDomExs = document.getElementById(domId);
   if (!ifDomExs) return setTimeout(() => startOnlyOffice(), stInterval);
   //
   const secret = Config.onlyOffice.jwtSecret;
   // const origin = Config.onlyOffice.origin;
-  const curNode = props.curNode;
+  const curNode = props.file;
   const suffixInd = curNode.title.lastIndexOf('.');
   const suffix = curNode.title.substring(suffixInd + 1);
   const documentType = getDocumentTypeBySuffix(suffix);
@@ -51,23 +56,25 @@ function startOnlyOffice() {
     document: {
       fileType: suffix,
       //https://api.onlyoffice.com/docs/docs-api/usage-api/config/document/#referencedata
-      key: curNode.id.toString(16) + '_' + parseInt(new Date(curNode.time_update).valueOf()),
+      key: curNode.id.toString(16) + '_' + Math.floor(new Date().valueOf()).toString(),
       title: curNode.title,
-      url: `${url.origin}${curNode.file_index.raw.path}?tosho_token=${user?.token}`,
+      url: `${url.origin}${curNode.raw}?tosho_token=${user?.token}`,
     },
     documentType: documentType,
     editorConfig: {
       callbackUrl: `${url.origin}/api/onlyoffice/callback?id=${curNode.id}&tosho_token=${user?.token}`,
     },
+    token:'',
   };
   payload.token = sign(payload, secret);
   console.info(payload);
-  docEditor = new DocsAPI.DocEditor(domId, payload);
+  //@ts-ignore
+  docEditor = (new DocsAPI).DocEditor(domId, payload);
   console.info(docEditor);
 }
 
 watch(
-  () => props.curNode,
+  () => props.file,
   async (to) => {
     console.info('onMod props.curNode');
   });
@@ -76,7 +83,7 @@ onUnmounted(() => {
 
 let scriptReady = false;
 
-function loadScript(url) {
+function loadScript(url:string) {
   //@see https://lengyun.github.io/js/3-2-1dynamicAddJS.html#%E5%8A%A8%E6%80%81%E6%8F%92%E5%85%A5js%E7%9A%84%E6%96%B9%E5%BC%8F%EF%BC%9A
   var script = document.createElement("script");
   script.type = "text/javascript";
@@ -89,9 +96,9 @@ function loadScript(url) {
   document.body.appendChild(script);
 }
 
-function getDocumentTypeBySuffix(suffix): string {
+function getDocumentTypeBySuffix(suffix:string): string|false {
   //@see https://api.onlyoffice.com/docs/docs-api/usage-api/config/#:~:text=documentType
-  let documentType: string;
+  let documentType: string|false=false;
   switch (suffix) {
     default:
       break;
@@ -170,7 +177,7 @@ function getDocumentTypeBySuffix(suffix): string {
     </div>
     <slot name="navigator"></slot>
     <div class="content">
-      <div :id="'modal_office_'+modalData.nid"></div>
+      <div :id="'modal_office_'+extId"></div>
     </div>
   </div>
 </template>
