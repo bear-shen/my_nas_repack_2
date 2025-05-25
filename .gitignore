@@ -50,3 +50,4 @@ server_archive
 /doc.md
 /init.db.txt
 /share/archive
+/server/config.toml
