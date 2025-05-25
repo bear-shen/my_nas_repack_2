@@ -580,4 +580,10 @@ body.theme_warm {
       color: map.get($colors, bk);
     }
   }
+  .sh_fr_body.showDetail{
+    .sh_fr_detail{
+      background-color: map.get($colors, bk);
+      color: map.get($colors, bar_vertical);
+    }
+  }
 }

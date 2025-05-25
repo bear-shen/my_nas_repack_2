@@ -372,5 +372,9 @@ body.theme_solarized_light .sh_fr_footer .process {
   background-color: #839496;
   color: rgb(250.28, 233.76, 188.92);
 }
+body.theme_solarized_light .sh_fr_body.showDetail .sh_fr_detail {
+  background-color: #fdf6e3;
+  color: rgb(248.92, 227.64, 169.88);
+}
 
 /*# sourceMappingURL=solarized_light.css.map */

@@ -372,5 +372,9 @@ body.theme_light .sh_fr_footer .process {
   background-color: rgb(136.5, 136.5, 136.5);
   color: hsl(0, 0%, 82%);
 }
+body.theme_light .sh_fr_body.showDetail .sh_fr_detail {
+  background-color: hsl(0, 0%, 90%);
+  color: hsl(0, 0%, 78%);
+}
 
 /*# sourceMappingURL=light.css.map */

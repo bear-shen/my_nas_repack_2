@@ -9,7 +9,9 @@ import UserGroupModel from "../../model/UserGroupModel";
 import * as Config from "../../Config";
 import * as fp from "../../lib/FileProcessor";
 import userGroupModel from "../../model/UserGroupModel";
-import {col_user} from "../../../share/Database";
+import {col_node, col_node_file_index, col_user} from "../../../share/Database";
+import NodeModel from '../../model/NodeModel';
+import ShareModel from '../../model/ShareModel';
 
 const {
     compareSync,
@@ -121,6 +123,50 @@ export default class {
         }
         uri = uriInfo.pathname;
         //-------------------------------------------------------------
+        //分享的权限
+        //最开始分享做的是在api里校验文件然后传输，这样就不必暴露完整的文件路径
+        //但是这样就遇到一个问题，无论怎么照抄nginx返回的响应头都没法做到正常的视频预加载，会产生两倍流量。。。
+        //所以还是回到这边做授权认证了。。。
+        if(uriInfo.searchParams.has('shareId')){
+            // const isValidShare=await checkShare(uriInfo.searchParams.get('shareId'),uri);
+            const shareId=uriInfo.searchParams.get('shareId');
+            let ifErr=null;
+            const share=await new ShareModel().where('id',shareId).first().catch(()=>{
+                ifErr=true;
+            });
+            if(ifErr){
+                res.statusCode = 401;
+                return null;
+            }
+            if(!share){
+                res.statusCode = 401;
+                return null;
+            }
+            const getNode=await locateNode(uri,true);
+            if(getNode[0]!=='success'){
+                res.statusCode = 401;
+                return null;
+            }
+            const node=getNode[1];
+            let inShare=false;
+            share.node_id_list.forEach(shareNodeId=>{
+                if(node.node_id_list.indexOf(shareNodeId)!==-1){
+                    inShare=true;
+                    return;
+                }
+                if(node.id==shareNodeId){
+                    inShare=true;
+                    return;
+                }
+            });
+            if(!inShare){
+                res.statusCode = 401;
+                return null;
+            }
+            res.statusCode = 200;
+            return null;
+        }
+        //-------------------------------------------------------------
         let token: string;
         if (uriInfo.searchParams && uriInfo.searchParams.has('tosho_token')) {
             token = uriInfo.searchParams.get('tosho_token');
@@ -165,47 +211,14 @@ export default class {
         //-------------------------------------------------------------
         // const urlInfo = new URL(uri);
         // console.info(urlInfo);
-        const pathDef = Config.get('path');
-        // console.info(pathDef, uri, pathDef.root_web);
-        if (uri.indexOf(pathDef.root_web) !== 0) {
-            uri = decodeURIComponent(uri);
-        }
-        if (uri.indexOf(pathDef.root_web) !== 0) {
-            // console.info('if (uri.indexOf(pathDef.root_web) !== 0) {');
-            res.statusCode = 403;
+        // const getNodeDir=await locateNode(uri,true);
+        const getNodeDir=await locateNode(uri,false);
+        // console.info(getNodeDir);
+        if(getNodeDir[0]!=='success'){
+            res.statusCode = 401;
             return null;
         }
-        let relPath = uri.substring(pathDef.root_web.length);
-        // console.info(relPath);
-        //
-        let nodeType = 'raw';
-        let subLs = [
-            'temp',
-            'preview',
-            'normal',
-            'cover',
-        ];
-        for (let i1 = 0; i1 < subLs.length; i1++) {
-            let subName = pathDef['prefix_' + subLs[i1]];
-            if (relPath.indexOf('/' + subName + '/') !== 0) continue;
-            nodeType = subLs[i1];
-            relPath = relPath.substring(subName.length + 1);
-        }
-        //预览和封面一类的文件后缀会被修改，所以只针对目录进行判断
-        relPath = fp.dirname(relPath);
-        // console.info(nodeType, relPath);
-        let nodeDir = await fp.get(relPath);
-        // console.info(nodeDir);
-        if (!nodeDir) {
-            relPath = decodeURIComponent(relPath);
-            nodeDir = await fp.get(relPath);
-        }
-        // console.info(nodeDir, relPath);
-        if (!nodeDir) {
-            // console.info('if (!nodeDir) {');
-            res.statusCode = 403;
-            return null;
-        }
+        const nodeDir=getNodeDir[1];
         // console.info(nodeDir, relPath);
         //
         if (userAuth && userAuth.deny) {
@@ -232,3 +245,62 @@ export default class {
         return null;
     };
 };
+
+async function locateNode(uri:string,detailNode?:boolean):Promise<[string,col_node|null]>{
+    const pathDef = Config.get('path');
+    // console.info(pathDef, uri, pathDef.root_web);
+    if (uri.indexOf(pathDef.root_web) !== 0) {
+        uri = decodeURIComponent(uri);
+    }
+    if (uri.indexOf(pathDef.root_web) !== 0) {
+        return ['not web root',null];
+    }
+    //
+    let relPath = uri.substring(pathDef.root_web.length);
+    let nodeType = 'raw';
+    let subLs = [
+        'temp',
+        'preview',
+        'normal',
+        'cover',
+    ];
+    for (let i1 = 0; i1 < subLs.length; i1++) {
+        let subName = pathDef['prefix_' + subLs[i1]];
+        if (relPath.indexOf('/' + subName + '/') !== 0) continue;
+        nodeType = subLs[i1];
+        relPath = relPath.substring(subName.length + 1);
+        break;
+    }
+    relPath = fp.dirname(relPath);
+    let nodeDir = await fp.get(relPath);
+    if (!nodeDir) {
+        relPath = decodeURIComponent(relPath);
+        nodeDir = await fp.get(relPath);
+    }
+    if(!detailNode){
+        return ['success',nodeDir];
+    }
+    let tNode:null|col_node=null;
+    const sNodeLs=await (new NodeModel().where('id_parent',nodeDir.id).select(['id','title','file_index']));
+    const fileName=decodeURIComponent(fp.basename(uri));
+    sNodeLs.forEach(sNode=>{
+        if(tNode)return;
+        if(!sNode.file_index[nodeType])return;
+        // console.info(sNode.title,nodeType,fileName);
+        const tFileIndex=sNode.file_index[nodeType] as col_node_file_index;
+        if(tFileIndex.ext){
+            if(fileName==(sNode.title+'.'+tFileIndex.ext)){
+                return tNode=sNode;
+            }
+        }else{
+            if(fileName==sNode.title){
+                return tNode=sNode;
+            }
+        }
+    });
+    if(!tNode){
+        return ['node not found',null];
+    }
+    const tNodeDetail=await (new NodeModel()).where('id',tNode.id).first();
+    return ['success',tNodeDetail];
+}

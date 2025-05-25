@@ -551,4 +551,10 @@ body.theme_light {
       color: map.get($colors, bk_active);
     }
   }
+  .sh_fr_body.showDetail{
+    .sh_fr_detail{
+      background-color: map.get($colors, bk);
+      color: map.get($colors, bar_vertical);
+    }
+  }
 }

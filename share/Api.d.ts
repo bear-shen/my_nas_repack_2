@@ -1,4 +1,4 @@
-import {col_favourite, col_favourite_group, col_node, col_queue, col_share, col_tag, col_tag_group, col_user, col_user_group, type_file} from './Database';
+import {col_node_file_index,col_favourite, col_favourite_group, col_node, col_queue, col_share, col_tag, col_tag_group, col_user, col_user_group, type_file} from './Database';
 
 export type api_node_col = {
     rate?: number,
@@ -493,17 +493,34 @@ export type api_share_node_list_req = {
 } & { [key: string]: any };
 
 
+export type api_share_node_type=Required<{
+    id:number,
+    id_parent:number,
+    type:type_file,
+    title:string,
+    node_id_list:number[],
+    file_index:{
+        rel?: number,
+            cover?: col_node_file_index,
+            preview?: col_node_file_index,
+            normal?: col_node_file_index,
+            raw?: col_node_file_index,
+        },
+    rel_node_id:number,
+    }> & api_node_col;
+
 export type api_share_node_list_resp = {
     id?: string,
     user?: col_user,
-    node?: api_node_col[],
-    cur?: col_node,
-    parent?: col_node,
+    node: api_share_node_type[],
+    cur: api_share_node_type,
+    parent?: api_share_node_type,
 } & { [key: string]: any };
 
 export type api_share_get_req = {
     id?: string,
     id_node?: string,
+    index?: string,
 } & { [key: string]: any };
 
 

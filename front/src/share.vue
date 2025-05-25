@@ -1,28 +1,34 @@
 <script setup lang="ts">
 import Config from "@/Config";
-import {useUserStore} from "@/stores/userStore";
-import type {api_node_col, api_share_get_req, api_share_list_resp, api_share_node_list_resp} from "../../share/Api";
+import type { api_share_node_list_resp, api_share_node_type} from "../../share/Api";
 import {onMounted, ref, type Ref} from "vue";
 import GenFunc from "@/GenFunc";
 
-import type {JSZipObject} from "jszip";
-import JSZip from 'jszip';
 import { FileStreamDownloaderV2,type StreamDownloadInputFileType } from "./FileStreamDownloaderV2";
+
+import browserBaseVue from "./popupComponents/browserBase.vue";
+import browserImageVue from "./popupComponents/browserImage.vue";
+import browserAudioVue from "./popupComponents/browserAudio.vue";
+import browserVideoVue from "./popupComponents/browserVideo.vue";
+import browserTextVue from "./popupComponents/browserText.vue";
+import browserPDFVue from "./popupComponents/browserPDF.vue";
+import type { nodePropsType } from "./types/browser";
+import type { col_node_file_index } from "../../share/Database";
 
 const errMsg: Ref<string> = ref('');
 const showDetail: Ref<number> = ref(0);
 
+
 let shareId = '';
-let parentNode = 0;
-const list: Ref<api_node_col[]> = ref([]);
-const cur: Ref<api_node_col> = ref({});
-const parent: Ref<api_node_col> = ref({});
+const nodeList: Ref<api_share_node_type[]> = ref([]);
+const cur: Ref<api_share_node_type|null> = ref(null);
+const parent: Ref<api_share_node_type|null> = ref(null);
 
 const selectedId: Ref<number[]> = ref([]);
+const detailDOM: Ref<HTMLElement | null> = ref(null);
 
-let downloading = true;
-const countProcessTxt: Ref<string> = ref('');
-const countProcessStyle: Ref<string> = ref('');
+//----------------------------
+//路由部分
 
 onMounted(async () => {
   // console.info('onMounted');
@@ -53,36 +59,65 @@ async function loadId(url:URL) {
   selectedId.value = [];
   const queryRes = await getList(shareId, parentId??false);
   if(!queryRes)return throwError('data fetch failed');
-  list.value = queryRes.node??[];
-  parent.value = queryRes.parent as api_node_col;
-  cur.value = queryRes.cur as api_node_col;
+  nodeList.value = queryRes.node??[];
+  parent.value = queryRes.parent??null;
+  cur.value = queryRes.cur;
 }
 
-async function clickFile(item: api_node_col) {
+//----------------------------
+//列表下载和操作部分
+
+let downloading = true;
+const countProcessTxt: Ref<string> = ref('');
+const countProcessStyle: Ref<string> = ref('');
+
+async function clickFile(item: api_share_node_type,mode?:string) {
   if (item.type === 'directory') {
+
     pushRoute(shareId, item.id)
   } else {
     // console.info('file');
     if (!item?.file_index?.raw) return;
-    await mkDownload('single', item);
+    switch(mode){
+      default:
+      return await mkDownload('single', item);
+      case 'detail':
+        curNode.value = item;
+        nodeList.value.forEach((node, ind) => {
+          if (node.type == 'directory') return;
+          if (node.id == item.id) {
+            curIndex.value = ind;
+          }
+        });
+        onModNav();
+        showDetail.value = 1;
+        setTimeout(() => {
+          // console.warn(detailDOM.value,detailDOM.value?.clientHeight,detailDOM.value?.clientWidth);
+          domProps.value = {
+            h: detailDOM.value?.clientHeight ?? 0,
+            w: detailDOM.value?.clientWidth ?? 0,
+          };
+        }, 10);
+        break;
+    }
   }
 }
 
-async function mkDownload(selMode:string, target?:api_node_col) {
+async function mkDownload(selMode:string, target?:api_share_node_type) {
   downloading = true;
   //
-  const rootNodes: api_node_col[] = [];
+  const rootNodes: api_share_node_type[] = [];
   switch (selMode) {
     case 'list':
       selectedId.value.forEach(id => {
-        list.value.forEach(node => {
+        nodeList.value.forEach(node => {
           if (node.id !== id) return;
           rootNodes.push(node);
         })
       })
       break;
     case 'total':
-      list.value.forEach(node => {
+    nodeList.value.forEach(node => {
         rootNodes.push(node);
       })
       break;
@@ -92,6 +127,8 @@ async function mkDownload(selMode:string, target?:api_node_col) {
       }
       break;
   }
+  if(!rootNodes.length)return;
+  console.info(rootNodes);
   const downloader=new FileStreamDownloaderV2(buildDownloadInputFileFromNodeCol('',rootNodes),async (inNode)=>{
     const sNode=await getList(shareId,inNode.id);
     if(!sNode)return [];
@@ -99,19 +136,23 @@ async function mkDownload(selMode:string, target?:api_node_col) {
   });
   await downloader.prepare();
   await downloader.download((pre:number,cur:number,total:number,index:number,fileSize:number)=>{
-    let percent = cur / total;
+    let percent = (pre+cur) / total;
     percent *= 10000;
     percent = Math.round(percent)
     percent /= 100;
     countProcessTxt.value = `${index}/${fileSize} Files, ${percent}%, ${GenFunc.kmgt(cur)} / ${GenFunc.kmgt(total)}`;
     countProcessStyle.value = `width: ${percent}%;`;
   });
-  await downloader.build();
-  downloader.complete();
+  console.info(rootNodes.length === 1 , rootNodes[0].type !== 'directory');
+  if (rootNodes.length === 1 && rootNodes[0].type !== 'directory') {
+    await downloader.completeFile();
+  } else {
+    await downloader.build();
+    downloader.complete();
+  }
   //
   downloading=false;
 }
-
 
 async function getList(sid:string, pid?:any):Promise<false|api_share_node_list_resp> {
   const queryRes = await query<api_share_node_list_resp>('share/node_list', pid?{
@@ -123,11 +164,203 @@ async function getList(sid:string, pid?:any):Promise<false|api_share_node_list_r
   return queryRes;
 }
 
-function toggleDetailView(node:api_node_col){
-  if(node.type==='directory')return showDetail.value=0;
-  showDetail.value=node.id??0;
-
+function buildDownloadInputFileFromNodeCol(pNodePath:string,orgNodeLs:api_share_node_type[]){
+    const resLs:StreamDownloadInputFileType[]=[];
+    orgNodeLs.forEach(node=>{
+        const res:StreamDownloadInputFileType={
+            id:node.id,
+            id_parent:node.id_parent,
+            path:'',
+            url:'',
+            size:0,
+            type:node.type??'',
+        };
+        res.path=[pNodePath??'',node.title??''].join('/');
+        if(node.type==='directory'){
+        }else{
+            const rawDef=node.file_index?.raw;
+            if(!rawDef)return;
+            res.url=mkDownloadUrl(node,'raw');
+            res.size=rawDef.size??0;
+        }              
+        resLs.push(res);
+    });
+    return resLs;
 }
+
+function mkDownloadUrl(node: api_share_node_type, fileType: string = 'raw') {
+  if(!node.file_index[fileType])return '';
+  // shareId
+  return (node.file_index[fileType] as col_node_file_index).path+'?shareId='+shareId+'&filename='+node.title;
+}
+
+//----------------------------
+//详情部分
+
+const regComponentLs: { [key: string]: any } = {
+  audio: browserAudioVue,
+  video: browserVideoVue,
+  image: browserImageVue,
+  pdf: browserPDFVue,
+  text: browserTextVue,
+  office: browserBaseVue,
+  base: browserBaseVue,
+};
+
+let curIndex:Ref<number>=ref(-1);
+const curNode:Ref<api_share_node_type|null>=ref(null);
+const nodeProps: Ref<nodePropsType> = ref({
+  id: 0,
+  title: '',
+  cover: '',
+  preview: '',
+  normal: '',
+  raw: '',
+  sameName:[],
+});
+const domProps: Ref<{
+  w: number,
+  h: number,
+}> = ref({
+  w: 0,
+  h: 0,
+});
+
+function  emitNav(index:number){
+  let delta = index - curIndex.value;
+  goNav(curIndex.value, delta);
+}
+function goNav(curNavIndex: number, offset: number, counter: number = 0): any {
+  // console.info('goNav', [curNavIndex, offset, counter,]);
+  let listLen = nodeList.value.length;
+  if (listLen < 1) return;
+  let nextIndex = curNavIndex;
+  do {
+    nextIndex = nextIndex + offset;
+    while (nextIndex < 0) nextIndex += listLen;
+    while (nextIndex > listLen - 1) nextIndex -= listLen;
+    if (!counter) counter = 0;
+    counter += 1;
+    if (counter > listLen) return;
+    console.info(nextIndex);
+  } while (!nodeList.value[nextIndex] || nodeList.value[nextIndex].type === 'directory')
+  curIndex.value = nextIndex;
+  onModNav();
+}
+function onModNav() {
+  const tCurNode = nodeList.value[curIndex.value];
+  curNode.value = tCurNode;
+  //音视频封面补充
+  if (!tCurNode.file_index.preview) {
+    if (['audio', 'video'].indexOf(tCurNode.type) !== -1) {
+      let has = false
+      nodeList.value.forEach(node => {
+        if (node.id_parent !== tCurNode.id_parent) return;
+        if (has) return;
+        let isCover = false;
+        Config.coverKeyword.forEach(kw1 => {
+          Config.imgKeyword.forEach(kw2 => {
+            if (tCurNode.title.toLowerCase().indexOf(kw1) !== -1)
+              if (tCurNode.title.toLowerCase().indexOf(kw2) !== -1)
+                isCover = true;
+          })
+        });
+        if (isCover) {
+          has = true;
+          let fileInfo;
+          if (!fileInfo) fileInfo = tCurNode.file_index.preview;
+          if (!fileInfo) fileInfo = tCurNode.file_index.normal;
+          if (!fileInfo) fileInfo = tCurNode.file_index.raw;
+          tCurNode.file_index.preview = fileInfo;
+        }
+      });
+    }
+    //
+  }
+  const tNodeProps:nodePropsType = {
+    id: tCurNode.id,
+    title: tCurNode.title,
+    cover: mkDownloadUrl(tCurNode,'cover'),
+    preview: mkDownloadUrl(tCurNode,'preview'),
+    normal: mkDownloadUrl(tCurNode,'normal'),
+    raw: mkDownloadUrl(tCurNode,'raw'),
+    sameName:[],
+  };
+  // console.info(tCurNode);
+  // console.info(tNodeProps);
+  //字幕等
+  let befInd = tNodeProps.title.lastIndexOf('.');
+  if (befInd !== -1) {
+    let preStr = tNodeProps.title.substring(0, befInd) ?? '';
+    if (preStr) {
+      nodeList.value.forEach(node => {
+        if (node.id==tNodeProps.id) return;
+        if (node.title?.indexOf(preStr) !== 0) return;
+        let aftStr = node.title?.substring(preStr.length);
+        tNodeProps.sameName.push({
+          title:aftStr,
+          type:node.type??'',
+    preview: mkDownloadUrl(node,'preview'),
+    normal: mkDownloadUrl(node,'normal'),
+    raw: mkDownloadUrl(node,'raw'),
+        });
+      });
+    }
+  }
+  nodeProps.value = tNodeProps;
+  console.warn(tNodeProps);
+}
+function onResizing(){
+setTimeout(()=>{
+  if(!detailDOM.value)return;
+  domProps.value = {
+    h: detailDOM.value?.clientHeight ?? 0,
+    w: detailDOM.value?.clientWidth ?? 0,
+  };
+},10);
+}
+
+window.addEventListener("resize", onResizing);
+
+function closeDetail(){
+    curIndex.value=-1;
+    curNode.value=null;
+    showDetail.value=0;
+}
+
+async function keymap(e: KeyboardEvent) {
+  if (!curNode.value) return;
+  switch (e.key) {
+    case "ArrowLeft":
+      e.preventDefault();
+    e.stopPropagation();
+      if (["audio", "video"].indexOf(curNode.value.type ?? "") !== -1) return;
+      goNav(curIndex.value, -1);
+      break;
+    case "ArrowRight":
+      e.preventDefault();
+      e.stopPropagation();
+      if (["audio", "video"].indexOf(curNode.value.type ?? "") !== -1) return;
+      goNav(curIndex.value, +1);
+      break;
+    case "a":
+    case "PageUp":
+      e.preventDefault();
+      e.stopPropagation();
+      goNav(curIndex.value, -1);
+      break;
+    case "d":
+    case "PageDown":
+      e.preventDefault();
+      e.stopPropagation();
+      goNav(curIndex.value, +1);
+      break;
+  }
+}
+document.addEventListener("keydown", keymap);
+
+//----------------------------
+//基础部分
 
 function query<K>(
   path: string, data: { [key: string]: any } | FormData,
@@ -163,37 +396,6 @@ function query<K>(
   })
 }
 
-function buildDownloadInputFileFromNodeCol(pNodePath:string,orgNodeLs:api_node_col[]){
-    const resLs:StreamDownloadInputFileType[]=[];
-    orgNodeLs.forEach(node=>{
-        const res:StreamDownloadInputFileType={
-            id:node.id,
-            id_parent:node.id_parent,
-            path:'',
-            url:'',
-            size:0,
-            type:node.type??'',
-        };
-        res.path=[pNodePath??'',node.title??''].join('/');
-        if(node.type==='directory'){
-        }else{
-            const rawDef=node.file_index?.raw;
-            if(!rawDef)return;
-            const fUrl=new URL(location.href);
-            fUrl.pathname=`${Config.apiPath}share/get`
-            fUrl.searchParams.forEach((v,k)=>fUrl.searchParams.delete(k));
-            //
-            fUrl.searchParams.append('id',shareId);
-            fUrl.searchParams.append('id_node',`${node.id}`);
-            fUrl.searchParams.append('filename',`${node.title}`);
-                res.url=fUrl.toString();
-            res.size=rawDef.size??0;
-        }              
-        resLs.push(res);
-    });
-    return resLs;
-}
-
 function throwError(msg:string) {
   // alert(msg);
   errMsg.value = msg;
@@ -204,17 +406,14 @@ function throwError(msg:string) {
 <template>
   <div class="sh_fr_header">
     <div>
-      <img src="@/assets/logobl.png">
+      <img src="@/assets/logobw.png">
       <span>MyNas Share</span>
     </div>
     <div class="operator">
-      <span v-if="selectedId.length"
-            class="pointer sysIcon sysIcon_download"
-            @click="mkDownload('list')"
-      >{{ selectedId.length }} Selected</span>
-      <span class="pointer sysIcon sysIcon_download"
-            @click="mkDownload('total')"
-      >Down All</span>
+      <span v-if="selectedId.length" class="pointer sysIcon sysIcon_download" @click="mkDownload('list')">{{
+        selectedId.length }} Selected</span>
+      <span class="pointer sysIcon sysIcon_download" @click="mkDownload('total')">Down All</span>
+      <span v-if="showDetail" class="pointer sysIcon sysIcon_forward" @click="closeDetail()">Close</span>
     </div>
   </div>
   <div :class="{'sh_fr_body':true,showDetail}">
@@ -223,6 +422,7 @@ function throwError(msg:string) {
     </template>
     <template v-else>
       <ul class="sh_fr_list">
+        <!-- 上级 -->
         <template v-if="cur && cur.id">
           <li class="pointer" @click="pushRoute(shareId,parent?parent.id:0)">
             <p>
@@ -231,28 +431,70 @@ function throwError(msg:string) {
             </p>
           </li>
         </template>
-        <li
-          v-for="item in list" :key="item.id"
-        >
+        <!--  -->
+        <li v-for="item in nodeList" :key="item.id">
           <p>
             <input type="checkbox" name="selector" :id="`selector_${item.id}`" :value="item.id" v-model="selectedId">
             <label :for="`selector_${item.id}`" class="pointer"></label>
             <span :class="['thumb', 'listIcon', `listIcon_file_${item.type}`]"></span>
-            <span
-              class="pointer" @click="toggleDetailView(item)"
-            >{{ item.title }}</span>
+            <span class="pointer title" @click="clickFile(item)">{{ item.title }}</span>
           </p>
-          <p>
-            <span v-if="item.type!=='directory'">{{ GenFunc.kmgt(item?.file_index?.raw?.size??0) }}</span>
-            <span>{{ item.time_update }}</span>
-            <span v-if="item.type==='directory'" class="pointer sysIcon sysIcon_folder" @click="clickFile(item)"></span>
-            <span v-else class="pointer sysIcon sysIcon_download" @click="clickFile(item)"></span>
+          <p class="operates">
+            <span v-if="item.type !== 'directory'">{{ GenFunc.kmgt(item?.file_index?.raw?.size ?? 0) }}</span>
+            <template v-if="item.type === 'directory'">
+              <span class="pointer sysIcon sysIcon_folder" @click="clickFile(item)"></span>
+            </template>
+            <template v-else>
+              <span class="pointer sysIcon sysIcon_eye" @click="clickFile(item,'detail')"></span>
+              <span class="pointer sysIcon sysIcon_download" @click="clickFile(item)"></span>
+            </template>
           </p>
         </li>
       </ul>
-      <template v-if="showDetail">
-        <div class="detailView">
-          
+      <template v-if="curNode && showDetail">
+        <div class="sh_fr_detail" ref="detailDOM" data-ref-id="1">
+          <component :is="regComponentLs[curNode.type]
+        ? regComponentLs[curNode.type]
+        : regComponentLs.base
+      " 
+      :extId="'1'"
+      :isActive="true" 
+      :curIndex="0"
+
+      :file="nodeProps"
+      :dom="domProps"
+
+      @nav="emitNav"
+      >
+      <template v-slot:info>
+        <div :class="{ info: true, detail: showDetail }">
+          <template v-if="showDetail">
+            <p>
+              {{ curNode.title }} ({{
+                GenFunc.kmgt(curNode.file_index?.raw?.size ?? 0, 2)
+              }})
+            </p>
+            <p v-if="curNode.crumb_node">Dir :
+              <template v-for="node in curNode.crumb_node">/{{ node.title }}</template>
+            </p>
+            <p class="preLine">{{ curNode.description }}</p>
+          </template>
+          <!--        <p v-else>{{ curNode.title }}</p>-->
+        </div>
+      </template>
+      <template v-slot:btnContainer>
+      </template>
+      <template v-slot:navigator>
+        <div :class="{ pagination: 1, isMobile: false }">
+          <div class="left" @click="goNav(curIndex, -1)">
+            <span class="sysIcon sysIcon_arrowleft"></span>
+          </div>
+          <div class="right" @click="goNav(curIndex, +1)">
+            <span class="sysIcon sysIcon_arrowright"></span>
+          </div>
+        </div>
+      </template>
+    </component>
         </div>
       </template>
     </template>
@@ -265,6 +507,8 @@ function throwError(msg:string) {
 <style lang="scss">
 @use "sass:map";
 @use '@/assets/variables.scss' as *;
+
+@use '@/assets/browser.scss' as *;
 .sh_fr_header, .sh_fr_footer {
   height: $fontSize*2;
   background-color: map.get($colors, bar_horizon);
@@ -278,13 +522,14 @@ function throwError(msg:string) {
     line-height: $fontSize*2;
     height: $fontSize*2;
     * {
-      vertical-align: baseline;
+      vertical-align: bottom;
       height: inherit;
       line-height: inherit;
     }
   }
   img {
-    height: $fontSize;
+    height: $fontSize*2;
+    line-height: $fontSize*2;
     display: inline-block;
     margin-right: 0.5*$fontSize;
   }
@@ -297,6 +542,7 @@ function throwError(msg:string) {
 }
 .sh_fr_body {
   height: calc(100vh - $fontSize * 4);
+  display: flex;
   overflow: auto;
   .err_msg {
     font-size: $fontSize*5;
@@ -304,16 +550,17 @@ function throwError(msg:string) {
     display: block;
   }
   .sh_fr_list {
-    max-width: $fontSize*80;
+    max-width: 90%;
+    width: 90*$fontSize;
     margin: 0 auto;
     li {
       padding: 0 $fontSize;
       //width:;
-      font-size: $fontSize;
       line-height: 2.5*$fontSize;
       height: 2.5*$fontSize;
       display: flex;
       justify-content: space-between;
+      flex-wrap: nowrap;
       * {
         line-height: 2.5*$fontSize;
         height: 2.5*$fontSize;
@@ -349,12 +596,15 @@ function throwError(msg:string) {
       .listIcon, .sysIcon {
         font-size: $fontSize*1.5;
       }
+      .title{
+        max-width: 40vw;
+      }
     }
   }
   input[type='checkbox'],
   input[type='radio'] {
     + label {
-      font-size: $fontSize*1.5;
+      // font-size: $fontSize*1.5;
       &::after {
         content: '\e833';
       }
@@ -366,6 +616,44 @@ function throwError(msg:string) {
         }
       }
     }
+  }
+}
+.sh_fr_body.showDetail{
+  .sh_fr_list{
+    container-type: size;
+    width: 30vw;
+    position: relative;
+    .listIcon{
+      display: none;
+    }
+    p{
+      display: block;
+    }
+    p.operates{
+      width: $fontSize*20;
+      text-align: right;
+    }
+    p * {
+      font-size: $fontSize*0.8;
+    }
+    .listIcon, .sysIcon{
+      font-size: $fontSize*0.8;
+    }
+    .title{
+      font-size: $fontSize*0.9;
+      // width: $fontSize*15;
+      width: calc(100cqw -  $fontSize*1.5*8);
+    }
+  }
+  .sh_fr_detail{
+    width: 70%;
+    height: 100%;
+    background-color: map.get($colors, font);
+    color: map.get($colors, bk);
+  }
+  .modal_browser{
+    width: 100%;
+    height: 100%;
   }
 }
 .sh_fr_footer {
@@ -385,52 +673,28 @@ function throwError(msg:string) {
 .pointer {
   cursor: pointer;
 }
-@media (max-width: ($fontSize*90)) {
-  .sh_fr_body {
-    ul {
+@media (max-aspect-ratio: 1/1) {
+  .sh_fr_body{
+    display: block;
+    .sh_fr_list{
       width: 100%;
-      li {
-        flex-wrap: wrap;
-        justify-content: space-between;
-        height: auto;
-        p {
-          //width: 100%;
-          span {
-            max-width: $fontSize*15;
-          }
-        }
-      }
+      max-width: 100%;
+    }
+  }
+  .sh_fr_body.showDetail{
+    .sh_fr_list{
+      width: 100vw;
+      container-type: normal;
+      height: 30vh;
+      overflow: auto;
+    }
+    .sh_fr_detail{
+      width: 100%;
+      max-width: 100%;
+      height: calc(70vh - $fontSize*4);
     }
   }
 }
-@media (max-width: ($fontSize*40)) {
-  .sh_fr_header {
-    height: auto;
-    flex-wrap: wrap;
-  }
-  .sh_fr_body {
-    ul {
-      li {
-        display: block;
-        p {
-          display: block;
-          white-space: normal;
-          width: 100%;
-          //max-height: $fontSize*6;
-          span {
-            height: auto;
-            max-height: $fontSize*7.5;
-            overflow: auto;
-            //max-width: $fontSize*10;
-            word-break: break-all;
-            white-space: normal;
-          }
-        }
-        p:nth-child(2){
-          text-align: right;
-        }
-      }
-    }
-  }
-}
+
+
 </style>

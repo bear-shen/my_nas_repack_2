@@ -462,7 +462,7 @@ export async function ifLocalFileExists(localPath: string) {
 }
 
 export function mkRelPath(node: col_node,
-                          withPrefix?: 'temp' | 'preview' | 'normal' | 'cover' | 'raw',
+                          withPrefix?: 'temp' | 'preview' | 'normal' | 'cover' | 'raw'|string,
                           ext?: string
 ) {
     const pathConfig = Config.get('path');

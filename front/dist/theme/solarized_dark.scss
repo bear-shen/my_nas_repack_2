@@ -558,4 +558,10 @@ body.theme_solarized_dark {
       color: map.get($colors, font);
     }
   }
+  .sh_fr_body.showDetail{
+    .sh_fr_detail{
+      background-color: map.get($colors, bk);
+      color: map.get($colors, bar_vertical);
+    }
+  }
 }

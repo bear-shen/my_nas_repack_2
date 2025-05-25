@@ -397,5 +397,9 @@ body.theme_warm .sh_fr_footer .process {
   background-color: hsl(0, 42%, 42%);
   color: hsl(20, 42%, 90%);
 }
+body.theme_warm .sh_fr_body.showDetail .sh_fr_detail {
+  background-color: hsl(20, 42%, 90%);
+  color: hsl(0, 42%, 42%);
+}
 
 /*# sourceMappingURL=warm.css.map */

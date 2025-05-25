@@ -5,13 +5,13 @@ import {
     api_node_col,
     api_share_del_req, api_share_get_req,
     api_share_list_req, api_share_list_resp,
-    api_share_node_list_req, api_share_node_list_resp, api_share_set_req
+    api_share_node_list_req, api_share_node_list_resp, api_share_node_type, api_share_set_req
 } from '../../../share/Api';
 import NodeModel from '../../model/NodeModel';
 import RateModel from "../../model/RateModel";
 import ShareModel from "../../model/ShareModel";
 import UserModel from "../../model/UserModel";
-import {col_node, col_share, col_user} from "../../../share/Database";
+import {col_node, col_node_file_index, col_share, col_user} from "../../../share/Database";
 import * as fp from "../../lib/FileProcessor";
 import fsNp, {ReadStream} from "node:fs";
 
@@ -101,6 +101,7 @@ export default class {
             'id_parent',
             'type',
             'title',
+            'node_path',
             'node_id_list',
             'file_index',
             'rel_node_id',
@@ -139,6 +140,7 @@ export default class {
         } else {
             nodeLs = rootLs;
         }
+        nodeLs=await fp.buildWebPath(nodeLs);
         //
         // await fp.buildWebPath(nodeLs);
         //
@@ -146,19 +148,20 @@ export default class {
         return {
             id: request.id,
             user: user,
-            node: nodeLs,
-            cur: curNode,
-            parent: parentNode,
+            node: nodeLs as api_share_node_type[],
+            cur: curNode as api_share_node_type,
+            parent: parentNode as api_share_node_type,
         };
     }
 
-    async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<null> {
-        //
+    /*async get(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<null> {
+        //搞不定。。。
         let uriInfo = new URL('http://0.0.0.0' + req.url);
         if (!uriInfo||!uriInfo.searchParams) throw new Error('invalid URL');
         const request:api_share_get_req={
             id:uriInfo.searchParams.get('id'),
             id_node:uriInfo.searchParams.get('id_node'),
+            index:uriInfo.searchParams.get('index'),
         };
         if (!request.id) throw new Error('no data');
         // const user = await new UserModel().where('id', data.uid).first();
@@ -168,14 +171,38 @@ export default class {
         const node = await new NodeModel().where('id', request.id_node).first();
         if (!node) throw new Error('node not found');
         if (node.type==='directory') throw new Error('invalid node');
-        if (!node.file_index?.raw) throw new Error('node file not found');
-        const raw = node.file_index.raw;
+        //
+        let tIndexName='raw';
+        let tIndex = node.file_index.raw;
+        switch(request.index){
+            case 'cover':
+                if(node.file_index.cover){
+                    tIndex=node.file_index.cover;
+                    tIndexName='cover';
+                }
+                break;
+            case 'preview':
+                if(node.file_index.preview){
+                    tIndex=node.file_index.preview;
+                    tIndexName='preview';
+                }
+                break;
+            case 'normal':
+                if(node.file_index.normal){
+                    tIndex=node.file_index.normal;
+                    tIndexName='normal';
+                }
+                break;
+        }
+        if (!tIndex) throw new Error('node file not found');
         //
         let bufFrom = 0;
-        let bufTo = raw.size;
+        let bufTo = tIndex.size;
         // console.info(req.headers);
         //@see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Range
+        let useRange=false;
         if (req.headers.range) {
+            useRange=true;
             const rngArr = req.headers.range.split('=');
             if (rngArr.length > 1) {
                 const byteArr = rngArr[1].split('-');
@@ -192,19 +219,28 @@ export default class {
             }
         }
         //
-        const rawPath = fp.mkLocalPath(fp.mkRelPath(node));
-        // console.info(rawPath);
-        res.setHeader("content-type", "application/octet-stream");
-        const rs = fsNp.createReadStream(rawPath, {
+        const fIndex=node.file_index[tIndexName] as col_node_file_index;
+        const fPath = fp.mkLocalPath(fp.mkRelPath(node,tIndexName,fIndex.ext));
+        const ifFileExs=await fp.ifLocalFileExists(fPath);
+        // console.info(fPath);
+        if(!ifFileExs)throw new Error('file not found');
+        // if(useRange)res.statusCode=206;
+        // res.setHeader("Content-Range", `bytes ${bufFrom}-${bufTo}/${fIndex.size}`);
+        // res.setHeader("Content-Length", fIndex.size);
+        // res.setHeader("ETag", `"${node.id}"`);
+        // res.setHeader("Content-Type", `${node.type}/${fIndex.ext}`);
+        // res.setHeader("content-type", "application/octet-stream");
+        // res.setHeader("Content-Disposition", `attachment; filename="${fp.basename(fPath)}"`);
+        const rs = fsNp.createReadStream(fPath, {
             autoClose: true,
             start: bufFrom, end: bufTo
         });
         await setResponseFile(rs, res);
         return;
-    }
+    }*/
 }
 
-function setResponseFile(rs: ReadStream, res: ServerResponse): Promise<null> {
+/*function setResponseFile(rs: ReadStream, res: ServerResponse): Promise<null> {
     return new Promise(resolve => {
         rs.on('data', (chunk) => {
             // console.info(chunk.length);
@@ -216,7 +252,7 @@ function setResponseFile(rs: ReadStream, res: ServerResponse): Promise<null> {
             resolve(null);
         });
     });
-}
+}*/
 
 function inShare(shareNodeIdList: number[], node: col_node) {
     let inShare = false;

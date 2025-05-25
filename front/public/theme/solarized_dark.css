@@ -371,5 +371,9 @@ body.theme_solarized_dark .sh_fr_footer .process {
   background-color: hsl(50, 50%, 80%);
   color: hsl(50, 50%, 80%);
 }
+body.theme_solarized_dark .sh_fr_body.showDetail .sh_fr_detail {
+  background-color: #073642;
+  color: rgb(4.0657534247, 31.3643835616, 38.3342465753);
+}
 
 /*# sourceMappingURL=solarized_dark.css.map */

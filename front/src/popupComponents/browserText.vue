@@ -117,6 +117,7 @@ onBeforeUnmount(() => {
     //@include smallScroll();
     overflow: auto;
     height: calc(100% - $fontSize * 5);
+    font-size: $fontSize;
   }
   /*.navigator {
   }

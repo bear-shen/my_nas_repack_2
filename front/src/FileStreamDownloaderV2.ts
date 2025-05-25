@@ -5,7 +5,9 @@ import type {JSZipObject} from "jszip";
 import JSZip from 'jszip';
 
 export type StreamDownloadInputFileType = {
+    //子目录的路径
     path: string,
+    //文件的URL
     url: string,
     size: number,
     type: 'directory' | string,
@@ -205,6 +207,22 @@ export class FileStreamDownloaderV2 {
                 link.click();
                 resolve(true);
             });
+        })
+    }
+
+    public completeFile() {
+        return new Promise(resolve => {
+            this.fileMap.forEach((v, k) => {
+                console.info(v,k);
+                const blob=new Blob([v]);
+                let link = document.createElement('a');
+                link.style.display = 'none';
+                link.href = URL.createObjectURL(blob);
+                link.target = '_blank';
+                link.setAttribute('download', k);
+                link.click();
+            });
+            resolve(true);
         })
     }
 }

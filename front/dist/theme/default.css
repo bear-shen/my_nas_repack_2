@@ -371,5 +371,9 @@ body.theme_default .sh_fr_footer .process {
   background-color: rgb(197, 197, 197);
   color: rgb(197, 197, 197);
 }
+body.theme_default .sh_fr_body.showDetail .sh_fr_detail {
+  background-color: hsl(210, 10%, 20%);
+  color: hsl(210, 10%, 8%);
+}
 
 /*# sourceMappingURL=default.css.map */
