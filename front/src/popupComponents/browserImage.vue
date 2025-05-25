@@ -64,6 +64,7 @@ async function onImageLoad(e: Event) {
     // return setTimeout(onImageLoad.bind(null, curNodeId), 50);
     return setTimeout(onImageLoad, 50);
   }
+  // console.warn(dom,dom.naturalHeight,dom.naturalWidth);
   // const arrayBuffer = await (await fetch(props.curNode.file.normal?.path)).arrayBuffer();
   // const exif = piexif.load(arrayBuffer);
   // console.info(exif);
@@ -85,7 +86,7 @@ async function onImageLoad(e: Event) {
 
 onMounted(() => {
   // console.warn("mounted");
-  imgSrc.value = props.file.normal+ '?filename=' + props.file.title;
+  imgSrc.value = props.file.normal;
   Object.assign(imgLayout.value, {
     loaded: 0,
     w: 0,
@@ -118,7 +119,7 @@ watch(
     console.info('onMod props.curNode',props.file.normal);
     //先预加载再更新到前台，不然中间会有一个闪屏
     imgLayout.value.loaded = 0;
-    const newSrc = props.file.normal + '?filename=' + props.file.title;
+    const newSrc = props.file.normal;
     const imgDOM = new Image();
     imgDOM.src = newSrc;
     imgDOM.onload = (e) => {
@@ -544,7 +545,6 @@ function setRotate(deg:number) {
               }"
         ref="imgDOM"
       />
-      <!--      :src="`${props.curNode.file_index?.normal?.path}?filename=${props.curNode.title}`"-->
     </div>
   </div>
 </template>

@@ -87,4 +87,8 @@ export default {
         ['warm', './theme/warm.css',],
     ],
     navList: [],
+    coverKeyword: ['cover', 'album',
+  'bk', 'cd',
+],
+    imgKeyword: [ 'jpg', 'png', 'webp',],
 }

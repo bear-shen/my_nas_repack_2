@@ -24,9 +24,9 @@ const timelineDOM: Ref<HTMLElement | null> = ref(null);
 const mediaDOM: Ref<HTMLVideoElement | null> = ref(null);
 const resPath: Ref<string> = ref('');
 if (props.file.normal) {
-  resPath.value = `${props.file.normal}?filename=${props.file.title}`;
+  resPath.value = props.file.normal;
 } else {
-  resPath.value = `${props.file.raw}?filename=${props.file.title}`
+  resPath.value = props.file.raw;
 }
 
 // const playModes = ["queue", "loop", "single", "shuffle"];
@@ -158,9 +158,9 @@ watch(() => props.file, async (to) => {
   onRelease();
   beforeInit();
   if (props.file.normal) {
-    resPath.value = `${props.file.normal}?filename=${to.title}`;
+    resPath.value = props.file.normal;
   } else {
-    resPath.value = `${props.file.raw}?filename=${to.title}`
+    resPath.value = props.file.raw;
   }
   // setTimeout(() => {
   if (mediaDOM.value) mediaDOM.value?.load();
