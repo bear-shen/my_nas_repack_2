@@ -391,7 +391,8 @@ function query<K>(
       resolve(res.data);
     };
     if (extra && extra.upload) xhr.upload.onprogress = extra.upload;
-    xhr.open('POST', Config.apiPath + path);
+    let pathname=new URL(location.href).pathname;
+    xhr.open('POST', pathname.substring(0,pathname.lastIndexOf('/'))+Config.apiPath + path);
     xhr.send(formData);
   })
 }
