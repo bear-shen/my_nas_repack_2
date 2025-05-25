@@ -190,8 +190,10 @@ function buildDownloadInputFileFromNodeCol(pNodePath:string,orgNodeLs:api_share_
 
 function mkDownloadUrl(node: api_share_node_type, fileType: string = 'raw') {
   if(!node.file_index[fileType])return '';
+    let pathname=new URL(location.href).pathname;
+    
   // shareId
-  return (node.file_index[fileType] as col_node_file_index).path+'?shareId='+shareId+'&filename='+node.title;
+  return pathname.substring(0,pathname.lastIndexOf('/'))+(node.file_index[fileType] as col_node_file_index).path+'?shareId='+shareId+'&filename='+node.title;
 }
 
 //----------------------------
