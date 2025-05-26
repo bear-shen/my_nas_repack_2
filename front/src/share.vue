@@ -440,7 +440,7 @@ function throwError(msg:string) {
             <input type="checkbox" name="selector" :id="`selector_${item.id}`" :value="item.id" v-model="selectedId">
             <label :for="`selector_${item.id}`" class="pointer"></label>
             <span :class="['thumb', 'listIcon', `listIcon_file_${item.type}`]"></span>
-            <span class="pointer title" @click="clickFile(item)">{{ item.title }}</span>
+            <span class="pointer title" @click="clickFile(item,'detail')">{{ item.title }}</span>
           </p>
           <p class="operates">
             <span v-if="item.type !== 'directory'">{{ GenFunc.kmgt(item?.file_index?.raw?.size ?? 0) }}</span>
