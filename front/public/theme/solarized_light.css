@@ -363,7 +363,7 @@ body.theme_solarized_light .sh_fr_header, body.theme_solarized_light .sh_fr_foot
 body.theme_solarized_light .sh_fr_body ul li:nth-child(2n-1) {
   background-color: rgb(250.28, 233.76, 188.92);
 }
-body.theme_solarized_light .sh_fr_body ul li:hover {
+body.theme_solarized_light .sh_fr_body ul li:hover, body.theme_solarized_light .sh_fr_body ul li.active {
   background-color: #839496;
   color: rgb(250.28, 233.76, 188.92);
 }

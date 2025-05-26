@@ -388,7 +388,7 @@ body.theme_warm .sh_fr_header, body.theme_warm .sh_fr_footer {
 body.theme_warm .sh_fr_body ul li:nth-child(2n-1) {
   background-color: hsl(10, 42%, 84%);
 }
-body.theme_warm .sh_fr_body ul li:hover {
+body.theme_warm .sh_fr_body ul li:hover, body.theme_warm .sh_fr_body ul li.active {
   background-color: hsl(0, 42%, 42%);
   color: hsl(20, 42%, 90%);
 }

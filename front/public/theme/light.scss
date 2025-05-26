@@ -537,7 +537,7 @@ body.theme_light {
         &:nth-child(2n-1) {
           background-color: map.get($colors, bk_active);
         }
-        &:hover {
+        &:hover,&.active {
           background-color: map.get($colors, font_sub);
           color: map.get($colors, bk_active);
         }

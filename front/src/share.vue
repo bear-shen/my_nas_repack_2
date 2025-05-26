@@ -309,8 +309,9 @@ function onModNav() {
       });
     }
   }
+  if(tNodeProps.id==nodeProps.value.id)return;
   nodeProps.value = tNodeProps;
-  console.warn(tNodeProps);
+  // console.warn(tNodeProps);
 }
 function onResizing(){
 setTimeout(()=>{
@@ -435,7 +436,7 @@ function throwError(msg:string) {
           </li>
         </template>
         <!--  -->
-        <li v-for="item in nodeList" :key="item.id">
+        <li v-for="item in nodeList" :key="item.id" :class="{active:(curNode && item.id==curNode.id)}">
           <p>
             <input type="checkbox" name="selector" :id="`selector_${item.id}`" :value="item.id" v-model="selectedId">
             <label :for="`selector_${item.id}`" class="pointer"></label>

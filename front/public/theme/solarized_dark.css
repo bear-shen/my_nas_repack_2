@@ -363,7 +363,7 @@ body.theme_solarized_dark .sh_fr_header, body.theme_solarized_dark .sh_fr_footer
 body.theme_solarized_dark .sh_fr_body ul li:nth-child(2n-1) {
   background-color: rgb(10.9123287671, 84.1808219178, 102.8876712329);
 }
-body.theme_solarized_dark .sh_fr_body ul li:hover {
+body.theme_solarized_dark .sh_fr_body ul li:hover, body.theme_solarized_dark .sh_fr_body ul li.active {
   background-color: hsl(50, 50%, 80%);
   color: #073642;
 }

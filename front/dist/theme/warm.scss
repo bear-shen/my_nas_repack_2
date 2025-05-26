@@ -566,7 +566,7 @@ body.theme_warm {
         &:nth-child(2n-1) {
           background-color: map.get($colors, bar_meta);
         }
-        &:hover {
+        &:hover,&.active {
           background-color: map.get($colors, bar_vertical);
           color: map.get($colors, bk);
         }

@@ -363,7 +363,7 @@ body.theme_default .sh_fr_header, body.theme_default .sh_fr_footer {
 body.theme_default .sh_fr_body ul li:nth-child(2n-1) {
   background-color: hsl(210, 10%, 28%);
 }
-body.theme_default .sh_fr_body ul li:hover {
+body.theme_default .sh_fr_body ul li:hover, body.theme_default .sh_fr_body ul li.active {
   background-color: rgb(197, 197, 197);
   color: hsl(210, 10%, 20%);
 }

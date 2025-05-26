@@ -545,7 +545,7 @@ body.theme_solarized_dark {
         &:nth-child(2n-1) {
           background-color: map.get($colors, bk_active);
         }
-        &:hover {
+        &:hover,&.active {
           background-color: map.get($colors, font);
           color: map.get($colors, bk);
         }
