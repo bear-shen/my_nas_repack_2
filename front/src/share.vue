@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import Config from "@/Config";
-import type { api_share_node_list_resp, api_share_node_type} from "../../share/Api";
+import type {api_share_node_list_resp, api_share_node_type} from "../../share/Api";
 import {onMounted, ref, type Ref} from "vue";
 import GenFunc from "@/GenFunc";
 
-import { FileStreamDownloaderV2,type StreamDownloadInputFileType } from "./FileStreamDownloaderV2";
+import {FileStreamDownloaderV2, type StreamDownloadInputFileType} from "./FileStreamDownloaderV2";
 
 import browserBaseVue from "./popupComponents/browserBase.vue";
 import browserImageVue from "./popupComponents/browserImage.vue";
@@ -12,8 +12,8 @@ import browserAudioVue from "./popupComponents/browserAudio.vue";
 import browserVideoVue from "./popupComponents/browserVideo.vue";
 import browserTextVue from "./popupComponents/browserText.vue";
 import browserPDFVue from "./popupComponents/browserPDF.vue";
-import type { nodePropsType } from "./types/browser";
-import type { col_node_file_index } from "../../share/Database";
+import type {nodePropsType} from "./types/browser";
+import type {col_node_file_index} from "../../share/Database";
 
 const errMsg: Ref<string> = ref('');
 const showDetail: Ref<number> = ref(0);
@@ -21,8 +21,8 @@ const showDetail: Ref<number> = ref(0);
 
 let shareId = '';
 const nodeList: Ref<api_share_node_type[]> = ref([]);
-const cur: Ref<api_share_node_type|null> = ref(null);
-const parent: Ref<api_share_node_type|null> = ref(null);
+const cur: Ref<api_share_node_type | null> = ref(null);
+const parent: Ref<api_share_node_type | null> = ref(null);
 
 const selectedId: Ref<number[]> = ref([]);
 const detailDOM: Ref<HTMLElement | null> = ref(null);
@@ -38,7 +38,7 @@ onMounted(async () => {
   loadId(url);
 });
 
-function pushRoute(sid:string, pid?:number) {
+function pushRoute(sid: string, pid?: number) {
   const url = new URL(location.href);
   url.searchParams.set('id', sid);
   if (pid) url.searchParams.set('node', pid.toString());
@@ -52,15 +52,15 @@ addEventListener("popstate", (event) => {
   loadId(new URL(location.href));
 });
 
-async function loadId(url:URL) {
-  shareId = url.searchParams.get('id')??'';
-  if(!shareId)return throwError('invalid uuid');
+async function loadId(url: URL) {
+  shareId = url.searchParams.get('id') ?? '';
+  if (!shareId) return throwError('invalid uuid');
   let parentId = url.searchParams.get('node');
   selectedId.value = [];
-  const queryRes = await getList(shareId, parentId??false);
-  if(!queryRes)return throwError('data fetch failed');
-  nodeList.value = queryRes.node??[];
-  parent.value = queryRes.parent??null;
+  const queryRes = await getList(shareId, parentId ?? false);
+  if (!queryRes) return throwError('data fetch failed');
+  nodeList.value = queryRes.node ?? [];
+  parent.value = queryRes.parent ?? null;
   cur.value = queryRes.cur;
 }
 
@@ -71,16 +71,16 @@ let downloading = true;
 const countProcessTxt: Ref<string> = ref('');
 const countProcessStyle: Ref<string> = ref('');
 
-async function clickFile(item: api_share_node_type,mode?:string) {
+async function clickFile(item: api_share_node_type, mode?: string) {
   if (item.type === 'directory') {
 
     pushRoute(shareId, item.id)
   } else {
     // console.info('file');
     if (!item?.file_index?.raw) return;
-    switch(mode){
+    switch (mode) {
       default:
-      return await mkDownload('single', item);
+        return await mkDownload('single', item);
       case 'detail':
         curNode.value = item;
         nodeList.value.forEach((node, ind) => {
@@ -103,7 +103,7 @@ async function clickFile(item: api_share_node_type,mode?:string) {
   }
 }
 
-async function mkDownload(selMode:string, target?:api_share_node_type) {
+async function mkDownload(selMode: string, target?: api_share_node_type) {
   downloading = true;
   //
   const rootNodes: api_share_node_type[] = [];
@@ -117,33 +117,33 @@ async function mkDownload(selMode:string, target?:api_share_node_type) {
       })
       break;
     case 'total':
-    nodeList.value.forEach(node => {
+      nodeList.value.forEach(node => {
         rootNodes.push(node);
       })
       break;
     case 'single':
-      if(target){
-      rootNodes.push(target);
+      if (target) {
+        rootNodes.push(target);
       }
       break;
   }
-  if(!rootNodes.length)return;
+  if (!rootNodes.length) return;
   console.info(rootNodes);
-  const downloader=new FileStreamDownloaderV2(buildDownloadInputFileFromNodeCol('',rootNodes),async (inNode)=>{
-    const sNode=await getList(shareId,inNode.id);
-    if(!sNode)return [];
-    return buildDownloadInputFileFromNodeCol(inNode.path,sNode.node??[]);
+  const downloader = new FileStreamDownloaderV2(buildDownloadInputFileFromNodeCol('', rootNodes), async (inNode) => {
+    const sNode = await getList(shareId, inNode.id);
+    if (!sNode) return [];
+    return buildDownloadInputFileFromNodeCol(inNode.path, sNode.node ?? []);
   });
   await downloader.prepare();
-  await downloader.download((pre:number,cur:number,total:number,index:number,fileSize:number)=>{
-    let percent = (pre+cur) / total;
+  await downloader.download((pre: number, cur: number, total: number, index: number, fileSize: number) => {
+    let percent = (pre + cur) / total;
     percent *= 10000;
     percent = Math.round(percent)
     percent /= 100;
     countProcessTxt.value = `${index}/${fileSize} Files, ${percent}%, ${GenFunc.kmgt(cur)} / ${GenFunc.kmgt(total)}`;
     countProcessStyle.value = `width: ${percent}%;`;
   });
-  console.info(rootNodes.length === 1 , rootNodes[0].type !== 'directory');
+  console.info(rootNodes.length === 1, rootNodes[0].type !== 'directory');
   if (rootNodes.length === 1 && rootNodes[0].type !== 'directory') {
     await downloader.completeFile();
   } else {
@@ -151,49 +151,49 @@ async function mkDownload(selMode:string, target?:api_share_node_type) {
     downloader.complete();
   }
   //
-  downloading=false;
+  downloading = false;
 }
 
-async function getList(sid:string, pid?:any):Promise<false|api_share_node_list_resp> {
-  const queryRes = await query<api_share_node_list_resp>('share/node_list', pid?{
+async function getList(sid: string, pid?: any): Promise<false | api_share_node_list_resp> {
+  const queryRes = await query<api_share_node_list_resp>('share/node_list', pid ? {
     id: sid,
     id_node: pid,
-  }:{
+  } : {
     id: sid,
   });
   return queryRes;
 }
 
-function buildDownloadInputFileFromNodeCol(pNodePath:string,orgNodeLs:api_share_node_type[]){
-    const resLs:StreamDownloadInputFileType[]=[];
-    orgNodeLs.forEach(node=>{
-        const res:StreamDownloadInputFileType={
-            id:node.id,
-            id_parent:node.id_parent,
-            path:'',
-            url:'',
-            size:0,
-            type:node.type??'',
-        };
-        res.path=[pNodePath??'',node.title??''].join('/');
-        if(node.type==='directory'){
-        }else{
-            const rawDef=node.file_index?.raw;
-            if(!rawDef)return;
-            res.url=mkDownloadUrl(node,'raw');
-            res.size=rawDef.size??0;
-        }              
-        resLs.push(res);
-    });
-    return resLs;
+function buildDownloadInputFileFromNodeCol(pNodePath: string, orgNodeLs: api_share_node_type[]) {
+  const resLs: StreamDownloadInputFileType[] = [];
+  orgNodeLs.forEach(node => {
+    const res: StreamDownloadInputFileType = {
+      id: node.id,
+      id_parent: node.id_parent,
+      path: '',
+      url: '',
+      size: 0,
+      type: node.type ?? '',
+    };
+    res.path = [pNodePath ?? '', node.title ?? ''].join('/');
+    if (node.type === 'directory') {
+    } else {
+      const rawDef = node.file_index?.raw;
+      if (!rawDef) return;
+      res.url = mkDownloadUrl(node, 'raw');
+      res.size = rawDef.size ?? 0;
+    }
+    resLs.push(res);
+  });
+  return resLs;
 }
 
 function mkDownloadUrl(node: api_share_node_type, fileType: string = 'raw') {
-  if(!node.file_index[fileType])return '';
-    let pathname=new URL(location.href).pathname;
-    
+  if (!node.file_index[fileType]) return '';
+  let pathname = new URL(location.href).pathname;
+
   // shareId
-  return pathname.substring(0,pathname.lastIndexOf('/'))+(node.file_index[fileType] as col_node_file_index).path+'?shareId='+shareId+'&filename='+node.title;
+  return pathname.substring(0, pathname.lastIndexOf('/')) + (node.file_index[fileType] as col_node_file_index).path + '?shareId=' + shareId + '&filename=' + node.title;
 }
 
 //----------------------------
@@ -209,8 +209,8 @@ const regComponentLs: { [key: string]: any } = {
   base: browserBaseVue,
 };
 
-let curIndex:Ref<number>=ref(-1);
-const curNode:Ref<api_share_node_type|null>=ref(null);
+let curIndex: Ref<number> = ref(-1);
+const curNode: Ref<api_share_node_type | null> = ref(null);
 const nodeProps: Ref<nodePropsType> = ref({
   id: 0,
   title: '',
@@ -218,7 +218,7 @@ const nodeProps: Ref<nodePropsType> = ref({
   preview: '',
   normal: '',
   raw: '',
-  sameName:[],
+  sameName: [],
 });
 const domProps: Ref<{
   w: number,
@@ -228,12 +228,15 @@ const domProps: Ref<{
   h: 0,
 });
 
-function  emitNav(index:number){
-  let delta = index - curIndex.value;
-  goNav(curIndex.value, delta);
+function emitNav(index: number) {
+  console.info('emitNav', index);
+  // let delta = curIndex.value + index;
+  goNav(curIndex.value, index);
 }
+
 function goNav(curNavIndex: number, offset: number, counter: number = 0): any {
   // console.info('goNav', [curNavIndex, offset, counter,]);
+  if (!offset) return;
   let listLen = nodeList.value.length;
   if (listLen < 1) return;
   let nextIndex = curNavIndex;
@@ -241,14 +244,14 @@ function goNav(curNavIndex: number, offset: number, counter: number = 0): any {
     nextIndex = nextIndex + offset;
     while (nextIndex < 0) nextIndex += listLen;
     while (nextIndex > listLen - 1) nextIndex -= listLen;
-    if (!counter) counter = 0;
-    counter += 1;
-    if (counter > listLen) return;
-    console.info(nextIndex);
-  } while (!nodeList.value[nextIndex] || nodeList.value[nextIndex].type === 'directory')
+    if (!nodeList.value[nextIndex]) continue;
+    if (nodeList.value[nextIndex].type === 'directory') continue;
+    break;
+  } while (true)
   curIndex.value = nextIndex;
   onModNav();
 }
+
 function onModNav() {
   const tCurNode = nodeList.value[curIndex.value];
   curNode.value = tCurNode;
@@ -279,14 +282,14 @@ function onModNav() {
     }
     //
   }
-  const tNodeProps:nodePropsType = {
+  const tNodeProps: nodePropsType = {
     id: tCurNode.id,
     title: tCurNode.title,
-    cover: mkDownloadUrl(tCurNode,'cover'),
-    preview: mkDownloadUrl(tCurNode,'preview'),
-    normal: mkDownloadUrl(tCurNode,'normal'),
-    raw: mkDownloadUrl(tCurNode,'raw'),
-    sameName:[],
+    cover: mkDownloadUrl(tCurNode, 'cover'),
+    preview: mkDownloadUrl(tCurNode, 'preview'),
+    normal: mkDownloadUrl(tCurNode, 'normal'),
+    raw: mkDownloadUrl(tCurNode, 'raw'),
+    sameName: [],
   };
   // console.info(tCurNode);
   // console.info(tNodeProps);
@@ -296,51 +299,54 @@ function onModNav() {
     let preStr = tNodeProps.title.substring(0, befInd) ?? '';
     if (preStr) {
       nodeList.value.forEach(node => {
-        if (node.id==tNodeProps.id) return;
+        if (node.id == tNodeProps.id) return;
         if (node.title?.indexOf(preStr) !== 0) return;
         let aftStr = node.title?.substring(preStr.length);
         tNodeProps.sameName.push({
-          title:aftStr,
-          type:node.type??'',
-    preview: mkDownloadUrl(node,'preview'),
-    normal: mkDownloadUrl(node,'normal'),
-    raw: mkDownloadUrl(node,'raw'),
+          title: aftStr,
+          type: node.type ?? '',
+          preview: mkDownloadUrl(node, 'preview'),
+          normal: mkDownloadUrl(node, 'normal'),
+          raw: mkDownloadUrl(node, 'raw'),
         });
       });
     }
   }
-  if(tNodeProps.id==nodeProps.value.id)return;
+  if (tNodeProps.id == nodeProps.value.id) return;
   nodeProps.value = tNodeProps;
   // console.warn(tNodeProps);
 }
-function onResizing(){
-setTimeout(()=>{
-  if(!detailDOM.value)return;
-  domProps.value = {
-    h: detailDOM.value?.clientHeight ?? 0,
-    w: detailDOM.value?.clientWidth ?? 0,
-  };
-},10);
+
+function onResizing() {
+  setTimeout(() => {
+    if (!detailDOM.value) return;
+    domProps.value = {
+      h: detailDOM.value?.clientHeight ?? 0,
+      w: detailDOM.value?.clientWidth ?? 0,
+    };
+  }, 10);
 }
 
 window.addEventListener("resize", onResizing);
 
-function closeDetail(){
-    curIndex.value=-1;
-    curNode.value=null;
-    showDetail.value=0;
+function closeDetail() {
+  curIndex.value = -1;
+  curNode.value = null;
+  showDetail.value = 0;
 }
 
 async function keymap(e: KeyboardEvent) {
   if (!curNode.value) return;
   switch (e.key) {
     case "ArrowLeft":
+      if(!showDetail.value)break;
       e.preventDefault();
-    e.stopPropagation();
+      e.stopPropagation();
       if (["audio", "video"].indexOf(curNode.value.type ?? "") !== -1) return;
       goNav(curIndex.value, -1);
       break;
     case "ArrowRight":
+      if(!showDetail.value)break;
       e.preventDefault();
       e.stopPropagation();
       if (["audio", "video"].indexOf(curNode.value.type ?? "") !== -1) return;
@@ -348,18 +354,21 @@ async function keymap(e: KeyboardEvent) {
       break;
     case "a":
     case "PageUp":
+      if(!showDetail.value)break;
       e.preventDefault();
       e.stopPropagation();
       goNav(curIndex.value, -1);
       break;
     case "d":
     case "PageDown":
+      if(!showDetail.value)break;
       e.preventDefault();
       e.stopPropagation();
       goNav(curIndex.value, +1);
       break;
   }
 }
+
 document.addEventListener("keydown", keymap);
 
 //----------------------------
@@ -394,13 +403,13 @@ function query<K>(
       resolve(res.data);
     };
     if (extra && extra.upload) xhr.upload.onprogress = extra.upload;
-    let pathname=new URL(location.href).pathname;
-    xhr.open('POST', pathname.substring(0,pathname.lastIndexOf('/'))+Config.apiPath + path);
+    let pathname = new URL(location.href).pathname;
+    xhr.open('POST', pathname.substring(0, pathname.lastIndexOf('/')) + Config.apiPath + path);
     xhr.send(formData);
   })
 }
 
-function throwError(msg:string) {
+function throwError(msg: string) {
   // alert(msg);
   errMsg.value = msg;
   throw new Error(msg)
@@ -415,7 +424,8 @@ function throwError(msg:string) {
     </div>
     <div class="operator">
       <span v-if="selectedId.length" class="pointer sysIcon sysIcon_download" @click="mkDownload('list')">{{
-        selectedId.length }} Selected</span>
+          selectedId.length
+        }} Selected</span>
       <span class="pointer sysIcon sysIcon_download" @click="mkDownload('total')">Down All</span>
       <span v-if="showDetail" class="pointer sysIcon sysIcon_forward" @click="closeDetail()">Close</span>
     </div>
@@ -460,45 +470,45 @@ function throwError(msg:string) {
           <component :is="regComponentLs[curNode.type]
         ? regComponentLs[curNode.type]
         : regComponentLs.base
-      " 
-      :extId="'1'"
-      :isActive="true" 
-      :curIndex="0"
+      "
+                     :extId="'1'"
+                     :isActive="true"
+                     :curIndex="0"
 
-      :file="nodeProps"
-      :dom="domProps"
+                     :file="nodeProps"
+                     :dom="domProps"
 
-      @nav="emitNav"
-      >
-      <template v-slot:info>
-        <div :class="{ info: true, detail: showDetail }">
-          <template v-if="showDetail">
-            <p>
-              {{ curNode.title }} ({{
-                GenFunc.kmgt(curNode.file_index?.raw?.size ?? 0, 2)
-              }})
-            </p>
-            <p v-if="curNode.crumb_node">Dir :
-              <template v-for="node in curNode.crumb_node">/{{ node.title }}</template>
-            </p>
-            <p class="preLine">{{ curNode.description }}</p>
-          </template>
-          <!--        <p v-else>{{ curNode.title }}</p>-->
-        </div>
-      </template>
-      <template v-slot:btnContainer>
-      </template>
-      <template v-slot:navigator>
-        <div :class="{ pagination: 1, isMobile: false }">
-          <div class="left" @click="goNav(curIndex, -1)">
-            <span class="sysIcon sysIcon_arrowleft"></span>
-          </div>
-          <div class="right" @click="goNav(curIndex, +1)">
-            <span class="sysIcon sysIcon_arrowright"></span>
-          </div>
-        </div>
-      </template>
-    </component>
+                     @nav="emitNav"
+          >
+            <template v-slot:info>
+              <div :class="{ info: true, detail: showDetail }">
+                <template v-if="showDetail">
+                  <p>
+                    {{ curNode.title }} ({{
+                      GenFunc.kmgt(curNode.file_index?.raw?.size ?? 0, 2)
+                    }})
+                  </p>
+                  <p v-if="curNode.crumb_node">Dir :
+                    <template v-for="node in curNode.crumb_node">/{{ node.title }}</template>
+                  </p>
+                  <p class="preLine">{{ curNode.description }}</p>
+                </template>
+                <!--        <p v-else>{{ curNode.title }}</p>-->
+              </div>
+            </template>
+            <template v-slot:btnContainer>
+            </template>
+            <template v-slot:navigator>
+              <div :class="{ pagination: 1, isMobile: false }">
+                <div class="left" @click="goNav(curIndex, -1)">
+                  <span class="sysIcon sysIcon_arrowleft"></span>
+                </div>
+                <div class="right" @click="goNav(curIndex, +1)">
+                  <span class="sysIcon sysIcon_arrowright"></span>
+                </div>
+              </div>
+            </template>
+          </component>
         </div>
       </template>
     </template>
@@ -600,7 +610,7 @@ function throwError(msg:string) {
       .listIcon, .sysIcon {
         font-size: $fontSize*1.5;
       }
-      .title{
+      .title {
         max-width: 40vw;
       }
     }
@@ -622,40 +632,40 @@ function throwError(msg:string) {
     }
   }
 }
-.sh_fr_body.showDetail{
-  .sh_fr_list{
+.sh_fr_body.showDetail {
+  .sh_fr_list {
     container-type: size;
     width: 30vw;
     position: relative;
-    .listIcon{
+    .listIcon {
       display: none;
     }
-    p{
+    p {
       display: block;
     }
-    p.operates{
+    p.operates {
       width: $fontSize*20;
       text-align: right;
     }
     p * {
       font-size: $fontSize*0.8;
     }
-    .listIcon, .sysIcon{
+    .listIcon, .sysIcon {
       font-size: $fontSize*0.8;
     }
-    .title{
+    .title {
       font-size: $fontSize*0.9;
       // width: $fontSize*15;
-      width: calc(100cqw -  $fontSize*1.5*8);
+      width: calc(100cqw - $fontSize * 1.5 * 8);
     }
   }
-  .sh_fr_detail{
+  .sh_fr_detail {
     width: 70%;
     height: 100%;
     background-color: map.get($colors, font);
     color: map.get($colors, bk);
   }
-  .modal_browser{
+  .modal_browser {
     width: 100%;
     height: 100%;
   }
@@ -678,24 +688,24 @@ function throwError(msg:string) {
   cursor: pointer;
 }
 @media (max-aspect-ratio: 1/1) {
-  .sh_fr_body{
+  .sh_fr_body {
     display: block;
-    .sh_fr_list{
+    .sh_fr_list {
       width: 100%;
       max-width: 100%;
     }
   }
-  .sh_fr_body.showDetail{
-    .sh_fr_list{
+  .sh_fr_body.showDetail {
+    .sh_fr_list {
       width: 100vw;
       container-type: normal;
       height: 30vh;
       overflow: auto;
     }
-    .sh_fr_detail{
+    .sh_fr_detail {
       width: 100%;
       max-width: 100%;
-      height: calc(70vh - $fontSize*4);
+      height: calc(70vh - $fontSize * 4);
     }
   }
 }
