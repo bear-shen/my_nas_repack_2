@@ -248,6 +248,9 @@ export async function mv(
             flag.description = true;
         }
     }
+    if (!flag.title && !flag.description && !flag.dir) {
+        return [];
+    }
     const upd: col_node = {};
     if (flag.description) upd.description = targetDescription as string;
     if (flag.title) upd.title = targetTitle as string;
@@ -456,13 +459,13 @@ export async function mkdir(
 }
 
 export async function ifLocalFileExists(localPath: string) {
-    let hasErr=null;
-    await fs.access(localPath).catch(e=>hasErr=e);
-    return hasErr?false:true;
+    let hasErr = null;
+    await fs.access(localPath).catch(e => hasErr = e);
+    return hasErr ? false : true;
 }
 
 export function mkRelPath(node: col_node,
-                          withPrefix?: 'temp' | 'preview' | 'normal' | 'cover' | 'raw'|string,
+                          withPrefix?: 'temp' | 'preview' | 'normal' | 'cover' | 'raw' | string,
                           ext?: string
 ) {
     const pathConfig = Config.get('path');
@@ -599,21 +602,21 @@ export async function rename(srcPath: string, targetPath: string) {
     }
     //
     hasErr = null;
-    await fs.rename(srcPath, targetPath).catch(e=>hasErr=e);
-    if(!hasErr){
-        await fs.chmod(targetPath, 0o777).catch(e=>hasErr=e);
-        if(!hasErr){
+    await fs.rename(srcPath, targetPath).catch(e => hasErr = e);
+    if (!hasErr) {
+        await fs.chmod(targetPath, 0o777).catch(e => hasErr = e);
+        if (!hasErr) {
             return true;
         }
     }
     //
-    if(hasErr){
+    if (hasErr) {
         hasErr = null;
-        await fs.cp(srcPath, targetPath, {recursive: true, force: true}).catch(e=>hasErr=e);
-        if(!hasErr){
-            await fs.rm(srcPath, {recursive: true, force: true}).catch(e=>hasErr=e);
-            if(!hasErr){
-                await fs.chmod(targetPath, 0o777).catch(e=>hasErr=e)
+        await fs.cp(srcPath, targetPath, {recursive: true, force: true}).catch(e => hasErr = e);
+        if (!hasErr) {
+            await fs.rm(srcPath, {recursive: true, force: true}).catch(e => hasErr = e);
+            if (!hasErr) {
+                await fs.chmod(targetPath, 0o777).catch(e => hasErr = e)
                 return true;
             }
         }
@@ -633,8 +636,8 @@ export async function copy(srcPath: string, targetPath: string) {
     //
     hasErr = null;
 
-    await fs.cp(srcPath, targetPath, {recursive: true, force: true}).catch(e=>hasErr=e);
-    if(hasErr){
+    await fs.cp(srcPath, targetPath, {recursive: true, force: true}).catch(e => hasErr = e);
+    if (hasErr) {
         throw hasErr;
     }
     // await fs.chmod(targetPath, 0o666);
@@ -717,28 +720,28 @@ export function getType(suffix: string): type_file {
 }
 
 export function titleFilter(title: string) {
-    if(!title||!title.length) throw new Error('invalid title');
-    let res= title.replace(/[`\\\/:*?"<>|#%　]+/igm, ' ')
-    .replace('‛', ' ')
-    .replace('／', ' ')
-    .replace('：', ' ')
-    .replace(/\s+/igm,' ')
-    .trim();
-    if(!res||!res.length) throw new Error('invalid title');
-    if(Buffer.byteLength(res)<200)return res;
-    let fileName=filename(res);
-    let ext=extension(res);
-    if(ext.length>6){
-        fileName+='.'+ext;
-        ext='';
+    if (!title || !title.length) throw new Error('invalid title');
+    let res = title.replace(/[`\\\/:*?"<>|#%　]+/igm, ' ')
+        .replace('‛', ' ')
+        .replace('／', ' ')
+        .replace('：', ' ')
+        .replace(/\s+/igm, ' ')
+        .trim();
+    if (!res || !res.length) throw new Error('invalid title');
+    if (Buffer.byteLength(res) < 200) return res;
+    let fileName = filename(res);
+    let ext = extension(res);
+    if (ext.length > 6) {
+        fileName += '.' + ext;
+        ext = '';
     }
     //linux文件系统下对文件名长度有限制，所以做个缩减，因为长度不定，所以用while
-    while(Buffer.byteLength(fileName)>190){
-        fileName=fileName.substring(0,fileName.length-10);
+    while (Buffer.byteLength(fileName) > 190) {
+        fileName = fileName.substring(0, fileName.length - 10);
     }
-    let resFileName=fileName;
-    if(ext.length){
-        resFileName+='.'+ext;
+    let resFileName = fileName;
+    if (ext.length) {
+        resFileName += '.' + ext;
     }
     return titleFilter(resFileName);
 }

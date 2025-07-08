@@ -9,17 +9,17 @@ import type {
     api_file_cover_resp, api_file_delete_resp, api_file_list_req,
     api_file_mov_req, api_file_mov_resp, api_file_rebuild_resp,
     api_node_col, api_rate_attach_resp, api_share_list_resp,
-    api_tag_list_resp,api_file_list_resp
+    api_tag_list_resp, api_file_list_resp
 }
     from "../../share/Api";
-import type {ModalConstruct,ModalFormConstruct} from "@/types/modal";
+import type {ModalConstruct, ModalFormConstruct} from "@/types/modal";
 import {mayInPopup, mayTyping, query} from "@/Helper";
 import GenFunc from "@/GenFunc";
 import {useModalStore} from "@/stores/modalStore";
 import type {RouteLocationNormalizedLoaded, Router} from "vue-router";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {useContextStore} from "@/stores/useContext";
-import {FileStreamDownloaderV2,type StreamDownloadInputFileType} from "@/FileStreamDownloaderV2";
+import {FileStreamDownloaderV2, type StreamDownloadInputFileType} from "@/FileStreamDownloaderV2";
 
 // const router = useRouter();
 // const route = useRoute();
@@ -52,7 +52,7 @@ export class opModule {
     public localConfigure: ReturnType<typeof useLocalConfigureStore>;
     public contextStore: ReturnType<typeof useContextStore>;
 
-    public mode: Ref<string> = ref('');
+    public mode: Ref<'detail' | 'text' | 'img' | string> = ref('');
     public modeKey: string = '';
 
     public sortVal: Ref<string> = ref('');
@@ -147,7 +147,7 @@ export class opModule {
         const idSet = new Set<number>();
         idList.forEach(id => idSet.add(id));
         this.nodeList.value.forEach(node => {
-            if (idSet.has(node.id??0)) return;
+            if (idSet.has(node.id ?? 0)) return;
             targetList.push(node);
         });
         //当时为啥这么写的？
@@ -436,7 +436,7 @@ export class opModule {
                     console.info('Open', e, this.route, this.router);
                     // this.route.query
                     // return;
-                    let selDir: api_node_col|null=null;
+                    let selDir: api_node_col | null = null;
                     if (!isBath) {
                         if (nodeLs.length)
                             if (nodeLs[0].type === 'directory')
@@ -444,7 +444,7 @@ export class opModule {
                     }
                     const curQuery: api_file_list_req = GenFunc.copyObject(this.route.query);
                     const url = new URL(location.href);
-                    if (selDir) url.searchParams.set('id_dir', `${selDir.id??0}`);
+                    if (selDir) url.searchParams.set('id_dir', `${selDir.id ?? 0}`);
                     window.open(url, '_blank')?.focus();
                     // if(!selDir){
                     //     selDir=
@@ -482,18 +482,18 @@ export class opModule {
                     console.info(this, nodeLs);
                     if (!opModuleVal || !opModuleVal.modalStore) return;
                     //
-                    const inNodeLs=buildDownloadInputFileFromNodeCol('',nodeLs)
+                    const inNodeLs = buildDownloadInputFileFromNodeCol('', nodeLs)
                     const fd = new FileStreamDownloaderV2(
                         inNodeLs,
-                        async (inNode)=>{
+                        async (inNode) => {
                             const res = await query<api_file_list_resp>("file/get", Object.assign({
                                 mode: 'directory',
                                 cascade_dir: '0',
                                 id_dir: inNode.id.toString(),
                                 with: 'file',
                             }) as api_file_list_req);
-                            if(!res)return [];
-                            return buildDownloadInputFileFromNodeCol(inNode.path,res.list);
+                            if (!res) return [];
+                            return buildDownloadInputFileFromNodeCol(inNode.path, res.list);
                         }
                     );
                     //
@@ -515,12 +515,12 @@ export class opModule {
                         text: resRef,
                     } as ModalConstruct);
                     await fd.prepare();
-                    await fd.download((pre,cur,total,fileIndex,fileSize)=>{
-                        const curT = pre+cur;
+                    await fd.download((pre, cur, total, fileIndex, fileSize) => {
+                        const curT = pre + cur;
                         const percent = Math.round(10000 * curT / total) / 100 + '%';
                         modal.content.text.value = `downloading ${curT}/${total} (${percent})`;
                         // console.info('setInterval', modal.content.text, fd)
-                        });
+                    });
                     await fd.build();
                     await fd.complete();
                     opModuleVal.modalStore.close(modal.nid);
@@ -849,6 +849,8 @@ export class opModule {
             case 'F2':
                 if (mayTyping(target)) return;
                 if (mayInPopup(target)) return;
+                //屏蔽一下非detail的模式，因为没对应的ui
+                if (this.mode.value != 'detail') return;
                 selRes = this.getSelected();
                 if (selRes.nodeLs.length !== 1) await opFunctionModule.op_bath_rename(selRes.idSet, selRes.nodeLs);
                 else await opFunctionModule.op_rename(selRes.nodeLs[0]);
@@ -1555,8 +1557,8 @@ export class opFunctionModule {
                     }
                     const res = await query<api_share_list_resp>('share/set', formData);
                     if (!res) return;
-                    if(resultModal.text)
-                    resultModal.text = (resultModal.text as string).replace(/#id#/ig, `${res.id}`);
+                    if (resultModal.text)
+                        resultModal.text = (resultModal.text as string).replace(/#id#/ig, `${res.id}`);
                     opModuleVal?.modalStore.set(resultModal);
                 }
             }
@@ -1564,27 +1566,27 @@ export class opFunctionModule {
     }
 }
 
-function buildDownloadInputFileFromNodeCol(pNodePath:string,orgNodeLs:api_node_col[]){
-    const resLs:StreamDownloadInputFileType[]=[];
-    orgNodeLs.forEach(node=>{
-        const res:StreamDownloadInputFileType={
-            id:node.id,
-            id_parent:node.id_parent,
-            path:'',
-            url:'',
-            size:0,
-            type:node.type??'',
+function buildDownloadInputFileFromNodeCol(pNodePath: string, orgNodeLs: api_node_col[]) {
+    const resLs: StreamDownloadInputFileType[] = [];
+    orgNodeLs.forEach(node => {
+        const res: StreamDownloadInputFileType = {
+            id: node.id,
+            id_parent: node.id_parent,
+            path: '',
+            url: '',
+            size: 0,
+            type: node.type ?? '',
         };
-        res.path=[pNodePath??'',node.title??''].join('/');
-        if(node.type==='directory'){
-        }else{
-            const rawDef=node.file_index?.raw;
-            if(!rawDef)return;
-            if(rawDef.path){
-                res.url=rawDef.path+'?filename='+node.title;
+        res.path = [pNodePath ?? '', node.title ?? ''].join('/');
+        if (node.type === 'directory') {
+        } else {
+            const rawDef = node.file_index?.raw;
+            if (!rawDef) return;
+            if (rawDef.path) {
+                res.url = rawDef.path + '?filename=' + node.title;
             }
-            res.size=rawDef.size??0;
-        }              
+            res.size = rawDef.size ?? 0;
+        }
         resLs.push(res);
     });
     return resLs;

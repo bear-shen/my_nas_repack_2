@@ -73,8 +73,8 @@ const countProcessStyle: Ref<string> = ref('');
 
 async function clickFile(item: api_share_node_type, mode?: string) {
   if (item.type === 'directory') {
-
-    pushRoute(shareId, item.id)
+    pushRoute(shareId, item.id);
+    closeDetail();
   } else {
     // console.info('file');
     if (!item?.file_index?.raw) return;
@@ -240,10 +240,17 @@ function goNav(curNavIndex: number, offset: number, counter: number = 0): any {
   let listLen = nodeList.value.length;
   if (listLen < 1) return;
   let nextIndex = curNavIndex;
+  let step=0;
   do {
     nextIndex = nextIndex + offset;
     while (nextIndex < 0) nextIndex += listLen;
     while (nextIndex > listLen - 1) nextIndex -= listLen;
+    //
+    step+=1;
+    if(step>listLen){
+      return;
+    }
+    //
     if (!nodeList.value[nextIndex]) continue;
     if (nodeList.value[nextIndex].type === 'directory') continue;
     break;
