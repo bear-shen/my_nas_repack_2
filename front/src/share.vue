@@ -6,12 +6,12 @@ import GenFunc from "@/GenFunc";
 
 import {FileStreamDownloaderV2, type StreamDownloadInputFileType} from "./FileStreamDownloaderV2";
 
-import browserBaseVue from "./popupComponents/browserBase.vue";
-import browserImageVue from "./popupComponents/browserImage.vue";
-import browserAudioVue from "./popupComponents/browserAudio.vue";
-import browserVideoVue from "./popupComponents/browserVideo.vue";
-import browserTextVue from "./popupComponents/browserText.vue";
-import browserPDFVue from "./popupComponents/browserPDF.vue";
+import browserBaseVue from "./browser/base.vue";
+import browserImageVue from "./browser/image.vue";
+import browserAudioVue from "./browser/audio.vue";
+import browserVideoVue from "./browser/video.vue";
+import browserTextVue from "./browser/text.vue";
+import browserPDFVue from "./browser/pdf.vue";
 import type {nodePropsType} from "./types/browser";
 import type {col_node_file_index} from "../../share/Database";
 

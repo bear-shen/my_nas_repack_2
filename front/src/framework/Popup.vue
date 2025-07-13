@@ -4,10 +4,10 @@ import {useModalStore} from "@/stores/modalStore";
 import {onMounted, onUnmounted, ref,} from "vue";
 import type {ModalCallbackConstruct, ModalConstruct, ModalFormConstruct, ModalLayout, ModalStruct,} from "@/types/modal";
 // import HelloWorldVue from "@/components/HelloWorld.vue";
-import Browser from "@/popupComponents/browser.vue";
-import Locator from "@/popupComponents/locator.vue";
-import Uploader from "@/popupComponents/uploader.vue";
-import RenameUtil from "@/popupComponents/renameUtil.vue";
+import Browser from "@/popups/browser.vue";
+import Locator from "@/popups/locator.vue";
+import Uploader from "@/popups/uploader.vue";
+import RenameUtil from "@/popups/renameUtil.vue";
 import {mayInPopup} from "@/Helper";
 
 const componentDefs = {

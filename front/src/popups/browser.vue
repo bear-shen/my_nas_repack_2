@@ -6,13 +6,13 @@ import { mayTyping, query } from "@/Helper";
 import { manualSort, opFunctionModule } from "@/FileViewHelper";
 import type { api_file_list_req, api_file_list_resp, api_node_col } from "../../../share/Api";
 import GenFunc from "@/GenFunc";
-import browserBaseVue from "./browserBase.vue";
-import browserImageVue from "./browserImage.vue";
-import browserAudioVue from "./browserAudio.vue";
-import browserVideoVue from "./browserVideo.vue";
-import browserTextVue from "./browserText.vue";
-import browserPDFVue from "./browserPDF.vue";
-import browserOfficeVue from "./browserOffice.vue";
+import browserBaseVue from "./browser/base.vue";
+import browserImageVue from "./browser/image.vue";
+import browserAudioVue from "./browser/audio.vue";
+import browserVideoVue from "./browser/video.vue";
+import browserTextVue from "./browser/text.vue";
+import browserPDFVue from "./browser/pdf.vue";
+import browserOfficeVue from "./browser/office.vue";
 import { useLocalConfigureStore } from "@/stores/localConfigure";
 // import {useEventStore} from "@/stores/event";
 import type { col_node, type_file, } from "../../../share/Database";
@@ -641,9 +641,9 @@ function setRater(rateVal: string) {
     <component :is="regComponentLs[curNode.type]
         ? regComponentLs[curNode.type]
         : regComponentLs.base
-      " 
+      "
       :extId="props.modalData.nid"
-      :isActive="props.modalData.layout.active" 
+      :isActive="props.modalData.layout.active"
       :curIndex="curIndex"
 
       :file="nodeProps"

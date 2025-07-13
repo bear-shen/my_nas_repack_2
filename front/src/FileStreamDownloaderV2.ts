@@ -1,6 +1,4 @@
-import type {api_file_list_req, api_file_list_resp, api_node_col} from "../../share/Api";
 import {query, throwError} from "@/Helper";
-import exp from "constants";
 import type {JSZipObject} from "jszip";
 import JSZip from 'jszip';
 
@@ -24,11 +22,11 @@ type FileType=StreamDownloadInputFileType&{
 
 /**
  * 后端接口基本只有纯post+json，所以想了下还是做到前端来
- * 
+ *
  * new
  *   mkNodeList
  *   buildTitle
- * prepare 
+ * prepare
  *   getSubList
  *     querySubList
  *       mkNodeList
@@ -133,8 +131,8 @@ export class FileStreamDownloaderV2 {
 
     public async download(downloadProgressListener?:(pre:number,cur:number,total:number,index:number,fileSize:number)=>any) {
         if(downloadProgressListener)
-            this.downloadProgressListener=downloadProgressListener;   
-        
+            this.downloadProgressListener=downloadProgressListener;
+
         for (let i1 = 0; i1 < this.nodeList.length; i1++) {
             this.downCurIndex+=1;
             const node = this.nodeList[i1];
@@ -143,7 +141,7 @@ export class FileStreamDownloaderV2 {
             const res = await this.downloadFile(node);
             this.fileMap.set(node.path, res);
             this.downCur = 0;
-            this.downPre += node.size;         
+            this.downPre += node.size;
             if(this.downloadProgressListener)
                 this.downloadProgressListener(this.downPre,this.downCur,this.downTotal,this.downCurIndex,this.downSize);
         }
