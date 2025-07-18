@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {useUserStore} from "@/stores/userStore";
-import {query, throwLogin} from "@/Helper";
+import {query, throwLogin} from "@/lib/Helper";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import Config from "@/Config";
 import {useModalStore} from "@/stores/modalStore";

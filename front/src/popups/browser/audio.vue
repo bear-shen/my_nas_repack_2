@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import {onBeforeUnmount, onMounted, ref, type Ref, watch} from "vue";
-import GenFunc from "@/GenFunc";
+import GenFunc from "@/lib/GenFunc";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
-import {mayTyping} from "@/Helper";
+import {mayTyping} from "@/lib/Helper";
 import type { nodePropsType } from "@/types/browser";
 
 const localConfigure = useLocalConfigureStore();

@@ -3,13 +3,13 @@ import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {onMounted, onUnmounted, type Ref, ref} from "vue";
 import type {api_node_col, api_tag_col, api_tag_list_resp} from "../../../share/Api";
 import {useModalStore} from "@/stores/modalStore";
-import {query} from "@/Helper";
+import {query} from "@/lib/Helper";
 import ContentEditable from "@/components/ContentEditable.vue";
 import Hinter from "@/components/Hinter.vue";
 import type {col_tag, col_tag_group} from "../../../share/Database";
-import {opFunctionModule} from "@/FileViewHelper";
+import {opFunctionModule} from "@/lib/FileViewHelper";
 import Rater from "@/components/Rater.vue";
-import GenFunc from "../GenFunc";
+import GenFunc from "@/lib/GenFunc";
 // import type {col_tag} from "../../../share/Database";
 // import {api_tag_col} from "../../../share/Api";
 

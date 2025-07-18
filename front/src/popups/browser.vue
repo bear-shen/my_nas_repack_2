@@ -2,10 +2,10 @@
 import type { Ref } from "vue";
 import { onMounted, onUnmounted, ref } from "vue";
 import type { ModalStruct } from "@/types/modal";
-import { mayTyping, query } from "@/Helper";
-import { manualSort, opFunctionModule } from "@/FileViewHelper";
+import { mayTyping, query } from "@/lib/Helper";
+import { manualSort, opFunctionModule } from "@/lib/FileViewHelper";
 import type { api_file_list_req, api_file_list_resp, api_node_col } from "../../../share/Api";
-import GenFunc from "@/GenFunc";
+import GenFunc from "@/lib/GenFunc";
 import browserBaseVue from "./browser/base.vue";
 import browserImageVue from "./browser/image.vue";
 import browserAudioVue from "./browser/audio.vue";

@@ -2,9 +2,9 @@
 import Config from "@/Config";
 import type {api_share_node_list_resp, api_share_node_type} from "../../share/Api";
 import {onMounted, ref, type Ref} from "vue";
-import GenFunc from "@/GenFunc";
+import GenFunc from "@/lib/GenFunc";
 
-import {FileStreamDownloaderV2, type StreamDownloadInputFileType} from "./FileStreamDownloaderV2";
+import {FileStreamDownloaderV2, type StreamDownloadInputFileType} from "@/lib/FileStreamDownloaderV2";
 
 import browserBaseVue from "./browser/base.vue";
 import browserImageVue from "./browser/image.vue";

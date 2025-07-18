@@ -8,7 +8,7 @@ import '@/assets/fonts/sysIcon/iconfont.css';
 import '@/assets/fonts/listIcon/iconfont.css';
 import '@/assets/basic.scss';
 
-import * as kvStore from '@/IndexedKVStore';
+import * as kvStore from '@/lib/IndexedKVStore';
 kvStore.init();
 
 const app = createApp(App);

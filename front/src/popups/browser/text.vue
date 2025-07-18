@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import {onBeforeUnmount, onMounted, ref, watch} from "vue";
 import type {Ref} from "vue";
-import GenFunc from "@/GenFunc";
-import * as kvStore from "@/IndexedKVStore";
+import GenFunc from "@/lib/GenFunc";
+import * as kvStore from '@/lib/IndexedKVStore';
 import Config from "@/Config";
 import type { nodePropsType } from "@/types/browser";
 

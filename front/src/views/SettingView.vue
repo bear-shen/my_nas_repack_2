@@ -4,8 +4,8 @@ import type {Ref} from "vue";
 import {onMounted, onUnmounted, ref} from "vue";
 import {onBeforeRouteUpdate, useRoute, useRouter,} from "vue-router";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
-import {query} from "@/Helper";
-import GenFunc from "@/GenFunc";
+import {query} from "@/lib/Helper";
+import GenFunc from "@/lib/GenFunc";
 import type {
   api_file_list_req, api_file_mov_req, api_import_eht_tag_req,
   api_node_col, api_setting_col, api_setting_del_resp,

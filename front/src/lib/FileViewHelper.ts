@@ -13,17 +13,17 @@ import type {
 }
     from "../../share/Api";
 import type {ModalConstruct, ModalFormConstruct} from "@/types/modal";
-import {mayInPopup, mayTyping, query} from "@/Helper";
-import GenFunc from "@/GenFunc";
+import {mayInPopup, mayTyping, query} from "@/lib/Helper";
+import GenFunc from "@/lib/GenFunc";
 import {useModalStore} from "@/stores/modalStore";
 import type {RouteLocationNormalizedLoaded, Router} from "vue-router";
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import {useContextStore} from "@/stores/useContext";
-import {FileStreamDownloaderV2, type StreamDownloadInputFileType} from "@/FileStreamDownloaderV2";
+import {FileStreamDownloaderV2, type StreamDownloadInputFileType} from "@/lib/FileStreamDownloaderV2";
 
 // const router = useRouter();
 // const route = useRoute();
-import * as kvStore from '@/IndexedKVStore';
+import * as kvStore from '@/lib/IndexedKVStore';
 import Config from "@/Config";
 import natsort from "natsort";
 

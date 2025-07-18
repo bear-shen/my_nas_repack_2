@@ -8,7 +8,7 @@ import Browser from "@/popups/browser.vue";
 import Locator from "@/popups/locator.vue";
 import Uploader from "@/popups/uploader.vue";
 import RenameUtil from "@/popups/renameUtil.vue";
-import {mayInPopup} from "@/Helper";
+import {mayInPopup} from "@/lib/Helper";
 
 const componentDefs = {
   // helloWorld: HelloWorldVue,

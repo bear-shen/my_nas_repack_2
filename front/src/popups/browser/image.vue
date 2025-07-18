@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import {onMounted, onUnmounted, ref, type Ref, watch} from "vue";
-import GenFunc from "@/GenFunc";
+import GenFunc from "@/lib/GenFunc";
 // import {useEventStore} from "@/stores/event";
-import {mayTyping} from "@/Helper";
-import * as kvStore from '@/IndexedKVStore';
+import {mayTyping} from "@/lib/Helper";
+import * as kvStore from '@/lib/IndexedKVStore';
 import {useLocalConfigureStore} from "@/stores/localConfigure";
 import type { nodePropsType } from "@/types/browser";
 // import piexif from 'piexif-ts';

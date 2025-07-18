@@ -5,7 +5,7 @@ import FrNavi from "./framework/Navi.vue";
 import Popup from "./framework/Popup.vue";
 import Context from "./framework/Context.vue";
 import {useUserStore} from "@/stores/userStore";
-import {query} from "@/Helper";
+import {query} from "@/lib/Helper";
 import type {api_file_list_resp, api_setting_front_conf} from "../../share/Api";
 // import dev from "../../share/dev";
 import Config from "@/Config";

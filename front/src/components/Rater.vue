@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {onMounted, ref, type Ref, watch} from "vue";
 import type {api_node_col} from "../../../share/Api";
-import {opFunctionModule} from "@/FileViewHelper";
+import {opFunctionModule} from "@/lib/FileViewHelper";
 
 const emits = defineEmits([
   "update:modelValue",
