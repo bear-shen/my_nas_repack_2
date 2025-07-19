@@ -3,14 +3,14 @@ import type {Ref} from "vue";
 // import {routes} from "@/router/index";
 import {onMounted, onUnmounted, ref} from "vue";
 import {onBeforeRouteUpdate, useRoute, useRouter,} from "vue-router";
-import {useLocalConfigureStore} from "@/stores/localConfigure";
+import {useLocalConfigureStore} from "@/shares/localConfigure";
 import {query} from "@/lib/Helper";
 import GenFunc from "@/lib/GenFunc";
 import type {
   api_queue_col, api_queue_list_req, api_queue_list_resp,
   api_share_list_req, api_share_list_resp,
 } from "../../../share/Api";
-// import {useModalStore} from "@/stores/modalStore";
+// import {useModalStore} from "@/shares/modalStore";
 
 type settingType = api_share_list_resp & {
   ext_key?: string,

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // import { defineProps } from "vue";
 import {type RouteRecordRaw, useRoute, useRouter} from "vue-router";
-import {useUserStore} from "@/stores/userStore";
+import {useUserStore} from "@/shares/userStore";
 // const props = defineProps(["depth", "records"]);
 const props = defineProps<{
   depth: Number,

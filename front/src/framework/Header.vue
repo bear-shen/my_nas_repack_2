@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import {useUserStore} from "@/stores/userStore";
+import {useUserStore} from "@/shares/userStore";
 import {query, throwLogin} from "@/lib/Helper";
-import {useLocalConfigureStore} from "@/stores/localConfigure";
+import {useLocalConfigureStore} from "@/shares/localConfigure";
 import Config from "@/Config";
-import {useModalStore} from "@/stores/modalStore";
+import {useModalStore} from "@/shares/modalStore";
 import type {api_user_login_req, api_user_login_resp} from "../../../share/Api";
 import {onMounted, ref, type Ref} from "vue";
 

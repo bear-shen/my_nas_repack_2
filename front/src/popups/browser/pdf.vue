@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {onMounted, onUnmounted, ref, type Ref, watch} from "vue";
 import type { nodePropsType } from "@/types/browser";
-// import {useEventStore} from "@/stores/event";
+// import {useEventStore} from "@/shares/event";
 
 
 const props = defineProps<{

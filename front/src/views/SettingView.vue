@@ -3,7 +3,7 @@ import type {Ref} from "vue";
 // import {routes} from "@/router/index";
 import {onMounted, onUnmounted, ref} from "vue";
 import {onBeforeRouteUpdate, useRoute, useRouter,} from "vue-router";
-import {useLocalConfigureStore} from "@/stores/localConfigure";
+import {useLocalConfigureStore} from "@/shares/localConfigure";
 import {query} from "@/lib/Helper";
 import GenFunc from "@/lib/GenFunc";
 import type {
@@ -13,8 +13,8 @@ import type {
 } from "../../../share/Api";
 import ContentEditable from "@/components/ContentEditable.vue";
 import type {ModalConstruct} from "@/types/modal";
-import {useModalStore} from "@/stores/modalStore";
-// import {useModalStore} from "@/stores/modalStore";
+import {useModalStore} from "@/shares/modalStore";
+// import {useModalStore} from "@/shares/modalStore";
 
 type settingType = api_setting_col & {
   edit_key?: boolean,

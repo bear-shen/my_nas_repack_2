@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import {onMounted, onUnmounted, ref, type Ref, watch} from "vue";
-import {useUserStore} from "@/stores/userStore";
+import {useUserStore} from "@/shares/userStore";
 import sign from "jwt-encode";
-// import {useEventStore} from "@/stores/event";
+// import {useEventStore} from "@/shares/event";
 import Config from "@/Config";
 import type { nodePropsType } from "@/types/browser";
 

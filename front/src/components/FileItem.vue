@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import {useLocalConfigureStore} from "@/stores/localConfigure";
+import {useLocalConfigureStore} from "@/shares/localConfigure";
 import {onMounted, onUnmounted, type Ref, ref} from "vue";
 import type {api_node_col, api_tag_col, api_tag_list_resp} from "../../../share/Api";
-import {useModalStore} from "@/stores/modalStore";
+import {useModalStore} from "@/shares/modalStore";
 import {query} from "@/lib/Helper";
 import ContentEditable from "@/components/ContentEditable.vue";
 import Hinter from "@/components/Hinter.vue";

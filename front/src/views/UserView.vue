@@ -3,12 +3,12 @@ import type {Ref} from "vue";
 // import {routes} from "@/router/index";
 import {onMounted, onUnmounted, ref} from "vue";
 import {onBeforeRouteUpdate, useRoute, useRouter,} from "vue-router";
-import {useLocalConfigureStore} from "@/stores/localConfigure";
+import {useLocalConfigureStore} from "@/shares/localConfigure";
 import {query} from "@/lib/Helper";
 import GenFunc from "@/lib/GenFunc";
 import type {api_user_col, api_user_del_resp, api_user_group_col, api_user_group_list_req, api_user_group_list_resp, api_user_group_mod_req, api_user_group_mod_resp, api_user_list_req, api_user_list_resp, api_user_mod_resp,} from "../../../share/Api";
 import type {api_file_list_req, api_file_list_resp, api_node_col} from "../../../share/Api";
-// import {useModalStore} from "@/stores/modalStore";
+// import {useModalStore} from "@/shares/modalStore";
 import ContentEditable from "@/components/ContentEditable.vue";
 import Hinter from "@/components/Hinter.vue";
 

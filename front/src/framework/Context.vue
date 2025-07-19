@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type {Ref} from "vue";
 import {onMounted, ref} from "vue";
-import {useUserStore} from "@/stores/userStore";
-import {useContextStore} from "@/stores/useContext";
+import {useUserStore} from "@/shares/userStore";
+import {useContextStore} from "@/shares/useContext";
 import type {contextItemDef, contextListDef} from "@/types/context";
 
 const userStore = useUserStore();

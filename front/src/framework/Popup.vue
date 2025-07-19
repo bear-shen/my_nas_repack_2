@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import {useModalStore} from "@/stores/modalStore";
-// import {useEventStore} from "@/stores/event";
+import {useModalStore} from "@/shares/modalStore";
+// import {useEventStore} from "@/shares/event";
 import {onMounted, onUnmounted, ref,} from "vue";
 import type {ModalCallbackConstruct, ModalConstruct, ModalFormConstruct, ModalLayout, ModalStruct,} from "@/types/modal";
 // import HelloWorldVue from "@/components/HelloWorld.vue";

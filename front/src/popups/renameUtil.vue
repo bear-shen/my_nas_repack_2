@@ -3,7 +3,7 @@ import type {Ref} from "vue";
 import {onMounted, onUnmounted, ref} from "vue";
 import type {ModalStruct} from "@/types/modal";
 import type {api_file_bath_rename_resp, api_node_col} from "../../../share/Api";
-import {useModalStore} from "@/stores/modalStore";
+import {useModalStore} from "@/shares/modalStore";
 import GenFunc from "@/lib/GenFunc";
 import {query} from "@/lib/Helper";
 import {manualSort} from "@/lib/FileViewHelper";

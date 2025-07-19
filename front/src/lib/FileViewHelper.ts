@@ -15,10 +15,10 @@ import type {
 import type {ModalConstruct, ModalFormConstruct} from "@/types/modal";
 import {mayInPopup, mayTyping, query} from "@/lib/Helper";
 import GenFunc from "@/lib/GenFunc";
-import {useModalStore} from "@/stores/modalStore";
+import {useModalStore} from "@/shares/modalStore";
 import type {RouteLocationNormalizedLoaded, Router} from "vue-router";
-import {useLocalConfigureStore} from "@/stores/localConfigure";
-import {useContextStore} from "@/stores/useContext";
+import {useLocalConfigureStore} from "@/shares/localConfigure";
+import {useContextStore} from "@/shares/useContext";
 import {FileStreamDownloaderV2, type StreamDownloadInputFileType} from "@/lib/FileStreamDownloaderV2";
 
 // const router = useRouter();
