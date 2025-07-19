@@ -1,5 +1,5 @@
 import type {api_user_login_req, api_user_login_resp} from "../../share/Api";
-import Config from "./Config";
+import Config from "@/Config";
 
 import {useModalStore} from "@/shares/modalStore";
 import {useUserStore} from "@/shares/userStore";

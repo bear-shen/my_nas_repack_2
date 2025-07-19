@@ -3,7 +3,6 @@ import type {Ref} from "vue";
 // import {routes} from "@/router/index";
 import {onMounted, onUnmounted, ref} from "vue";
 import {onBeforeRouteUpdate, useRoute, useRouter,} from "vue-router";
-import {useLocalConfigureStore} from "@/shares/localConfigure";
 import {query} from "@/lib/Helper";
 import GenFunc from "@/lib/GenFunc";
 import type {
@@ -16,7 +15,6 @@ type settingType = api_share_list_resp & {
   ext_key?: string,
 };
 //
-const localConfigure = useLocalConfigureStore();
 // const modalStore = useModalStore();
 const contentDOM: Ref<HTMLElement | null> = ref(null);
 const router = useRouter();

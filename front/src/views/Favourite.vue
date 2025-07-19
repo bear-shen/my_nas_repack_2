@@ -3,7 +3,6 @@ import type {Ref} from "vue";
 // import {routes} from "@/router/index";
 import {onMounted, onUnmounted, ref} from "vue";
 import {onBeforeRouteUpdate, useRoute, useRouter,} from "vue-router";
-import {useLocalConfigureStore} from "@/shares/localConfigure";
 import GenFunc from "@/lib/GenFunc";
 import {useModalStore} from "@/shares/modalStore";
 import ContentEditable from "@/components/ContentEditable.vue";
@@ -18,7 +17,6 @@ import Rater from "@/components/Rater.vue";
 import Config from "@/Config";
 
 //
-const localConfigure = useLocalConfigureStore();
 const modalStore = useModalStore();
 const contentDOM: Ref<HTMLElement | null> = ref(null);
 const router = useRouter();

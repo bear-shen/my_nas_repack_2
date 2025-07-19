@@ -3,7 +3,6 @@ import type {Ref} from 'vue';
 // import {routes} from "@/router/index";
 import {onMounted, onUnmounted, ref} from 'vue';
 import {onBeforeRouteUpdate, useRoute, useRouter} from 'vue-router';
-import {useLocalConfigureStore} from '@/shares/localConfigure';
 import {query, mayTyping} from '@/lib/Helper';
 import type {opModule as opModuleClass} from '@/lib/FileViewHelper';
 import * as fHelper from '@/lib/FileViewHelper';
@@ -204,7 +203,6 @@ function addFile() {
 }
 
 //
-const localConfigure = useLocalConfigureStore()
 
 //
 function search() {
@@ -255,7 +253,6 @@ function emitGo(type: string, code?: number) {
 
 onMounted(async () => {
   // console.info('onMounted');
-  // localConfigure.release('file_view_mode', modeKey);
   if (route.query) syncQuery(route.query);
   opModule = new fHelper.opModule({
     route: route,

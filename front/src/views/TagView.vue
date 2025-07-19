@@ -3,7 +3,6 @@ import type {Ref} from "vue";
 // import {routes} from "@/router/index";
 import {onMounted, onUnmounted, ref} from "vue";
 import {onBeforeRouteUpdate, useRoute, useRouter,} from "vue-router";
-import {useLocalConfigureStore} from "@/shares/localConfigure";
 import {query} from "@/lib/Helper";
 import GenFunc from "@/lib/GenFunc";
 import type {api_file_list_req, api_file_list_resp, api_node_col, api_tag_col, api_tag_del_resp, api_tag_group_col, api_tag_group_list_req, api_tag_group_list_resp, api_tag_group_mod_resp, api_tag_list_req, api_tag_list_resp, api_tag_mod_resp,} from "../../../share/Api";
@@ -12,7 +11,6 @@ import ContentEditable from "@/components/ContentEditable.vue";
 import Hinter from "@/components/Hinter.vue";
 
 //
-const localConfigure = useLocalConfigureStore();
 const modalStore = useModalStore();
 const contentDOM: Ref<HTMLElement | null> = ref(null);
 const router = useRouter();

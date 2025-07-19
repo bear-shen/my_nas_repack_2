@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {useUserStore} from "@/shares/userStore";
 import {query, throwLogin} from "@/lib/Helper";
-import {useLocalConfigureStore} from "@/shares/localConfigure";
+import * as localConfigure from "@/shares/localConfigure";
 import Config from "@/Config";
 import {useModalStore} from "@/shares/modalStore";
 import type {api_user_login_req, api_user_login_resp} from "../../../share/Api";
@@ -34,7 +34,6 @@ onMounted(() => {
 
 
 //
-const localConfigure = useLocalConfigureStore();
 const themeLs = Config.theme;
 let curThemeName = localConfigure.get('theme') ?? 'warm';
 

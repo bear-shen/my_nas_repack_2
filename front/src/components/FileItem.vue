@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {useLocalConfigureStore} from "@/shares/localConfigure";
+import * as localConfigure from "@/shares/localConfigure";
 import {onMounted, onUnmounted, type Ref, ref} from "vue";
 import type {api_node_col, api_tag_col, api_tag_list_resp} from "../../../share/Api";
 import {useModalStore} from "@/shares/modalStore";
@@ -22,7 +22,6 @@ const props = defineProps<{
 const emits = defineEmits(["go", "onSelect"]);
 
 //
-const localConfigure = useLocalConfigureStore();
 let mode: Ref<string> = ref(localConfigure.get("file_view_mode") ?? "detail");
 const modeKey = localConfigure.listen(
   "file_view_mode",

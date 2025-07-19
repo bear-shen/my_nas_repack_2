@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import {onBeforeUnmount, onMounted, ref, type Ref, watch} from "vue";
 import GenFunc from "@/lib/GenFunc";
-import {useLocalConfigureStore} from "@/shares/localConfigure";
+import * as localConfigure from "@/shares/localConfigure";
 import {mayTyping} from "@/lib/Helper";
 import type { nodePropsType, nodePropsType_sub } from "@/types/browser";
 
-const localConfigure = useLocalConfigureStore();
 const props = defineProps<{
   extId: string,
   curIndex: number,

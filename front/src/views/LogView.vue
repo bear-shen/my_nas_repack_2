@@ -3,7 +3,6 @@ import type {Ref} from "vue";
 // import {routes} from "@/router/index";
 import {onMounted, onUnmounted, ref} from "vue";
 import {onBeforeRouteUpdate, useRoute, useRouter,} from "vue-router";
-import {useLocalConfigureStore} from "@/shares/localConfigure";
 import {query} from "@/lib/Helper";
 import GenFunc from "@/lib/GenFunc";
 import type {api_queue_col, api_queue_list_req, api_queue_list_resp,} from "../../../share/Api";
@@ -13,7 +12,6 @@ type settingType = api_queue_col & {
   ext_key?: string,
 };
 //
-const localConfigure = useLocalConfigureStore();
 // const modalStore = useModalStore();
 const contentDOM: Ref<HTMLElement | null> = ref(null);
 const router = useRouter();

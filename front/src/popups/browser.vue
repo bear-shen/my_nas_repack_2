@@ -13,7 +13,7 @@ import browserVideoVue from "./browser/video.vue";
 import browserTextVue from "./browser/text.vue";
 import browserPDFVue from "./browser/pdf.vue";
 import browserOfficeVue from "./browser/office.vue";
-import { useLocalConfigureStore } from "@/shares/localConfigure";
+import * as localConfigure from "@/shares/localConfigure";
 // import {useEventStore} from "@/shares/event";
 import type { col_node, type_file, } from "../../../share/Database";
 import Config from "@/Config";
@@ -44,7 +44,6 @@ if (Config.onlyOffice.enabled) {
 }
 
 // const eventStore = useEventStore();
-const localConfigure = useLocalConfigureStore();
 
 // fullscreen btn ------------------
 
