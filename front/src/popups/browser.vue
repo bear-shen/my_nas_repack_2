@@ -13,7 +13,7 @@ import browserVideoVue from "./browser/video.vue";
 import browserTextVue from "./browser/text.vue";
 import browserPDFVue from "./browser/pdf.vue";
 import browserOfficeVue from "./browser/office.vue";
-import * as localConfigure from "@/shares/localConfigure";
+import * as LocalConfigure from "@/shares/LocalConfigure";
 // import {useEventStore} from "@/shares/event";
 import type { col_node, type_file, } from "../../../share/Database";
 import Config from "@/Config";
@@ -53,8 +53,8 @@ function resizingListener() {
   // console.info(ifFullscreen, !props.modalData.layout.fullscreen);
   if (ifFullscreen && !props.modalData.layout.fullscreen) {
     //全屏切普通
-    let w = localConfigure.get("browser_layout_w");
-    let h = localConfigure.get("browser_layout_h");
+    let w = LocalConfigure.get("browser_layout_w");
+    let h = LocalConfigure.get("browser_layout_h");
     // console.info('from fs', w, h);
     props.modalData.layout.w = w;
     props.modalData.layout.h = h;
@@ -63,8 +63,8 @@ function resizingListener() {
   } else if (!props.modalData.layout.fullscreen) {
     //普通缩放
     // console.info('set', props.modalData.layout.w);
-    localConfigure.set("browser_layout_w", props.modalData.layout.w);
-    localConfigure.set("browser_layout_h", props.modalData.layout.h);
+    LocalConfigure.set("browser_layout_w", props.modalData.layout.w);
+    LocalConfigure.set("browser_layout_h", props.modalData.layout.h);
   }
   ifFullscreen = props.modalData.layout.fullscreen;
   domProps.value={
@@ -76,7 +76,7 @@ function resizingListener() {
 // mode btn ------------------
 
 const playMode: Ref<string> = ref(
-  localConfigure.get("browser_play_mode") ?? "loop"
+  LocalConfigure.get("browser_play_mode") ?? "loop"
 );
 
 function togglePlayMode() {
@@ -84,18 +84,18 @@ function togglePlayMode() {
   curModeIndex += 1;
   if (curModeIndex > Config.playMode.length - 1) curModeIndex = 0;
   playMode.value = Config.playMode[curModeIndex];
-  localConfigure.set("browser_play_mode", playMode.value);
+  LocalConfigure.set("browser_play_mode", playMode.value);
 }
 
 // detail btn ------------------
 
 const showDetail: Ref<boolean> = ref(
-  localConfigure.get("browser_show_detail") ?? false
+  LocalConfigure.get("browser_show_detail") ?? false
 );
 
 function toggleDetail() {
   showDetail.value = !showDetail.value;
-  localConfigure.set("browser_show_detail", showDetail.value);
+  LocalConfigure.set("browser_show_detail", showDetail.value);
 }
 
 //------------------
@@ -570,9 +570,9 @@ function locateCurNode(list: col_node[], node: col_node) {
 
 // sort btn ------------------
 
-const sortVal: Ref<string> = ref(localConfigure.get("browser_list_sort") ?? "name_asc");
+const sortVal: Ref<string> = ref(LocalConfigure.get("browser_list_sort") ?? "name_asc");
 
-/*const sortKey = localConfigure.listen(
+/*const sortKey = LocalConfigure.listen(
   "file_view_sort",
   (v) => {
     sortVal.value = v;
@@ -593,22 +593,22 @@ function setSort(evt: Event) {
   vNodeList.value = orgLs;
   curIndex.value = locateCurNode(orgLs, curNode.value);
   modTitle();
-  // localConfigure.set("file_view_sort", sortVal);
+  // LocalConfigure.set("file_view_sort", sortVal);
 }
 
 function sortList<K extends api_node_col>(list: K[], sort: string) {
   list = manualSort(list, sort);
   curIndex.value = locateCurNode(list, curNode.value ?? {});
-  localConfigure.set("browser_list_sort", sortVal.value)
+  LocalConfigure.set("browser_list_sort", sortVal.value)
   return list;
 }
 
 // filter btn ------------------
 
-const filterVal: Ref<string> = ref(localConfigure.get("browser_list_filter") ?? "any");
+const filterVal: Ref<string> = ref(LocalConfigure.get("browser_list_filter") ?? "any");
 
 function setFilter(target: string) {
-  localConfigure.set("browser_list_filter", target);
+  LocalConfigure.set("browser_list_filter", target);
   let curNode = vNodeList.value[curIndex.value];
   let vList = buildVList();
   vNodeList.value = sortList(vList, sortVal.value);

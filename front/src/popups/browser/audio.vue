@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {onBeforeUnmount, onMounted, ref, type Ref, watch} from "vue";
 import GenFunc from "@/lib/GenFunc";
-import * as localConfigure from "@/shares/localConfigure";
+import * as LocalConfigure from "@/shares/LocalConfigure";
 import {mayTyping} from "@/lib/Helper";
 import type { nodePropsType } from "@/types/browser";
 
@@ -36,26 +36,26 @@ const mediaMeta = ref({
   buffered: 0,
   time: 0,
   //
-  volume: localConfigure.get("browser_play_volume")
-    ? localConfigure.get("browser_play_volume")
+  volume: LocalConfigure.get("browser_play_volume")
+    ? LocalConfigure.get("browser_play_volume")
     : 100,
-  brightness: localConfigure.get("browser_play_brightness")
-    ? localConfigure.get("browser_play_brightness")
+  brightness: LocalConfigure.get("browser_play_brightness")
+    ? LocalConfigure.get("browser_play_brightness")
     : 1,
   mute: false,
   //
   play: false,
   // show: true,
   loading: true,
-  loop: localConfigure.get("browser_play_mode") === "single",
+  loop: LocalConfigure.get("browser_play_mode") === "single",
 });
-const modeKey = localConfigure.listen("browser_play_mode", (v) =>
+const modeKey = LocalConfigure.listen("browser_play_mode", (v) =>
   Object.assign(mediaMeta.value, {loop: v === "single"})
 );
-const volumeKey = localConfigure.listen("browser_play_volume", (v) =>
+const volumeKey = LocalConfigure.listen("browser_play_volume", (v) =>
   Object.assign(mediaMeta.value, {volume: v})
 );
-const brightnessKey = localConfigure.listen("browser_play_brightness", (v) =>
+const brightnessKey = LocalConfigure.listen("browser_play_brightness", (v) =>
   Object.assign(mediaMeta.value, {brightness: v})
 );
 
@@ -156,9 +156,9 @@ watch(() => props.file, async (to) => {
 });
 onBeforeUnmount(() => {
   onRelease(false);
-  localConfigure.release("browser_play_mode", modeKey);
-  localConfigure.release("browser_play_volume", volumeKey);
-  localConfigure.release("browser_play_brightness", brightnessKey);
+  LocalConfigure.release("browser_play_mode", modeKey);
+  LocalConfigure.release("browser_play_volume", volumeKey);
+  LocalConfigure.release("browser_play_brightness", brightnessKey);
   clearInterval(bufferTimer);
 });
 
@@ -321,7 +321,7 @@ function pointerContentMoveListener(e: PointerEvent) {
     if (volume > 100) volume = 100;
     dom.volume = volume / 100;
     // Object.assign(mediaMeta.value, { volume: volume });
-    localConfigure.set("browser_play_volume", volume);
+    LocalConfigure.set("browser_play_volume", volume);
   }
   if (dragData.left) {
     let brightness = meta.brightness - deltaH;
@@ -329,7 +329,7 @@ function pointerContentMoveListener(e: PointerEvent) {
     if (brightness > 1) brightness = 1;
     //
     meta.brightness = brightness;
-    localConfigure.set("browser_play_brightness", brightness);
+    LocalConfigure.set("browser_play_brightness", brightness);
   }
 }
 
@@ -356,7 +356,7 @@ function wheelListener(e: WheelEvent) {
   if (volume > 100) volume = 100;
   dom.volume = volume / 100;
   // Object.assign(mediaMeta.value, { volume: volume });
-  localConfigure.set("browser_play_volume", volume);
+  LocalConfigure.set("browser_play_volume", volume);
 }
 
 function keymap(e: KeyboardEvent) {

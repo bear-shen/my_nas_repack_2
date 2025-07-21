@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {useUserStore} from "@/shares/userStore";
 import {query, throwLogin} from "@/lib/Helper";
-import * as localConfigure from "@/shares/localConfigure";
+import * as LocalConfigure from "@/shares/LocalConfigure";
 import Config from "@/Config";
 import {useModalStore} from "@/shares/modalStore";
 import type {api_user_login_req, api_user_login_resp} from "../../../share/Api";
@@ -35,7 +35,7 @@ onMounted(() => {
 
 //
 const themeLs = Config.theme;
-let curThemeName = localConfigure.get('theme') ?? 'warm';
+let curThemeName = LocalConfigure.get('theme') ?? 'warm';
 
 function switchTheme() {
   const themeOptions: { [key: string]: string } = {};
@@ -82,7 +82,7 @@ function setTheme(themeName) {
     const name = theme[0];
     const href = theme[1];
     if (name !== themeName) return;
-    localConfigure.set('theme', name);
+    LocalConfigure.set('theme', name);
     const classNameLs = document.body.className.trim().split(' ');
     const tClassNameLs = [];
     classNameLs.forEach(className => {

@@ -4,7 +4,7 @@
 //存储在本地的配置
 
 const prefix = 'ts_conf:';
-// export const useLocalConfigureStore = defineStore('localConfigure', () => {
+// export const useLocalConfigureStore = defineStore('LocalConfigure', () => {
 const data: { [name: string]: any } = {};
 
 const listener: {

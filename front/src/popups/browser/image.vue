@@ -4,7 +4,7 @@ import GenFunc from "@/lib/GenFunc";
 // import {useEventStore} from "@/shares/event";
 import {mayTyping} from "@/lib/Helper";
 import * as kvStore from '@/lib/IndexedKVStore';
-import * as localConfigure from "@/shares/localConfigure";
+import * as LocalConfigure from "@/shares/LocalConfigure";
 import type { nodePropsType } from "@/types/browser";
 // import piexif from 'piexif-ts';
 
@@ -354,15 +354,15 @@ function doTransform(e: PointerEvent) {
   });
 }
 
-const scrollLock: Ref<boolean> = ref(localConfigure.get("browser_image_scrollLock") ?? false);
+const scrollLock: Ref<boolean> = ref(LocalConfigure.get("browser_image_scrollLock") ?? false);
 
 function setScrollLock(target:boolean) {
   scrollLock.value = target;
-  localConfigure.set("browser_image_scrollLock", target);
+  LocalConfigure.set("browser_image_scrollLock", target);
 }
 
 //不监听，不需要强制统一
-// localConfigure.listen('browser_image_scrollLock', (to) => {
+// LocalConfigure.listen('browser_image_scrollLock', (to) => {
 //   scrollLock.value = to;
 // }, props.modalData.nid);
 

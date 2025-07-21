@@ -90,11 +90,11 @@ async function onSubmit() {
   //
   /*
   //导入的时候就是按照遍历提取的id,所以其实不需要排序
-  const localConfigure = useLocalConfigureStore();
+  const LocalConfigure = useLocalConfigureStore();
   console.info(
     'on submit', props.data.node_list, props.modalData);
   let sortVal: Ref<string> = ref(
-    localConfigure.get("file_view_sort") ?? "name_asc"
+    LocalConfigure.get("file_view_sort") ?? "name_asc"
   );
   const list = sortList(props.data.node_list, sortVal.value);
   */

@@ -17,7 +17,7 @@ import {mayInPopup, mayTyping, query} from "@/lib/Helper";
 import GenFunc from "@/lib/GenFunc";
 import {useModalStore} from "@/shares/modalStore";
 import type {RouteLocationNormalizedLoaded, Router} from "vue-router";
-import * as localConfigure from "@/shares/localConfigure";
+import * as LocalConfigure from "@/shares/LocalConfigure";
 import {useContextStore} from "@/shares/useContext";
 import {FileStreamDownloaderV2, type StreamDownloadInputFileType} from "@/lib/FileStreamDownloaderV2";
 
@@ -78,12 +78,12 @@ export class opModule {
         this.contextStore = useContextStore();
         // this.nodeList = config.nodeList;
         // this.queryData = config.queryData;
-        this.mode.value = localConfigure.get('file_view_mode') ?? 'detail';
-        this.modeKey = localConfigure.listen(
+        this.mode.value = LocalConfigure.get('file_view_mode') ?? 'detail';
+        this.modeKey = LocalConfigure.listen(
             'file_view_mode',
             (v) => (this.mode.value = v)
         );
-        this.sortVal = ref(localConfigure.get('file_view_sort') ?? 'name_asc');
+        this.sortVal = ref(LocalConfigure.get('file_view_sort') ?? 'name_asc');
         //必须这么写否则无法解绑
         this.contextMenuEvt = this.contextMenuEvt.bind(this);
         this.mouseDownEvt = this.mouseDownEvt.bind(this);
@@ -117,7 +117,7 @@ export class opModule {
 
     public destructor() {
         console.info('destructor loaded');
-        localConfigure.release('file_view_mode', this.modeKey);
+        LocalConfigure.release('file_view_mode', this.modeKey);
         removeEventListener('contextmenu', this.contextMenuEvt);
         removeEventListener('pointerdown', this.mouseDownEvt);
         removeEventListener('pointermove', this.mouseMoveEvt);
@@ -402,7 +402,7 @@ export class opModule {
         let isBath = selRes.nodeLs.length !== 1;
         const nodeLs = selRes.nodeLs;
         const idSet = selRes.idSet;
-        let fileViewMode = localConfigure.get("file_view_mode") ?? "detail";
+        let fileViewMode = LocalConfigure.get("file_view_mode") ?? "detail";
         if (this.route.name !== 'Directory') {
             fileViewMode = 'detail';
         }
@@ -761,7 +761,7 @@ export class opModule {
             }
         }
         //
-        let fileViewMode = localConfigure.get("file_view_mode") ?? "detail";
+        let fileViewMode = LocalConfigure.get("file_view_mode") ?? "detail";
         if (this.route.name !== 'Directory') {
             fileViewMode = 'detail';
         }
@@ -807,7 +807,7 @@ export class opModule {
     //-----------------------
 
     public setMode(mode: string) {
-        localConfigure.set('file_view_mode', mode);
+        LocalConfigure.set('file_view_mode', mode);
         // const preList = nodeList.value;
         // nodeList.value = [];
         // console.info('file_view_mode',nodeList.value,preList);
@@ -818,7 +818,7 @@ export class opModule {
     //-----------------------
     public setSort(sort: string) {
         console.info('setSort', sort);
-        localConfigure.set('file_view_sort', sort);
+        LocalConfigure.set('file_view_sort', sort);
         const preList = this.nodeList.value;
         this.nodeList.value = [];
         setTimeout(() => {
@@ -1594,8 +1594,8 @@ export function popupDetail(queryData: api_file_list_req, curNodeId: number) {
     if (!opModuleVal) return;
     //双击从 emitGo 进入
     //打开是手动打开
-    let w = localConfigure.get("browser_layout_w");
-    let h = localConfigure.get("browser_layout_h");
+    let w = LocalConfigure.get("browser_layout_w");
+    let h = LocalConfigure.get("browser_layout_h");
     // console.info(w, h);
     const iw = window.innerWidth;
     const ih = window.innerHeight;
