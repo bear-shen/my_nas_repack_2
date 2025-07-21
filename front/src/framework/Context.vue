@@ -2,14 +2,12 @@
 import type {Ref} from "vue";
 import {onMounted, ref} from "vue";
 import {useUserStore} from "@/shares/userStore";
-import {useContextStore} from "@/shares/useContext";
+import * as Context from "@/shares/Context";
 import type {contextItemDef, contextListDef} from "@/types/context";
 
 const userStore = useUserStore();
 const user = userStore.get();
 const userRole = user ? (user?.group.admin ? 2 : 1) : 0;
-
-const useContext = useContextStore();
 
 const contextList: Ref<contextListDef> = ref([]);
 
@@ -33,7 +31,7 @@ const offset: Ref<{
   direction: 'lb',
 });
 
-useContext.register(triggerMenu);
+Context.register(triggerMenu);
 
 function triggerMenu(menuDefLs: contextListDef, e: MouseEvent) {
   active.value = false;

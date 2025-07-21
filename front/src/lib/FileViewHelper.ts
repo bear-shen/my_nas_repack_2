@@ -18,7 +18,7 @@ import GenFunc from "@/lib/GenFunc";
 import * as Modal from "@/shares/Modal";
 import type {RouteLocationNormalizedLoaded, Router} from "vue-router";
 import * as LocalConfigure from "@/shares/LocalConfigure";
-import {useContextStore} from "@/shares/useContext";
+import * as Context from "@/shares/Context";
 import {FileStreamDownloaderV2, type StreamDownloadInputFileType} from "@/lib/FileStreamDownloaderV2";
 
 // const router = useRouter();
@@ -49,7 +49,7 @@ export class opModule {
     // 因为是直接赋值的 queryData = Object.assign({
     // public queryData: { [key: string]: any }
     public modal: typeof Modal;
-    public contextStore: ReturnType<typeof useContextStore>;
+    public context: Context;
 
     public mode: Ref<'detail' | 'text' | 'img' | string> = ref('');
     public modeKey: string = '';
@@ -75,7 +75,7 @@ export class opModule {
         this.emitGo = config.emitGo;
 //在类的外部初始化会导致一些问题，参考Helper的manualSort
         this.modal = Modal;
-        this.contextStore = useContextStore();
+        this.context = Context;
         // this.nodeList = config.nodeList;
         // this.queryData = config.queryData;
         this.mode.value = LocalConfigure.get('file_view_mode') ?? 'detail';
@@ -417,7 +417,7 @@ export class opModule {
         e.preventDefault();
         e.stopPropagation();
         //
-        this.contextStore.trigger([
+        this.context.trigger([
             {
                 title: 'Open',
                 auth: 'guest',

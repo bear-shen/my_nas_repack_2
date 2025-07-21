@@ -1,15 +1,10 @@
 import {ref, computed} from 'vue'
 import type {Ref} from 'vue';
-import {defineStore} from 'pinia'
 import type {api_file_mod_resp, api_file_mov_resp, api_node_col, api_setting_front_conf} from "../../../share/Api";
 import {query} from "@/lib/Helper";
 
 const nodeList = ref([] as api_node_col[]);
 const mode: Ref<'cut' | 'copy'> = ref('copy');
-
-export const usePastebinStore = defineStore('counter', () => {
-    return {nodeList, mode, doPaste};
-});
 
 async function doPaste(targetPid: number | string) {
     console.info(nodeList.value);
@@ -33,3 +28,5 @@ async function doPaste(targetPid: number | string) {
     }
     nodeList.value = [];
 }
+
+export {nodeList, mode, doPaste};

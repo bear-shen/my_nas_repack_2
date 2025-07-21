@@ -1,4 +1,3 @@
-import {defineStore} from 'pinia';
 import type {ModalConstruct, ModalStruct} from '@/types/modal';
 
 const caller = {

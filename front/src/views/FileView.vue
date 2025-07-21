@@ -12,9 +12,8 @@ import type {api_file_list_req, api_file_list_resp, api_file_mkdir_req, api_file
 import * as Modal from "@/shares/Modal";
 import FileItem from '@/components/FileItem.vue';
 import Config from "@/Config";
-import {usePastebinStore} from "@/shares/usePastebinStore";
+import * as Pastebin from "@/shares/Pastebin";
 
-const pastebinStore = usePastebinStore();
 const contentDOM: Ref<HTMLElement | null> = ref(null);
 //
 const router = useRouter();
@@ -32,11 +31,11 @@ let searchBarQuery: api_file_list_req = {
   cascade_dir: '1',
 };
 
-function syncQuery(tQuery:api_file_list_req) {
+function syncQuery(tQuery: api_file_list_req) {
   if (!tQuery) return;
   for (let key in queryData) {
     if (!Object.prototype.hasOwnProperty.call(queryData, key)) continue;
-    const wKey=key as keyof api_file_list_req;
+    const wKey = key as keyof api_file_list_req;
     // if (typeof tQuery[wKey] === 'undefined') continue;
     switch (wKey) {
       default:
@@ -52,7 +51,7 @@ function syncQuery(tQuery:api_file_list_req) {
   }
   for (let key in searchBarQuery) {
     if (!Object.prototype.hasOwnProperty.call(searchBarQuery, key)) continue;
-    const wKey=key as keyof api_file_list_req;
+    const wKey = key as keyof api_file_list_req;
     // if (typeof tQuery[key] === 'undefined') continue;
     switch (wKey) {
       default:
@@ -242,7 +241,7 @@ function emitGo(type: string, code?: number) {
           opModule.go({mode: 'directory', id_dir: `${node.id}`});
           break
         default:
-          fHelper.popupDetail(Object.assign(GenFunc.copyObject(queryData),searchBarQuery), node.id ?? 0);
+          fHelper.popupDetail(Object.assign(GenFunc.copyObject(queryData), searchBarQuery), node.id ?? 0);
           break
       }
       break
@@ -342,19 +341,19 @@ async function onPasteBinOperate(keyMap: string[]) {
     case 'ctrl_KeyC':
       resVal = opModule.getSelected();
       if (!resVal.nodeLs.length) return;
-      pastebinStore.nodeList = resVal.nodeLs;
-      pastebinStore.mode = 'copy';
+      Pastebin.nodeList.value = resVal.nodeLs;
+      Pastebin.mode.value = 'copy';
       break;
     case 'ctrl_KeyX':
       resVal = opModule.getSelected();
       if (!resVal.nodeLs.length) return;
-      pastebinStore.nodeList = resVal.nodeLs;
-      pastebinStore.mode = 'cut';
+      Pastebin.nodeList.value = resVal.nodeLs;
+      Pastebin.mode.value = 'cut';
       break;
     case 'ctrl_KeyV':
-      if (!pastebinStore.nodeList.length) return;
+      if (!Pastebin.nodeList.value.length) return;
       if (!queryData.id_dir) return;
-      await pastebinStore.doPaste(queryData.id_dir);
+      await Pastebin.doPaste(queryData.id_dir);
       await getList();
       break;
   }
@@ -466,10 +465,10 @@ async function onPasteBinOperate(keyMap: string[]) {
         </template>
       </div>
       <div class="pastebin"
-           v-if="pastebinStore && pastebinStore.nodeList.length"
+           v-if="Pastebin && Pastebin.nodeList.value.length"
       >
-        <span :class="['sysIcon', `sysIcon_${pastebinStore.mode}`,]">
-          {{ pastebinStore.nodeList.length }}
+        <span :class="['sysIcon', `sysIcon_${Pastebin.mode.value}`,]">
+          {{ Pastebin.nodeList.value.length }}
         </span>
       </div>
     </div>
