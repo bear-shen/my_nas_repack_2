@@ -2,7 +2,7 @@
 import * as LocalConfigure from "@/shares/LocalConfigure";
 import {onMounted, onUnmounted, type Ref, ref} from "vue";
 import type {api_node_col, api_tag_col, api_tag_list_resp} from "../../../share/Api";
-import {useModalStore} from "@/shares/modalStore";
+import * as Modal from "@/shares/Modal";
 import {query} from "@/lib/Helper";
 import ContentEditable from "@/components/ContentEditable.vue";
 import Hinter from "@/components/Hinter.vue";
@@ -13,7 +13,6 @@ import GenFunc from "@/lib/GenFunc";
 // import type {col_tag} from "../../../share/Database";
 // import {api_tag_col} from "../../../share/Api";
 
-const modalStore = useModalStore();
 const props = defineProps<{
   node: api_node_col;
   //想了一下, 感觉没有用

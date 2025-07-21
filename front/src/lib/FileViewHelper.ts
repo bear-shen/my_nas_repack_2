@@ -15,7 +15,7 @@ import type {
 import type {ModalConstruct, ModalFormConstruct} from "@/types/modal";
 import {mayInPopup, mayTyping, query} from "@/lib/Helper";
 import GenFunc from "@/lib/GenFunc";
-import {useModalStore} from "@/shares/modalStore";
+import * as Modal from "@/shares/Modal";
 import type {RouteLocationNormalizedLoaded, Router} from "vue-router";
 import * as LocalConfigure from "@/shares/LocalConfigure";
 import {useContextStore} from "@/shares/useContext";
@@ -48,7 +48,7 @@ export class opModule {
     //这个其实没有用，而且切换路由的时候需要手动更新
     // 因为是直接赋值的 queryData = Object.assign({
     // public queryData: { [key: string]: any }
-    public modalStore: ReturnType<typeof useModalStore>;
+    public modal: typeof Modal;
     public contextStore: ReturnType<typeof useContextStore>;
 
     public mode: Ref<'detail' | 'text' | 'img' | string> = ref('');
@@ -74,7 +74,7 @@ export class opModule {
         this.router = config.router;
         this.emitGo = config.emitGo;
 //在类的外部初始化会导致一些问题，参考Helper的manualSort
-        this.modalStore = useModalStore();
+        this.modal = Modal;
         this.contextStore = useContextStore();
         // this.nodeList = config.nodeList;
         // this.queryData = config.queryData;
@@ -478,7 +478,7 @@ export class opModule {
                 method: async (e: MouseEvent) => {
                     console.info('DownloadSelected', e);
                     console.info(this, nodeLs);
-                    if (!opModuleVal || !opModuleVal.modalStore) return;
+                    if (!opModuleVal || !opModuleVal.modal) return;
                     //
                     const inNodeLs = buildDownloadInputFileFromNodeCol('', nodeLs)
                     const fd = new FileStreamDownloaderV2(
@@ -496,7 +496,7 @@ export class opModule {
                     );
                     //
                     const resRef: Ref<string> = ref('downloading 0/0 (0%)');
-                    const modal = opModuleVal.modalStore.set({
+                    const modal = opModuleVal.modal.set({
                         title: fd.title,
                         alpha: false,
                         key: "",
@@ -521,7 +521,7 @@ export class opModule {
                     });
                     await fd.build();
                     await fd.complete();
-                    opModuleVal.modalStore.close(modal.nid);
+                    opModuleVal.modal.close(modal.nid);
                 },
             },
             {
@@ -1050,7 +1050,7 @@ export class opFunctionModule {
 
     public static async op_bath_rename(idSet: Set<number>, nodeLs: api_node_col[]) {
         if (!opModuleVal) return;
-        opModuleVal.modalStore.set({
+        opModuleVal.modal.set({
             title: `bath rename`,
             alpha: false,
             key: "",
@@ -1080,7 +1080,7 @@ export class opFunctionModule {
 
     public static async op_move(node: api_node_col) {
         if (!opModuleVal) return;
-        opModuleVal.modalStore.set({
+        opModuleVal.modal.set({
             title: `locator | move ${node.title} to:`,
             alpha: false,
             key: "",
@@ -1119,7 +1119,7 @@ export class opFunctionModule {
 
     public static async op_bath_move(idSet: Set<number>, nodeLs?: api_node_col[]) {
         if (!opModuleVal) return;
-        opModuleVal.modalStore.set({
+        opModuleVal.modal.set({
             title: `locator | move ${idSet.size} files to:`,
             alpha: false,
             key: "",
@@ -1171,7 +1171,7 @@ export class opFunctionModule {
 
     public static async op_bath_delete(idSet: Set<number>, nodeLs?: api_node_col[], isRecover: boolean = false, callback?: () => any) {
         if (!opModuleVal) return;
-        opModuleVal.modalStore.set({
+        opModuleVal.modal.set({
             title: `confirm to ${isRecover ? 'recover' : 'delete'} ${idSet.size} files`,
             alpha: false,
             key: "",
@@ -1214,7 +1214,7 @@ export class opFunctionModule {
 
     public static async op_bath_delete_forever(idSet: Set<number>, nodeLs?: api_node_col[]) {
         if (!opModuleVal) return;
-        opModuleVal.modalStore.set({
+        opModuleVal.modal.set({
             title: `confirm to delete ${idSet.size} files forever`,
             alpha: false,
             key: "",
@@ -1257,7 +1257,7 @@ export class opFunctionModule {
         }
         if (!opModuleVal) return;
         // console.info(node);
-        opModuleVal.modalStore.set({
+        opModuleVal.modal.set({
             title: `select fav group:`,
             alpha: false,
             key: "",
@@ -1308,7 +1308,7 @@ export class opFunctionModule {
             })
         }
         if (!opModuleVal) return;
-        opModuleVal.modalStore.set({
+        opModuleVal.modal.set({
             title: `select fav group:`,
             alpha: false,
             key: "",
@@ -1478,7 +1478,7 @@ export class opFunctionModule {
                 }
             }
         };
-        opModuleVal?.modalStore.set({
+        opModuleVal?.modal.set({
             title: `share file`,
             alpha: false,
             key: "",
@@ -1557,7 +1557,7 @@ export class opFunctionModule {
                     if (!res) return;
                     if (resultModal.text)
                         resultModal.text = (resultModal.text as string).replace(/#id#/ig, `${res.id}`);
-                    opModuleVal?.modalStore.set(resultModal);
+                    opModuleVal?.modal.set(resultModal);
                 }
             }
         } as ModalConstruct);
@@ -1602,7 +1602,7 @@ export function popupDetail(queryData: api_file_list_req, curNodeId: number) {
     if (iw < w) w = 0;
     if (ih < h) h = 0;
     // console.info(w, h);
-    opModuleVal.modalStore.set({
+    opModuleVal.modal.set({
         title: "file browser",
         alpha: false,
         key: "",

@@ -3,7 +3,7 @@ import {useUserStore} from "@/shares/userStore";
 import {query, throwLogin} from "@/lib/Helper";
 import * as LocalConfigure from "@/shares/LocalConfigure";
 import Config from "@/Config";
-import {useModalStore} from "@/shares/modalStore";
+import * as Modal from "@/shares/Modal";
 import type {api_user_login_req, api_user_login_resp} from "../../../share/Api";
 import {onMounted, ref, type Ref} from "vue";
 
@@ -42,8 +42,7 @@ function switchTheme() {
   themeLs.forEach(theme => {
     themeOptions[theme[0]] = theme[0];
   })
-  const modalStore = useModalStore();
-  modalStore.set({
+  Modal.set({
     title: "theme configure",
     alpha: true,
     key: "theme_configure",

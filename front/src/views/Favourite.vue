@@ -4,7 +4,7 @@ import type {Ref} from "vue";
 import {onMounted, onUnmounted, ref} from "vue";
 import {onBeforeRouteUpdate, useRoute, useRouter,} from "vue-router";
 import GenFunc from "@/lib/GenFunc";
-import {useModalStore} from "@/shares/modalStore";
+import * as Modal from "@/shares/Modal";
 import ContentEditable from "@/components/ContentEditable.vue";
 import type {api_favourite_group_col, api_favourite_group_list_req, api_favourite_group_list_resp, api_favourite_group_mod_req, api_favourite_group_mod_resp, api_file_list_req, api_file_list_resp, api_node_col, api_tag_col, api_tag_list_resp} from "../../../share/Api";
 import {query} from "@/lib/Helper";
@@ -17,7 +17,6 @@ import Rater from "@/components/Rater.vue";
 import Config from "@/Config";
 
 //
-const modalStore = useModalStore();
 const contentDOM: Ref<HTMLElement | null> = ref(null);
 const router = useRouter();
 const route = useRoute();

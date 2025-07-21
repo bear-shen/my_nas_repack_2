@@ -6,13 +6,11 @@ import {onBeforeRouteUpdate, useRoute, useRouter,} from "vue-router";
 import {query} from "@/lib/Helper";
 import GenFunc from "@/lib/GenFunc";
 import type {api_queue_col, api_queue_list_req, api_queue_list_resp,} from "../../../share/Api";
-// import {useModalStore} from "@/shares/modalStore";
 
 type settingType = api_queue_col & {
   ext_key?: string,
 };
 //
-// const modalStore = useModalStore();
 const contentDOM: Ref<HTMLElement | null> = ref(null);
 const router = useRouter();
 const route = useRoute();

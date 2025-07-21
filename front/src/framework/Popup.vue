@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {useModalStore} from "@/shares/modalStore";
+import * as Modal from "@/shares/Modal";
 // import {useEventStore} from "@/shares/event";
 import {onMounted, onUnmounted, ref,} from "vue";
 import type {ModalCallbackConstruct, ModalConstruct, ModalFormConstruct, ModalLayout, ModalStruct,} from "@/types/modal";
@@ -265,8 +265,8 @@ window.addEventListener("resize", (e) => {
     }
   });
 });
-const modalStore = useModalStore();
-modalStore.handleEvent("set", (modal: ModalConstruct) => {
+
+Modal.handleEvent("set", (modal: ModalConstruct) => {
   //
   let exsNid :string|null=null;
   let curModal:ModalStruct|null = null;
@@ -292,7 +292,7 @@ modalStore.handleEvent("set", (modal: ModalConstruct) => {
   // checkAlpha();
   return curModal;
 });
-modalStore.handleEvent("close", (nid: string) => {
+Modal.handleEvent("close", (nid: string) => {
   return close(nid);
 });
 

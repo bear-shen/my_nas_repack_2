@@ -9,12 +9,11 @@ import * as fHelper from '@/lib/FileViewHelper';
 // import {manualSort} from '@/lib/FileViewHelper';
 import GenFunc from "@/lib/GenFunc";
 import type {api_file_list_req, api_file_list_resp, api_file_mkdir_req, api_file_mkdir_resp, api_node_col} from '../../../share/Api';
-import {useModalStore} from '@/shares/modalStore';
+import * as Modal from "@/shares/Modal";
 import FileItem from '@/components/FileItem.vue';
 import Config from "@/Config";
 import {usePastebinStore} from "@/shares/usePastebinStore";
 
-const modalStore = useModalStore();
 const pastebinStore = usePastebinStore();
 const contentDOM: Ref<HTMLElement | null> = ref(null);
 //
@@ -127,7 +126,7 @@ function addFolder() {
       title = curNode.title ?? 'root'
     }
   }
-  modalStore.set({
+  Modal.set({
     title: `mkdir | ${title}`,
     alpha: false,
     key: '',
@@ -175,7 +174,7 @@ function addFile() {
       title = curNode.title ?? 'root';
     }
   }
-  modalStore.set({
+  Modal.set({
     title: `upload | ${title}`,
     alpha: false,
     key: `FileView_addFile_${pid}`,

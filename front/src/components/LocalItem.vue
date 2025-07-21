@@ -2,7 +2,7 @@
 import {type Ref, ref} from "vue";
 import {query} from "@/lib/Helper";
 import type {api_local_file_statement, api_local_import_resp, api_local_ls_resp, api_node_col} from "../../../share/Api";
-import {useModalStore} from "@/shares/modalStore";
+import * as Modal from "@/shares/Modal";
 
 const props = defineProps<{
   path: string;
@@ -38,8 +38,7 @@ async function upd() {
 }
 
 async function imp() {
-  const modalStore = useModalStore();
-  modalStore.set({
+  Modal.set({
     title: "locator",
     alpha: false,
     key: "",

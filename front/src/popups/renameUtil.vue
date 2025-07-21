@@ -3,7 +3,7 @@ import type {Ref} from "vue";
 import {onMounted, onUnmounted, ref} from "vue";
 import type {ModalStruct} from "@/types/modal";
 import type {api_file_bath_rename_resp, api_node_col} from "../../../share/Api";
-import {useModalStore} from "@/shares/modalStore";
+import * as Modal from "@/shares/Modal";
 import GenFunc from "@/lib/GenFunc";
 import {query} from "@/lib/Helper";
 import {manualSort} from "@/lib/FileViewHelper";
@@ -86,7 +86,6 @@ function buildByBath() {
 }
 
 async function onSubmit() {
-  const modalStore = useModalStore();
   //
   /*
   //导入的时候就是按照遍历提取的id,所以其实不需要排序
@@ -129,7 +128,7 @@ async function onSubmit() {
   console.info(res);
   // if (!res) return;
   props.data.callback(modArr);
-  return modalStore.close(props.modalData.nid);
+  return Modal.close(props.modalData.nid);
 }
 
 </script>

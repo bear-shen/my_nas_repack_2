@@ -6,12 +6,11 @@ import {onBeforeRouteUpdate, useRoute, useRouter,} from "vue-router";
 import {query} from "@/lib/Helper";
 import GenFunc from "@/lib/GenFunc";
 import type {api_file_list_req, api_file_list_resp, api_node_col, api_tag_col, api_tag_del_resp, api_tag_group_col, api_tag_group_list_req, api_tag_group_list_resp, api_tag_group_mod_resp, api_tag_list_req, api_tag_list_resp, api_tag_mod_resp,} from "../../../share/Api";
-import {useModalStore} from "@/shares/modalStore";
+import * as Modal from "@/shares/Modal";
 import ContentEditable from "@/components/ContentEditable.vue";
 import Hinter from "@/components/Hinter.vue";
 
 //
-const modalStore = useModalStore();
 const contentDOM: Ref<HTMLElement | null> = ref(null);
 const router = useRouter();
 const route = useRoute();

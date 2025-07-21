@@ -1,7 +1,7 @@
 import type {api_user_login_req, api_user_login_resp} from "../../share/Api";
 import Config from "@/Config";
 
-import {useModalStore} from "@/shares/modalStore";
+import * as Modal from "@/shares/Modal";
 import {useUserStore} from "@/shares/userStore";
 
 
@@ -70,8 +70,7 @@ export function query<K>(
 
 export function throwLogin() {
     console.info('throwLogin');
-    const modalStore = useModalStore();
-    modalStore.set({
+    Modal.set({
         title: "login required",
         alpha: true,
         key: "",
@@ -119,8 +118,7 @@ export function throwLogin() {
 
 export function throwError(msg: string) {
     // console.info(msg);
-    const modalStore = useModalStore();
-    modalStore.set({
+    Modal.set({
         title: "error",
         alpha: false,
         key: "",

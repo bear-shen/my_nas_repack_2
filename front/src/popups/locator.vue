@@ -5,7 +5,7 @@ import type {ModalStruct} from "@/types/modal";
 import {query} from "@/lib/Helper";
 import type {api_file_list_req, api_file_list_resp, api_node_col} from "../../../share/Api";
 import GenFunc from "@/lib/GenFunc";
-import {useModalStore} from "@/shares/modalStore";
+import * as Modal from "@/shares/Modal";
 
 
 type valType = api_node_col & { _sel?: boolean };
@@ -77,10 +77,9 @@ async function onChange(e: KeyboardEvent) {
 
 async function onConfirm(node: valType) {
   console.info(node);
-  const modalStore = useModalStore();
   const res = await props.data.call(node);
   if (!res)
-    return modalStore.close(props.modalData.nid);
+    return Modal.close(props.modalData.nid);
 }
 
 // async function onSwitch() {

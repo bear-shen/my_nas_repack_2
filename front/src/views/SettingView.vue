@@ -12,8 +12,7 @@ import type {
 } from "../../../share/Api";
 import ContentEditable from "@/components/ContentEditable.vue";
 import type {ModalConstruct} from "@/types/modal";
-import {useModalStore} from "@/shares/modalStore";
-// import {useModalStore} from "@/shares/modalStore";
+import * as Modal from "@/shares/Modal";
 
 type settingType = api_setting_col & {
   edit_key?: boolean,
@@ -23,7 +22,6 @@ type settingType = api_setting_col & {
   pre_value?: string,
 };
 //
-// const modalStore = useModalStore();
 const contentDOM: Ref<HTMLElement | null> = ref(null);
 const router = useRouter();
 const route = useRoute();
@@ -166,27 +164,23 @@ const widgetLs: widget[] = [
 async function btn_syncLocalFile() {
   const res = await query("setting/sync_local_file", {});
   if (res === false) return;
-  const modalStore = useModalStore();
-  modalStore.set(modalStore.simpleMsg("success", "queued"));
+  Modal.set(Modal.simpleMsg("success", "queued"));
 }
 
 async function btn_syncDatabaseFile() {
   const res = await query("setting/sync_database_file", {});
   if (res === false) return;
-  const modalStore = useModalStore();
-  modalStore.set(modalStore.simpleMsg("success", "queued"));
+  Modal.set(Modal.simpleMsg("success", "queued"));
 }
 
 async function btn_syncBGMTags() {
   const res = await query("setting/sync_bgm_tag", {});
   if (res === false) return;
-  const modalStore = useModalStore();
-  modalStore.set(modalStore.simpleMsg("success", "queued"));
+  Modal.set(Modal.simpleMsg("success", "queued"));
 }
 
 async function btn_importEHTTag() {
-  const modalStore = useModalStore();
-  modalStore.set({
+  Modal.set({
     title: `locator | select base dir :`,
     alpha: false,
     key: "",
@@ -215,7 +209,7 @@ async function btn_importEHTTag() {
             const res = await query<api_import_eht_tag_req>('setting/import_eht_tag', formData);
             // if (opModuleVal) opModuleVal.emitGo('reload');
             if (res === false) return;
-            modalStore.set(modalStore.simpleMsg("success", "queued"));
+            Modal.set(Modal.simpleMsg("success", "queued"));
           }
         },
       },
@@ -224,7 +218,6 @@ async function btn_importEHTTag() {
 }
 
 async function btn_syncJRiverRate() {
-  const modalStore = useModalStore();
   const submitModal: ModalConstruct = {
     title: "upload MC Library.xml data",
     w: 400,
@@ -257,11 +250,11 @@ async function btn_syncJRiverRate() {
         const res = await query<api_import_eht_tag_req>('setting/sync_jriver_rate', formData);
         // if (opModuleVal) opModuleVal.emitGo('reload');
         if (res === false) return;
-        modalStore.set(modalStore.simpleMsg("success", "queued"));
+        Modal.set(Modal.simpleMsg("success", "queued"));
       },
     },
   };
-  modalStore.set({
+  Modal.set({
     title: `locator | select music base dir :`,
     alpha: false,
     key: "",
@@ -285,7 +278,7 @@ async function btn_syncJRiverRate() {
           } as api_file_list_req,
           call: async (target: api_node_col) => {
             submitModal.form[0].value = target.id;
-            modalStore.set(submitModal);
+            Modal.set(submitModal);
           }
         },
       },
@@ -296,15 +289,13 @@ async function btn_syncJRiverRate() {
 async function btn_rebuildAllIndex() {
   const res = await query("setting/full_rebuild_index", {});
   if (res === false) return;
-  const modalStore = useModalStore();
-  modalStore.set(modalStore.simpleMsg("success", "queued"));
+  Modal.set(Modal.simpleMsg("success", "queued"));
 }
 
 async function btn_checkLocalFile() {
   const res = await query<api_setting_col>("setting/check_local_file_result", {});
   if (res === false) return;
   console.info(res);
-  const modalStore = useModalStore();
   let resTxt = '';
   let resArr: string[] = [];
   if (res && res.value) {
@@ -316,7 +307,7 @@ async function btn_checkLocalFile() {
   }
   resTxt = `<table>${resArr.join('')}</table>`;
   console.info(resTxt);
-  modalStore.set({
+  Modal.set({
     title: "chk result",
     text: resTxt,
     w: 480,
