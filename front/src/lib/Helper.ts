@@ -2,7 +2,7 @@ import type {api_user_login_req, api_user_login_resp} from "../../share/Api";
 import Config from "@/Config";
 
 import * as Modal from "@/shares/Modal";
-import {useUserStore} from "@/shares/userStore";
+import * as UserSession from "@/shares/UserSession";
 
 
 export function queryDemo<K>(
@@ -60,8 +60,7 @@ export function query<K>(
         };
         if (extra && extra.upload) xhr.upload.onprogress = extra.upload;
         xhr.open('POST', Config.apiPath + path);
-        const userStore = useUserStore();
-        const user = userStore.get();
+        const user = UserSession.get();
         // const ifAuthed = localStorage.getItem('toshokan_auth_token');
         if (user && user.token) xhr.setRequestHeader('Auth-Token', user.token);
         xhr.send(formData);
@@ -106,8 +105,7 @@ export function throwLogin() {
                 } as api_user_login_req);
                 if (!res) return true;
 
-                const userStore = useUserStore();
-                userStore.set(res);
+                UserSession.set(res);
                 // localStorage.setItem("toshokan_auth_token", res.token);
                 // localStorage.setItem("toshokan_user", res.token);
                 location.reload();

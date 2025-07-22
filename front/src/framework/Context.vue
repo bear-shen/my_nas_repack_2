@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import type {Ref} from "vue";
 import {onMounted, ref} from "vue";
-import {useUserStore} from "@/shares/userStore";
+import * as UserSession from "@/shares/UserSession";
 import * as Context from "@/shares/Context";
 import type {contextItemDef, contextListDef} from "@/types/context";
 
-const userStore = useUserStore();
-const user = userStore.get();
+const user = UserSession.get();
 const userRole = user ? (user?.group.admin ? 2 : 1) : 0;
 
 const contextList: Ref<contextListDef> = ref([]);

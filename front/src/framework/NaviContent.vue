@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // import { defineProps } from "vue";
 import {type RouteRecordRaw, useRoute, useRouter} from "vue-router";
-import {useUserStore} from "@/shares/userStore";
+import * as UserSession from "@/shares/UserSession";
 // const props = defineProps(["depth", "records"]);
 const props = defineProps<{
   depth: Number,
@@ -18,9 +18,7 @@ async function go(route: RouteRecordRaw) {
   console.info(res);
 }
 
-const userStore = useUserStore();
-
-const user = userStore.get();
+const user = UserSession.get();
 </script>
 
 <template>

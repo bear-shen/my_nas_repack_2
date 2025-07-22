@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {onMounted, onUnmounted, ref, type Ref, watch} from "vue";
-import {useUserStore} from "@/shares/userStore";
+import * as UserSession from "@/shares/UserSession";
 import sign from "jwt-encode";
 // import {useEventStore} from "@/shares/event";
 import Config from "@/Config";
@@ -22,8 +22,7 @@ let filePath = null;
 const viewerId = 'pdvViewer_' + props.extId;
 const contentDOM: Ref<HTMLIFrameElement | null> = ref(null);
 let docEditor = null;
-const userStore = useUserStore();
-const user = userStore.get();
+const user = UserSession.get();
 const stInterval = 100;
 
 onMounted(() => {

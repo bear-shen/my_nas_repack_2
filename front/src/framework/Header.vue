@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {useUserStore} from "@/shares/userStore";
+import * as UserSession from "@/shares/UserSession";
 import {query, throwLogin} from "@/lib/Helper";
 import * as LocalConfigure from "@/shares/LocalConfigure";
 import Config from "@/Config";
@@ -15,12 +15,11 @@ type NavType = {
   },
 };
 const navList: Ref<NavType[]> = ref([]);
-const userStore = useUserStore();
 
-let user = userStore.get();
+let user = UserSession.get();
 
 function logout() {
-  userStore.set(null);
+  UserSession.set(null);
   location.reload();
 }
 
