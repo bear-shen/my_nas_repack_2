@@ -4,7 +4,7 @@ import * as UserSession from "@/shares/UserSession";
 import sign from "jwt-encode";
 // import {useEventStore} from "@/shares/event";
 import Config from "@/Config";
-import type { nodePropsType } from "@/types/browser";
+import type {nodePropsType} from "@/types/browser";
 
 
 const props = defineProps<{
@@ -13,9 +13,9 @@ const props = defineProps<{
   isActive: boolean,
   //
   file: nodePropsType,
-  dom:{
-    w:number,
-    h:number,
+  dom: {
+    w: number,
+    h: number,
   }
 }>();
 let filePath = null;
@@ -29,8 +29,22 @@ onMounted(() => {
   console.warn("mounted");
   const url = new URL(location.href);
   loadScript(`${url.origin}/onlyoffice_server/web-apps/apps/api/documents/api.js`);
+  // waitForAPI().then(() => {
   setTimeout(() => startOnlyOffice(), stInterval);
+  // })
 });
+
+/*function waitForAPI() {
+  let timer = null;
+  return new Promise(resolve => {
+    timer = setInterval(() => {
+      if (!DocsAPI) return;
+      console.info(DocsAPI);
+      clearTimeout(timer);
+      resolve();
+    }, stInterval);
+  })
+}*/
 
 
 function startOnlyOffice() {
@@ -59,13 +73,13 @@ function startOnlyOffice() {
     editorConfig: {
       callbackUrl: `${url.origin}/api/onlyoffice/callback?id=${curNode.id}&tosho_token=${user?.token}`,
     },
-    token:'',
+    token: '',
   };
   payload.token = sign(payload, secret);
   console.info(payload);
+  // docEditor = (new DocsAPI).DocEditor(domId, payload);
   //@ts-ignore
-  docEditor = (new DocsAPI).DocEditor(domId, payload);
-  console.info(docEditor);
+  docEditor = DocsAPI.DocEditor(domId, payload);
 }
 
 watch(
@@ -78,7 +92,7 @@ onUnmounted(() => {
 
 let scriptReady = false;
 
-function loadScript(url:string) {
+function loadScript(url: string) {
   //@see https://lengyun.github.io/js/3-2-1dynamicAddJS.html#%E5%8A%A8%E6%80%81%E6%8F%92%E5%85%A5js%E7%9A%84%E6%96%B9%E5%BC%8F%EF%BC%9A
   var script = document.createElement("script");
   script.type = "text/javascript";
@@ -91,9 +105,9 @@ function loadScript(url:string) {
   document.body.appendChild(script);
 }
 
-function getDocumentTypeBySuffix(suffix:string): string|false {
+function getDocumentTypeBySuffix(suffix: string): string | false {
   //@see https://api.onlyoffice.com/docs/docs-api/usage-api/config/#:~:text=documentType
-  let documentType: string|false=false;
+  let documentType: string | false = false;
   switch (suffix) {
     default:
       break;

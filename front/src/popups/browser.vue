@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { Ref } from "vue";
-import { onMounted, onUnmounted, ref } from "vue";
-import type { ModalStruct } from "@/types/modal";
-import { mayTyping, query } from "@/lib/Helper";
-import { manualSort, opFunctionModule } from "@/lib/FileViewHelper";
-import type { api_file_list_req, api_file_list_resp, api_node_col } from "../../../share/Api";
+import type {Ref} from "vue";
+import {onMounted, onUnmounted, ref} from "vue";
+import type {ModalStruct} from "@/types/modal";
+import {mayTyping, query} from "@/lib/Helper";
+import {manualSort, opFunctionModule} from "@/lib/FileViewHelper";
+import type {api_file_list_req, api_file_list_resp, api_node_col} from "../../../share/Api";
 import GenFunc from "@/lib/GenFunc";
 import browserBaseVue from "./browser/base.vue";
 import browserImageVue from "./browser/image.vue";
@@ -15,9 +15,9 @@ import browserPDFVue from "./browser/pdf.vue";
 import browserOfficeVue from "./browser/office.vue";
 import * as LocalConfigure from "@/shares/LocalConfigure";
 // import {useEventStore} from "@/shares/event";
-import type { col_node, type_file, } from "../../../share/Database";
+import type {col_node, type_file,} from "../../../share/Database";
 import Config from "@/Config";
-import type { nodePropsType } from "@/types/browser";
+import type {nodePropsType} from "@/types/browser";
 
 
 //------------------
@@ -42,6 +42,7 @@ const regComponentLs: { [key: string]: any } = {
 if (Config.onlyOffice.enabled) {
   regComponentLs.office = browserOfficeVue;
 }
+console.info('regComponentLs', regComponentLs);
 
 // const eventStore = useEventStore();
 
@@ -67,9 +68,9 @@ function resizingListener() {
     LocalConfigure.set("browser_layout_h", props.modalData.layout.h);
   }
   ifFullscreen = props.modalData.layout.fullscreen;
-  domProps.value={
-    w:props.modalData.layout.w,
-    h:props.modalData.layout.h,
+  domProps.value = {
+    w: props.modalData.layout.w,
+    h: props.modalData.layout.h,
   };
 }
 
@@ -104,9 +105,9 @@ onMounted(() => {
   document.addEventListener("keydown", keymap);
   //浏览器的缩放不按照弹窗默认的设置
   document.addEventListener(`modal_resizing_${props.modalData.nid}`, resizingListener);
-  domProps.value={
-    w:props.modalData.layout.w,
-    h:props.modalData.layout.h,
+  domProps.value = {
+    w: props.modalData.layout.w,
+    h: props.modalData.layout.h,
   }
   //popup会自动focus，这边取消focus
   //已经加了auto_focus:false，但是以备万一
@@ -145,7 +146,7 @@ const nodeProps: Ref<nodePropsType> = ref({
   preview: '',
   normal: '',
   raw: '',
-  sameName:[],
+  sameName: [],
 });
 const domProps: Ref<{
   w: number,
@@ -175,7 +176,7 @@ async function getParentDir(pid: number | string): Promise<api_file_list_resp> {
     id_dir: `${pid}`,
     with: 'none',
   } as api_file_list_req);
-  if (!res) return { path: [], list: [] };
+  if (!res) return {path: [], list: []};
   return res;
 }
 
@@ -341,14 +342,14 @@ function onModNav() {
     }
     //
   }
-  const tNodeProps:nodePropsType = {
+  const tNodeProps: nodePropsType = {
     id: tCurNode.id,
     title: tCurNode.title,
     cover: tCurNode.file_index.cover?.path ?? '',
     preview: tCurNode.file_index.preview?.path ?? '',
     normal: tCurNode.file_index.normal?.path ?? '',
     raw: tCurNode.file_index.raw?.path ?? '',
-    sameName:[],
+    sameName: [],
   };
   //字幕等
   let befInd = tNodeProps.title.lastIndexOf('.');
@@ -356,15 +357,15 @@ function onModNav() {
     let preStr = tNodeProps.title.substring(0, befInd) ?? '';
     if (preStr) {
       nodeList.value.forEach(node => {
-        if (node.id==tNodeProps.id) return;
+        if (node.id == tNodeProps.id) return;
         if (node.title?.indexOf(preStr) !== 0) return;
         let aftStr = node.title?.substring(preStr.length);
         tNodeProps.sameName.push({
-          title:aftStr,
-          type:node.type??'',
-          raw:node.file_index?.raw?.path??'',
-          normal:node.file_index?.normal?.path??'',
-          preview:node.file_index?.preview?.path??'',
+          title: aftStr,
+          type: node.type ?? '',
+          raw: node.file_index?.raw?.path ?? '',
+          normal: node.file_index?.normal?.path ?? '',
+          preview: node.file_index?.preview?.path ?? '',
         });
       });
     }
@@ -641,15 +642,15 @@ function setRater(rateVal: string) {
         ? regComponentLs[curNode.type]
         : regComponentLs.base
       "
-      :extId="props.modalData.nid"
-      :isActive="props.modalData.layout.active"
-      :curIndex="curIndex"
+               :extId="props.modalData.nid"
+               :isActive="props.modalData.layout.active"
+               :curIndex="curIndex"
 
-      :file="nodeProps"
-      :dom="domProps"
+               :file="nodeProps"
+               :dom="domProps"
 
-      @nav="emitNav"
-      >
+               @nav="emitNav"
+    >
       <template v-slot:info>
         <div :class="{ info: true, detail: showDetail }">
           <template v-if="showDetail">
@@ -674,19 +675,20 @@ function setRater(rateVal: string) {
             <template v-if="isMobile">
               <select v-model="rateVal" @change="setRater(rateVal)">
                 <option v-for="(type, key) in Config.rateMobile" :value="key"
-                  :key="'BROWSER_RATE_' + modalData.nid + '_' + key">{{ type }}</option>
+                        :key="'BROWSER_RATE_' + modalData.nid + '_' + key">{{ type }}
+                </option>
               </select>
             </template>
             <template v-else>
               <select class="sysIcon" v-model="rateVal" @change="setRater(rateVal)">
                 <option class='sysIcon_A sysIcon' v-for="(type, key) in Config.rate" :value="key" v-html="type"
-                  :key="'BROWSER_RATE_' + modalData.nid + '_' + key"></option>
+                        :key="'BROWSER_RATE_' + modalData.nid + '_' + key"></option>
               </select>
             </template>
 
             <select v-model="filterVal" @change="setFilter(filterVal)">
               <option v-for="(fileType, key) in Config.fileType" :value="fileType"
-                :key="'BROWSER_TYPE_' + modalData.nid + '_' + key">
+                      :key="'BROWSER_TYPE_' + modalData.nid + '_' + key">
                 {{ fileType }}
               </option>
             </select>
@@ -701,7 +703,7 @@ function setRater(rateVal: string) {
           <button :class="['sysIcon', 'sysIcon_info-cirlce-o']" @click="toggleDetail"></button>
           <!--          <button :class="['sysIcon','sysIcon_link',]" @click="browserMeta.act.share"></button>-->
           <button v-if="curNode.file_index?.raw?.path" :class="['sysIcon', 'sysIcon_download']"
-            @click="opFunctionModule.op_download(curNode)"></button>
+                  @click="opFunctionModule.op_download(curNode)"></button>
         </div>
       </template>
       <template v-slot:navigator>
