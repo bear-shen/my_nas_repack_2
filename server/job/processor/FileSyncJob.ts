@@ -253,6 +253,32 @@ async function syncDir(localRoot: string, rootNode: col_node) {
                 ins.file_index = {
                     raw: {size: 0, checksum: [],},
                 };
+                //导入时检测一下已存在的文件，导入已经构建好的文件时不再次build
+                //可能会有一些容错上的问题，先试试
+                const indexTypeLs: ('preview' | 'normal' | 'cover')[] = [
+                    'preview', 'normal', 'cover',
+                ];
+                if (['image', 'video', 'audio'].indexOf(ins.type) !== -1) {
+                    for (let i1 = 0; i1 < indexTypeLs.length; i1++) {
+                        const indexType = indexTypeLs[i1];
+                        const parserConfigType = indexType == 'normal' ? ins.type : indexType;
+                        const parserConfig = Config.get().parser[parserConfigType];
+                        const tSuffix: string = parserConfig.format;
+                        const relPath = fp.mkRelPath({
+                            id: -1,
+                            node_path: ins.node_path,
+                            title: ins.title,
+                        }, indexType, tSuffix);
+                        const localPath = fp.mkLocalPath(relPath);
+                        if (await fp.ifLocalFileExists(localPath)) {
+                            ins.file_index[indexType] = {
+                                size: 0,
+                                ext: tSuffix,
+                                checksum: [],
+                            };
+                        }
+                    }
+                }
             }
             const insRes = await (new NodeModel).insert(ins) as col_node[];
             ins.id = insRes[0].id;
