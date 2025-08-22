@@ -259,7 +259,7 @@ async function getList(ext: api_file_list_req = {}) {
 function goNav(curNavIndex: number, offset: number, counter: number = 0): any {
   // console.info('goNav', [curNavIndex, offset, counter,]);
   let listLen = vNodeList.value.length;
-  if (listLen < 1) return;
+  if (listLen <= 1) return;
   let nextIndex = 0;
   if (playMode.value === "shuffle") {
     let p = Math.random() * stackSize;
