@@ -88,7 +88,7 @@ export default {
     ],
     navList: [],
     coverKeyword: ['cover', 'album',
-  'bk', 'cd',
-],
-    imgKeyword: [ 'jpg', 'png', 'webp',],
+        'bk', 'cd',
+    ],
+    imgKeyword: ['jpg', 'jpeg', 'png', 'webp',],
 }

@@ -8,7 +8,7 @@ import ORM from "../../lib/ORM";
 import FavouriteGroupModel from "../../model/FavouriteGroupModel";
 
 export default class {
-    async detach(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_favourite_del_resp> {
+    async  detach(data: ParsedForm, req: IncomingMessage, res: ServerResponse): Promise<api_favourite_del_resp> {
         const request = data.fields as api_favourite_del_req;
         // const model = await (new FavouriteModel()).where('id', request.id).update({status: 0});
         const model = await (new FavouriteModel()).where('id', request.id).delete();

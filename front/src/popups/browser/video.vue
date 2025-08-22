@@ -473,6 +473,7 @@ function toggleSubtitle(index: number) {
               sysIcon_caretright: mediaMeta.play,
               sysIcon_pause: !mediaMeta.play,
             }"
+            @click="togglePlay"
           >
             <!-- {{ parseTime(mediaMeta.duration) }} -->
             {{ parseTime(mediaMeta.time) }}

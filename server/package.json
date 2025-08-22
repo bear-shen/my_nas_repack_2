@@ -1,6 +1,6 @@
 {
-  "name"        : "nas_be",
-  "version"     : "0.1.0",
+  "name"        : "my_nas_be",
+  "version"     : "1.0.0",
   "private"     : true,
   "scripts"     : {
 	"serve"       : "tsc && node ./dst/api/index.js --max_old_space_size=16384 --max-new-space-size=16384",

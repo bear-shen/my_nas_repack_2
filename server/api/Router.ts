@@ -19,20 +19,20 @@ import Share from "./processor/Share";
 
 // type t = RowDataPacket;
 const controllers: { [key: string]: any } = {
-    file: File,
-    tag: Tag,
-    tag_group: TagGroup,
-    favourite: Favourite,
-    favourite_group: FavouriteGroup,
-    user: User,
-    user_group: UserGroup,
+    file: new File,
+    tag: new Tag,
+    tag_group: new TagGroup,
+    favourite: new Favourite,
+    favourite_group: new FavouriteGroup,
+    user: new User,
+    user_group: new UserGroup,
     // local: Local,
-    log: Log,
-    setting: Setting,
-    rate: Rate,
-    onlyoffice: OnlyOffice,
-    share: Share,
-    dev: 0,
+    log: new Log,
+    setting: new Setting,
+    rate: new Rate,
+    onlyoffice: new OnlyOffice,
+    share: new Share,
+    dev: false,
 }
 
 export default async function (
@@ -46,7 +46,7 @@ export default async function (
     // console.info([_, prefix, c, a]);
     // console.info(controllers[c], controllers[c] ? controllers[c][a] : null);
     if (!controllers[c]) throw new Error('controller not found');
-    const controller = (new controllers[c]());
+    const controller = controllers[c];
     // console.info(controller);
     if (!controller[a]) throw new Error('action not found');
     // console.info(_, c, a, FileController, controller, controller[a]);

@@ -1,40 +1,40 @@
 {
-  "name": "vue-project",
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite --host 0.0.0.0 --port 8085 -l info",
-    "build": "vite build",
-    "preview": "vite preview --port 4173",
-    "build-only": "vite build",
-    "type-check": "vue-tsc --noEmit",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
+  "name"           : "my_nas_fe",
+  "version"        : "1.0.0",
+  "type"           : "module",
+  "scripts"        : {
+	"dev"       : "vite --host 0.0.0.0 --port 8085 -l info",
+	"build"     : "vite build",
+	"preview"   : "vite preview --port 4173",
+	"build-only": "vite build",
+	"type-check": "vue-tsc --noEmit",
+	"lint"      : "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
-  "dependencies": {
-    "@types/jwt-encode": "^1.0.3",
-    "jszip": "^3.10.1",
-    "jwt-encode": "^1.0.1",
-    "natsort": "^2.0.3",
-    "pinia": "^2.1.7",
-    "vue": "^3.4.29",
-    "vue-router": "^4.4.0"
+  "dependencies"   : {
+	"@types/jwt-encode": "^1.0.3",
+	"jszip"            : "^3.10.1",
+	"jwt-encode"       : "^1.0.1",
+	"natsort"          : "^2.0.3",
+	"pinia"            : "^2.1.7",
+	"vue"              : "^3.4.29",
+	"vue-router"       : "^4.4.0"
   },
   "devDependencies": {
-    "@rushstack/eslint-patch": "^1.8.0",
-    "@tsconfig/node20": "^20.1.4",
-    "@types/node": "^20.14.5",
-    "@vitejs/plugin-vue": "^5.0.5",
-    "@vue/eslint-config-typescript": "^13.0.0",
-    "@vue/language-server": "^2.2.0",
-    "@vue/tsconfig": "^0.5.1",
-    "cross-spawn": "^7.0.6",
-    "eslint": "^8.56.0",
-    "eslint-plugin-vue": "^9.23.0",
-    "micromatch": "^4.0.8",
-    "nanoid": "^3.3.8",
-    "sass": "^1.77.6",
-    "typescript": "~5.4.0",
-    "vite": "^5.3.6",
-    "vue-tsc": "^2.0.21"
+	"@rushstack/eslint-patch"      : "^1.8.0",
+	"@tsconfig/node20"             : "^20.1.4",
+	"@types/node"                  : "^20.14.5",
+	"@vitejs/plugin-vue"           : "^5.0.5",
+	"@vue/eslint-config-typescript": "^13.0.0",
+	"@vue/language-server"         : "^2.2.0",
+	"@vue/tsconfig"                : "^0.5.1",
+	"cross-spawn"                  : "^7.0.6",
+	"eslint"                       : "^8.56.0",
+	"eslint-plugin-vue"            : "^9.23.0",
+	"micromatch"                   : "^4.0.8",
+	"nanoid"                       : "^3.3.8",
+	"sass"                         : "^1.77.6",
+	"typescript"                   : "~5.4.0",
+	"vite"                         : "^5.3.6",
+	"vue-tsc"                      : "^2.0.21"
   }
 }
