@@ -80,6 +80,7 @@ allow_rate = 917504
 allow_container = ['mp4', 'ogg', 'webm', 'm4a', ]
 #nvenc
 #ff_encoder = '-c:v av1_nvenc -profile:v main10 -preset slow -tune hq -cq 22 -bf 3 -pix_fmt p010le -multipass qres -rc-lookahead 32'
+#ff_encoder = '-c:v hevc_nvenc -profile:v main10 -preset slow -tune hq -qp 20 -bf 3 -pix_fmt p010le -multipass qres -rc-lookahead 32'
 #quicksync
 #ff_encoder = '-c:v av1_qsv -profile:v main -preset slow -q:v 27 -bf 3 -pix_fmt p010le'
 #cpu
