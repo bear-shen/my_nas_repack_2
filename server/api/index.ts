@@ -78,18 +78,17 @@ init().then(() => {
     console.info('temp dir:', config.path.temp);
     console.info('file dir:', config.path.root);
     //重置自增id，用于修复导入数据时的id混乱
-    (new ORM).execute(`select setval('auth_id_seq', (select max(id) from auth));`);
-    // (new ORM).execute(`select setval('cache_id_seq',(select max(id) from cache))`);
-    (new ORM).execute(`select setval('favourite_id_seq', (select max(id) from favourite));`);
-    (new ORM).execute(`select setval('favourite_group_id_seq', (select max(id) from favourite_group));`);
-    (new ORM).execute(`select setval('node_id_seq', (select max(id) from node));`);
-    (new ORM).execute(`select setval('queue_id_seq', (select max(id) from queue));`);
-    (new ORM).execute(`select setval('rate_id_seq', (select max(id) from rate));`);
-    (new ORM).execute(`select setval('settings_id_seq', (select max(id) from settings));`);
-    (new ORM).execute(`select setval('tag_id_seq', (select max(id) from tag));`);
-    (new ORM).execute(`select setval('tag_group_id_seq', (select max(id) from tag_group));`);
-    (new ORM).execute(`select setval('user_id_seq', (select max(id) from "user"));`);
-    (new ORM).execute(`select setval('user_group_id_seq', (select max(id) from user_group));`);
+    (new ORM).execute(`SELECT setval(pg_get_serial_sequence('auth','id'), coalesce(max(id), 1)) from auth;`);
+    (new ORM).execute(`SELECT setval(pg_get_serial_sequence('favourite','id'), coalesce(max(id), 1)) from favourite;`);
+    (new ORM).execute(`SELECT setval(pg_get_serial_sequence('favourite_group','id'), coalesce(max(id), 1)) from favourite_group;`);
+    (new ORM).execute(`SELECT setval(pg_get_serial_sequence('node','id'), coalesce(max(id), 1)) from node;`);
+    (new ORM).execute(`SELECT setval(pg_get_serial_sequence('queue','id'), coalesce(max(id), 1)) from queue;`);
+    (new ORM).execute(`SELECT setval(pg_get_serial_sequence('rate','id'), coalesce(max(id), 1)) from rate;`);
+    (new ORM).execute(`SELECT setval(pg_get_serial_sequence('settings','id'), coalesce(max(id), 1)) from "settings";`);
+    (new ORM).execute(`SELECT setval(pg_get_serial_sequence('tag','id'), coalesce(max(id), 1)) from tag;`);
+    (new ORM).execute(`SELECT setval(pg_get_serial_sequence('tag_group','id'), coalesce(max(id), 1)) from tag_group;`);
+    (new ORM).execute(`SELECT setval(pg_get_serial_sequence('user','id'), coalesce(max(id), 1)) from "user";`);
+    (new ORM).execute(`SELECT setval(pg_get_serial_sequence('user_group','id'), coalesce(max(id), 1)) from user_group;`);
 });
 
 function parseForm(req: IncomingMessage): Promise<ParsedForm> {
