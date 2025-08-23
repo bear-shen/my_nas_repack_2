@@ -19,7 +19,7 @@ ENV pg_database='toshokan'
 
 # Use production node environment by default.
 ENV NODE_ENV=production
-ENV SRC=/app
+ENV SRC=/myNas
 #https://serverfault.com/questions/949991/how-to-install-tzdata-on-a-ubuntu-docker-image
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Etc/UTC
@@ -33,9 +33,9 @@ COPY . .
 # Leverage a cache mount to /root/.npm to speed up subsequent builds.
 # Leverage a bind mounts to package.json and package-lock.json to avoid having to copy them into
 # into this layer.
-RUN chmod -R 0777 /app/docker/server_init.sh &&\
-    chmod -R 0777 /app/docker/server_start.sh &&\
-    /app/docker/server_init.sh
+RUN chmod -R 0777 /myNas/docker/server_init.sh &&\
+    chmod -R 0777 /myNas/docker/server_start.sh &&\
+    /myNas/docker/server_init.sh
 
 # Expose the port that the application listens on.
 EXPOSE 80
@@ -43,4 +43,4 @@ EXPOSE 80
 # Run the application as a non-root user.
 USER root
 
-ENTRYPOINT /app/docker/server_start.sh
+ENTRYPOINT /myNas/docker/server_start.sh

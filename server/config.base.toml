@@ -38,7 +38,7 @@ pdf = ['pdf']
 office = ['doc', 'docm', 'docx', 'dot', 'dotm', 'dotx', 'epub', 'odt', 'ott', 'rtf', 'wps', 'wpt', 'csv', 'et', 'ett', 'xls', 'xlsb', 'xlsm', 'xlsx', 'xlt', 'xltm', 'xltx', 'dps', 'dpt', 'pot', 'potm', 'potx', 'pps', 'ppsm', 'ppsx', 'ppt', 'pptm', 'pptx']
 
 [path]
-root = '/app/file'
+root = '/myNas/file'
 root_web = '/file'
 api = '/api'
 webdav = '/webdav'

@@ -7,8 +7,8 @@ Type=simple
 User=root
 Restart=on-failure
 RestartSec=5s
-ExecStart=/usr/bin/rclone mount {{rcloneConfig}}:/ {{rcloneMountPath}} --vfs-cache-mode full --allow-other --umask 0 --log-file /app/log/rclone.log
-WorkingDirectory=/app
+ExecStart=/usr/bin/rclone mount dav230:/ /myNas/file --vfs-cache-mode full --allow-other --umask 0 --log-file /myNas/log/rclone.log
+WorkingDirectory=/myNas
 
 [Install]
 WantedBy=multi-user.target

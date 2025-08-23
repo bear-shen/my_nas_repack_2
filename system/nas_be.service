@@ -7,8 +7,8 @@ Type=simple
 User=root
 Restart=on-failure
 RestartSec=5s
-ExecStart=/usr/local/bin/npm run serve >> /app/log/nas_be.log
-WorkingDirectory=/app/server/
+ExecStart=/usr/local/bin/npm run serve >> /myNas/log/nas_be.log
+WorkingDirectory=/myNas/server/
 
 [Install]
 WantedBy=multi-user.target

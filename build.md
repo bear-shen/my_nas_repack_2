@@ -60,7 +60,7 @@ RUN cd $SRC &&\
 #    cd ../  &&\
 
 
-tail -f /app/log/server_verbose.log /app/log/server_err.log
+tail -f /myNas/log/server_verbose.log /myNas/log/server_err.log
 tail -f /var/log/nginx/localhost_error.log /var/log/nginx/localhost_access.log
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -139,9 +139,9 @@ RUN apt-get update && apt-get install -y nginx mysql
 # 暴露端口
 EXPOSE 80 3306
 # 创建一个挂载目录
-VOLUME /app
+VOLUME /myNas
 # 将应用程序复制到挂载目录
-COPY . /app
+COPY . /myNas
 # 配置Nginx和MySQL
 # ...
 # 指定容器启动时运行的命令
@@ -149,26 +149,26 @@ CMD ["nginx", "-g", "daemon off;"]
 
 详细解释
 EXPOSE 80 3306: 声明容器运行时应该监听80和3306端口。
-VOLUME /app: 创建一个名为/app的挂载点。
-COPY . /app: 将构建上下文中的所有文件复制到容器内的/app目录。
+VOLUME /myNas: 创建一个名为/myNas的挂载点。
+COPY . /myNas: 将构建上下文中的所有文件复制到容器内的/myNas目录。
 CMD ["nginx", "-g", "daemon off;"]: 指定容器启动时运行Nginx命令，并以非守护进程的方式运行，方便在容器内直接查看日志
 
 # 构建镜像
 docker build -t my-image .
-# 运行容器，将容器的80端口映射到宿主机的80端口，并将宿主机的/data目录挂载到容器的/app目录
-docker run -d -p 80:80 -v /data:/app my-image
+# 运行容器，将容器的80端口映射到宿主机的80端口，并将宿主机的/data目录挂载到容器的/myNas目录
+docker run -d -p 80:80 -v /data:/myNas my-image
 
 docker build -t dev202411142236 .
-docker run -dit -p 80:80 -p 5432:5433 -v /data:/app/file --name dev202411142236 /bin/bash
-docker run -dit -p 88:80 -p 5434:5432 -v /data:/app/file dev202411142341
+docker run -dit -p 80:80 -p 5432:5433 -v /data:/myNas/file --name dev202411142236 /bin/bash
+docker run -dit -p 88:80 -p 5434:5432 -v /data:/myNas/file dev202411142341
 
 docker build -t dev202411271717 .
-docker run -dit -p 88:80 -p 5434:5432 -v E:\app\file:/app/file dev202411271717
-tail -f /app/log/server*
+docker run -dit -p 88:80 -p 5434:5432 -v E:\app\file:/myNas/file dev202411271717
+tail -f /myNas/log/server*
 
 
 docker build -f .\Dockerfile -t 0xee/my_nas:2.0 .
-docker run -dit -p 88:80 -p 5434:5432 -v /data:/app/file 0xee/my_nas:2.0
+docker run -dit -p 88:80 -p 5434:5432 -v /data:/myNas/file 0xee/my_nas:2.0
 docker commit e34a43225b922e475b7d299c51b3715f937fda6dd48d7231367d5f5ec9f18b2e 0xee/my_nas:2.0
 docker push 0xee/my_nas:2.0
 
