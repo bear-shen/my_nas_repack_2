@@ -9,7 +9,6 @@ import TagModel from "../../model/TagModel";
 import TagGroupModel from "../../model/TagGroupModel";
 import QueueModel from "../../model/QueueModel";
 import fs from "node:fs/promises";
-import {splitQuery} from "../../lib/ModelHelper";
 
 const exec = util.promisify(require('child_process').exec);
 
@@ -86,43 +85,54 @@ class FileJob {
                 }
                 //
                 //subtitle
-                const filePath = fp.mkLocalPath(fp.mkRelPath(node, 'raw'));
-                const meta = await FFMpeg.loadMeta(filePath);
-                // console.info(meta);
-                const subMap = await FFMpeg.videoExtractSub(meta);
-                // console.info(subMap);
-                if (subMap.size) {
-                    const parserConfig = Config.get().parser.subtitle;
-                    const subArr = Array.from(subMap, ([subTitle, ffStr]) => ({
-                        subTitle, ffStr
-                    }));
-                    for (let i1 = 0; i1 < subArr.length; i1++) {
-                        let ffStr = subArr[i1].ffStr;
-                        let subTitle = subArr[i1].subTitle ?? 'sub' + i1;
-                        const subNodeTitle = [
-                            fp.filename(node.title),
-                            subTitle,
-                            parserConfig.format
-                        ].join('.');
-                        const ifDup = await fp.ifTitleExist(node.id_parent, subNodeTitle);
-                        if (ifDup) continue;
-                        //
-                        let nFileInfo: col_node;
-                        try {
-                            const tmpFilePath = fp.genTmpPath(parserConfig.format);
-                            const exeStr = parseFFStr(ffStr, filePath, tmpFilePath);
-                            const {stdout, stderr} = await exec(exeStr);
-                            console.info(stdout, stderr);
-                            nFileInfo = await fp.put(tmpFilePath, node.id_parent, subNodeTitle, 'raw');
-                            //更新状态
-                            if (nFileInfo.id) {
-                                await (new NodeModel()).where('id', nFileInfo.id).update({
-                                    building: 0,
-                                });
+                const nodeFileName = fp.filename(node.title);
+                //不提取已有字幕的视频的字幕，省点流量
+                const curNodeList = await fp.ls(node.id_parent);
+                let ifSubExs = false;
+                curNodeList.forEach(node => {
+                    if (node.type != 'subtitle') return;
+                    if (node.title.indexOf(nodeFileName) == -1) return;
+                    ifSubExs = true;
+                });
+                if (!ifSubExs) {
+                    const filePath = fp.mkLocalPath(fp.mkRelPath(node, 'raw'));
+                    const meta = await FFMpeg.loadMeta(filePath);
+                    // console.info(meta);
+                    const subMap = await FFMpeg.videoExtractSub(meta);
+                    // console.info(subMap);
+                    if (subMap.size) {
+                        const parserConfig = Config.get().parser.subtitle;
+                        const subArr = Array.from(subMap, ([subTitle, ffStr]) => ({
+                            subTitle, ffStr
+                        }));
+                        for (let i1 = 0; i1 < subArr.length; i1++) {
+                            let ffStr = subArr[i1].ffStr;
+                            let subTitle = subArr[i1].subTitle ?? 'sub' + i1;
+                            const subNodeTitle = [
+                                nodeFileName,
+                                subTitle,
+                                parserConfig.format
+                            ].join('.');
+                            const ifDup = await fp.ifTitleExist(node.id_parent, subNodeTitle);
+                            if (ifDup) continue;
+                            //
+                            let nFileInfo: col_node;
+                            try {
+                                const tmpFilePath = fp.genTmpPath(parserConfig.format);
+                                const exeStr = parseFFStr(ffStr, filePath, tmpFilePath);
+                                const {stdout, stderr} = await exec(exeStr);
+                                console.info(stdout, stderr);
+                                nFileInfo = await fp.put(tmpFilePath, node.id_parent, subNodeTitle, 'raw');
+                                //更新状态
+                                if (nFileInfo.id) {
+                                    await (new NodeModel()).where('id', nFileInfo.id).update({
+                                        building: 0,
+                                    });
+                                }
+                            } catch (e) {
+                                console.info(e);
+                                ifErr = true;
                             }
-                        } catch (e) {
-                            console.info(e);
-                            ifErr = true;
                         }
                     }
                 }
