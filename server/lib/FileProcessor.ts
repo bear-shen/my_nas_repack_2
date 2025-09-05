@@ -721,7 +721,7 @@ export function getType(suffix: string): type_file {
 
 export function titleFilter(title: string) {
     if (!title || !title.length) throw new Error('invalid title');
-    let res = title.replace(/[`\\\/:*?"<>|#%　]+/igm, ' ')
+    let res = title.replace(/[`\\\/:*?"<>|#%　$]+/igm, ' ')
         .replace('‛', ' ')
         .replace('／', ' ')
         .replace('：', ' ')
