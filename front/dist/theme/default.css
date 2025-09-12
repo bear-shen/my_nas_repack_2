@@ -280,6 +280,7 @@ body.theme_default .hinter > div {
 }
 body.theme_default .hinter > li:hover, body.theme_default .hinter > li.active {
   background-color: hsla(210, 10%, 8%, 0.75);
+  color: rgb(212.3, 212.3, 212.3);
 }
 body.theme_default .rater:hover {
   color: rgb(212.3, 212.3, 212.3);

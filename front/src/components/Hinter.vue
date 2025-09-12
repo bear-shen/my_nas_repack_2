@@ -201,6 +201,7 @@ function setFocus() {
       //background-color: fade-out(map-get($colors, bk), 3), 0.5
       &:hover, &.active {
         background-color:  map.get($colors, popup_active);
+        color:  map.get($colors, font_active);
         //background-color: fade-out(map-get($colors, bk), 8), 0.5
       }
     }

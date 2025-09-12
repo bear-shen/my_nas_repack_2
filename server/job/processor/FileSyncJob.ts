@@ -213,6 +213,10 @@ async function syncDir(localRoot: string, rootNode: col_node) {
             await parseTagFile(localRoot, rootNode.id);
             continue;
         }
+        if (subFileLs[i1].name == '_info.json') {
+            await parseInfoFile(localRoot, rootNode.id);
+            continue;
+        }
         //规范化文件名
         const fTitle = fp.titleFilter(subFileLs[i1].name);
         if (subFileLs[i1].name != fTitle) {
@@ -427,6 +431,78 @@ async function parseTagFile(localRoot: string, rootId: number) {
     for (let i1 = 0; i1 < tagContent.length; i1++) {
         let groupName = tagContent[i1][0];
         let tagName = tagContent[i1][1];
+        //
+        let ifGroupExs = await (new TagGroupModel).where('title', groupName).first();
+        if (!ifGroupExs) {
+            await (new TagGroupModel).insert({
+                title: groupName,
+                description: '',
+                id_node: 0,
+                sort: 0,
+                status: 1,
+            });
+            ifGroupExs = await (new TagGroupModel).where('title', groupName).first();
+        }
+        //
+        let ifTagExs = await (new TagModel).where('title', tagName).where('id_group', ifGroupExs.id).first();
+        if (!ifTagExs) {
+            await (new TagModel).insert({
+                id_group: ifGroupExs.id,
+                alt: [tagName],
+                description: tagName,
+                index_tag: [tagName],
+                status: 1,
+                title: tagName,
+            });
+            ifTagExs = await (new TagModel).where('title', tagName).where('id_group', ifGroupExs.id).first();
+        }
+        tagIdSet.add(ifTagExs.id);
+    }
+    if (!tagIdSet.size) return;
+    await (new NodeModel()).where('id', rootId).update({
+        tag_id_list: Array.from(tagIdSet),
+    });
+    await (new QueueModel).insert({
+        type: 'file/buildIndex',
+        payload: {id: rootId},
+        status: 1,
+    });
+}
+
+async function parseInfoFile(localRoot: string, rootId: number) {
+    const rootNode = await (new NodeModel).where('id', rootId).first();
+    if (!rootNode) return;
+    // console.info(rootNode);
+    if (rootNode.tag_id_list && rootNode.tag_id_list.length) {
+        return;
+    }
+    //
+    const infoFilePath = localRoot + '/' + '_info.json';
+    const infoContentBuffer = await fs.readFile(infoFilePath);
+    if (!infoContentBuffer || !infoContentBuffer.length) return;
+
+    let infoContent: { [key: string]: any };
+    try {
+        let t = infoContentBuffer.toString();
+        infoContent = JSON.parse(t);
+    } catch (e) {
+        return;
+    }
+    if (!infoContent) return;
+    if (!infoContent.tag) return;
+    let tagIdSet = new Set<number>();
+    const infoTagList = infoContent.tag as string[]
+    for (let i1 = 0; i1 < infoTagList.length; i1++) {
+        const tagArr = infoTagList[i1].split(":");
+        if (!tagArr.length) continue;
+        if (tagArr.length < 2) continue;
+        if (tagArr.length > 2) {
+            for (let i2 = 2; i2 < tagArr.length; i2++) {
+                tagArr[1] += ':' + tagArr[i2];
+            }
+        }
+        let groupName = tagArr[0];
+        let tagName = tagArr[1];
         //
         let ifGroupExs = await (new TagGroupModel).where('title', groupName).first();
         if (!ifGroupExs) {

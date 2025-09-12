@@ -280,6 +280,7 @@ body.theme_solarized_dark .hinter > div {
 }
 body.theme_solarized_dark .hinter > li:hover, body.theme_solarized_dark .hinter > li.active {
   background-color: hsla(192.2033898305, 80.8219178082%, -0.6862745098%, 0.5);
+  color: hsl(50, 50%, 86%);
 }
 body.theme_solarized_dark .rater:hover {
   color: hsl(50, 50%, 86%);

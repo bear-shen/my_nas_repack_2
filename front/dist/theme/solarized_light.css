@@ -280,6 +280,7 @@ body.theme_solarized_light .hinter > div {
 }
 body.theme_solarized_light .hinter > li:hover, body.theme_solarized_light .hinter > li.active {
   background-color: rgba(248.92, 227.64, 169.88, 0.75);
+  color: rgb(74.8643902439, 93.5804878049, 99.5356097561);
 }
 body.theme_solarized_light .rater:hover {
   color: rgb(74.8643902439, 93.5804878049, 99.5356097561);
