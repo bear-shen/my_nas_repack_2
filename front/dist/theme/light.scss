@@ -415,6 +415,7 @@ body.theme_light {
     > li {
       &:hover, &.active {
         background-color: map.get($colors, popup_active);
+        color: map.get($colors, font_active);
       }
     }
   }

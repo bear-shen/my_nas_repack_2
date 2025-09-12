@@ -443,6 +443,7 @@ body.theme_warm {
     > li {
       &:hover, &.active {
         background-color: map.get($colors, popup_active);
+        color: map.get($colors, font_active);
       }
     }
   }

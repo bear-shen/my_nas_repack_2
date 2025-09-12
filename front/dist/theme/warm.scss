@@ -4,11 +4,11 @@
 body.theme_warm {
   //$colorDef_bk: rgba(25, 49, 52, 1);
   //$colorDef_font: rgb(210, 200, 165);
-  $colorDef_bk: hsl(20deg, 42%, 90%);
+  $colorDef_bk: hsl(30deg, 100%, 92.5%);
   $colorDef_bk_l2: hsl(0deg, 42%, 42%);
-  $colorDef_bk_l3: hsl(0deg, 42%, 63%);
-  $colorDef_bk_l4: hsl(10deg, 42%, 84%);
-  $colorDef_bk_l5: hsl(10deg, 42%, 96%);
+  $colorDef_bk_l3: hsl(10deg, 63%, 63%);
+  $colorDef_bk_l4: hsl(20deg, 84%, 84%);
+  $colorDef_bk_l5: hsl(30deg, 100%, 97.5%);
   //$colorDef_bk_l3: #ede5d7;
   $colorDef_font: hsl(345, 30%, 30%);
   $colorDef_font_sub: #c58f9c;
@@ -443,6 +443,7 @@ body.theme_warm {
     > li {
       &:hover, &.active {
         background-color: map.get($colors, popup_active);
+        color: map.get($colors, font_active);
       }
     }
   }
@@ -566,7 +567,7 @@ body.theme_warm {
         &:nth-child(2n-1) {
           background-color: map.get($colors, bar_meta);
         }
-        &:hover,&.active {
+        &:hover, &.active {
           background-color: map.get($colors, bar_vertical);
           color: map.get($colors, bk);
         }
@@ -580,8 +581,8 @@ body.theme_warm {
       color: map.get($colors, bk);
     }
   }
-  .sh_fr_body.showDetail{
-    .sh_fr_detail{
+  .sh_fr_body.showDetail {
+    .sh_fr_detail {
       background-color: map.get($colors, bk);
       color: map.get($colors, bar_vertical);
     }
