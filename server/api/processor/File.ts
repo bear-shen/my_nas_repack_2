@@ -283,6 +283,7 @@ export default class {
                 if (!node.tag_id_list || !node.tag_id_list.length) return;
                 node.tag_id_list.forEach(tagId => {
                     const tag = tagMap.get(tagId);
+                    if (!tag) return;
                     iTagGroupIdSet.add(tag.id_group);
                 });
                 iTagGroupIdSet.forEach(groupId => {

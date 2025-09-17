@@ -20,6 +20,7 @@ body {
   background-color: sass_map.get($colors, bk);
   color: sass_map.get($colors, font);
   font-family: sans-serif;
+  touch-action: none;
 }
 table {
   border-collapse: collapse;
