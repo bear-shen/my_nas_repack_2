@@ -32,7 +32,7 @@ export class GestureHelper {
     }
 
     private onPointerDown(e: PointerEvent) {
-        console.info(e, this);
+        // console.info(e, this);
         if (e.pointerType !== 'touch') return;
         const ifExs = this.pointerMap.get(e.pointerId);
         if (ifExs) return;

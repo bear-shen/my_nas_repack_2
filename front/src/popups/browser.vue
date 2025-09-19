@@ -126,11 +126,11 @@ onMounted(() => {
       let deg = 20;
       if (gestureEvt.length > window.innerWidth * 0.2) {
         if (gestureEvt.degree < deg || gestureEvt.degree > 360 - deg) {
-          goNav(curIndex.value, +1);
+          goNav(curIndex.value, -1);
           gestureHelper.reset();
         }
         if (gestureEvt.degree > 180 - deg && gestureEvt.degree < 180 + deg) {
-          goNav(curIndex.value, -1);
+          goNav(curIndex.value, +1);
           gestureHelper.reset();
         }
       }
