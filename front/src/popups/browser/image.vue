@@ -5,7 +5,7 @@ import GenFunc from "@/lib/GenFunc";
 import {mayTyping} from "@/lib/Helper";
 import * as kvStore from '@/lib/IndexedKVStore';
 import * as LocalConfigure from "@/shares/LocalConfigure";
-import type { nodePropsType } from "@/types/browser";
+import type {nodePropsType} from "@/types/browser";
 // import piexif from 'piexif-ts';
 
 
@@ -15,9 +15,9 @@ const props = defineProps<{
   isActive: boolean,
   //
   file: nodePropsType,
-  dom:{
-    w:number,
-    h:number,
+  dom: {
+    w: number,
+    h: number,
   }
 }>();
 const emits = defineEmits(["nav"]);
@@ -56,7 +56,7 @@ const imgSrc: Ref<string> = ref('');
 
 
 async function onImageLoad(e: Event) {
-  console.info('onImageLoad',e);
+  console.info('onImageLoad', e);
   const dom = imgDOM.value;
   if (!dom) return;
   if (!dom.complete) {
@@ -115,7 +115,7 @@ onMounted(() => {
 watch(
   () => props.file,
   async (to) => {
-    console.info('onMod props.curNode',props.file.normal);
+    console.info('onMod props.curNode', props.file.normal);
     //先预加载再更新到前台，不然中间会有一个闪屏
     imgLayout.value.loaded = 0;
     const newSrc = props.file.normal;
@@ -209,6 +209,9 @@ type DragData = {
 const pointerMap = new Map<number, DragData>();
 
 function onPointerDown(e: PointerEvent) {
+  //锁定滚轮的时候屏蔽触摸缩放，用手势模块操作
+  if (scrollLock.value && e.pointerType === 'touch') return;
+  //
   if (!props.isActive) return;
   // console.info(e);
   if (!e.pointerId) return;
@@ -230,6 +233,8 @@ function onPointerDown(e: PointerEvent) {
 }
 
 function onPointerMove(e: PointerEvent) {
+  if (scrollLock.value && e.pointerType === 'touch') return;
+  //
   if (!props.isActive) return;
   // console.info(e);
   if (!e.pointerId) return;
@@ -239,6 +244,8 @@ function onPointerMove(e: PointerEvent) {
 }
 
 function onPointerUp(e: PointerEvent) {
+  if (scrollLock.value && e.pointerType === 'touch') return;
+  //
   const orgDragData = pointerMap.get(e.pointerId);
   if (!orgDragData) return;
   pointerMap.delete(e.pointerId);
@@ -356,7 +363,7 @@ function doTransform(e: PointerEvent) {
 
 const scrollLock: Ref<boolean> = ref(LocalConfigure.get("browser_image_scrollLock") ?? false);
 
-function setScrollLock(target:boolean) {
+function setScrollLock(target: boolean) {
   scrollLock.value = target;
   LocalConfigure.set("browser_image_scrollLock", target);
 }
@@ -472,7 +479,7 @@ function keymap(e: KeyboardEvent) {
   }
 }
 
-function setRotate(deg:number) {
+function setRotate(deg: number) {
   let layout = {
     rotate: imgLayout.value.rotate,
     // orgH: imgLayout.value.orgH,
