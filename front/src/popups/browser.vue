@@ -17,6 +17,7 @@ import * as LocalConfigure from "@/shares/LocalConfigure";
 // import {useEventStore} from "@/shares/event";
 import type {col_node, type_file,} from "../../../share/Database";
 import Config from "@/Config";
+import {GestureHelper} from "@/lib/GestureHelper";
 import type {nodePropsType} from "@/types/browser";
 
 
@@ -100,6 +101,7 @@ function toggleDetail() {
 }
 
 //------------------
+let gestureHelper: GestureHelper;
 onMounted(() => {
   // console.info("mounted");
   document.addEventListener("keydown", keymap);
@@ -115,11 +117,34 @@ onMounted(() => {
     if (document.activeElement)
       (document.activeElement as HTMLElement).blur();
   }, 100);
+  const dom = document.querySelector(`[data-ref-id='${props.modalData.nid}']`);
+  if (dom) {
+    gestureHelper = new GestureHelper(dom);
+    gestureHelper.onMove((gestureEvt, e) => {
+      // console.info(gestureEvt, gestureEvt.degree, gestureEvt.length,);
+      //检测角度
+      let deg = 20;
+      if (gestureEvt.length > window.innerWidth * 0.2) {
+        if (gestureEvt.degree < deg || gestureEvt.degree > 360 - deg) {
+          goNav(curIndex.value, +1);
+          gestureHelper.reset();
+        }
+        if (gestureEvt.degree > 180 - deg && gestureEvt.degree < 180 + deg) {
+          goNav(curIndex.value, -1);
+          gestureHelper.reset();
+        }
+      }
+    });
+  }
+
 });
 onUnmounted(() => {
   // console.info("unmounted");
   document.removeEventListener("keydown", keymap);
   document.removeEventListener(`modal_resizing_${props.modalData.nid}`, resizingListener);
+  if (gestureHelper) {
+    gestureHelper.destory();
+  }
 });
 // setTimeout(() => {
 // props.modalData.base.title = "dev browser";
