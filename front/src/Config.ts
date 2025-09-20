@@ -85,6 +85,7 @@ export default {
         ['solarized_dark', './theme/solarized_dark.css',],
         ['solarized_light', './theme/solarized_light.css',],
         ['warm', './theme/warm.css',],
+        ['heart', './theme/heart.css',],
     ],
     navList: [],
     coverKeyword: ['cover', 'album',

@@ -1,15 +1,14 @@
 @use "sass:color";
 @use "sass:map";
 //
-body.theme_warm {
+body.theme_heart {
   //$colorDef_bk: rgba(25, 49, 52, 1);
   //$colorDef_font: rgb(210, 200, 165);
-  $colorDef_bk: hsl(26, 53%, 94%);
-
-  $colorDef_bk_l2: hsl(344, 19%, 27%);
-  $colorDef_bk_l3: hsl(355, 50%, 44%);
-  $colorDef_bk_l4: hsl(32, 46%, 89%);
-  $colorDef_bk_l5: hsl(32, 46%, 89%);
+  $colorDef_bk: hsl(325, 46%, 95%);
+  $colorDef_bk_l2: hsl(309, 7%, 20%);
+  $colorDef_bk_l3: hsl(346, 17%, 28%);
+  $colorDef_bk_l4: hsl(352, 38%, 50%);
+  $colorDef_bk_l5: hsl(0, 0%, 100%);
   //$colorDef_bk_l3: #ede5d7;
   $colorDef_font: hsl(345, 30%, 30%);
   $colorDef_font_sub: #c58f9c;
@@ -143,10 +142,14 @@ body.theme_warm {
   }
   .content_meta {
     background-color: map.get($colors, bar_meta);
+    color: map.get($colors, bk);
+    a,
     input,
-      //button,
+    button,
+    label,
     select {
       background-color: map.get($colors, bar_meta);
+      color: map.get($colors, bk);
     }
     .crumb {
       .item:hover {
@@ -182,7 +185,7 @@ body.theme_warm {
     .user li:hover,
     .navi a:hover {
       background-color: map.get($colors, bar_meta);
-      color: map.get($colors, font);
+      color: map.get($colors, bk);
     }
   }
   .fr_navi {
