@@ -23,7 +23,7 @@ body.theme_heart .modal_alpha::before {
 body.theme_heart button,
 body.theme_heart select, body.theme_heart .btn {
   background-color: hsl(352, 38%, 50%);
-  color: hsl(345, 30%, 30%);
+  color: hsl(325, 46%, 95%);
 }
 body.theme_heart button:hover, body.theme_heart button.active,
 body.theme_heart button option:checked,
@@ -32,7 +32,7 @@ body.theme_heart select.active,
 body.theme_heart select option:checked, body.theme_heart .btn:hover, body.theme_heart .btn.active,
 body.theme_heart .btn option:checked {
   background-color: hsl(352, 38%, 60%);
-  color: hsl(345, 30%, 36%);
+  color: hsl(0, 0%, 100%);
 }
 body.theme_heart input, body.theme_heart textarea {
   background-color: hsl(325, 46%, 95%);
@@ -52,11 +52,11 @@ body.theme_heart select.disabled, body.theme_heart .btn[disabled], body.theme_he
   color: #c58f9c;
 }
 body.theme_heart .buttonStyle {
-  color: hsl(345, 30%, 30%);
+  color: hsl(325, 46%, 95%);
 }
 body.theme_heart .buttonStyle:hover, body.theme_heart .buttonStyle.active {
   background-color: hsl(352, 38%, 60%);
-  color: hsl(345, 30%, 36%);
+  color: hsl(0, 0%, 100%);
 }
 body.theme_heart .fr_header,
 body.theme_heart .fr_footer {
@@ -123,7 +123,7 @@ body.theme_heart .fr_popup .modal_dom.active .modal_content {
   background-color: hsla(325, 46%, 101%, 0.5);
 }
 body.theme_heart .fr_popup .modal_dom {
-  box-shadow: 0px 0px 2px hsl(309, 7%, 26%);
+  box-shadow: 0px 0px 2px hsl(345, 30%, 30%);
   /*input, textarea {
     background-color: map.get($colors, popup_title);
     color: map.get($colors, bk);
@@ -137,7 +137,7 @@ body.theme_heart .fr_popup .modal_dom {
   }*/
 }
 body.theme_heart .fr_popup .modal_dom .modal_header {
-  background-color: hsl(309, 7%, 26%);
+  background-color: hsl(345, 30%, 30%);
   color: hsl(325, 46%, 95%);
 }
 body.theme_heart .fr_popup .modal_dom .modal_header .buttonStyle {
@@ -148,11 +148,11 @@ body.theme_heart .fr_popup .modal_dom .modal_content {
 }
 body.theme_heart .fr_popup .modal_dom .modal_content_form > span:last-child input,
 body.theme_heart .fr_popup .modal_dom .modal_content_form > span:last-child textarea {
-  border-bottom: 1px solid hsl(309, 7%, 26%);
+  border-bottom: 1px solid hsl(345, 30%, 30%);
 }
 body.theme_heart .fr_popup .modal_dom button,
 body.theme_heart .fr_popup .modal_dom select, body.theme_heart .fr_popup .modal_dom .btn {
-  background-color: hsl(309, 7%, 26%);
+  background-color: hsl(345, 30%, 30%);
   color: hsl(325, 46%, 95%);
 }
 body.theme_heart .fr_popup .modal_dom button:hover, body.theme_heart .fr_popup .modal_dom button.active,
@@ -161,29 +161,30 @@ body.theme_heart .fr_popup .modal_dom select:hover,
 body.theme_heart .fr_popup .modal_dom select.active,
 body.theme_heart .fr_popup .modal_dom select option:checked, body.theme_heart .fr_popup .modal_dom .btn:hover, body.theme_heart .fr_popup .modal_dom .btn.active,
 body.theme_heart .fr_popup .modal_dom .btn option:checked {
-  color: hsl(309, 7%, 26%);
+  color: hsl(345, 30%, 30%);
   background-color: hsl(325, 46%, 95%);
 }
 body.theme_heart .view_fav .list_fav_group {
   background-color: hsl(352, 38%, 50%);
 }
 body.theme_heart .view_fav .list_fav_group .fav_group:hover, body.theme_heart .view_fav .list_fav_group .fav_group.active {
-  background-color: hsl(325, 46%, 95%);
+  background-color: hsl(352, 38%, 60%);
 }
 body.theme_heart .view_fav .list_fav_group .fav_group > div {
-  color: #c58f9c;
+  color: hsl(325, 46%, 95%);
 }
 body.theme_heart .view_fav .list_fav_group .fav_group .title {
-  color: hsl(345, 30%, 30%);
+  color: hsl(325, 46%, 95%);
   background-color: transparent;
 }
 body.theme_heart .view_fav .list_fav_group .fav_group table {
-  color: #c58f9c;
+  color: hsl(0, 0%, 100%);
 }
-body.theme_heart .view_fav .list_fav_group .fav_group table select {
-  color: #c58f9c;
+body.theme_heart .view_fav .list_fav_group .fav_group table td:last-child select, body.theme_heart .view_fav .list_fav_group .fav_group table select {
+  color: hsl(0, 0%, 100%);
 }
 body.theme_heart .view_log .form, body.theme_heart .view_share .form {
+  color: hsl(325, 46%, 95%);
   background-color: hsl(352, 38%, 50%);
 }
 body.theme_heart .view_log .form input,
@@ -202,29 +203,54 @@ body.theme_heart .view_setting table td.editing, body.theme_heart .view_setting 
 body.theme_heart .view_tag .list_tag_group {
   background-color: hsl(352, 38%, 50%);
 }
+body.theme_heart .view_tag .list_tag_group .tag_group {
+  color: hsl(325, 46%, 95%);
+}
 body.theme_heart .view_tag .list_tag_group .tag_group:hover, body.theme_heart .view_tag .list_tag_group .tag_group.active {
-  background-color: hsl(325, 46%, 95%);
+  background-color: hsl(352, 38%, 60%);
+  color: hsl(325, 46%, 95%);
 }
 body.theme_heart .view_tag .list_tag_group .tag_group > div {
-  color: #c58f9c;
+  color: hsl(325, 46%, 95%);
 }
 body.theme_heart .view_tag .list_tag_group .tag_group .title {
-  color: hsl(345, 30%, 30%);
+  color: hsl(0, 0%, 100%);
+  background-color: transparent;
 }
 body.theme_heart .view_tag .list_tag_group .tag_group .node span:last-child {
-  color: #c58f9c;
+  color: hsl(325, 46%, 95%);
 }
 body.theme_heart .view_tag .list_tag_group .tag_group.edit .title, body.theme_heart .view_tag .list_tag_group .tag_group.edit .description, body.theme_heart .view_tag .list_tag_group .tag_group.edit .operator, body.theme_heart .view_tag .list_tag_group .tag_group.edit .hinter > div, body.theme_heart .view_tag .list_tag_group .tag_group.edit .content_editor {
   background-color: hsl(325, 46%, 95%);
+  color: hsl(352, 38%, 60%);
+}
+body.theme_heart .view_tag .list_tag_group .tag_group.edit .operator > div:last-child {
+  margin-top: calc(-0.5em + 1px);
+}
+body.theme_heart .view_tag .list_tag_group .tag_group.edit .buttonStyle {
+  background-color: hsl(352, 38%, 50%);
+  color: hsl(325, 46%, 95%);
+}
+body.theme_heart .view_tag .list_tag_group .tag_group.edit .buttonStyle:hover {
+  background-color: hsl(352, 38%, 60%);
+  color: hsl(0, 0%, 100%);
 }
 body.theme_heart .view_tag .list_tag_group .hinter > div, body.theme_heart .view_tag .list_tag_group .content_editor {
   background-color: hsl(0, 0%, 100%);
+  color: hsl(352, 38%, 60%);
 }
 body.theme_heart .view_tag .list_tag .tag {
   color: #c58f9c;
 }
 body.theme_heart .view_tag .list_tag .tag .title {
   color: hsl(345, 30%, 30%);
+}
+body.theme_heart .view_tag .list_tag .tag .buttonStyle {
+  color: #c58f9c;
+}
+body.theme_heart .view_tag .list_tag .tag .buttonStyle:hover {
+  background-color: hsl(352, 38%, 60%);
+  color: hsl(0, 0%, 100%);
 }
 body.theme_heart .view_tag .list_tag .tag.edit {
   background-color: hsl(0, 0%, 100%);
@@ -238,17 +264,23 @@ body.theme_heart .view_tag .list_tag .tag:hover, body.theme_heart .view_tag .lis
 body.theme_heart .view_user .list_user_group {
   background-color: hsl(352, 38%, 50%);
 }
+body.theme_heart .view_user .list_user_group .user_group {
+  color: hsl(325, 46%, 95%);
+}
 body.theme_heart .view_user .list_user_group .user_group:hover, body.theme_heart .view_user .list_user_group .user_group.active {
-  background-color: hsl(325, 46%, 95%);
+  background-color: hsl(352, 38%, 60%);
+  color: hsl(325, 46%, 95%);
 }
 body.theme_heart .view_user .list_user_group .user_group > * {
-  color: #c58f9c;
+  color: hsl(325, 46%, 95%);
 }
 body.theme_heart .view_user .list_user_group .user_group .title {
-  color: hsl(345, 30%, 30%);
+  color: hsl(0, 0%, 100%);
+  background-color: transparent;
 }
 body.theme_heart .view_user .list_user_group .user_group.edit > .content_editor, body.theme_heart .view_user .list_user_group .user_group.edit dl, body.theme_heart .view_user .list_user_group .user_group.edit > div {
   background-color: hsl(325, 46%, 95%);
+  color: hsl(352, 38%, 60%);
 }
 body.theme_heart .view_user .list_user_group .user_group.edit .operator input[type=checkbox]:checked + label, body.theme_heart .view_user .list_user_group .user_group.edit .operator input[type=radio]:checked + label {
   color: hsl(345, 30%, 30%);
@@ -270,6 +302,13 @@ body.theme_heart .view_user .list_user .user {
 }
 body.theme_heart .view_user .list_user .user .title {
   color: hsl(345, 30%, 30%);
+}
+body.theme_heart .view_user .list_user .user .buttonStyle {
+  color: #c58f9c;
+}
+body.theme_heart .view_user .list_user .user .buttonStyle:hover {
+  background-color: hsl(352, 38%, 60%);
+  color: hsl(0, 0%, 100%);
 }
 body.theme_heart .view_user .list_user .user.edit {
   background-color: hsl(0, 0%, 100%);

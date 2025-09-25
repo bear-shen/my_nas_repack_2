@@ -34,7 +34,7 @@ body.theme_heart {
     //弹窗标题栏
     //弹窗背景
     //弹窗背景 高亮
-          popup_title:color.adjust($colorDef_bk_l2, $lightness: 6%),
+          popup_title:$colorDef_font,
           popup:color.adjust($colorDef_bk, $lightness: -6%, $alpha: -0.5),
           popup_active:color.adjust($colorDef_bk, $lightness: 6%, $alpha: -0.5),
           context:color.adjust($colorDef_bk, $lightness: -6%, $alpha: -0.25),
@@ -91,12 +91,12 @@ body.theme_heart {
   button,
   select, .btn {
     background-color: map.get($colors, button);
-    color: map.get($colors, font);
+    color: map.get($colors, bk);
     &:hover,
     &.active,
     option:checked {
       background-color: map.get($colors, button_active);
-      color: map.get($colors, font_active);
+      color: map.get($colors, bk_active);
     }
   }
   input, textarea {
@@ -122,10 +122,10 @@ body.theme_heart {
   //
   .buttonStyle {
     background-color: map.get($colors, transparent);
-    color: map.get($colors, font);
+    color: map.get($colors, bk);
     &:hover, &.active {
       background-color: map.get($colors, button_active);
-      color: map.get($colors, font_active);
+      color: map.get($colors, bk_active);
     }
   }
   // frame src ----------------------------
@@ -257,22 +257,22 @@ body.theme_heart {
   // views ----------------------------
   .view_fav {
     .list_fav_group {
-      background-color: map.get($colors, bar_meta);
+      background-color: map.get($colors, button);
       .fav_group {
         &:hover, &.active {
-          background-color: map.get($colors, bar_meta_active);
+          background-color: map.get($colors, button_active);
         }
         > div {
-          color: map.get($colors, font_sub);
+          color: map.get($colors, bk);
         }
         .title {
-          color: map.get($colors, font);
+          color: map.get($colors, bk);
           background-color: transparent;
         }
         table {
-          color: map.get($colors, font_sub);
-          select {
-            color: map.get($colors, font_sub);
+          color: map.get($colors, bk_active);
+          td:last-child select, select {
+            color: map.get($colors, bk_active);
           }
         }
       }
@@ -280,6 +280,7 @@ body.theme_heart {
   }
   .view_log, .view_share {
     .form {
+      color: map.get($colors, bk);
       background-color: map.get($colors, bar_meta);
       input,
       button,
@@ -302,20 +303,23 @@ body.theme_heart {
   }
   .view_tag {
     .list_tag_group {
-      background-color: map.get($colors, bar_meta);
+      background-color: map.get($colors, button);
       .tag_group {
+        color: map.get($colors, bk);
         &:hover, &.active {
-          background-color: map.get($colors, bar_meta_active);
+          background-color: map.get($colors, button_active);
+          color: map.get($colors, bk);
         }
         > div {
-          color: map.get($colors, font_sub);
+          color: map.get($colors, bk);
         }
         .title {
-          color: map.get($colors, font);
+          color: map.get($colors, bk_active);
+          background-color: transparent;
         }
         .node {
           span:last-child {
-            color: map.get($colors, font_sub);
+            color: map.get($colors, bk);
           }
           span {
           }
@@ -323,11 +327,25 @@ body.theme_heart {
         &.edit {
           .title, .description, .operator, .hinter > div, .content_editor {
             background-color: map.get($colors, bar_meta_active);
+            color: map.get($colors, button_active);
+          }
+          .operator > div:last-child {
+            margin-top: calc(-0.5em + 1px);
+            //align-items: self-end;
+          }
+          .buttonStyle {
+            background-color: map.get($colors, button);
+            color: map.get($colors, bk);
+            &:hover {
+              background-color: map.get($colors, button_active);
+              color: map.get($colors, bk_active);
+            }
           }
         }
       }
       .hinter > div, .content_editor {
         background-color: map.get($colors, bk_active);
+        color: map.get($colors, button_active);
       }
     }
     .list_tag {
@@ -336,6 +354,13 @@ body.theme_heart {
           color: map.get($colors, font);
         }
         color: map.get($colors, font_sub);
+        .buttonStyle {
+          color: map.get($colors, font_sub);
+          &:hover {
+            background-color: map.get($colors, button_active);
+            color: map.get($colors, bk_active);
+          }
+        }
       }
       .tag.edit {
         background-color: map.get($colors, bk_active);
@@ -350,20 +375,24 @@ body.theme_heart {
   }
   .view_user {
     .list_user_group {
-      background-color: map.get($colors, bar_meta);
+      background-color: map.get($colors, button);
       .user_group {
+        color: map.get($colors, bk);
         &:hover, &.active {
-          background-color: map.get($colors, bar_meta_active);
+          background-color: map.get($colors, button_active);
+          color: map.get($colors, bk);
         }
         > * {
-          color: map.get($colors, font_sub);
+          color: map.get($colors, bk);
         }
         .title {
-          color: map.get($colors, font);
+          color: map.get($colors, bk_active);
+          background-color: transparent;
         }
         &.edit {
           > .content_editor, dl, > div {
             background-color: map.get($colors, bar_meta_active);
+            color: map.get($colors, button_active);
           }
           .operator {
             input[type='checkbox'], input[type='radio'] {
@@ -393,6 +422,13 @@ body.theme_heart {
           color: map.get($colors, font);
         }
         color: map.get($colors, font_sub);
+        .buttonStyle {
+          color: map.get($colors, font_sub);
+          &:hover {
+            background-color: map.get($colors, button_active);
+            color: map.get($colors, bk_active);
+          }
+        }
       }
       .user.edit {
         background-color: map.get($colors, bk_active);
