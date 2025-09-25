@@ -3,7 +3,7 @@ import {onBeforeUnmount, onMounted, ref, type Ref, watch} from "vue";
 import GenFunc from "@/lib/GenFunc";
 import * as LocalConfigure from "@/shares/LocalConfigure";
 import {mayTyping} from "@/lib/Helper";
-import type { nodePropsType } from "@/types/browser";
+import type {nodePropsType} from "@/types/browser";
 
 const props = defineProps<{
   extId: string,
@@ -11,18 +11,18 @@ const props = defineProps<{
   isActive: boolean,
   //
   file: nodePropsType,
-  dom:{
-    w:number,
-    h:number,
+  dom: {
+    w: number,
+    h: number,
   }
 }>();
-const emits = defineEmits(["nav"]);
+const emits = defineEmits(["nav", 'preventGesture']);
 
 const contentDOM: Ref<HTMLElement | null> = ref(null);
 const timelineDOM: Ref<HTMLElement | null> = ref(null);
 const mediaDOM: Ref<HTMLAudioElement | null> = ref(null);
 const resPath: Ref<string> = ref('');
-if (props.file.normal.length) {
+if (props.file.normal) {
   resPath.value = props.file.normal;
 } else {
   resPath.value = props.file.raw;
@@ -58,6 +58,7 @@ const volumeKey = LocalConfigure.listen("browser_play_volume", (v) =>
 const brightnessKey = LocalConfigure.listen("browser_play_brightness", (v) =>
   Object.assign(mediaMeta.value, {brightness: v})
 );
+let bufferTimer: number | NodeJS.Timeout = 0;
 
 
 //dom的loadedmetadata触发
@@ -144,7 +145,7 @@ onMounted(async () => {
 watch(() => props.file, async (to) => {
   onRelease();
   // beforeInit();
-  if (props.file.normal.length) {
+  if (props.file.normal) {
     resPath.value = props.file.normal;
   } else {
     resPath.value = props.file.raw;
@@ -162,7 +163,6 @@ onBeforeUnmount(() => {
   clearInterval(bufferTimer);
 });
 
-let bufferTimer:NodeJS.Timeout|number = 0;
 
 function modBuffered() {
   if (!mediaDOM.value) return;
@@ -210,6 +210,7 @@ function onBarDragging(e: PointerEvent) {
   if (!dom) return;
   const timeline = timelineDOM.value;
   if (!timeline) return;
+  emits("preventGesture", props.extId);
   pointerId = e.pointerId;
   document.addEventListener("pointermove", pointerBarMoveListener);
   document.addEventListener("pointerup", pointerBarUpListener);
@@ -260,6 +261,7 @@ function pointerBarUpListener(e: PointerEvent) {
   Object.assign(dragData, {active: false});
   document.removeEventListener("pointermove", pointerBarMoveListener);
   document.removeEventListener("pointerup", pointerBarUpListener);
+  emits("preventGesture", props.extId, true);
 }
 
 function onContentDragging(e: PointerEvent) {
@@ -408,7 +410,8 @@ function parseTime(t: number) {
     <div class="base">
       <div class="l">
         <slot name="info"></slot>
-        <div class="btnContainer">
+        <div class="btnContainer"
+        >
           <button
             :class="{
               sysIcon: true,

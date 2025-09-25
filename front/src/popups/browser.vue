@@ -102,6 +102,7 @@ function toggleDetail() {
 
 //------------------
 let gestureHelper: GestureHelper;
+const preventGestureEvtSet = new Set<string>();
 onMounted(() => {
   // console.info("mounted");
   document.addEventListener("keydown", keymap);
@@ -121,6 +122,7 @@ onMounted(() => {
   if (dom) {
     gestureHelper = new GestureHelper(dom);
     gestureHelper.onMove((gestureEvt, e) => {
+      if (preventGestureEvtSet.has(props.modalData.nid)) return;
       // console.info(gestureEvt, gestureEvt.degree, gestureEvt.length,);
       //检测角度
       let deg = 20;
@@ -311,6 +313,15 @@ function goNav(curNavIndex: number, offset: number, counter: number = 0): any {
 function emitNav(index: number) {
   let delta = index - curIndex.value;
   goNav(curIndex.value, delta);
+}
+
+function emitPreventGesture(nid: string, release: boolean) {
+  console.info('emitPreventGesture', nid);
+  if (release) {
+    preventGestureEvtSet.delete(nid);
+  } else {
+    preventGestureEvtSet.add(nid);
+  }
 }
 
 function isValidNode(node: api_node_col) {
@@ -675,6 +686,7 @@ function setRater(rateVal: string) {
                :dom="domProps"
 
                @nav="emitNav"
+               @preventGesture="emitPreventGesture"
     >
       <template v-slot:info>
         <div :class="{ info: true, detail: showDetail }">

@@ -3,7 +3,7 @@ import {onBeforeUnmount, onMounted, ref, type Ref, watch} from "vue";
 import GenFunc from "@/lib/GenFunc";
 import * as LocalConfigure from "@/shares/LocalConfigure";
 import {mayTyping} from "@/lib/Helper";
-import type { nodePropsType, nodePropsType_sub } from "@/types/browser";
+import type {nodePropsType, nodePropsType_sub} from "@/types/browser";
 
 const props = defineProps<{
   extId: string,
@@ -11,12 +11,12 @@ const props = defineProps<{
   isActive: boolean,
   //
   file: nodePropsType,
-  dom:{
-    w:number,
-    h:number,
+  dom: {
+    w: number,
+    h: number,
   }
 }>();
-const emits = defineEmits(["nav"]);
+const emits = defineEmits(["nav", 'preventGesture']);
 
 const contentDOM: Ref<HTMLElement | null> = ref(null);
 const timelineDOM: Ref<HTMLElement | null> = ref(null);
@@ -58,8 +58,10 @@ const volumeKey = LocalConfigure.listen("browser_play_volume", (v) =>
 const brightnessKey = LocalConfigure.listen("browser_play_brightness", (v) =>
   Object.assign(mediaMeta.value, {brightness: v})
 );
-let bufferTimer :number|NodeJS.Timeout= 0;
+let bufferTimer: number | NodeJS.Timeout = 0;
 
+
+//dom的loadedmetadata触发
 function onInit(): any {
   console.info('onInit');
   const dom = mediaDOM.value;
@@ -228,6 +230,7 @@ function onBarDragging(e: PointerEvent) {
   if (!dom) return;
   const timeline = timelineDOM.value;
   if (!timeline) return;
+  emits("preventGesture", props.extId);
   pointerId = e.pointerId;
   document.addEventListener("pointermove", pointerBarMoveListener);
   document.addEventListener("pointerup", pointerBarUpListener);
@@ -278,6 +281,7 @@ function pointerBarUpListener(e: PointerEvent) {
   Object.assign(dragData, {active: false});
   document.removeEventListener("pointermove", pointerBarMoveListener);
   document.removeEventListener("pointerup", pointerBarUpListener);
+  emits("preventGesture", props.extId, true);
 }
 
 function onContentDragging(e: PointerEvent) {
@@ -421,7 +425,7 @@ function parseTime(t: number) {
 }
 
 const subtitleIndex = ref(0);
-const subtitleList:Ref<nodePropsType_sub[]> = ref([]);
+const subtitleList: Ref<nodePropsType_sub[]> = ref([]);
 
 function loadSubtitle() {
   // console.info(props.curNode.title);
@@ -429,7 +433,7 @@ function loadSubtitle() {
   let preStr = props.file.title?.substring(0, befInd) ?? '';
   // console.warn(preStr);
   if (!preStr) return subtitleList.value = [];
-  const subNode:nodePropsType_sub[] = [] ;
+  const subNode: nodePropsType_sub[] = [];
   props.file.sameName.forEach(node => {
     if (node.type !== 'subtitle') return;
     if (!(node.normal || node.raw)) return;
@@ -456,7 +460,8 @@ function toggleSubtitle(index: number) {
     <div class="base">
       <div class="l">
         <slot name="info"></slot>
-        <div class="btnContainer">
+        <div class="btnContainer"
+        >
           <button
             :class="{
               sysIcon: true,
@@ -536,11 +541,11 @@ function toggleSubtitle(index: number) {
       >
         <source :src="resPath"/>
         <template v-for="(subtitle,index) in subtitleList" :key="'MO_BS_VDO_'+props.extId+'_track_'+index">
-            <track
-              :default="subtitleIndex==index?true:false"
-              :src="subtitle.normal?subtitle.normal:subtitle.raw" kind="subtitles"
-              :srclang="subtitle.title" :label="subtitle.title"
-            />
+          <track
+            :default="subtitleIndex==index?true:false"
+            :src="subtitle.normal?subtitle.normal:subtitle.raw" kind="subtitles"
+            :srclang="subtitle.title" :label="subtitle.title"
+          />
         </template>
       </video>
       <!--      @focus="console.info('focus',$event)"
