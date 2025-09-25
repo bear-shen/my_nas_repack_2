@@ -285,6 +285,14 @@ body.theme_heart .view_user .list_user_group .user_group.edit > .content_editor,
 body.theme_heart .view_user .list_user_group .user_group.edit .operator input[type=checkbox]:checked + label, body.theme_heart .view_user .list_user_group .user_group.edit .operator input[type=radio]:checked + label {
   color: hsl(345, 30%, 30%);
 }
+body.theme_heart .view_user .list_user_group .user_group.edit .buttonStyle {
+  background-color: hsl(352, 38%, 50%);
+  color: hsl(325, 46%, 95%);
+}
+body.theme_heart .view_user .list_user_group .user_group.edit .buttonStyle:hover {
+  background-color: hsl(352, 38%, 60%);
+  color: hsl(0, 0%, 100%);
+}
 body.theme_heart .view_user .list_user_group .user_group.edit .auth dt {
   color: hsl(345, 30%, 30%);
 }
