@@ -23,6 +23,7 @@ import type {
     api_file_upload_resp,
     api_node_col
 } from '../../../share/Api';
+import ORM from '../../lib/ORM';
 import NodeModel from '../../model/NodeModel';
 import GenFunc from '../../lib/GenFunc';
 import {col_favourite, col_node, col_rate, col_tag} from '../../../share/Database';
@@ -183,7 +184,7 @@ export default class {
         }
         if (request.rate) {
             model.whereRaw(
-                'id in (select id_node from rate where id_user = ? and rate >= ?)'
+                'id in (select id_node from rate where id_user = $0 and rate >= $0)'
                 , data.uid, request.rate
             )
             ;
@@ -202,7 +203,7 @@ export default class {
             model.limit(parseInt(request.limit));
         }
         // console.info(model.l)
-        // ORM.dumpSql = true;
+        //ORM.dumpSql = true;
         // console.info(model._dataset);
         // console.info(model._dataset.query);
         // console.info(model._dataset.queryPos);

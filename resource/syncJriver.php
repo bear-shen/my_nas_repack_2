@@ -60,10 +60,9 @@ foreach ($contentLs as $i => $row) {
     $node = null;
     $pid  = $rootNode['id'];
     foreach ($pathArr as $subTitle) {
-        $ifExs = ORMPG::table('node')->where('id_parent', $pid)->where('title', $subTitle)->first();
+        $ifExs = ORMPG::table('node')->where('id_parent', $node?$node['id']:$pid)->where('title', $subTitle)->first();
         if (empty($ifExs)) {
             echo $path, "\tnot found", "\r\n";
-//            exit();
             continue 2;
         }
         $node = $ifExs;
@@ -84,6 +83,7 @@ foreach ($contentLs as $i => $row) {
         ]);
     }
     ORMPG::table('node')->where('id', $node['id'])->update(['description' => $targetMeta['desc']]);
+    //exit();
 }
 
 @unlink($tmpFilePath);
