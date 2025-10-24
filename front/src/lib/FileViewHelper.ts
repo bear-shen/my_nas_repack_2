@@ -11,7 +11,7 @@ import type {
     api_node_col, api_rate_attach_resp, api_share_list_resp,
     api_tag_list_resp, api_file_list_resp
 }
-    from "../../share/Api";
+    from "../../../share/Api";
 import type {ModalConstruct, ModalFormConstruct} from "@/types/modal";
 import {mayInPopup, mayTyping, query} from "@/lib/Helper";
 import GenFunc from "@/lib/GenFunc";
@@ -26,6 +26,7 @@ import {FileStreamDownloaderV2, type StreamDownloadInputFileType} from "@/lib/Fi
 import * as kvStore from '@/lib/IndexedKVStore';
 import Config from "@/Config";
 import natsort from "natsort";
+import type { col_favourite, col_favourite_group } from "../../../share/Database";
 
 let opModuleVal: null | opModule;
 // const scrollLogKey = 'tosho_scroll_log';
@@ -49,7 +50,7 @@ export class opModule {
     // 因为是直接赋值的 queryData = Object.assign({
     // public queryData: { [key: string]: any }
     public modal: typeof Modal;
-    public context: Context;
+    public context: typeof Context;
 
     public mode: Ref<'detail' | 'text' | 'img' | string> = ref('');
     public modeKey: string = '';
@@ -817,12 +818,15 @@ export class opModule {
 
     //-----------------------
     public setSort(sort: string) {
-        console.info('setSort', sort);
+        // console.info('setSort',sort);
         LocalConfigure.set('file_view_sort', sort);
-        const preList = this.nodeList.value;
+        let tList:api_node_col[] = [];
+        this.nodeList.value.forEach(node=>tList.push(node));
+        tList=this.sortList(tList, this.sortVal.value);
+        //
         this.nodeList.value = [];
         setTimeout(() => {
-            this.nodeList.value = this.sortList(preList, this.sortVal.value);
+            this.nodeList.value = tList;
             this.setList(this.nodeList.value);
         }, Config.timeouts.sort);
     }
@@ -1246,8 +1250,8 @@ export class opFunctionModule {
     }
 
     public static async op_toggle_favourite(node: api_node_col) {
-        const favGroupLs = await query<api_favourite_group_list_resp>("favourite_group/get", {});
-
+        const favGroupLs:false|api_favourite_group_list_resp = await query<api_favourite_group_list_resp>("favourite_group/get", {});
+        if(favGroupLs===false)return;
         const favGroupOpts: { [key: string]: string } = {};
         if (favGroupLs) {
             favGroupLs.forEach((row) => {
@@ -1299,7 +1303,8 @@ export class opFunctionModule {
     }
 
     public static async op_bath_favourite(idSet: Set<number>, nodeLs: api_node_col[]) {
-        const favGroupLs = await query<api_favourite_group_list_resp>("favourite_group/get", {});
+        const favGroupLs:false|api_favourite_group_list_resp = await query<api_favourite_group_list_resp>("favourite_group/get", {});
+        if(favGroupLs===false)return;
         const favGroupOpts: { [key: string]: string } = {};
         if (favGroupLs) {
             favGroupLs.forEach((row) => {

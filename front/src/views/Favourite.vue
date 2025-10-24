@@ -186,7 +186,7 @@ function syncQuery(tQuery) {
   }
 }
 
-const nodeList: Ref<api_node_col[]> = ref([]);
+// const nodeList: Ref<api_node_col[]> = ref([]);
 let opModule: opModuleClass;
 
 function search() {
@@ -201,10 +201,10 @@ function search() {
   opModule.go(tQuery);
 }
 
-async function getList(replaceWith?: api_file_list_resp[]) {
+async function getList(replaceWith?: api_node_col[]) {
   console.info('getList', route.name);
   // console.warn('getList', route.name, JSON.stringify(queryData), JSON.stringify(searchBarQuery));
-  nodeList.value = [];
+  opModule.nodeList.value = [];
   if (!replaceWith) {
     // crumbList.value = [];
     switch (route.name) {
@@ -230,11 +230,11 @@ async function getList(replaceWith?: api_file_list_resp[]) {
     if (!res) return;
     // console.info(res);
     // crumbList.value = res.path;
-    nodeList.value = opModule.sortList(res.list, opModule.sortVal.value);
+    opModule.nodeList.value = opModule.sortList(res.list, opModule.sortVal.value);
   } else {
-    nodeList.value = replaceWith;
+    opModule.nodeList.value = replaceWith;
   }
-  if (opModule) opModule.setList(nodeList.value);
+  if (opModule) opModule.setList(opModule.nodeList.value);
   // console.info(crumbList);
   // return {crumb: crumbList.value, node: nodeList.value};
 }
@@ -250,9 +250,9 @@ function emitGo(type: string, code?: number) {
       break;
     case "node":
       let node;
-      for (let i1 = 0; i1 < nodeList.value.length; i1++) {
-        if (nodeList.value[i1].id !== code) continue;
-        node = nodeList.value[i1];
+      for (let i1 = 0; i1 < opModule.nodeList.value.length; i1++) {
+        if (opModule.nodeList.value[i1].id !== code) continue;
+        node = opModule.nodeList.value[i1];
         break;
       }
       if (!node) break;
@@ -583,14 +583,16 @@ function tag_del(groupIndex: number, tagIndex: number) {
         </template>
       </div>
       <div :class="['list_fav',`mode_${opModule?opModule.mode.value:''}`,]">
+        <template v-if="opModule">
         <FileItem
-          v-for="(node, nodeIndex) in nodeList"
+          v-for="(node, nodeIndex) in opModule.nodeList.value"
           :key="nodeIndex"
           :node="node"
           :index="nodeIndex"
           :selected="false"
           @go="emitGo"
         ></FileItem>
+      </template>
         <!--      @go="emitGo"-->
       </div>
     </div>

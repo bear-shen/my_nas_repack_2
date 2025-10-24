@@ -74,13 +74,13 @@ onBeforeRouteUpdate(async (to) => {
 
 //
 let crumbList: Ref<api_node_col[]> = ref([]);
-let nodeList: Ref<api_node_col[]> = ref([]);
+// let nodeList: Ref<api_node_col[]> = ref([]);
 let opModule: opModuleClass;
 
 async function getList(replaceWith?: api_file_list_resp[]) {
   console.info('getList', route.name);
   // console.warn('getList', route.name, JSON.stringify(queryData), JSON.stringify(searchBarQuery));
-  nodeList.value = [];
+  opModule.nodeList.value = [];
   if (!replaceWith) {
     crumbList.value = [];
     switch (route.name) {
@@ -106,13 +106,13 @@ async function getList(replaceWith?: api_file_list_resp[]) {
     if (!res) return;
     // console.info(res);
     crumbList.value = res.path;
-    nodeList.value = opModule.sortList(res.list, opModule.sortVal.value);
+    opModule.nodeList.value = opModule.sortList(res.list, opModule.sortVal.value);
   } else {
-    nodeList.value = replaceWith as api_node_col[];
+    opModule.nodeList.value = replaceWith as api_node_col[];
   }
-  if (opModule) opModule.setList(nodeList.value);
+  if (opModule) opModule.setList(opModule.nodeList.value);
   // console.info(crumbList);
-  return {crumb: crumbList.value, node: nodeList.value};
+  return {crumb: crumbList.value, node: opModule.nodeList.value};
 }
 
 function addFolder() {
@@ -230,9 +230,9 @@ function emitGo(type: string, code?: number) {
       break
     case 'node':
       let node
-      for (let i1 = 0; i1 < nodeList.value.length; i1++) {
-        if (nodeList.value[i1].id !== code) continue;
-        node = nodeList.value[i1];
+      for (let i1 = 0; i1 < opModule.nodeList.value.length; i1++) {
+        if (opModule.nodeList.value[i1].id !== code) continue;
+        node = opModule.nodeList.value[i1];
         break;
       }
       if (!node) break;
@@ -473,14 +473,16 @@ async function onPasteBinOperate(keyMap: string[]) {
       </div>
     </div>
     <div :class="['content_detail', `mode_${opModule?opModule.mode.value:''}`]" ref='contentDOM'>
+      <template v-if="opModule">
       <FileItem
-        v-for='(node, nodeIndex) in nodeList'
+        v-for='(node, nodeIndex) in opModule.nodeList.value'
         :key='node.id'
         :node='node'
         :index='nodeIndex'
         :selected='false'
         @go='emitGo'
       ></FileItem>
+      </template>
       <!--      @on-select="emitSelect"-->
     </div>
     <!--    @click="selectNode($event,node)"-->

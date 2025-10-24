@@ -151,6 +151,7 @@ function emp(e: Event) {
        :data-id="node.id"
        ref="curDOM"
   >
+       <!-- :data-offset="node._offsets?.join(',')" -->
     <template v-if="mode === 'detail'">
       <div class="content">
         <template v-if="node.status">
