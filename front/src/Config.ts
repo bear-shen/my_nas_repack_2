@@ -13,6 +13,7 @@ export default {
         'text',
         'pdf',
         'office',
+        'media',
     ],
     indexedDBName: 'tosho_db',
     timeouts: {
@@ -87,7 +88,11 @@ export default {
         ['warm', './theme/warm.css',],
         ['heart', './theme/heart.css',],
     ],
-    navList: [],
+    navList: [] as {
+        name:string,
+        path:string,
+        meta:{cur:boolean},
+    }[],
     coverKeyword: ['cover', 'album',
         'bk', 'cd',
     ],

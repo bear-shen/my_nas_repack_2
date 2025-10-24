@@ -104,7 +104,7 @@ function tag_parse(item: api_tag_col) {
 }
 
 
-async function op_dblclick(evt: MouseEvent) {
+async function op_dblclick(evt: MouseEvent|PointerEvent) {
   console.info('op_dblclick', props.node.id, evt);
   // props.node.id
   go('node', props.node.id);
@@ -116,14 +116,14 @@ async function op_dblclick(evt: MouseEvent) {
 
 let lastClick = (new Date()).valueOf();
 
-async function op_click(evt: PointerEvent) {
+async function op_click(evt: PointerEvent|MouseEvent) {
   // console.info('op_click', evt);
   const now = (new Date()).valueOf();
   const delta = now - lastClick;
   lastClick = now;
   // return;
   // console.info(evt);
-  switch (evt?.pointerType) {
+  switch ((evt as PointerEvent)?.pointerType) {
     default:
     case 'mouse':
     case 'pen':

@@ -118,7 +118,7 @@ onMounted(() => {
     if (document.activeElement)
       (document.activeElement as HTMLElement).blur();
   }, 100);
-  const dom = document.querySelector(`[data-ref-id='${props.modalData.nid}']`);
+  const dom = document.querySelector(`[data-ref-id='${props.modalData.nid}']`) as HTMLElement;
   if (dom) {
     gestureHelper = new GestureHelper(dom);
     gestureHelper.onMove((gestureEvt, e) => {

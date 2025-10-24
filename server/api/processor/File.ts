@@ -180,6 +180,10 @@ export default class {
                 case 'file':
                     model.where('type', '!=', 'directory');
                     break;
+                    break;
+                case 'media':
+                    model.whereIn('type', ['audio','video',]);
+                    break;
             }
         }
         if (request.rate) {

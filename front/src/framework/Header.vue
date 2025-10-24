@@ -75,7 +75,7 @@ function switchTheme() {
   });
 }
 
-function setTheme(themeName) {
+function setTheme(themeName:string) {
   themeLs.forEach(theme => {
     const name = theme[0];
     const href = theme[1];
@@ -151,6 +151,10 @@ setTheme(curThemeName);
 .navi {
   display: flex;
   justify-content: space-between;
+  
+  @media (max-width: 800px) {
+    display: none;
+  }
   a {
     font-size: $fontSize;
     padding: 0 $fontSize * 0.5;

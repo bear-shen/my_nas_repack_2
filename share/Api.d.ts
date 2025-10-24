@@ -86,7 +86,7 @@ export type api_file_list_req = {
     //这个只是表示在当前文件夹中搜索
     cascade_dir?: '1' | '0' | string,
     //
-    node_type?: type_file | 'any' | 'file',
+    node_type?: type_file | 'any' | 'file'| 'media',
     // sort?: string,
     rate?: string,
     // detail: string,

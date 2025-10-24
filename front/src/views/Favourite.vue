@@ -6,7 +6,8 @@ import {onBeforeRouteUpdate, useRoute, useRouter,} from "vue-router";
 import GenFunc from "@/lib/GenFunc";
 import * as Modal from "@/shares/Modal";
 import ContentEditable from "@/components/ContentEditable.vue";
-import type {api_favourite_group_col, api_favourite_group_list_req, api_favourite_group_list_resp, api_favourite_group_mod_req, api_favourite_group_mod_resp, api_file_list_req, api_file_list_resp, api_node_col, api_tag_col, api_tag_list_resp} from "../../../share/Api";
+import type {
+  api_favourite_group_col, api_favourite_group_list_req, api_favourite_group_list_resp, api_favourite_group_mod_req, api_favourite_group_mod_resp, api_file_list_req, api_file_list_resp, api_node_col, api_tag_col, api_tag_list_resp} from "../../../share/Api";
 import {query} from "@/lib/Helper";
 import FileItem from "@/components/FileItem.vue";
 import type {opModule as opModuleClass} from "@/lib/FileViewHelper";
@@ -15,6 +16,7 @@ import {manualSort} from "@/lib/FileViewHelper";
 import Hinter from "@/components/Hinter.vue";
 import Rater from "@/components/Rater.vue";
 import Config from "@/Config";
+import type { col_favourite_group } from "../../../share/Database";
 
 //
 const contentDOM: Ref<HTMLElement | null> = ref(null);
@@ -24,10 +26,10 @@ let groupQueryData = {
   id: "",
   keyword: "",
 } as api_favourite_group_list_req;
-type api_favourite_group_col_local = (api_favourite_group_col & {
+type api_favourite_group_col_local = Required<col_favourite_group> &api_favourite_group_col& {
   edit?: boolean, ext_key?: number,
   node?: api_node_col,
-});
+};
 const groupList: Ref<(api_favourite_group_col_local)[]> = ref([]);
 const curGroup: Ref<api_favourite_group_col_local | null> = ref(null);
 const curGroupIndex: Ref<number> = ref(-1);
@@ -50,7 +52,7 @@ onMounted(async () => {
   });
   if (groupQueryData.id) {
     locateGroup();
-    syncQuery(route.query);
+    syncQuery(route.query as {[key:string]:string});
     await getList();
     await opModule.reloadScroll();
   }
@@ -67,13 +69,13 @@ onBeforeRouteUpdate(async (to) => {
   // await getGroup();
   if (groupQueryData.id) {
     locateGroup();
-    syncQuery(to.query);
+    syncQuery(to.query as {[key:string]:string});
     await getList();
   }
 });
 
 async function getGroup() {
-  const res = await query<api_favourite_group_list_resp>("favourite_group/get", groupQueryData);
+  const res = await query<api_favourite_group_list_resp>("favourite_group/get", groupQueryData) as api_favourite_group_col_local[];
   if (!res) return;
   const targetList = [];
   res.forEach((item) => {
@@ -91,7 +93,7 @@ async function delGroup(index: number) {
 
 async function modGroup(index: number) {
   console.info(groupList.value[index]);
-  const target = GenFunc.copyObject(groupList.value[index]) as api_favourite_group_mod_req;
+  const target = GenFunc.copyObject(groupList.value[index]) as any as api_favourite_group_mod_req;
   if (target.edit) {
     groupList.value[index].edit = false;
     target.meta = JSON.stringify(target.meta);
@@ -118,7 +120,7 @@ function addGroup(auto: 0 | 1) {
     },
     edit: true,
     ext_key: (new Date()).valueOf(),
-  });
+  } as api_favourite_group_col_local);
 }
 
 function locateGroup() {
@@ -143,19 +145,19 @@ async function goGroup(index: number) {
   });
 }
 
-let queryData: api_file_list_req = {
+let queryData: api_file_list_req & {[key:string]:string}= {
   mode: 'directory',
   id_dir: '',
   id_tag: '',
 };
-let searchBarQuery: api_file_list_req = {
+let searchBarQuery: api_file_list_req & {[key:string]:string} = {
   keyword: '',
-  node_type: '',
+  node_type: 'any',
   rate: '',
   cascade_dir: '1',
 };
 
-function syncQuery(tQuery) {
+function syncQuery(tQuery?:{[key:string]:string}) {
   if (!tQuery) return;
   for (let key in queryData) {
     if (!Object.prototype.hasOwnProperty.call(queryData, key)) continue;
@@ -193,7 +195,8 @@ function search() {
   const tQuery = GenFunc.copyObject(searchBarQuery);
   if (queryData.id_tag) tQuery.id_tag = queryData.id_tag;
   if (queryData.id_dir) tQuery.id_dir = queryData.id_dir;
-  if (!searchBarQuery.rate && !searchBarQuery.node_type && !searchBarQuery.keyword.trim()) {
+  if(searchBarQuery.keyword)searchBarQuery.keyword=searchBarQuery.keyword.trim();
+  if (!searchBarQuery.rate && !searchBarQuery.node_type && !searchBarQuery.keyword) {
     tQuery.mode = 'directory';
   } else {
     tQuery.mode = 'search';
@@ -217,7 +220,8 @@ async function getList(replaceWith?: api_node_col[]) {
         // queryData.group = 'favourite';
         break;
     }
-    let tQueryData: api_file_list_req = {id_fav: curGroup.value?.id};
+    let tQueryData: api_file_list_req = {};
+    if(curGroup.value?.id) tQueryData.id_fav=curGroup.value?.id.toString();
     switch (queryData.mode) {
       case 'directory':
         tQueryData = Object.assign(tQueryData, queryData);
@@ -288,7 +292,7 @@ function keymap(e: KeyboardEvent) {
     case 'NumpadEnter':
     case 'Enter':
       if (!e.target) return;
-      if (e.target.id !== 'searchBarInput') return;
+      if ((e.target as HTMLElement).id !== 'searchBarInput') return;
       search();
       break;
   }
@@ -559,7 +563,7 @@ function tag_del(groupIndex: number, tagIndex: number) {
             <a class='sysIcon sysIcon_fengefu'></a>
             <label v-if="opModule && opModule.sortVal">
               <span>Sort : </span>
-              <select v-model='opModule.sortVal.value' @change='opModule.setSort(sortVal)'>
+              <select v-model='opModule.sortVal.value' @change='opModule.setSort(opModule.sortVal.value)'>
                 <option v-for='(sortItem, key) in Config.sort' :value='key'
                         :key="`FV_SCH_CON_SORT_${key}`"
                 >
