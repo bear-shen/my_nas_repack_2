@@ -401,6 +401,14 @@ body.theme_heart {
               }
             }
           }
+          .buttonStyle {
+            background-color: map.get($colors, button);
+            color: map.get($colors, bk);
+            &:hover {
+              background-color: map.get($colors, button_active);
+              color: map.get($colors, bk_active);
+            }
+          }
           .auth dt {
             color: map.get($colors, font);
           }
